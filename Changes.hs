@@ -125,7 +125,8 @@ changeCoords m x y = Monster {
 	stddmg = stddmg m,
 	inv = inv m,
 	slowness = slowness m,
-	time = time m
+	time = time m,
+	weapon = weapon m
 }
 
 changeParts :: Monster -> [Part] -> Monster
@@ -138,7 +139,8 @@ changeParts m ps = Monster {
 	stddmg = stddmg m,
 	inv = inv m,
 	slowness = slowness m,
-	time = time m
+	time = time m,
+	weapon = weapon m
 }
 
 oldMessage :: World -> String
@@ -158,7 +160,8 @@ tickDownMon m = Monster {
 	stddmg = stddmg m,
 	inv = inv m,
 	slowness = slowness m,
-	time = time m - 1
+	time = time m - 1,
+	weapon = weapon m
 }
 
 resetTimeMon :: Monster -> Monster
@@ -171,7 +174,8 @@ resetTimeMon m = Monster {
 	stddmg = stddmg m,
 	inv = inv m,
 	slowness = slowness m,
-	time = effectiveSlowness m
+	time = effectiveSlowness m,
+	weapon = weapon m
 }
 
 
@@ -185,7 +189,8 @@ delObj c mon = Monster {
 	stddmg = stddmg mon,
 	inv = newinv,
 	slowness = slowness mon,
-	time = time mon
+	time = time mon,
+	weapon = weapon mon
 } where
 	[obj] = filter (\(x,_,_) -> KeyChar x == c) $ inv mon
 	newinv = 
@@ -207,7 +212,8 @@ decChargeByKey c mon = Monster {
 	stddmg = stddmg mon,
 	inv = map (\(x, obj,n) -> if x == c then (x, decCharge obj, n) else (x, obj, n)) $ inv mon,
 	slowness = slowness mon,
-	time = time mon
+	time = time mon,
+	weapon = weapon mon
 }
 
 decCharge :: Object -> Object
@@ -288,4 +294,16 @@ changeElem2 x y t tss
 	| x > 0 = head tss : changeElem2 (x - 1) y t (tail tss)
 	| x == 0 = changeElem y t (head tss) : tail tss
 
-
+changeWeapon :: Key -> Monster -> Monster
+changeWeapon c m = Monster {
+	ai = ai m,
+	parts = parts m,
+	x = x m,
+	y = y m,
+	name = name m,
+	stddmg = stddmg m,
+	inv = inv m,
+	slowness = slowness m,
+	time = time m,
+	weapon = fromKey c
+}

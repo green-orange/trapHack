@@ -38,11 +38,13 @@ data Monster = Monster {
 	stddmg :: StdDmg,
 	inv :: [(Char, Object, Int)],
 	slowness :: Int,
-	time :: Int
+	time :: Int,
+	weapon :: Char
 }
 
 type Terrain = Int
 data Object =
+	Something |
 	Potion {
 		title :: String,
 		act :: Monster -> Monster
@@ -56,11 +58,26 @@ data Object =
 	Trap {
 		title :: String,
 		num :: Int
+	} |
+	Missile {
+		title :: String,
+		objdmg :: StdDmg,
+		launcher :: String
+	} |
+	Launcher {
+		title :: String,
+		count :: Int,
+		category :: String
+	} |
+	Weapon {
+		title :: String,
+		objdmg :: StdDmg
 	}
 
 instance Eq Object where
 	(Potion t _) == (Potion t' _) = t == t'
 	(Trap t _) == (Trap t' _) = t == t'
+	(Missile t _ _) == (Missile t' _ _) = t == t'
 	_ == _ = False
 
 data World = World {

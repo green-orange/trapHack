@@ -4,6 +4,7 @@ import Data
 import Utils4stuff
 import Utils4all
 import Utils4mon
+import Random
 
 import System.Random
 
@@ -32,6 +33,7 @@ deathDrop "Bat" = genDeathDrop [(potionOfHealing,
 		if p < 0.5
 		then 1
 		else 2))]
+deathDrop "Hunter" = genDeathDrop [(bearTrap, const 1)]
 deathDrop _ = (\p -> ([], p))
 
 genDeathDrop :: [(Object, (Float -> Int))] -> StdGen -> ([(Char, Object, Int)], StdGen)
@@ -83,6 +85,18 @@ bearTrap :: Object
 bearTrap = Trap {
 	title = "bear trap",
 	num = bEARTRAP
+}
+
+arrow = Missile {
+	title = "arrow",
+	objdmg = dices [(1,5)] 0.2,
+	launcher = "bow"
+}
+
+bow = Launcher {
+	title = "bow",
+	count = 1,
+	category = "bow"
 }
 
 trapFromTerrain :: Terrain -> Object

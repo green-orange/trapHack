@@ -5,6 +5,7 @@ import Utils
 import Changes
 import Utils4all
 import Stuff
+import Utils4stuff
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (member, empty, size)
@@ -158,7 +159,8 @@ pickFirst world =
 		stddmg = stddmg oldMon,
 		inv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) $ map fst itemsToPick,
 		slowness = slowness oldMon,
-		time = time oldMon
+		time = time oldMon,
+		weapon = weapon oldMon
 	}
 	newItems = map fst rest
 	newMessage = oldMessage world ++ name mon ++ " pick" ++ ending world ++ "some objects."
@@ -202,4 +204,105 @@ untrapFirst world = rez where
 	trap = trapFromTerrain $ worldmap world !! x !! y
 	newMsg = (name mon) ++ " untrap" ++ ending world ++ title trap ++ "."
 	
+wieldFirst :: Key -> World -> (World, Bool)
+wieldFirst c world = rez where
+	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	rez =
+		if (length objects == 0)
+		then (addMessage (
+				if isPlayerNow world
+				then "You haven't this item!"
+				else ""
+			) failWorld, False)
+		else if not (isWeapon obj || isLauncher obj)
+		then (addMessage (
+				if isPlayerNow world
+				then "You don't know how to wield it!"
+				else ""
+			) failWorld, False)
+		else (addMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
+	(x, y, oldMon) = head $ units world
+	[(_, obj, _)] = objects
+	mon = changeWeapon c oldMon
+	failWorld = changeAction ' ' world
+	newMsg = (name oldMon) ++ " wield" ++ ending world ++ title obj ++ "."
+	
+fireFirst :: Key -> World -> (World, Bool)
+fireFirst c world = rez where
+	objects = filter (\(x, _, _) -> x == last (store world)) $ inv $ getFirst world
+	wielded =
+		if null listWield
+		then Something
+		else second $ head listWield
+	listWield = filter (\(x, _, _) -> x == weapon oldMon) $ inv $ getFirst world
+	rez =
+		if (length objects == 0)
+		then (addMessage (
+				if isPlayerNow world
+				then "You haven't this item!"
+				else ""
+			) failWorld, False)
+		else if not $ isMissile obj
+		then (addMessage (
+				if isPlayerNow world
+				then "You don't know how to fire it!"
+				else ""
+			) failWorld, False)
+		else if (weapon oldMon == ' ') 
+		then (addMessage (
+				if isPlayerNow world
+				then "You have no weapon!"
+				else ""
+			) failWorld, False)
+		else if (not $ isLauncher wielded) || (launcher obj /= category wielded)
+		then (addMessage (
+				if isPlayerNow world
+				then "You can't fire " ++ title obj ++ " by " ++ category wielded ++ "!"
+				else ""
+			) failWorld, False)
+		else if dir c == Nothing
+		then (addMessage (
+				if isPlayerNow world
+				then "It's not a direction!"
+				else ""
+			) failWorld, False)
+		else (changeStore (init $ store world) $ changeAction ' ' newWorld, True)
+	(x, y, oldMon) = head $ units world
+	maybeCoords = dirs world (x, y, dx, dy)
+	cnt = min n $ count wielded
+	newWorld = case maybeCoords of
+		Just (xNew, yNew) -> foldr (.) id (replicate cnt $ 
+			fire xNew yNew dx dy obj) $ changeMon (fulldel oldMon) world
+		Nothing -> failWorld
+	Just (dx, dy) = dir c
+	[(_, obj, n)] = objects
+	fulldel = foldr (.) id $ replicate cnt $ delObj $ KeyChar $ last $ store world
+	failWorld = changeStore (init $ store world) $ changeAction ' ' world
+	
+fire :: Int -> Int -> Int -> Int -> Object -> World -> World
+fire x y dx dy obj world = 
+	if incorrect
+	then world
+	else if null mons
+	then fire xNew yNew dx dy obj world
+	else newWorld
+	where
+		mons = filter (\(x', y', _) -> x == x' && y == y') $ units world
+		(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
+			Nothing -> (True, (0, 0))
+			Just p -> (False, p)
+		(newDmg, g) = objdmg obj world
+		(newMon, g') = dmgRandom newDmg (third $ head mons) g
+		actFilter arg@(x', y', mon) = 
+			if (x == x') && (y == y')
+			then (x', y', newMon)
+			else arg
+		msg = case newDmg of
+			Nothing -> capitalize (title obj) ++ " misses."
+			Just _ -> capitalize (title obj) ++ " hits " ++ name (third $ head mons) ++ "."
+		newWorld = addMessage msg $ changeGen g' $ changeMons (map actFilter $ units world) world
+		
+fireMon :: Key -> Char -> World -> World
+fireMon dir obj world = fst $ fireFirst dir $
+	changeStore (store world ++ [obj]) world
 	

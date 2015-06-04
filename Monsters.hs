@@ -18,7 +18,8 @@ getMonster ai ps name stddmg inv slow x y g = (Monster {
 	stddmg = stddmg,
 	inv = inv p,
 	slowness = slow,
-	time = slow
+	time = slow,
+	weapon = ' '
 }, newGen) where
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g
@@ -55,9 +56,10 @@ getPlayer x y = Monster {
 	y = y,
 	name = "You",
 	stddmg = dices [(1,10)] 0,
-	inv = [('a', potionOfHealing, 1), ('b', wandOfStriking 5, 1), ('c', bearTrap, 1)],
+	inv = [('a', bearTrap, 1), ('b', bow, 1), ('c', arrow, 10)],
 	slowness = 100,
-	time = 100
+	time = 100,
+	weapon = ' '
 }
 
 getHomunculus = getMonster (aiHumanoid stupidestAI)
@@ -90,6 +92,16 @@ getBat = getMonster randomAI
 	 getWing 10 2,
 	 getWing 10 2] 
 	"Bat" (dices [(3,5)] 0.2) (const []) 50
+	
+getHunter = getMonster (aiHunter $ aiHumanoid stupidAI) 
+	[getBody 20 1, 
+	 getHead 10 1,
+	 getLeg   5 1,
+	 getLeg   5 1,
+	 getArm   4 1,
+	 getArm   4 1]
+	 "Hunter" (dices [(1,6)] 0.3) 
+	 (\p -> [('a', arrow, inverseSquareRandom p), ('b', bow, 1)]) 70
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens
@@ -120,11 +132,12 @@ genWave n g =
 	else (genM : oldWave, g'')
 	where
 		p :: Int
-		(p, g') = randomR (0, 2) g
+		(p, g') = randomR (0, 3) g
 		(genM, d) = case p of
 			0 -> (getHomunculus, 2)
 			1 -> (getBeetle    , 3)
 			2 -> (getBat       , 1)
+			3 -> (getHunter    , 2)
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World

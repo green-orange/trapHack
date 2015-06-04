@@ -25,6 +25,18 @@ aiHumanoid ai world xPlayer yPlayer =
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		
+aiHunter :: AIfunc -> AIfunc
+aiHunter ai world xPlayer yPlayer =
+	if (weapon $ getFirst world) == ' '
+	then fst $ wieldFirst (KeyChar $ launcherAI world) world
+	else if (canFire $ getFirst world) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
+	then fireMon (undir dx dy) (missileAI world) world
+	else ai world xPlayer yPlayer
+	where
+		(xNow, yNow, _) = head $ units world
+		dx = signum $ xPlayer - xNow
+		dy = signum $ yPlayer - yNow
+		
 stupidestAI :: AIfunc -- monsters attack each other
 stupidestAI world xPlayer yPlayer = 
 	newWorld
@@ -90,11 +102,26 @@ healAI world = first $ head $ filter (isHealing . second) $ inv $ getFirst world
 canZapToAttack :: Monster -> Bool
 canZapToAttack mon = foldl (||) False $ map (isAttackWand . second) $ inv mon
 
+canFire :: Monster -> Bool
+canFire mon = haveMissile mon && haveLauncher mon
+
+haveMissile :: Monster -> Bool
+haveMissile mon = foldl (||) False $ map (isMissile . second) $ inv mon
+
+haveLauncher :: Monster -> Bool
+haveLauncher mon = foldl (||) False $ map (isLauncher . second) $ inv mon
+
 isAttackWand :: Object -> Bool
 isAttackWand obj = isWand obj && charge obj > 0 && title obj == "wand of striking"
 
 zapAI :: World -> Char
 zapAI world = first $ head $ filter (isAttackWand . second) $ inv $ getFirst world
+
+missileAI :: World -> Char
+missileAI world = first $ head $ filter (isMissile . second) $ inv $ getFirst world
+
+launcherAI :: World -> Char
+launcherAI world = first $ head $ filter (isLauncher . second) $ inv $ getFirst world
 
 isOnLine :: Int -> Int -> Int -> Int -> Int -> Bool
 isOnLine d x1 y1 x2 y2 = abs (x1 - x2) <= d && abs (y1 - y2) <= d &&

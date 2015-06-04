@@ -99,17 +99,21 @@ symbolMon "You"        = '@'
 symbolMon "Homunculus" = 'h'
 symbolMon "Beetle"     = 'a'
 symbolMon "Bat"        = 'B'
-symbolMon _            = error "wrong monster"
+symbolMon "Hunter"     = 'H'
+symbolMon _            = error "unknown monster"
 
 symbolTer :: Terrain -> Char
 symbolTer t
 	| t == eMPTY    = '.'
 	| t == bEARTRAP = '#'
-	| otherwise     = error "wrong terrain"
+	| otherwise     = error "unknown terrain"
 
 symbolItem :: Object -> Char
-symbolItem (Potion _ _)   = '!'
-symbolItem (Wand _ _ _ _) = '/'
-symbolItem (Trap _ _)     = '^'
-symbolItem _              = error "wrong object"
+symbolItem (Potion _ _)     = '!'
+symbolItem (Wand _ _ _ _)   = '/'
+symbolItem (Trap _ _)       = '^'
+symbolItem (Missile _ _ _)  = ']'
+symbolItem (Weapon _ _)     = ')'
+symbolItem (Launcher _ _ _) = '}'
+symbolItem _              = error "unknown object"
 

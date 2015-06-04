@@ -48,6 +48,19 @@ step world c =
 					if correct
 					then Just $ newWaveIf toTrap
 					else Just toTrap
+			'w' -> 
+				let (toWield, correct) = wieldFirst c world in
+				if correct
+				then Just $ newWaveIf toWield
+				else Just toWield
+			'f' ->
+				Just $ addMessage "In what direction?" $ changeAction 'F' $
+					changeStore (store world ++ [(fromKey c)]) $ world
+			'F' ->
+				let (toFire, correct) = fireFirst c world in
+				if correct
+				then Just $ newWaveIf toFire
+				else Just toFire
 			'd' ->
 				let (toDrop, correct) = dropFirst c world False in
 				if correct
@@ -85,25 +98,36 @@ justStep world c = case dir c of
 	Just (dx, dy) -> Just $ newWaveIf $ moveFirst world dx dy
 	Nothing -> case c of
 		KeyChar 'q' ->
-			let listOfDrinkable = sort $ foldr (:) [] $ map first 
+			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isPotion . second) $ inv $ getFirst world in
 			Just $ addMessage ("What do you want to drink? ["
-			 ++ listOfDrinkable ++ "]") $ changeAction 'q' world
+			 ++ list ++ "]") $ changeAction 'q' world
 		KeyChar 'z' ->
-			let listOfZappable = sort $ foldr (:) [] $ map first 
+			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isWand . second) $ inv $ getFirst world in
 			Just $ addMessage ("What do you want to zap? ["
-			 ++ listOfZappable ++ "]") $ changeAction 'z' world
+			 ++ list ++ "]") $ changeAction 'z' world
 		KeyChar 'd' ->
-			let listOfObjects = sort $ foldr (:) [] $ map first 
+			let list = sort $ foldr (:) [] $ map first 
 				$ inv $ getFirst world in
 			Just $ addMessage ("What do you want to drop? ["
-			 ++ listOfObjects ++ "]") $ changeAction 'd' world
+			 ++ list ++ "]") $ changeAction 'd' world
 		KeyChar 't' ->
-			let listOfTrappable = sort $ foldr (:) [] $ map first 
+			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isTrap . second) $ inv $ getFirst world in
 			Just $ addMessage ("What do you want to set? ["
-			 ++ listOfTrappable ++ "] or - to untrap") $ changeAction 't' world
+			 ++ list ++ "] or - to untrap") $ changeAction 't' world
+		KeyChar 'w' -> let
+			list = sort $ foldr (:) [] $ map first 
+				$ filter fil $ inv $ getFirst world
+			fil = (\x -> isWeapon (second x) || isLauncher (second x))
+			in Just $ addMessage ("What do you want to wield? ["
+				 ++ list ++ "]") $ changeAction 'w' world
+		KeyChar 'f' ->
+			let list = sort $ foldr (:) [] $ map first 
+				$ filter (isMissile . second) $ inv $ getFirst world in
+			Just $ addMessage ("What do you want to fire? ["
+			 ++ list ++ "]") $ changeAction 'f' world
 		KeyChar 'i' ->
 			Just $ changeAction 'i' world
 		KeyChar ',' ->

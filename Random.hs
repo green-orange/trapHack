@@ -19,4 +19,15 @@ dices xs p world = (rez, stdGenNew) where
 		if rnd < p
 		then Nothing
 		else Just dmg
-
+		
+inverseSquareRandom :: Float -> Int
+inverseSquareRandom p = inverseSquareRandom' p 1 where
+	inverseSquareRandom' :: Float -> Int -> Int
+	inverseSquareRandom' p n = 
+		let
+			sqr :: Float
+			sqr = fromIntegral $ n * n
+			bound = (1.0 / sqr) * 6.0 / (pi * pi) in
+		if p <= bound
+		then n
+		else inverseSquareRandom' (p - bound) (n + 1)

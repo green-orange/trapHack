@@ -7,11 +7,12 @@ import Changes
 
 isSoldier :: Monster -> Bool
 isSoldier mon = case name mon of
-	"You" -> False
+	"You"        -> False
 	"Homunculus" -> True
-	"Beetle" -> True
-	"Bat" -> False
-	_ -> error "wrong monster"
+	"Beetle"     -> True
+	"Bat"        -> False
+	"Hunter"     -> True
+	_ -> error "unknown monster"
 
 alive :: Monster -> Bool
 alive mon = hasPart bODY mon && hasPart hEAD mon
@@ -48,4 +49,5 @@ msgCleanParts mon = foldl (++) [] $ map (\x ->
 lostMsg :: String -> String -> String
 lostMsg monName partName = monName ++ " lost " ++ addArticle partName ++ ". "
 
-
+isFlying :: Monster -> Bool
+isFlying mon = hasPart wING mon

@@ -6,6 +6,7 @@ import Monsters (getPlayer)
 import Step
 import Changes (clearMessage)
 import Show
+import Utils4all
 
 import UI.HSCurses.Curses
 import System.Random (StdGen(..), getStdGen)
