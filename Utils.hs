@@ -156,14 +156,23 @@ addInvs :: [(Char, Object, Int)] -> [(Object, Int)] -> [(Char, Object, Int)]
 addInvs startInv items = foldl addInv startInv items
 
 addInv :: [(Char, Object, Int)] -> (Object, Int) -> [(Char, Object, Int)]
-addInv = addInvWithAlphabet alphabet where
-	addInvWithAlphabet :: [Char] -> [(Char, Object, Int)] -> (Object, Int) -> [(Char, Object, Int)]
-	addInvWithAlphabet [] _ _ = error "Author is too lazy to fix this bug"
-	addInvWithAlphabet alph inv (obj, cnt) =
-		if length this == 0
-		then (head alph, obj, cnt) : inv
-		else addInvWithAlphabet (tail alph) inv (obj, cnt) where
-			this = filter (\(x, _, _) -> x == head alph) inv
+addInv list (obj, cnt) =
+	if null this
+	then addInvWithAlphabet alphabet list (obj,cnt)
+	else map change list
+	where
+		addInvWithAlphabet :: [Char] -> [(Char, Object, Int)] -> (Object, Int) -> [(Char, Object, Int)]
+		addInvWithAlphabet [] _ _ = error "Too many objects"
+		addInvWithAlphabet alph inv (obj, cnt) =
+			if length this == 0
+			then (head alph, obj, cnt) : inv
+			else addInvWithAlphabet (tail alph) inv (obj, cnt) where
+				this = filter (\(x, _, _) -> x == head alph) inv
+		this = filter (\(_,obj',_) -> obj' == obj) list
+		change (c, o, n) = 
+			if o == obj
+			then (c, o, n + cnt)
+			else (c, o, n)
 
 
 remFirst :: World -> World

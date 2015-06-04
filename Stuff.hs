@@ -40,10 +40,16 @@ genDeathDrop xs g = (zipWith (\x (o,n) -> (x,o,n)) notAlphabet ys, g') where
 	(ys, g') = (foldr1 (.*) $ map genDeathDropOne xs) g
 	
 genDeathDropOne :: (Object, (Float -> Int)) -> StdGen -> ([(Object, Int)], StdGen)
-genDeathDropOne (obj, f) g = ([(obj, 1) | i <- [0..n-1]], g') where
-	p :: Float
-	(p, g') = randomR (0.0, 1.0) g
-	n = f p
+genDeathDropOne (obj, f) g = 
+	if n == 0
+	then ([], g')
+	else if isStackable obj
+	then ([(obj, n)], g')
+	else (replicate n (obj, 1), g')
+	where
+		p :: Float
+		(p, g') = randomR (0.0, 1.0) g
+		n = f p
 infixr 0 .*
 (.*) :: (StdGen -> ([a], StdGen)) -> (StdGen -> ([a], StdGen)) -> (StdGen -> ([a], StdGen))
 (f .* g) x = (l1 ++ l2, x'') where

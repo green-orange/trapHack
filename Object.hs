@@ -20,18 +20,19 @@ dropFirst c world ignoreMessages = rez where
 				then "You haven't this item!"
 				else ""
 			) $ changeAction ' ' world, False)
-		else (changeMon mon $ addMessage newMsg $ addItem (x, y, obj, 1) 
+		else (changeMon mon $ addMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
 	(_, obj, cnt) = head objects
 	(x, y, oldmon) = head $ units world
 	mon = delObj c $ oldmon
 	newMsg =
 		if ignoreMessages
-		then message world
-		else oldMessage world ++ (name $ getFirst world) ++ " drop" ++ ending world ++ titleShow obj ++ "."
+		then ""
+		else (name $ getFirst world) ++ " drop" ++ ending world ++ titleShow obj ++ "."
 
 dropAll :: World -> World
-dropAll world = foldr (\x y -> fst $ dropFirst x y True) world (map KeyChar $ alphabet ++ notAlphabet)
+dropAll world = foldr (\x y -> fst $ dropFirst x y True) world $ 
+	map (KeyChar . first) $ inv $ getFirst world
 
 quaffFirst :: Key -> World -> (World, Bool)
 quaffFirst c world = rez where

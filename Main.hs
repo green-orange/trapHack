@@ -1,10 +1,3 @@
-{-
-TODO list:
-stackable items
-ranged weapon (bow, arrows)
-hunter with bow and beartraps
--}
-
 module Main where
 
 import Utils

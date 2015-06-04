@@ -242,7 +242,7 @@ addItem :: (Int, Int, Object, Int) -> World -> World
 addItem i w = World {
 	units = units w,
 	message = message w,
-	items = i : items w,
+	items = addItem' i $ items w,
 	action = action w,
 	stdgen = stdgen w,
 	wave = wave w,
@@ -251,6 +251,18 @@ addItem i w = World {
 	worldmap = worldmap w,
 	dirs = dirs w
 }
+
+addItem' :: (Int, Int, Object, Int) -> [(Int, Int, Object, Int)] -> [(Int, Int, Object, Int)]
+addItem' i@(x, y, obj, n) list = 
+	if null this
+	then i : list
+	else map change list
+	where
+		change i'@(x', y', obj', n') = 
+			if x == x' && y == y' && obj == obj'
+			then (x', y', obj', n + n')
+			else i'
+		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') $ list
 
 changeMap :: Int -> Int -> Terrain -> World -> World
 changeMap x y t w = World {

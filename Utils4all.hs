@@ -54,3 +54,6 @@ titleShow (Wand title _ _ charge) = title ++ " (" ++ show charge ++ ")"
 titleShow (Trap title _) = title
 titleShow _ = error "unknown object"
 
+isStackable :: Object -> Bool
+isStackable obj = obj == obj
+
