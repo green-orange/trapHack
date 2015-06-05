@@ -17,7 +17,7 @@ aiHumanoid ai world xPlayer yPlayer =
 	else if (canZapToAttack $ getFirst world) && isOnLine 5 xNow yNow xPlayer yPlayer
 	then zapMon (undir dx dy) (zapAI world) world
 	else if length objects > 0
-	then fromJust $ pickFirst $ foldr ($) world $ map (changePickFirst . KeyChar) alphabet
+	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changePickFirst . KeyChar) alphabet
 	else ai world xPlayer yPlayer
 	where
 		(xNow, yNow, _) = head $ units world

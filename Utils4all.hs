@@ -10,6 +10,7 @@ lEG  = 2 :: Int
 aRM  = 3 :: Int
 wING = 4 :: Int
 pAW  = 5 :: Int
+kINDS = pAW
 
 eMPTY    = 0 :: Int
 bEARTRAP = 1 :: Int

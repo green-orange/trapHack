@@ -21,7 +21,7 @@ dices xs p world = (rez, stdGenNew) where
 		else Just dmg
 		
 inverseSquareRandom :: Float -> Int
-inverseSquareRandom p = inverseSquareRandom' p 1 where
+inverseSquareRandom p = inverseSquareRandom' (0.999999 * p) 1 where
 	inverseSquareRandom' :: Float -> Int -> Int
 	inverseSquareRandom' p n = 
 		let

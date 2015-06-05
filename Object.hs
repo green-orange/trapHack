@@ -6,10 +6,12 @@ import Changes
 import Utils4all
 import Stuff
 import Utils4stuff
+import Utils4mon
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (member, empty, size)
 import Data.Maybe (fromJust)
+import System.Random (StdGen)
 
 dropFirst :: Key -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages = rez where
@@ -19,6 +21,12 @@ dropFirst c world ignoreMessages = rez where
 		then (addMessage (
 				if isPlayerNow world
 				then "You haven't this item!"
+				else ""
+			) $ changeAction ' ' world, False)
+		else if c == KeyChar (weapon $ getFirst world) && (alive $ getFirst world)
+		then (addMessage (
+				if isPlayerNow world
+				then "You can't drop weapon that you wield!"
 				else ""
 			) $ changeAction ' ' world, False)
 		else (changeMon mon $ addMessage newMsg $ addItem (x, y, obj, cnt) 
@@ -51,11 +59,12 @@ quaffFirst c world = rez where
 				then "You don't know how to quaff it!"
 				else ""
 			) $ changeAction ' ' world, False)
-		else (changeMon mon $ addMessage newMsg $ changeAction ' ' world, True)
+		else (changeGen g $ changeMon mon' $ addMessage newMsg $ changeAction ' ' world, True)
 	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world ++ titleShow obj ++ "."
 	[(_, obj, _)] = objects
 	(x, y, oldMon) = head $ units world
-	mon = delObj c $ act obj $ oldMon
+	(mon, g) = act obj (oldMon, stdgen world)
+	mon' = delObj c mon
 
 zapFirst :: Key -> World -> (World, Bool)
 zapFirst c world = rez where
@@ -115,55 +124,70 @@ zap world x y dx dy obj =
 			range = range obj - 1,
 			charge = charge obj
 		}
-		actFilter arg@(x', y', mon) = 
-			if (x == x') && (y == y')
-			then (x, y, act obj $ mon)
-			else arg
+		actAll :: StdGen -> [(Int, Int, Monster)] -> ([(Int, Int, Monster)], StdGen)
+		actAll g [] = ([], g)
+		actAll g (o@(x',y',m):os) = (oNew : osNew, g'') where
+			(osNew, g'') = actAll g' os
+			(oNew, g') = 
+				if (x == x') && (y == y')
+				then
+					let (newMon, newG) = act obj (m, g)
+					in ((x, y, newMon), newG) 
+				else (o, g)
 		msgFilter (x', y', mon) = 
 			if (x == x') && (y == y')
 			then name mon ++ " was zapped! "
 			else ""
 		msg = foldl (++) "" $ map msgFilter $ units world
-		newMWorld = addMessage msg $ changeMons (map actFilter $ units world) world
+		(newMons, newG) = actAll (stdgen world) $ units world
+		newMWorld = changeGen newG $ addMessage msg $ changeMons newMons world
 
 zapMon :: Key -> Char -> World -> World
 zapMon dir obj world = fst $ zapFirst dir $
 	changeStore (store world ++ [obj]) world
 
-pickFirst :: World -> Maybe World
+pickFirst :: World -> (Maybe World, String)
 pickFirst world =
 	if 0 == (size $ toPick world)
-	then Nothing
-	else Just World {
-		units = (xMon, yMon, mon) : (tail $ units world),
-		message = newMessage,
-		items = newItems,
-		action = ' ',
-		stdgen = stdgen world,
-		wave = wave world,
-		toPick = empty,
-		store = store world,
-		worldmap = worldmap world,
-		dirs = dirs world
-	} where
-	(xMon, yMon, oldMon) = head $ units world
-	itemsWithIndices :: [((Int, Int, Object, Int), Int)]
-	itemsWithIndices = addIndices (\(x', y' , _, _) -> xMon == x' && yMon == y') $ items world
-	(itemsToPick, rest) = split (\(_, n) -> (n >= 0) && (member (alphabet !! n) $ toPick world)) itemsWithIndices
-	mon = Monster {
-		ai = ai oldMon,
-		parts = parts oldMon,
-		x = x oldMon,
-		y = y oldMon,
-		name = name oldMon,
-		stddmg = stddmg oldMon,
-		inv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) $ map fst itemsToPick,
-		slowness = slowness oldMon,
-		time = time oldMon,
-		weapon = weapon oldMon
-	}
-	newItems = map fst rest
-	newMessage = oldMessage world ++ name mon ++ " pick" ++ ending world ++ "some objects."
+	then (Nothing, "")
+	else let
+		(xMon, yMon, oldMon) = head $ units world
+		itemsWithIndices :: [((Int, Int, Object, Int), Int)]
+		itemsWithIndices = addIndices (\(x', y' , _, _) -> xMon == x' && yMon == y') $ items world
+		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) && (member (alphabet !! n) 
+			$ toPick world)) itemsWithIndices
+		newItems = map fst rest
+		maybeInv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) $ map fst itemsToPick
+	in case maybeInv of
+	Nothing -> (Nothing, "You knapsack is full!")
+	Just newInv ->
+		let
+		mon = Monster {
+			ai = ai oldMon,
+			parts = parts oldMon,
+			x = x oldMon,
+			y = y oldMon,
+			name = name oldMon,
+			stddmg = stddmg oldMon,
+			inv = newInv,
+			slowness = slowness oldMon,
+			time = time oldMon,
+			weapon = weapon oldMon
+		}
+		newMessage = oldMessage world ++ name mon ++ " pick" ++ ending world ++ "some objects."
+		in (Just World {
+			units = (xMon, yMon, mon) : (tail $ units world),
+			message = newMessage,
+			items = newItems,
+			action = ' ',
+			stdgen = stdgen world,
+			wave = wave world,
+			toPick = empty,
+			store = store world,
+			worldmap = worldmap world,
+			dirs = dirs world
+		}, "")
+		
 
 trapFirst :: Key -> World -> (World, Bool)
 trapFirst c world = rez where

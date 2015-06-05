@@ -11,35 +11,53 @@ import System.Random
 deathDrop :: String -> StdGen -> ([(Char, Object, Int)], StdGen)
 deathDrop "Homunculus" = genDeathDrop [((wandOfStriking 3),
 	(\p ->
-		if p < 0.3
+		if p < 0.7
 		then 0
-		else if p < 0.9
+		else if p < 0.95
 		then 1
 		else 2
 	)), (potionOfHealing,
 	(\p ->
-		if p < 0.3
+		if p < 0.5
 		then 0
 		else if p < 0.9
 		then 1
 		else 2))]
-deathDrop "Beetle" = genDeathDrop [(potionOfIntellect,
-	(\p -> 
-		if p < (0.8 :: Float)
-		then (0 :: Int)
-		else 1))]
-deathDrop "Bat" = genDeathDrop [(potionOfHealing,
+deathDrop "Beetle" = genRandomPotion
 	(\p -> 
 		if p < 0.5
+		then 0
+		else 1)
+deathDrop "Bat" = genRandomPotion
+	(\p -> 
+		if p < 0.3
+		then 0
+		else if p < 0.8
 		then 1
-		else 2))]
-deathDrop "Hunter" = genDeathDrop [(bearTrap, const 1)]
+		else 2)
+deathDrop "Hunter" = genDeathDrop [(bearTrap, 
+	(\p -> 
+		if p < 0.3
+		then 0
+		else 1)
+	)]
 deathDrop _ = (\p -> ([], p))
 
 genDeathDrop :: [(Object, (Float -> Int))] -> StdGen -> ([(Char, Object, Int)], StdGen)
 genDeathDrop [] g = ([], g)
 genDeathDrop xs g = (zipWith (\x (o,n) -> (x,o,n)) notAlphabet ys, g') where
 	(ys, g') = (foldr1 (.*) $ map genDeathDropOne xs) g
+
+pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
+
+genRandomPotion :: (Float -> Int) -> StdGen -> ([(Char, Object, Int)], StdGen)
+genRandomPotion f g =
+	if cnt == 0
+	then ([], g')
+	else ([(head notAlphabet, obj, cnt)], g') where
+	(p, g') = randomR (0.0, fromIntegral $ length pOTIONS) g
+	obj = pOTIONS !! (floor p)
+	cnt = f $ p - fromIntegral (floor p)
 	
 genDeathDropOne :: (Object, (Float -> Int)) -> StdGen -> ([(Object, Int)], StdGen)
 genDeathDropOne (obj, f) g = 
@@ -61,22 +79,28 @@ infixr 0 .*
 potionOfHealing :: Object
 potionOfHealing = Potion {
 	title = "potion of healing",
-	act = healParts bODY 10
+	act = unrandom $ healParts bODY 10
 }
 
 potionOfIntellect :: Object
 potionOfIntellect = Potion {
 	title = "potion of intellect",
-	act = upgradeParts hEAD 5
+	act = unrandom $ upgradeParts hEAD 5
 }
 
+unrandom :: (a -> a) -> (a, x) -> (a, x)
+unrandom f (a, x) = (f a, x)
+
 potionOfMutation :: Object
-potionOfMutation = lol
+potionOfMutation = Potion {
+	title = "potion of mutation",
+	act = addRandomPart
+}
 
 wandOfStriking :: Int -> Object
 wandOfStriking ch = Wand {
 	title = "wand of striking",
-	act = dmgAll $ Just 5,
+	act = unrandom $ dmgAll $ Just 5,
 	range = 5,
 	charge = ch
 }
@@ -89,7 +113,7 @@ bearTrap = Trap {
 
 arrow = Missile {
 	title = "arrow",
-	objdmg = dices [(1,5)] 0.2,
+	objdmg = dices [(1,10)] 0.2,
 	launcher = "bow"
 }
 
@@ -99,10 +123,16 @@ bow = Launcher {
 	category = "bow"
 }
 
+longbow = Launcher {
+	title = "longbow",
+	count = 3,
+	category = "bow"
+}
+
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain t
 	| t == bEARTRAP = bearTrap
-	| otherwise = error "unlnown trap"
+	| otherwise = error "unknown trap"
 	
 isUntrappable :: Terrain -> Bool
 isUntrappable = (==) bEARTRAP

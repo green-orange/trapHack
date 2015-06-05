@@ -8,7 +8,7 @@ lol = undefined
 maxX = 20 :: Int
 maxY = 20 :: Int
 
-alphabet = ['a'..'z'] ++ ['A'..'Z']
+alphabet = ['a'..'z']
 notAlphabet = ['{'..]
 
 doNothing :: IO ()
@@ -47,11 +47,11 @@ data Object =
 	Something |
 	Potion {
 		title :: String,
-		act :: Monster -> Monster
+		act :: (Monster, StdGen) -> (Monster, StdGen)
 	} | 
 	Wand {
 		title :: String,
-		act :: Monster -> Monster,
+		act :: (Monster, StdGen) -> (Monster, StdGen),
 		range :: Int,
 		charge :: Int
 	} | 

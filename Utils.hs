@@ -8,6 +8,7 @@ import Utils4all
 import Utils4mon
 
 import System.Random (StdGen)
+import Control.Monad ((>=>))
 
 moveFirst :: World -> Int -> Int -> World
 moveFirst world dx dy =
@@ -79,20 +80,20 @@ ending world =
 	then " "
 	else "s "
 
-addInvs :: [(Char, Object, Int)] -> [(Object, Int)] -> [(Char, Object, Int)]
-addInvs startInv items = foldl addInv startInv items
+addInvs :: [(Char, Object, Int)] -> [(Object, Int)] -> Maybe [(Char, Object, Int)]
+addInvs startInv items = (foldl (>=>) return $ map addInv items) startInv
 
-addInv :: [(Char, Object, Int)] -> (Object, Int) -> [(Char, Object, Int)]
-addInv list (obj, cnt) =
+addInv :: (Object, Int) -> [(Char, Object, Int)] -> Maybe [(Char, Object, Int)]
+addInv (obj, cnt) list  =
 	if null this
 	then addInvWithAlphabet alphabet list (obj,cnt)
-	else map change list
+	else Just $ map change list
 	where
-		addInvWithAlphabet :: [Char] -> [(Char, Object, Int)] -> (Object, Int) -> [(Char, Object, Int)]
-		addInvWithAlphabet [] _ _ = error "Too many objects"
-		addInvWithAlphabet alph inv (obj, cnt) =
+		addInvWithAlphabet :: [Char] -> [(Char, Object, Int)] -> (Object, Int) -> Maybe [(Char, Object, Int)]
+		addInvWithAlphabet [] _ _ = Nothing
+		addInvWithAlphabet alph inv (obj, cnt) = 
 			if length this == 0
-			then (head alph, obj, cnt) : inv
+			then Just $ (head alph, obj, cnt) : inv
 			else addInvWithAlphabet (tail alph) inv (obj, cnt) where
 				this = filter (\(x, _, _) -> x == head alph) inv
 		this = filter (\(_,obj',_) -> obj' == obj) list

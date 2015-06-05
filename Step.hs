@@ -10,6 +10,7 @@ import Utils4mon
 
 import UI.HSCurses.Curses (Key(..))
 import Data.List (sort)
+import Data.Set (toList)
 
 wAIT = 2
 
@@ -75,8 +76,11 @@ step world c =
 				then
 					let maybePick = pickFirst world in
 					case maybePick of
-						Nothing -> Just $ changeAction ' ' world
-						Just pick -> Just $ newWaveIf pick
+						(Nothing, s) ->
+							let cleanChangePick = foldl (.) id 
+								$ map (changePickFirst . KeyChar) $ toList $ toPick world
+							in Just $ cleanChangePick $ addMessage s $ changeAction ' ' world
+						(Just pick, _) -> Just $ newWaveIf pick
 				else Just $ changePickFirst c world
 			_ -> Just $ addMessage "You are cheater!" world
 		else
@@ -88,7 +92,7 @@ step world c =
 		else
 			let (deadMonster, newStdGen) = addDeathDrop (getFirst world) (stdgen world)
 			in Just $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
-				$ addMessage (name (getFirst world) ++ " die!") world -- bug with multiple messages
+				$ addMessage (name (getFirst world) ++ " die!") world
 	where
 		AI aiNow = ai $ getFirst world
 		(x, y) = coordsPlayer world

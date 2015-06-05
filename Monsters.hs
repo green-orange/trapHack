@@ -46,7 +46,7 @@ getPlayer x y = Monster {
 	ai = You,
 	parts = zipWith ($) 
 			[getBody 40 1, 
-			 getHead 30 3, 
+			 getHead 30 2, 
 			 getLeg  20 2, 
 			 getLeg  20 2, 
 			 getArm  20 2, 
@@ -56,7 +56,7 @@ getPlayer x y = Monster {
 	y = y,
 	name = "You",
 	stddmg = dices [(1,10)] 0,
-	inv = [('a', bearTrap, 1), ('b', bow, 1), ('c', arrow, 10)],
+	inv = [],
 	slowness = 100,
 	time = 100,
 	weapon = ' '
@@ -94,14 +94,14 @@ getBat = getMonster randomAI
 	"Bat" (dices [(3,5)] 0.2) (const []) 50
 	
 getHunter = getMonster (aiHunter $ aiHumanoid stupidAI) 
-	[getBody 20 1, 
-	 getHead 10 1,
-	 getLeg   5 1,
-	 getLeg   5 1,
-	 getArm   4 1,
-	 getArm   4 1]
-	 "Hunter" (dices [(1,6)] 0.3) 
-	 (\p -> [('a', arrow, inverseSquareRandom p), ('b', bow, 1)]) 70
+	[getBody 30 1, 
+	 getHead 20 1,
+	 getLeg  10 1,
+	 getLeg  10 1, 
+	 getArm  10 1,
+	 getArm  10 1]
+	 "Hunter" (dices [(1,2)] 0.5) 
+	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), ('b', longbow, 1)]) 40
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens
@@ -137,7 +137,7 @@ genWave n g =
 			0 -> (getHomunculus, 2)
 			1 -> (getBeetle    , 3)
 			2 -> (getBat       , 1)
-			3 -> (getHunter    , 2)
+			3 -> (getHunter    , 5)
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World

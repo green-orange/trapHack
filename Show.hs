@@ -40,8 +40,13 @@ draw world =
 	case action world of
 		'i' -> let
 			items = inv $ getFirst world
+			wield :: Char -> String
+			wield c = 
+				if (weapon $ getFirst world) == c
+				then " (wielded)"
+				else "" 
 			stringsToShow = zip [1..] $ map (\(c, obj, n) -> 
-				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj) items
+				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items
 			showInv :: (Int, String) -> IO ()
 			showInv (n, s) = mvWAddStr stdScr n 0 $ s
 			in do
