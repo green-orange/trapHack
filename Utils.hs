@@ -67,7 +67,7 @@ coordsPlayer w =
 		yous = filter (\(_,_,x) -> (name x == "You")) $ units w
 
 cycleWorld :: World -> World
-cycleWorld w = regFirst $ cleanFirst $ changeMons newUnits 
+cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 
 	$ addMessage (msgCleanParts $ third $ head newUnits) w
 	where newUnits = cycle' $ units w
 

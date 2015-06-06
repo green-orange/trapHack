@@ -10,22 +10,31 @@ shiftDown = 5 :: Int
 shiftRightHP1 = 25 :: Int
 shiftRightHP2 = 30 :: Int
 
-dEFAULT   = 1 :: Int
-sAFE      = 2 :: Int
-uNSAFE    = 3 :: Int
-dANGER    = 4 :: Int
-nEARDEATH = 5 :: Int
+dEFAULT   = tRAPSNUM + 1
+sAFE      = tRAPSNUM + 2
+uNSAFE    = tRAPSNUM + 3
+dANGER    = tRAPSNUM + 4
+nEARDEATH = tRAPSNUM + 5
 
 castEnum = toEnum . fromEnum
 
-drawUnit :: Unit -> IO ()
-drawUnit (x, y, mon) = mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon
+drawUnit :: World -> Unit -> IO ()
+drawUnit world (x, y, mon) = do
+	(attr, _) <- wAttrGet stdScr
+	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+	mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon
 
-drawCell :: (Int, Int, Terrain) -> IO ()
-drawCell (x, y, t) = mvAddCh (y + shiftDown) x $ castEnum $ symbolTer t
+drawCell :: World -> (Int, Int, Terrain) -> IO ()
+drawCell world (x, y, t) = do
+	(attr, _) <- wAttrGet stdScr
+	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+	mvAddCh (y + shiftDown) x $ castEnum $ symbolTer t
 
-drawItem :: (Int, Int, Object, Int) -> IO ()
-drawItem (x, y, item, _) = mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
+drawItem :: World -> (Int, Int, Object, Int) -> IO ()
+drawItem world(x, y, item, _) = do
+	(attr, _) <- wAttrGet stdScr
+	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
 showItemsOnGround :: (Set Char) -> (Char, Int, (Object, Int)) -> IO ()
 showItemsOnGround toPick (c, n, (obj,cnt)) =
@@ -50,7 +59,7 @@ draw world =
 			showInv :: (Int, String) -> IO ()
 			showInv (n, s) = mvWAddStr stdScr n 0 $ s
 			in do
-			(attr, pair) <- wAttrGet stdScr
+			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 "Your inventory: (press Enter or Space to close it)"
 			foldl (>>) doNothing $ map showInv stringsToShow
@@ -59,26 +68,28 @@ draw world =
 			toShow = zip3 alphabet [1..] $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
 			in do
-			(attr, pair) <- wAttrGet stdScr
+			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 "What do you want to pick up? (press Enter to finish)"
 			foldl (>>) doNothing $ map (showItemsOnGround $ toPick world) toShow
 		_ -> do
-			(attr, pair) <- wAttrGet stdScr
+			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 $ message world
-			foldl (>>) doNothing $ map drawCell $ flatarray2line $ worldmap world
-			foldl (>>) doNothing $ map drawItem $ items world
-			foldl (>>) doNothing $ map drawUnit $ units world
+			foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
+			foldl (>>) doNothing $ map (drawItem world) $ items world
+			foldl (>>) doNothing $ map (drawUnit world) $ units world
+			{-
 			mvWAddStr stdScr 30 30 $ show $ action world : store world -- debug
 			mvWAddStr stdScr 40 40 $ show $ stdgen world -- debug
+			-}
 			foldl (>>) doNothing $ zipWith ($) (map drawPart $ parts $ getFirst world) [1..]
 
 drawPart :: Part -> Int -> IO ()
 drawPart part x = do
 	(attr, pair) <- wAttrGet stdScr
 	wAttrSet stdScr (attr, Pair sAFE)
-	if hp part * 2 < maxhp part
+	if hp part * 3 < maxhp part * 2
 	then wAttrSet stdScr (attr, Pair uNSAFE)
 	else doNothing
 	if hp part * 3 < maxhp part
@@ -110,8 +121,7 @@ symbolMon _            = error "unknown monster"
 symbolTer :: Terrain -> Char
 symbolTer t
 	| t == eMPTY    = '.'
-	| t == bEARTRAP = '#'
-	| otherwise     = error "unknown terrain"
+	| otherwise     = '^'
 
 symbolItem :: Object -> Char
 symbolItem (Potion _ _)     = '!'

@@ -9,39 +9,21 @@ import Random
 import System.Random
 
 deathDrop :: String -> StdGen -> ([(Char, Object, Int)], StdGen)
-deathDrop "Homunculus" = genDeathDrop [((wandOfStriking 3),
-	(\p ->
-		if p < 0.7
-		then 0
-		else if p < 0.95
-		then 1
-		else 2
-	)), (potionOfHealing,
-	(\p ->
-		if p < 0.5
-		then 0
-		else if p < 0.9
-		then 1
-		else 2))]
-deathDrop "Beetle" = genRandomPotion
-	(\p -> 
-		if p < 0.5
-		then 0
-		else 1)
-deathDrop "Bat" = genRandomPotion
-	(\p -> 
-		if p < 0.3
-		then 0
-		else if p < 0.8
-		then 1
-		else 2)
-deathDrop "Hunter" = genDeathDrop [(bearTrap, 
-	(\p -> 
-		if p < 0.3
-		then 0
-		else 1)
-	)]
+deathDrop "Homunculus" = genDeathDrop
+	[((wandOfStriking 3), bound [0.7, 0.95]), 
+	(potionOfHealing, bound [0.5, 0.9])]
+deathDrop "Beetle" = genRandomPotion $ bound [0.5]
+deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
+deathDrop "Hunter" = genRandomTrap $ bound [0.3, 0.8]
 deathDrop _ = (\p -> ([], p))
+
+bound :: [Float] -> Float -> Int
+bound list p = bound' list p 0 where
+	bound' []     p n = n
+	bound' (x:xs) p n = 
+		if p < x
+		then n
+		else bound' xs p (n + 1)
 
 genDeathDrop :: [(Object, (Float -> Int))] -> StdGen -> ([(Char, Object, Int)], StdGen)
 genDeathDrop [] g = ([], g)
@@ -49,14 +31,18 @@ genDeathDrop xs g = (zipWith (\x (o,n) -> (x,o,n)) notAlphabet ys, g') where
 	(ys, g') = (foldr1 (.*) $ map genDeathDropOne xs) g
 
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
+genRandomPotion = genRandomFoo pOTIONS
 
-genRandomPotion :: (Float -> Int) -> StdGen -> ([(Char, Object, Int)], StdGen)
-genRandomPotion f g =
+tRAPS = [bearTrap, fireTrap]
+genRandomTrap = genRandomFoo tRAPS
+
+genRandomFoo :: [Object] -> (Float -> Int) -> StdGen -> ([(Char, Object, Int)], StdGen)
+genRandomFoo foos f gen =
 	if cnt == 0
-	then ([], g')
-	else ([(head notAlphabet, obj, cnt)], g') where
-	(p, g') = randomR (0.0, fromIntegral $ length pOTIONS) g
-	obj = pOTIONS !! (floor p)
+	then ([], gen')
+	else ([(head notAlphabet, obj, cnt)], gen') where
+	(p, gen') = randomR (0.0, fromIntegral $ length foos) gen
+	obj = foos !! (floor p)
 	cnt = f $ p - fromIntegral (floor p)
 	
 genDeathDropOne :: (Object, (Float -> Int)) -> StdGen -> ([(Object, Int)], StdGen)
@@ -111,6 +97,12 @@ bearTrap = Trap {
 	num = bEARTRAP
 }
 
+fireTrap :: Object
+fireTrap = Trap {
+	title = "fire trap",
+	num = fIRETRAP
+}
+
 arrow = Missile {
 	title = "arrow",
 	objdmg = dices [(1,10)] 0.2,
@@ -132,8 +124,9 @@ longbow = Launcher {
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain t
 	| t == bEARTRAP = bearTrap
+	| t == fIRETRAP = fireTrap
 	| otherwise = error "unknown trap"
 	
 isUntrappable :: Terrain -> Bool
-isUntrappable = (==) bEARTRAP
+isUntrappable = (/=) eMPTY
  

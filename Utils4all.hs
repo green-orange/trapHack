@@ -14,6 +14,8 @@ kINDS = pAW
 
 eMPTY    = 0 :: Int
 bEARTRAP = 1 :: Int
+fIRETRAP = 2 :: Int
+tRAPSNUM = fIRETRAP
 
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon =

@@ -101,7 +101,7 @@ getHunter = getMonster (aiHunter $ aiHumanoid stupidAI)
 	 getArm  10 1,
 	 getArm  10 1]
 	 "Hunter" (dices [(1,2)] 0.5) 
-	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), ('b', longbow, 1)]) 40
+	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), ('b', longbow, 1)]) 60
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens
@@ -129,6 +129,8 @@ genWave :: Int -> StdGen -> ([MonsterGen], StdGen)
 genWave n g = 
 	if n <= 0
 	then ([], g)
+	else if d > n
+	then (oldWave, g'')
 	else (genM : oldWave, g'')
 	where
 		p :: Int

@@ -51,3 +51,19 @@ lostMsg monName partName = monName ++ " lost " ++ addArticle partName ++ ". "
 
 isFlying :: Monster -> Bool
 isFlying mon = hasPart wING mon
+
+actTrapFirst :: World -> World
+actTrapFirst w =
+	if time mon == 0
+	then changeGen g $ changeMon newMon w
+	else w
+	where
+	(x, y, mon) = head $ units w
+	trap = worldmap w !! x !! y
+	(newMon, g) = 
+		if trap == fIRETRAP
+		then dmgRandom (Just 8) mon $ stdgen w
+		else (mon, stdgen w)
+		
+		
+		

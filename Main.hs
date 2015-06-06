@@ -69,6 +69,9 @@ main = do
 		username <- getLoginName
 		initCurses
 		startColor
+		initPair (Pair eMPTY) (defaultForeground) (defaultBackground)
+		initPair (Pair bEARTRAP) (defaultForeground) (fromJust $ color "yellow")
+		initPair (Pair fIRETRAP) (defaultForeground) (fromJust $ color "red")
 		initPair (Pair dEFAULT) (defaultForeground) (defaultBackground)
 		initPair (Pair sAFE) (fromJust $ color "green") (defaultBackground)
 		initPair (Pair uNSAFE) (fromJust $ color "yellow") (defaultBackground)
