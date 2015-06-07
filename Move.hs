@@ -39,15 +39,21 @@ attack :: World -> Int -> Int -> World
 attack world x y = changeMons unitsNew $ addMessage newMsg 
 	$ changeAction ' ' $ changeGen newGen' world
 	where
+		attacker = getFirst world
 		found :: Unit -> Bool
 		found (x', y', _) = (x' == x) && (y' == y)
 		(xx,yy,mon) = head $ filter found $ units world
 		change :: Unit -> Unit -> Unit
 		change tnew t = if found t then tnew else t
-		(newDmg, newGen) =  (stddmg $ getFirst world) world
+		weapons = filter (\(c,_,_) -> c == (weapon attacker)) $ inv attacker
+		dmggen = 
+			if null weapons || (not $ isWeapon $ second $ head weapons)
+			then stddmg attacker
+			else objdmg $ second $ head weapons
+		(newDmg, newGen) =  dmggen world
 		newMsg = case newDmg of
-			Nothing -> (name $ getFirst world) ++ " missed!"
-			Just _ -> (name $ getFirst world) ++ " attacks " ++ (name mon) ++ "!"
+			Nothing -> (name attacker) ++ " missed!"
+			Just _ -> (name attacker) ++ " attacks " ++ (name mon) ++ "!"
 		(monNew, newGen') = dmgRandom newDmg mon newGen
 		unitsNew = map (change (xx,yy,monNew)) $ units world
 

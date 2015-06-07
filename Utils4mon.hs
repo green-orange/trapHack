@@ -55,7 +55,7 @@ isFlying mon = hasPart wING mon
 actTrapFirst :: World -> World
 actTrapFirst w =
 	if time mon == 0
-	then changeGen g $ changeMon newMon w
+	then addMessage newMsg $ changeGen g $ changeMon newMon w
 	else w
 	where
 	(x, y, mon) = head $ units w
@@ -64,6 +64,13 @@ actTrapFirst w =
 		if trap == fIRETRAP
 		then dmgRandom (Just 8) mon $ stdgen w
 		else (mon, stdgen w)
+	newMsg = 
+		if trap == fIRETRAP
+		then
+			if name mon == "You"
+			then "You are in fire!"
+			else name mon ++ " is in fire!"
+		else ""
 		
 		
 		

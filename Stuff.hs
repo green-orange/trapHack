@@ -14,7 +14,8 @@ deathDrop "Homunculus" = genDeathDrop
 	(potionOfHealing, bound [0.5, 0.9])]
 deathDrop "Beetle" = genRandomPotion $ bound [0.5]
 deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
-deathDrop "Hunter" = genRandomTrap $ bound [0.3, 0.8]
+deathDrop "Hunter" = (genRandomTrap $ bound [0.3, 0.8]) .* 
+	genDeathDropByAlph (tail notAlphabet) [(sword, bound [0.6])]
 deathDrop _ = (\p -> ([], p))
 
 bound :: [Float] -> Float -> Int
@@ -25,9 +26,11 @@ bound list p = bound' list p 0 where
 		then n
 		else bound' xs p (n + 1)
 
-genDeathDrop :: [(Object, (Float -> Int))] -> StdGen -> ([Inv], StdGen)
-genDeathDrop [] g = ([], g)
-genDeathDrop xs g = (zipWith (\x (o,n) -> (x,o,n)) notAlphabet ys, g') where
+genDeathDrop = genDeathDropByAlph notAlphabet
+
+genDeathDropByAlph :: [Char] -> [(Object, (Float -> Int))] -> StdGen -> ([Inv], StdGen)
+genDeathDropByAlph _ [] g = ([], g)
+genDeathDropByAlph alph xs g = (zipWith (\x (o,n) -> (x,o,n)) alph ys, g') where
 	(ys, g') = (foldr1 (.*) $ map genDeathDropOne xs) g
 
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
@@ -119,6 +122,11 @@ longbow = Launcher {
 	title = "longbow",
 	count = 3,
 	category = "bow"
+}
+
+sword = Weapon {
+	title = "sword",
+	objdmg = dices [(2,10)] 0.1
 }
 
 trapFromTerrain :: Terrain -> Object
