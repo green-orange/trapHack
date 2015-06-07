@@ -1,6 +1,5 @@
 module Main where
 
-import Utils
 import Data
 import Monsters (getPlayer)
 import Step

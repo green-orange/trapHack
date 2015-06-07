@@ -34,7 +34,7 @@ regPart :: Part -> Part
 regPart part = heal (regVel part) part
 
 regMonster :: Monster -> Monster
-regMonster mon = changeParts mon $ map regPart $ parts mon
+regMonster mon = changeParts (map regPart $ parts mon) mon
 
 regFirst :: World -> World
 regFirst w =

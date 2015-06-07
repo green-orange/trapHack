@@ -1,9 +1,9 @@
 module Step where
 
 import Data
-import Utils
+import Move
+import Utils4step
 import Object
-import Monsters
 import Changes
 import Utils4all
 import Utils4mon
@@ -11,8 +11,7 @@ import Utils4mon
 import UI.HSCurses.Curses (Key(..))
 import Data.List (sort)
 import Data.Set (toList)
-
-wAIT = 2
+import System.Random (StdGen)
 
 step :: World -> Key -> Maybe World
 step world c =
@@ -138,17 +137,3 @@ justStep world c = case dir c of
 			Just $ changeAction ',' world
 		_  ->
 			Just $ addMessage "Unknown action!" world
-				
-newWaveIf :: World -> World
-newWaveIf world =
-			if (foldl (||) False $ map (isSoldier. third) $ units world)
-				|| (not $ isPlayerNow world)
-			then cycleWorld $ resetTime world
-			else if (length $ store world) > 0
-			then
-				if (head $ store world) /= toEnum 0
-				then changeStore [pred $ head $ store world] $ cycleWorld $ resetTime world
-				else changeStore [] $ changeAction ' ' $ addMessage ("Squad #" 
-					++ show (wave world) ++ " landed around you!") 
-					$ newWave $ cycleWorld $ resetTime world
-			else changeStore [toEnum wAIT] $ cycleWorld $ resetTime world

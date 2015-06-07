@@ -8,7 +8,7 @@ import Random
 
 import System.Random
 
-deathDrop :: String -> StdGen -> ([(Char, Object, Int)], StdGen)
+deathDrop :: String -> StdGen -> ([Inv], StdGen)
 deathDrop "Homunculus" = genDeathDrop
 	[((wandOfStriking 3), bound [0.7, 0.95]), 
 	(potionOfHealing, bound [0.5, 0.9])]
@@ -25,7 +25,7 @@ bound list p = bound' list p 0 where
 		then n
 		else bound' xs p (n + 1)
 
-genDeathDrop :: [(Object, (Float -> Int))] -> StdGen -> ([(Char, Object, Int)], StdGen)
+genDeathDrop :: [(Object, (Float -> Int))] -> StdGen -> ([Inv], StdGen)
 genDeathDrop [] g = ([], g)
 genDeathDrop xs g = (zipWith (\x (o,n) -> (x,o,n)) notAlphabet ys, g') where
 	(ys, g') = (foldr1 (.*) $ map genDeathDropOne xs) g
@@ -36,7 +36,7 @@ genRandomPotion = genRandomFoo pOTIONS
 tRAPS = [bearTrap, fireTrap]
 genRandomTrap = genRandomFoo tRAPS
 
-genRandomFoo :: [Object] -> (Float -> Int) -> StdGen -> ([(Char, Object, Int)], StdGen)
+genRandomFoo :: [Object] -> (Float -> Int) -> StdGen -> ([Inv], StdGen)
 genRandomFoo foos f gen =
 	if cnt == 0
 	then ([], gen')

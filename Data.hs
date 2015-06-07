@@ -14,8 +14,9 @@ notAlphabet = ['{'..]
 doNothing :: IO ()
 doNothing = return ()
 
+type Inv = (Char, Object, Int)
 type AIfunc = World -> Int -> Int -> World
-type InvGen = Float -> [(Char, Object, Int)]
+type InvGen = Float -> [Inv]
 type StdDmg = World -> (Maybe Int, StdGen)
 type MonsterGen = Int -> Int -> StdGen -> (Monster, StdGen)
 type Unit = (Int, Int, Monster)
@@ -36,7 +37,7 @@ data Monster = Monster {
 	y :: Int,
 	name :: String,
 	stddmg :: StdDmg,
-	inv :: [(Char, Object, Int)],
+	inv :: [Inv],
 	slowness :: Int,
 	time :: Int,
 	weapon :: Char
@@ -90,5 +91,5 @@ data World = World {
 	toPick :: Set Char,
 	store :: [Char],
 	worldmap :: [[Terrain]],
-	dirs :: ((Int, Int, Int, Int)) -> Maybe (Int, Int)
+	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int)
 }

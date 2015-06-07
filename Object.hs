@@ -1,7 +1,6 @@
 module Object where
 
 import Data
-import Utils
 import Changes
 import Utils4all
 import Stuff
@@ -12,23 +11,18 @@ import UI.HSCurses.Curses (Key(..))
 import Data.Set (member, empty, size)
 import Data.Maybe (fromJust)
 import System.Random (StdGen)
+import Control.Monad ((>=>))
 
 dropFirst :: Key -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages = rez where
 	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
-		then (addMessage (
-				if isPlayerNow world
-				then "You haven't this item!"
-				else ""
-			) $ changeAction ' ' world, False)
+		then (maybeAddMessage "You haven't this item!" 
+			$ changeAction ' ' world, False)
 		else if c == KeyChar (weapon $ getFirst world) && (alive $ getFirst world)
-		then (addMessage (
-				if isPlayerNow world
-				then "You can't drop weapon that you wield!"
-				else ""
-			) $ changeAction ' ' world, False)
+		then (maybeAddMessage "You can't drop weapon that you wield!" 
+			$ changeAction ' ' world, False)
 		else (changeMon mon $ addMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
 	(_, obj, cnt) = head objects
@@ -48,17 +42,11 @@ quaffFirst c world = rez where
 	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
-		then (addMessage (
-				if isPlayerNow world
-				then "You haven't this item!"
-				else ""
-			) $ changeAction ' ' world, False)
+		then (maybeAddMessage "You haven't this item!" 
+			$ changeAction ' ' world, False)
 		else if (not $ isPotion obj)
-		then (addMessage (
-				if isPlayerNow world
-				then "You don't know how to quaff it!"
-				else ""
-			) $ changeAction ' ' world, False)
+		then (maybeAddMessage "You don't know how to quaff it!"
+			$ changeAction ' ' world, False)
 		else (changeGen g $ changeMon mon' $ addMessage newMsg $ changeAction ' ' world, True)
 	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world ++ titleShow obj ++ "."
 	[(_, obj, _)] = objects
@@ -71,29 +59,13 @@ zapFirst c world = rez where
 	objects = filter (\(x, _, _) -> x == last (store world)) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
-		then (addMessage (
-				if isPlayerNow world
-				then "You haven't this item!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if (not $ isWand obj)
-		then (addMessage (
-				if isPlayerNow world
-				then "You don't know how to zap it!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You don't know how to zap it!" failWorld, False)
 		else if dir c == Nothing
-		then (addMessage (
-				if isPlayerNow world
-				then "It's not a direction!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "It's not a direction!" failWorld, False)
 		else if charge obj == 0
-		then (addMessage (
-				if isPlayerNow world
-				then "This wand has no charge!"
-				else ""
-			) failWorld, True)
+		then (maybeAddMessage "This wand has no charge!" failWorld, True)
 		else (changeMon mon $ changeStore (init $ store world) $ changeAction ' ' $ newMWorld, True)
 	(x, y, _) = head $ units world
 	(dx, dy) = fromJust $ dir c
@@ -118,12 +90,8 @@ zap world x y dx dy obj =
 			Nothing -> (True, (0, 0))
 			Just p -> (False, p)
 		decRange :: Object -> Object
-		decRange obj = Wand {
-			title = title obj,
-			act = act obj,
-			range = range obj - 1,
-			charge = charge obj
-		}
+		decRange (Wand title act range  charge) = 
+				  Wand title act range (charge - 1)
 		actAll :: StdGen -> [(Int, Int, Monster)] -> ([(Int, Int, Monster)], StdGen)
 		actAll g [] = ([], g)
 		actAll g (o@(x',y',m):os) = (oNew : osNew, g'') where
@@ -162,18 +130,7 @@ pickFirst world =
 	Nothing -> (Nothing, "You knapsack is full!")
 	Just newInv ->
 		let
-		mon = Monster {
-			ai = ai oldMon,
-			parts = parts oldMon,
-			x = x oldMon,
-			y = y oldMon,
-			name = name oldMon,
-			stddmg = stddmg oldMon,
-			inv = newInv,
-			slowness = slowness oldMon,
-			time = time oldMon,
-			weapon = weapon oldMon
-		}
+		mon = changeInv newInv oldMon
 		newMessage = oldMessage world ++ name mon ++ " pick" ++ ending world ++ "some objects."
 		in (Just World {
 			units = (xMon, yMon, mon) : (tail $ units world),
@@ -194,17 +151,9 @@ trapFirst c world = rez where
 	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
-		then (addMessage (
-				if isPlayerNow world
-				then "You haven't this item!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if (not $ isTrap obj)
-		then (addMessage (
-				if isPlayerNow world
-				then "It's not a trap!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "It's not a trap!" failWorld, False)
 		else (addMessage newMsg $ changeMon mon $ changeMap x y (num obj) $ changeAction ' ' $ world, True)
 	(x, y, oldMon) = head $ units world
 	[(_, obj, _)] = objects
@@ -216,11 +165,7 @@ untrapFirst :: World -> (World, Bool)
 untrapFirst world = rez where
 	rez =
 		if not $ isUntrappable $ worldmap world !! x !! y
-		then (addMessage (
-				if isPlayerNow world
-				then "It's nothing to untrap here!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
 		else (addItem (x, y, trap, 1) $ addMessage newMsg $ changeMap x y eMPTY 
 			$ changeAction ' ' $ world, True)
 	(x, y, mon) = head $ units world
@@ -233,17 +178,9 @@ wieldFirst c world = rez where
 	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
-		then (addMessage (
-				if isPlayerNow world
-				then "You haven't this item!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not (isWeapon obj || isLauncher obj)
-		then (addMessage (
-				if isPlayerNow world
-				then "You don't know how to wield it!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
 		else (addMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
 	(x, y, oldMon) = head $ units world
 	[(_, obj, _)] = objects
@@ -261,35 +198,16 @@ fireFirst c world = rez where
 	listWield = filter (\(x, _, _) -> x == weapon oldMon) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
-		then (addMessage (
-				if isPlayerNow world
-				then "You haven't this item!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isMissile obj
-		then (addMessage (
-				if isPlayerNow world
-				then "You don't know how to fire it!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You don't know how to fire it!" failWorld, False)
 		else if (weapon oldMon == ' ') 
-		then (addMessage (
-				if isPlayerNow world
-				then "You have no weapon!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "You have no weapon!" failWorld, False)
 		else if (not $ isLauncher wielded) || (launcher obj /= category wielded)
-		then (addMessage (
-				if isPlayerNow world
-				then "You can't fire " ++ title obj ++ " by " ++ category wielded ++ "!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage ("You can't fire " ++ title obj ++ " by " 
+			++ category wielded ++ "!") failWorld, False)
 		else if dir c == Nothing
-		then (addMessage (
-				if isPlayerNow world
-				then "It's not a direction!"
-				else ""
-			) failWorld, False)
+		then (maybeAddMessage "It's not a direction!" failWorld, False)
 		else (changeStore (init $ store world) $ changeAction ' ' newWorld, True)
 	(x, y, oldMon) = head $ units world
 	maybeCoords = dirs world (x, y, dx, dy)
@@ -329,4 +247,28 @@ fire x y dx dy obj world =
 fireMon :: Key -> Char -> World -> World
 fireMon dir obj world = fst $ fireFirst dir $
 	changeStore (store world ++ [obj]) world
+
+addInvs :: [Inv] -> [(Object, Int)] -> Maybe [Inv]
+addInvs startInv items = (foldl (>=>) return $ map addInv items) startInv
+
+addInv :: (Object, Int) -> [Inv] -> Maybe [Inv]
+addInv (obj, cnt) list  =
+	if null this
+	then addInvWithAlphabet alphabet list (obj,cnt)
+	else Just $ map change list
+	where
+		addInvWithAlphabet :: [Char] -> [Inv] -> (Object, Int) -> Maybe [Inv]
+		addInvWithAlphabet [] _ _ = Nothing
+		addInvWithAlphabet alph inv (obj, cnt) = 
+			if length this == 0
+			then Just $ (head alph, obj, cnt) : inv
+			else addInvWithAlphabet (tail alph) inv (obj, cnt) where
+				this = filter (\(x, _, _) -> x == head alph) inv
+		this = filter (\(_,obj',_) -> obj' == obj) list
+		change (c, o, n) = 
+			if o == obj
+			then (c, o, n + cnt)
+			else (c, o, n)
+
+
 	

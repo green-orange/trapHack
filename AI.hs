@@ -1,7 +1,7 @@
 module AI where
 
 import Data
-import Utils
+import Move
 import Object
 import Utils4all
 import Changes

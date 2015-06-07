@@ -8,7 +8,7 @@ import Random
 import System.Random (StdGen, randomR)
 
 doSmthByFunc :: (a -> Part -> Part) -> (Part -> Bool) -> a -> Monster -> Monster
-doSmthByFunc doSmth f hp mon = changeParts mon $ map filterHeal $ parts mon where
+doSmthByFunc doSmth f hp mon = changeParts (map filterHeal $ parts mon) mon where
 	filterHeal part = 
 		if f part
 		then doSmth hp part
@@ -54,7 +54,7 @@ dmg (Just n) part = Part {
 } where die = hp part <= n
 
 cleanParts :: Monster -> Monster
-cleanParts mon = changeParts mon $ filter aliveP $ parts mon
+cleanParts mon = changeParts (filter aliveP $ parts mon) mon
 
 addArticle :: String -> String
 addArticle str = 
@@ -86,7 +86,7 @@ addRandomPart (m, g) = (addPart m knd hp regVel, g3) where
 	(regVel, g3) = randomR (1, 4) g2
 
 addPart :: Monster -> Int -> Int -> Int -> Monster
-addPart mon knd hp regVel = changeParts mon $ newPart : parts mon where
+addPart mon knd hp regVel = changeParts (newPart : parts mon) mon where
 	newPart = Part {
 		hp = hp,
 		maxhp = hp,

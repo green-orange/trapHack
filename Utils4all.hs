@@ -207,3 +207,13 @@ capitalize :: String -> String
 capitalize [] = []
 capitalize (x:xs) = toEnum (fromEnum x - fromEnum 'a' + fromEnum 'A') : xs
 
+ending :: World -> String
+ending world =
+	if isPlayerNow world
+	then " "
+	else "s "
+
+isPlayerNow :: World -> Bool
+isPlayerNow world = (name $ getFirst world) == "You" && (time $ getFirst world) == 0
+	
+	
