@@ -25,7 +25,7 @@ getMonster ai ps name stddmg inv slow x y g = (Monster {
 	(p, newGen) = randomR (0.0, 1.0) g
 
 getPart :: Int -> Int -> Int -> Int -> Part
-getPart knd hp regVel id = Part {
+getPart knd regVel hp id = Part {
 	hp = hp,
 	maxhp = hp,
 	kind = knd,
@@ -45,63 +45,64 @@ getPlayer :: Int -> Int -> Monster
 getPlayer x y = Monster {
 	ai = You,
 	parts = zipWith ($) 
-			[getBody 40 1, 
-			 getHead 30 2, 
-			 getLeg  20 2, 
-			 getLeg  20 2, 
-			 getArm  20 2, 
-			 getArm  20 2]
+			[getBody 1 40, 
+			 getHead 1 30, 
+			 getLeg  2 20, 
+			 getLeg  2 20, 
+			 getArm  2 20, 
+			 getArm  2 20]
 			 [0..],
 	x = x,
 	y = y,
 	name = "You",
-	stddmg = dices [(1,10)] 0.2,
+	stddmg = dices (1,10) 0.2,
 	inv = [],
 	slowness = 100,
 	time = 100,
 	weapon = ' '
 }
 
-getHomunculus = getMonster (aiHumanoid stupidestAI)
-	[getBody 20 1, 
-	 getHead 10 1,
-	 getLeg   5 1,
-	 getLeg   5 1,
-	 getArm   4 1,
-	 getArm   4 1]
-	"Homunculus" (dices [(2,4)] 0.4)
+getHomunculus q = getMonster (aiHumanoid stupidestAI)
+	[getBody 1 $ uniform q 10 30, 
+	 getHead 1 $ uniform q  8 12,
+	 getLeg  1 $ uniform q  3  7,
+	 getLeg  1 $ uniform q  3  7,
+	 getArm  1 $ uniform q  2  6,
+	 getArm  1 $ uniform q  2  6]
+	"Homunculus" (dices (2,4) 0.4)
 	(\p ->
 		if p <= 0.1
 		then [('a', wandOfStriking 1, 1)]
 		else []) 100
 
-getBeetle = getMonster stupidAI
-	[getBody 15 1,
-	 getHead 10 1,
-	 getPaw   7 1,
-	 getPaw   7 1,
-	 getLeg   5 1,
-	 getLeg   5 1,
-	 getLeg   5 1,
-	 getLeg   5 1]
-	 "Beetle" (dices [(1,5)] 0.1) (const []) 100
+getBeetle q = getMonster stupidAI
+	[getBody 1 $ uniform q 10 20,
+	 getHead 1 $ uniform q  5 15,
+	 getPaw  1 $ uniform q  5  9,
+	 getPaw  1 $ uniform q  5  9,
+	 getLeg  1 $ uniform q  2  8,
+	 getLeg  1 $ uniform q  2  8,
+	 getLeg  1 $ uniform q  2  8,
+	 getLeg  1 $ uniform q  2  8]
+	 "Beetle" (dices (1,5) 0.1) (const []) 100
 
-getBat = getMonster randomAI
-	[getBody 30 1, 
-	 getHead 20 1,
-	 getWing 10 2,
-	 getWing 10 2] 
-	"Bat" (dices [(3,5)] 0.2) (const []) 50
+getBat q = getMonster randomAI
+	[getBody 1 $ uniform q 10 50, 
+	 getHead 1 $ uniform q  5 35,
+	 getWing 2 $ uniform q  5 15,
+	 getWing 2 $ uniform q  5 15] 
+	"Bat" (dices (3,5) 0.2) (const []) 50
 	
-getHunter = getMonster (aiHunter $ aiHumanoid stupidAI) 
-	[getBody 30 1, 
-	 getHead 20 1,
-	 getLeg  10 1,
-	 getLeg  10 1, 
-	 getArm  10 1,
-	 getArm  10 1]
-	 "Hunter" (dices [(1,2)] 0.5) 
-	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), ('b', longbow, 1)]) 60
+getHunter q = getMonster (aiHunter $ aiHumanoid stupidAI) 
+	[getBody 1 $ uniform q 20 40, 
+	 getHead 1 $ uniform q 10 30,
+	 getLeg  1 $ uniform q  8 12,
+	 getLeg  1 $ uniform q  8 12,
+	 getArm  1 $ uniform q  8 12,
+	 getArm  1 $ uniform q  8 12]
+	 "Hunter" (dices (1,4) 0.5) 
+	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), 
+		('b', lAUNCHERS !! uniform p 0 (length lAUNCHERS - 1), 1)]) 60
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens

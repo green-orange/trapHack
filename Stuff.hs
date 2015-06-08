@@ -14,8 +14,9 @@ deathDrop "Homunculus" = genDeathDrop
 	(potionOfHealing, bound [0.5, 0.9])]
 deathDrop "Beetle" = genRandomPotion $ bound [0.5]
 deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
-deathDrop "Hunter" = (genRandomTrap $ bound [0.3, 0.8]) .* 
-	genDeathDropByAlph (tail notAlphabet) [(sword, bound [0.6])]
+deathDrop "Hunter" = 
+	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
+	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
 deathDrop _ = (\p -> ([], p))
 
 bound :: [Float] -> Float -> Int
@@ -25,6 +26,11 @@ bound list p = bound' list p 0 where
 		if p < x
 		then n
 		else bound' xs p (n + 1)
+		
+(.+) :: (a -> ([b], a)) -> (a -> ([b], a)) -> (a -> ([b], a))
+(f .+ g) x = (l1 ++ l2, x'') where
+	(l1, x' ) = g x
+	(l2, x'') = f x'
 
 genDeathDrop = genDeathDropByAlph notAlphabet
 
@@ -39,11 +45,19 @@ genRandomPotion = genRandomFoo pOTIONS
 tRAPS = [bearTrap, fireTrap]
 genRandomTrap = genRandomFoo tRAPS
 
-genRandomFoo :: [Object] -> (Float -> Int) -> StdGen -> ([Inv], StdGen)
-genRandomFoo foos f gen =
+lAUNCHERS = [shortbow, bow, longbow]
+genRandomLauncher = genRandomFoo lAUNCHERS
+
+wEAPONS = [dagger, shortsword, sword]
+genRandomWeapon = genRandomFoo wEAPONS
+
+genRandomFoo = genRandomFooByChar $ head notAlphabet
+
+genRandomFooByChar :: Char -> [Object] -> (Float -> Int) -> StdGen -> ([Inv], StdGen)
+genRandomFooByChar c foos f gen =
 	if cnt == 0
 	then ([], gen')
-	else ([(head notAlphabet, obj, cnt)], gen') where
+	else ([(c, obj, cnt)], gen') where
 	(p, gen') = randomR (0.0, fromIntegral $ length foos) gen
 	obj = foos !! (floor p)
 	cnt = f $ p - fromIntegral (floor p)
@@ -108,13 +122,19 @@ fireTrap = Trap {
 
 arrow = Missile {
 	title = "arrow",
-	objdmg = dices [(1,10)] 0.2,
+	objdmg = dices (1,10) 0.2,
 	launcher = "bow"
+}
+
+shortbow = Launcher {
+	title = "short bow",
+	count = 1,
+	category = "bow"
 }
 
 bow = Launcher {
 	title = "bow",
-	count = 1,
+	count = 2,
 	category = "bow"
 }
 
@@ -124,9 +144,19 @@ longbow = Launcher {
 	category = "bow"
 }
 
+dagger = Weapon {
+	title = "dagger",
+	objdmg = dices (1,12) 0.0
+}
+
+shortsword = Weapon {
+	title = "shortsword",
+	objdmg = dices (2,8) 0.1
+}
+
 sword = Weapon {
 	title = "sword",
-	objdmg = dices [(2,10)] 0.1
+	objdmg = dices (2,10) 0.1
 }
 
 trapFromTerrain :: Terrain -> Object

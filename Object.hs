@@ -197,13 +197,15 @@ fireFirst c world = rez where
 		else second $ head listWield
 	listWield = filter (\(x, _, _) -> x == weapon oldMon) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if null objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isMissile obj
 		then (maybeAddMessage "You don't know how to fire it!" failWorld, False)
-		else if (weapon oldMon == ' ') 
+		else if weapon oldMon == ' '
 		then (maybeAddMessage "You have no weapon!" failWorld, False)
-		else if (not $ isLauncher wielded) || (launcher obj /= category wielded)
+		else if not $ isLauncher wielded
+		then (maybeAddMessage "Your weapon is not intended for firing" failWorld, False)
+		else if launcher obj /= category wielded
 		then (maybeAddMessage ("You can't fire " ++ title obj ++ " by " 
 			++ category wielded ++ "!") failWorld, False)
 		else if dir c == Nothing
