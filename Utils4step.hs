@@ -14,21 +14,21 @@ wAIT = 2
 
 newWaveIf :: World -> World
 newWaveIf world =
-			if (foldl (||) False $ map (isSoldier. third) $ units world)
-				|| (not $ isPlayerNow world)
-			then cycleWorld $ resetTime world
-			else if (length $ store world) > 0
-			then
-				if (head $ store world) /= toEnum 0
-				then changeStore [pred $ head $ store world] $ cycleWorld $ resetTime world
-				else changeStore [] $ changeAction ' ' $ addMessage ("Squad #" 
-					++ show (wave world) ++ " landed around you!") 
-					$ newWave $ cycleWorld $ resetTime world
-			else changeStore [toEnum wAIT] $ cycleWorld $ resetTime world
+	if (foldl (||) False $ map (isSoldier. third) $ units world)
+		|| (not $ isPlayerNow world)
+	then cycleWorld $ resetTime world
+	else if (length $ store world) > 0
+	then
+		if (head $ store world) /= toEnum 0
+		then changeStore [pred $ head $ store world] $ cycleWorld $ resetTime world
+		else changeStore [] $ changeAction ' ' $ addMessage ("Squad #" 
+			++ show (wave world) ++ " landed around you!", rED) 
+			$ newWave $ cycleWorld $ resetTime world
+	else changeStore [toEnum wAIT] $ cycleWorld $ resetTime world
 
 cycleWorld :: World -> World
 cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 
-	$ addMessage (msgCleanParts $ third $ head newUnits) w
+	$ addMessages (msgCleanParts $ third $ head newUnits) w
 	where newUnits = cycle' $ units w
 
 cleanFirst :: World -> World

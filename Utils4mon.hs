@@ -42,12 +42,16 @@ regFirst w =
 	then changeMon (regMonster $ getFirst w) w
 	else w
 
-msgCleanParts :: Monster -> String
-msgCleanParts mon = foldl (++) [] $ map (\x ->
-	lostMsg (name mon) $ partToStr $ kind x) $ filter (not . aliveP) $ parts mon
+msgCleanParts :: Monster -> [(String, Int)]
+msgCleanParts mon = foldr (:) [] $ map (\x -> (lostMsg (name mon) 
+	$ partToStr $ kind x, color)) $ filter (not . aliveP) $ parts mon where
+	color = 
+		if name mon == "You"
+		then rED
+		else gREEN
 
 lostMsg :: String -> String -> String
-lostMsg monName partName = monName ++ " lost " ++ addArticle partName ++ ". "
+lostMsg monName partName = monName ++ " lost " ++ addArticle partName ++ "."
 
 isFlying :: Monster -> Bool
 isFlying mon = hasPart wING mon
@@ -55,7 +59,7 @@ isFlying mon = hasPart wING mon
 actTrapFirst :: World -> World
 actTrapFirst w =
 	if time mon == 0
-	then addMessage newMsg $ changeGen g $ changeMon newMon w
+	then addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w
 	else w
 	where
 	(x, y, mon) = head $ units w

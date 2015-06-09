@@ -16,7 +16,7 @@ moveFirst world dx dy =
 		then world
 		else
 			changeMons ((xnew, ynew, changeCoords xnew ynew $ getFirst world) 
-			: (tail $ units world)) $ addMessage newMessage $ world
+			: (tail $ units world)) $ addMessage (newMessage, yELLOW) $ world
 	else
 		attacks world xnew ynew $ countUpperLimbs $ getFirst world
 	where
@@ -36,13 +36,23 @@ attacks :: World -> Int -> Int -> Int -> World
 attacks world x y n = foldr ($) world $ replicate n $ (\w -> attack w x y)
 
 attack :: World -> Int -> Int -> World
-attack world x y = changeMons unitsNew $ addMessage newMsg 
+attack world x y = changeMons unitsNew $ addMessage (newMsg, color) 
 	$ changeAction ' ' $ changeGen newGen' world
 	where
 		attacker = getFirst world
 		found :: Unit -> Bool
 		found (x', y', _) = (x' == x) && (y' == y)
 		(xx,yy,mon) = head $ filter found $ units world
+		color = 
+			if name attacker == "You"
+			then case newDmg of
+				Nothing -> cYAN
+				_		-> gREEN
+			else if name mon == "You"
+			then case newDmg of
+				Nothing -> yELLOW
+				_		-> rED
+			else bLUE
 		change :: Unit -> Unit -> Unit
 		change tnew t = if found t then tnew else t
 		weapons = filter (\(c,_,_) -> c == (weapon attacker)) $ inv attacker

@@ -23,7 +23,7 @@ dropFirst c world ignoreMessages = rez where
 		else if c == KeyChar (weapon $ getFirst world) && (alive $ getFirst world)
 		then (maybeAddMessage "You can't drop weapon that you wield!" 
 			$ changeAction ' ' world, False)
-		else (changeMon mon $ addMessage newMsg $ addItem (x, y, obj, cnt) 
+		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
 	(_, obj, cnt) = head objects
 	(x, y, oldmon) = head $ units world
@@ -47,7 +47,7 @@ quaffFirst c world = rez where
 		else if (not $ isPotion obj)
 		then (maybeAddMessage "You don't know how to quaff it!"
 			$ changeAction ' ' world, False)
-		else (changeGen g $ changeMon mon' $ addMessage newMsg $ changeAction ' ' world, True)
+		else (changeGen g $ changeMon mon' $ addNeutralMessage newMsg $ changeAction ' ' world, True)
 	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world ++ titleShow obj ++ "."
 	[(_, obj, _)] = objects
 	(x, y, oldMon) = head $ units world
@@ -108,7 +108,7 @@ zap world x y dx dy obj =
 			else ""
 		msg = foldl (++) "" $ map msgFilter $ units world
 		(newMons, newG) = actAll (stdgen world) $ units world
-		newMWorld = changeGen newG $ addMessage msg $ changeMons newMons world
+		newMWorld = changeGen newG $ addNeutralMessage msg $ changeMons newMons world
 
 zapMon :: Key -> Char -> World -> World
 zapMon dir obj world = fst $ zapFirst dir $
@@ -122,8 +122,8 @@ pickFirst world =
 		(xMon, yMon, oldMon) = head $ units world
 		itemsWithIndices :: [((Int, Int, Object, Int), Int)]
 		itemsWithIndices = addIndices (\(x', y' , _, _) -> xMon == x' && yMon == y') $ items world
-		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) && (member (alphabet !! n) 
-			$ toPick world)) itemsWithIndices
+		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) && (n < length alphabet) 
+			&& (member (alphabet !! n) $ toPick world)) itemsWithIndices
 		newItems = map fst rest
 		maybeInv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) $ map fst itemsToPick
 	in case maybeInv of
@@ -131,7 +131,11 @@ pickFirst world =
 	Just newInv ->
 		let
 		mon = changeInv newInv oldMon
-		newMessage = oldMessage world ++ name mon ++ " pick" ++ ending world ++ "some objects."
+		color = 
+			if isPlayerNow world
+			then gREEN
+			else yELLOW
+		newMessage = message world ++ [(name mon ++ " pick" ++ ending world ++ "some objects.", color)]
 		in (Just World {
 			units = (xMon, yMon, mon) : (tail $ units world),
 			message = newMessage,
@@ -154,7 +158,7 @@ trapFirst c world = rez where
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if (not $ isTrap obj)
 		then (maybeAddMessage "It's not a trap!" failWorld, False)
-		else (addMessage newMsg $ changeMon mon $ changeMap x y (num obj) $ changeAction ' ' $ world, True)
+		else (addNeutralMessage newMsg $ changeMon mon $ changeMap x y (num obj) $ changeAction ' ' $ world, True)
 	(x, y, oldMon) = head $ units world
 	[(_, obj, _)] = objects
 	mon = delObj c oldMon
@@ -166,7 +170,7 @@ untrapFirst world = rez where
 	rez =
 		if not $ isUntrappable $ worldmap world !! x !! y
 		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
-		else (addItem (x, y, trap, 1) $ addMessage newMsg $ changeMap x y eMPTY 
+		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y eMPTY 
 			$ changeAction ' ' $ world, True)
 	(x, y, mon) = head $ units world
 	failWorld = changeAction ' ' world
@@ -181,7 +185,7 @@ wieldFirst c world = rez where
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not (isWeapon obj || isLauncher obj)
 		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
-		else (addMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
+		else (addNeutralMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
 	(x, y, oldMon) = head $ units world
 	[(_, obj, _)] = objects
 	mon = changeWeapon c oldMon
@@ -244,7 +248,7 @@ fire x y dx dy obj world =
 		msg = case newDmg of
 			Nothing -> capitalize (title obj) ++ " misses."
 			Just _ -> capitalize (title obj) ++ " hits " ++ name (third $ head mons) ++ "."
-		newWorld = addMessage msg $ changeGen g' $ changeMons (map actFilter $ units world) world
+		newWorld = addNeutralMessage msg $ changeGen g' $ changeMons (map actFilter $ units world) world
 		
 fireMon :: Key -> Char -> World -> World
 fireMon dir obj world = fst $ fireFirst dir $

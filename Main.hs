@@ -9,7 +9,6 @@ import Utils4all
 
 import UI.HSCurses.Curses
 import System.Random (StdGen(..), getStdGen)
-import Data.Maybe
 import Data.Set (empty)
 import System.Posix.User
 
@@ -19,7 +18,7 @@ initWorld username gen =
 		worldmap = [[0 | y <- [0..maxY]] | x <- [0..maxX]],
 		dirs = rectdirs (0, 0, maxX, maxY),
 		units = [(div maxX 2, div maxY 2, getPlayer (div maxX 2) (div maxY 2))],
-		message = "Welcome to the TrapHack, " ++ username ++ ".",
+		message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],
 		items = [],
 		action = ' ',
 		stdgen = gen,
@@ -68,14 +67,7 @@ main = do
 		username <- getLoginName
 		initCurses
 		startColor
-		initPair (Pair eMPTY) (defaultForeground) (defaultBackground)
-		initPair (Pair bEARTRAP) (defaultForeground) (fromJust $ color "yellow")
-		initPair (Pair fIRETRAP) (defaultForeground) (fromJust $ color "red")
-		initPair (Pair dEFAULT) (defaultForeground) (defaultBackground)
-		initPair (Pair sAFE) (fromJust $ color "green") (defaultBackground)
-		initPair (Pair uNSAFE) (fromJust $ color "yellow") (defaultBackground)
-		initPair (Pair dANGER) (fromJust $ color "red") (defaultBackground)
-		initPair (Pair nEARDEATH) (fromJust $ color "red") (fromJust $ color "white")
+		initColors
 		keypad stdScr True
 		echo False
 		cursSet CursorInvisible

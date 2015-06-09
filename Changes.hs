@@ -76,14 +76,18 @@ changeMons :: [Unit] -> World -> World
 changeMons mons (World _    message items action stdgen wave toPick store worldmap dirs) =
 			     World mons message items action stdgen wave toPick store worldmap dirs
 
-addMessage :: String -> World -> World
-addMessage s w@(World units _  items action stdgen wave toPick store worldmap dirs) =
-				World units s' items action stdgen wave toPick store worldmap dirs
-	where s' = oldMessage w ++ s
+addMessages :: [(String, Int)] -> World -> World
+addMessages s w@(World units old  items action stdgen wave toPick store worldmap dirs) =
+				World units s'   items action stdgen wave toPick store worldmap dirs
+	where s' = old ++ s
+	
+addMessage :: (String, Int) -> World -> World
+addMessage ("", _) = id
+addMessage s = addMessages [s]
 
 clearMessage :: World -> World
 clearMessage (World units _  items action stdgen wave toPick store worldmap dirs) =
-			  World units "" items action stdgen wave toPick store worldmap dirs
+			  World units [] items action stdgen wave toPick store worldmap dirs
 
 changeGen :: StdGen -> World -> World
 changeGen g (World units message items action _ wave toPick store worldmap dirs) =
@@ -111,8 +115,17 @@ changeMap x y t (World units message items action stdgen wave toPick store oldma
 maybeAddMessage :: String -> World -> World
 maybeAddMessage msg w = 
 	if isPlayerNow w
-	then addMessage msg w
+	then addMessage (msg, yELLOW) w
 	else w
+	
+addNeutralMessage :: String -> World -> World
+addNeutralMessage msg w = 
+	if isPlayerNow w
+	then addMessage (msg, gREEN) w
+	else addMessage (msg, yELLOW) w
+	
+addDefaultMessage :: String -> World -> World
+addDefaultMessage msg w = addMessage (msg, dEFAULT) w
 
 {- Object -}
 
@@ -147,10 +160,3 @@ addItem' i@(x, y, obj, n) list =
 			then (x', y', obj', n + n')
 			else i'
 		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') $ list
-
-oldMessage :: World -> String
-oldMessage world =
-	if msg == "" || last msg == ' '
-	then msg
-	else msg ++ " "
-	where msg = message world

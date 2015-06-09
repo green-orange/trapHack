@@ -8,7 +8,7 @@ lol = undefined
 maxX = 20 :: Int
 maxY = 20 :: Int
 
-alphabet = ['a'..'z']
+alphabet = ['a'..'z'] ++ ['A'..'Z']
 notAlphabet = ['{'..]
 
 doNothing :: IO ()
@@ -83,7 +83,7 @@ instance Eq Object where
 
 data World = World {
 	units :: [Unit],
-	message :: String,
+	message :: [(String, Int)],
 	items :: [(Int, Int, Object, Int)],
 	action :: Char,
 	stdgen :: StdGen,

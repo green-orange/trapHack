@@ -29,7 +29,7 @@ step world c =
 				then Just $ newWaveIf toQuaff
 				else Just toQuaff
 			'z' ->
-				Just $ addMessage "In what direction?" $ changeAction 'Z' $
+				Just $ addDefaultMessage "In what direction?" $ changeAction 'Z' $
 					changeStore (store world ++ [(fromKey c)]) $ world
 			'Z' ->
 				let (toZap, correct) = zapFirst c world in
@@ -54,7 +54,7 @@ step world c =
 				then Just $ newWaveIf toWield
 				else Just toWield
 			'f' ->
-				Just $ addMessage "In what direction?" $ changeAction 'F' $
+				Just $ addDefaultMessage "In what direction?" $ changeAction 'F' $
 					changeStore (store world ++ [(fromKey c)]) $ world
 			'F' ->
 				let (toFire, correct) = fireFirst c world in
@@ -78,10 +78,10 @@ step world c =
 						(Nothing, s) ->
 							let cleanChangePick = foldl (.) id 
 								$ map (changePickFirst . KeyChar) $ toList $ toPick world
-							in Just $ cleanChangePick $ addMessage s $ changeAction ' ' world
+							in Just $ cleanChangePick $ addDefaultMessage s $ changeAction ' ' world
 						(Just pick, _) -> Just $ newWaveIf pick
 				else Just $ changePickFirst c world
-			_ -> Just $ addMessage "You are cheater!" world
+			_ -> Just $ addMessage ("You are cheater!", mAGENTA) world
 		else
 			let newMWorld = aiNow world x y
 			in Just $ newWaveIf newMWorld
@@ -91,7 +91,7 @@ step world c =
 		else
 			let (deadMonster, newStdGen) = addDeathDrop (getFirst world) (stdgen world)
 			in Just $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
-				$ addMessage (name (getFirst world) ++ " die!") world
+				$ addMessage (name (getFirst world) ++ " die!", cYAN) world
 	where
 		AI aiNow = ai $ getFirst world
 		(x, y) = coordsPlayer world
@@ -103,37 +103,37 @@ justStep world c = case dir c of
 		KeyChar 'q' ->
 			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isPotion . second) $ inv $ getFirst world in
-			Just $ addMessage ("What do you want to drink? ["
+			Just $ addDefaultMessage ("What do you want to drink? ["
 			 ++ list ++ "]") $ changeAction 'q' world
 		KeyChar 'z' ->
 			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isWand . second) $ inv $ getFirst world in
-			Just $ addMessage ("What do you want to zap? ["
+			Just $ addDefaultMessage ("What do you want to zap? ["
 			 ++ list ++ "]") $ changeAction 'z' world
 		KeyChar 'd' ->
 			let list = sort $ foldr (:) [] $ map first 
 				$ inv $ getFirst world in
-			Just $ addMessage ("What do you want to drop? ["
+			Just $ addDefaultMessage ("What do you want to drop? ["
 			 ++ list ++ "]") $ changeAction 'd' world
 		KeyChar 't' ->
 			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isTrap . second) $ inv $ getFirst world in
-			Just $ addMessage ("What do you want to set? ["
+			Just $ addDefaultMessage ("What do you want to set? ["
 			 ++ list ++ "] or - to untrap") $ changeAction 't' world
 		KeyChar 'w' -> let
 			list = sort $ foldr (:) [] $ map first 
 				$ filter fil $ inv $ getFirst world
 			fil = (\x -> isWeapon (second x) || isLauncher (second x))
-			in Just $ addMessage ("What do you want to wield? ["
+			in Just $ addDefaultMessage ("What do you want to wield? ["
 				 ++ list ++ "]") $ changeAction 'w' world
 		KeyChar 'f' ->
 			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isMissile . second) $ inv $ getFirst world in
-			Just $ addMessage ("What do you want to fire? ["
+			Just $ addDefaultMessage ("What do you want to fire? ["
 			 ++ list ++ "]") $ changeAction 'f' world
 		KeyChar 'i' ->
 			Just $ changeAction 'i' world
 		KeyChar ',' ->
 			Just $ changeAction ',' world
 		_  ->
-			Just $ addMessage "Unknown action!" world
+			Just $ addMessage ("Unknown action!", yELLOW) world

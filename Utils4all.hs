@@ -17,6 +17,15 @@ bEARTRAP = 1 :: Int
 fIRETRAP = 2 :: Int
 tRAPSNUM = fIRETRAP
 
+dEFAULT	   = tRAPSNUM + 1
+gREEN	   = tRAPSNUM + 2
+yELLOW	   = tRAPSNUM + 3
+rED 	   = tRAPSNUM + 4
+rEDiNVERSE = tRAPSNUM + 5
+cYAN	   = tRAPSNUM + 6
+mAGENTA	   = tRAPSNUM + 7
+bLUE       = tRAPSNUM + 8
+
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon =
 	div (slowness mon) $ 1 + (length $ filter isLowerLimb $ parts mon)

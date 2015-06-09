@@ -5,18 +5,27 @@ import Utils4all
 
 import UI.HSCurses.Curses
 import Data.Set (empty, member, Set)
+import Data.Maybe
 
 shiftDown = 5 :: Int
 shiftRightHP1 = 25 :: Int
 shiftRightHP2 = 30 :: Int
 
-dEFAULT   = tRAPSNUM + 1
-sAFE      = tRAPSNUM + 2
-uNSAFE    = tRAPSNUM + 3
-dANGER    = tRAPSNUM + 4
-nEARDEATH = tRAPSNUM + 5
-
 castEnum = toEnum . fromEnum
+
+initColors :: IO ()
+initColors = do
+	initPair (Pair eMPTY)      (defaultForeground)          (defaultBackground)
+	initPair (Pair bEARTRAP)   (defaultForeground)          (fromJust $ color "yellow")
+	initPair (Pair fIRETRAP)   (defaultForeground)          (fromJust $ color "red")
+	initPair (Pair dEFAULT)    (defaultForeground)          (defaultBackground)
+	initPair (Pair gREEN)      (fromJust $ color "green")   (defaultBackground)
+	initPair (Pair yELLOW)     (fromJust $ color "yellow")  (defaultBackground)
+	initPair (Pair rED)        (fromJust $ color "red")     (defaultBackground)
+	initPair (Pair rEDiNVERSE) (fromJust $ color "red")     (fromJust $ color "white")
+	initPair (Pair cYAN)       (fromJust $ color "cyan")    (defaultBackground)
+	initPair (Pair mAGENTA)    (fromJust $ color "magenta") (defaultBackground)
+	initPair (Pair bLUE)       (fromJust $ color "blue")    (defaultBackground)
 
 drawUnit :: World -> Unit -> IO ()
 drawUnit world (x, y, mon) = do
@@ -43,6 +52,21 @@ showItemsOnGround toPick (c, n, (obj,cnt)) =
 		if member c toPick
 		then " + "
 		else " - "
+		
+showMessages :: [(String, Int)] -> IO ()
+showMessages msgs = (foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> return ()
+
+showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
+showMessage (msg, color) (x, y) = do
+	(attr, _) <- wAttrGet stdScr
+	(h, w) <- scrSize
+	wAttrSet stdScr (attr, Pair color)
+	mvWAddStr stdScr x y msg
+	return $ rez w where
+		rez w = (dx, dy) where
+			dy' = y + 1 + length msg
+			dx = x + div dy' w
+			dy = mod dy' w
 
 draw :: World -> IO()
 draw world =
@@ -75,7 +99,7 @@ draw world =
 		_ -> do
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
-			mvWAddStr stdScr 0 0 $ message world
+			showMessages $ message world
 			foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
 			foldl (>>) doNothing $ map (drawItem world) $ items world
 			foldl (>>) doNothing $ map (drawUnit world) $ units world
@@ -88,15 +112,15 @@ draw world =
 drawPart :: Part -> Int -> IO ()
 drawPart part x = do
 	(attr, pair) <- wAttrGet stdScr
-	wAttrSet stdScr (attr, Pair sAFE)
-	if hp part * 3 < maxhp part * 2
-	then wAttrSet stdScr (attr, Pair uNSAFE)
+	wAttrSet stdScr (attr, Pair gREEN)
+	if hp part * 3 < maxhp part * 2 || hp part <= 10
+	then wAttrSet stdScr (attr, Pair yELLOW)
 	else doNothing
-	if hp part * 3 < maxhp part
-	then wAttrSet stdScr (attr, Pair dANGER)
+	if hp part * 3 < maxhp part || hp part <= 5
+	then wAttrSet stdScr (attr, Pair rED)
 	else doNothing
-	if hp part * 8 < maxhp part
-	then wAttrSet stdScr (attr, Pair nEARDEATH)
+	if hp part * 8 < maxhp part || hp part <= 3
+	then wAttrSet stdScr (attr, Pair rEDiNVERSE)
 	else doNothing
 	mvWAddStr stdScr (shiftDown + x) shiftRightHP1 str1
 	mvWAddStr stdScr (shiftDown + x) shiftRightHP2 str2
