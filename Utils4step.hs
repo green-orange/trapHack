@@ -14,8 +14,8 @@ wAIT = 2
 
 newWaveIf :: World -> World
 newWaveIf world =
-	if (foldl (||) False $ map (isSoldier. third) $ units world)
-		|| (not $ isPlayerNow world)
+	if (not $ isPlayerNow world) ||
+		(length $ filter (isSoldier. third) $ units world) * 8 > wave world
 	then cycleWorld $ resetTime world
 	else if (length $ store world) > 0
 	then

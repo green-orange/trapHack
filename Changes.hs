@@ -10,18 +10,15 @@ import System.Random (StdGen)
 {- Part -}
 
 changeHP :: Int -> Part -> Part
-changeHP n (Part _ maxhp kind idP regVel aliveP) = 
-		    Part n maxhp kind idP regVel aliveP
+changeHP n part = part {hp = n}
 
 {- Monster -}
 
 changeParts :: [Part] -> Monster -> Monster
-changeParts ps (Monster ai _  name stddmg inv slowness time weapon) =
-				Monster ai ps name stddmg inv slowness time weapon
+changeParts ps mon = mon {parts = ps}
 
 changeTime :: Int -> Monster -> Monster
-changeTime t (Monster ai parts name stddmg inv slowness _ weapon) =
-			  Monster ai parts name stddmg inv slowness t weapon
+changeTime t mon = mon {time = t}
 	
 tickDownMon :: Monster -> Monster
 tickDownMon m = changeTime (time m - 1) m
@@ -30,8 +27,7 @@ resetTimeMon :: Monster -> Monster
 resetTimeMon m = changeTime (effectiveSlowness m) m
 
 changeInv :: [Inv] -> Monster -> Monster
-changeInv inv (Monster ai parts name stddmg _   slowness time weapon) =
-			   Monster ai parts name stddmg inv slowness time weapon
+changeInv inv mon = mon {inv = inv}
 
 delObj :: Key -> Monster -> Monster
 delObj c m = changeInv newInv m where
@@ -50,63 +46,51 @@ decChargeByKey c m = changeInv newInv m where
 	newInv = map (\(x, obj,n) -> if x == c then (x, decCharge obj, n) else (x, obj, n)) $ inv m
 
 changeWeapon :: Key -> Monster -> Monster
-changeWeapon c (Monster ai parts name stddmg inv slowness time _) =
-				Monster ai parts name stddmg inv slowness time weapon where
-	weapon = fromKey c
+changeWeapon c mon = mon {weapon = fromKey c}
 
 {- World -}
 
 changeAction :: Char -> World -> World
-changeAction c (World units message items _ stdgen wave toPick store worldmap dirs) =
-				World units message items c stdgen wave toPick store worldmap dirs
+changeAction c w = w {action = c}
 
 changeStore :: [Char] -> World -> World
-changeStore c (World units message items action stdgen wave toPick _ worldmap dirs) =
-			   World units message items action stdgen wave toPick c worldmap dirs
+changeStore c w = w {store = c}
 
 changeMon :: Monster -> World -> World
 changeMon mon w = changeMons ((x, y, mon) : (tail $ units w)) w
 	where (x, y, _) = head $ units w
 
 changeMons :: [Unit] -> World -> World
-changeMons mons (World _    message items action stdgen wave toPick store worldmap dirs) =
-			     World mons message items action stdgen wave toPick store worldmap dirs
+changeMons mons w = w {units = mons}
 
 addMessages :: [(String, Int)] -> World -> World
-addMessages s w@(World units old  items action stdgen wave toPick store worldmap dirs) =
-				World units s'   items action stdgen wave toPick store worldmap dirs
-	where s' = old ++ s
+addMessages s w = w {message = message w ++ s}
 	
 addMessage :: (String, Int) -> World -> World
 addMessage ("", _) = id
 addMessage s = addMessages [s]
 
 clearMessage :: World -> World
-clearMessage (World units _  items action stdgen wave toPick store worldmap dirs) =
-			  World units [] items action stdgen wave toPick store worldmap dirs
+clearMessage w = w {message = []}
 
 changeGen :: StdGen -> World -> World
-changeGen g (World units message items action _ wave toPick store worldmap dirs) =
-			 World units message items action g wave toPick store worldmap dirs
+changeGen g w = w {stdgen = g}
 
 changePickFirst :: Key -> World -> World
-changePickFirst c (World units message items action stdgen wave oldPick store worldmap dirs) =
-				   World units message items action stdgen wave toPick  store worldmap dirs where
+changePickFirst c w = w {toPick = newPick} where
 	KeyChar sym = c
-	toPick =
-		if member sym oldPick
-		then delete sym oldPick
-		else insert sym oldPick
+	newPick =
+		if member sym $ toPick w
+		then delete sym $ toPick w
+		else insert sym $ toPick w
 		
 addItem :: (Int, Int, Object, Int) -> World -> World
-addItem i (World units message olditems action stdgen wave toPick store worldmap dirs) =
-		   World units message items    action stdgen wave toPick store worldmap dirs where
-	items = addItem' i olditems
+addItem i w = w {items = items'} where
+	items' = addItem' i $ items w
 
 changeMap :: Int -> Int -> Terrain -> World -> World
-changeMap x y t (World units message items action stdgen wave toPick store oldmap	dirs) =
-				 World units message items action stdgen wave toPick store worldmap dirs where
-	worldmap = changeElem2 x y t oldmap
+changeMap x y t w = w {worldmap = worldmap'} where
+	worldmap' = changeElem2 x y t $ worldmap w
 	
 maybeAddMessage :: String -> World -> World
 maybeAddMessage msg w = 
@@ -130,12 +114,7 @@ spawnMon mgen x y w = changeMons (units w ++ [(x, y, newMon)]) $ changeGen g w w
 {- Object -}
 
 decCharge :: Object -> Object
-decCharge obj = Wand {
-	title = title obj,
-	act = act obj,
-	range = range obj,
-	charge = charge obj - 1
-}
+decCharge obj = obj {charge = charge obj - 1}
 
 {- Other -}
 

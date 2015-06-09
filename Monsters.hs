@@ -46,13 +46,13 @@ getPlayer :: Int -> Int -> Monster
 getPlayer x y = Monster {
 	ai = You,
 	parts = zipWith ($) 
-			[getBody 1 40, 
-			 getHead 1 30, 
-			 getLeg  2 20, 
-			 getLeg  2 20, 
-			 getArm  2 20, 
-			 getArm  2 20]
-			 [0..],
+		[getBody 1 40, 
+		 getHead 1 30, 
+		 getLeg  2 20, 
+		 getLeg  2 20, 
+		 getArm  2 20, 
+		 getArm  2 20]
+		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
 	inv = [],
@@ -119,7 +119,7 @@ aiIvy world xPlayer yPlayer =
 		(q, g''') = randomR (0.0, 1.0) g''
 
 getIvy q = getMonster aiIvy [getMain 2 $ uniform q 5 15] "Ivy"
-	(dices (1,5) 0) (const []) 100
+	(dices (1,5) 0) (const []) 150
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens

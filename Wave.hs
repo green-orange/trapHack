@@ -29,7 +29,7 @@ genWave n g =
 			1 -> (getBeetle     frac, 3)
 			2 -> (getBat        frac, 1)
 			3 -> (getHunter     frac, 5)
-			4 -> (getIvy        frac, 4)
+			4 -> (getIvy        frac, 8)
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World

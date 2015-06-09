@@ -90,8 +90,7 @@ zap world x y dx dy obj =
 			Nothing -> (True, (0, 0))
 			Just p -> (False, p)
 		decRange :: Object -> Object
-		decRange (Wand title act range  charge) = 
-				  Wand title act range (charge - 1)
+		decRange obj = obj {range = range obj - 1}
 		actAll :: StdGen -> [(Int, Int, Monster)] -> ([(Int, Int, Monster)], StdGen)
 		actAll g [] = ([], g)
 		actAll g (o@(x',y',m):os) = (oNew : osNew, g'') where
@@ -136,17 +135,12 @@ pickFirst world =
 			then gREEN
 			else yELLOW
 		newMessage = message world ++ [(name mon ++ " pick" ++ ending world ++ "some objects.", color)]
-		in (Just World {
+		in (Just world {
 			units = (xMon, yMon, mon) : (tail $ units world),
 			message = newMessage,
 			items = newItems,
 			action = ' ',
-			stdgen = stdgen world,
-			wave = wave world,
-			toPick = empty,
-			store = store world,
-			worldmap = worldmap world,
-			dirs = dirs world
+			toPick = empty
 		}, "")
 		
 

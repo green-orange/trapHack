@@ -13,19 +13,18 @@ import Data.Set (empty)
 import System.Posix.User
 
 initWorld :: String -> StdGen -> World
-initWorld username gen =
-	World {
-		worldmap = [[0 | y <- [0..maxY]] | x <- [0..maxX]],
-		dirs = rectdirs (0, 0, maxX, maxY),
-		units = [(div maxX 2, div maxY 2, getPlayer (div maxX 2) (div maxY 2))],
-		message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],
-		items = [],
-		action = ' ',
-		stdgen = gen,
-		wave = 1,
-		toPick = empty,
-		store = []
-	}
+initWorld username gen = World {
+	worldmap = [[0 | y <- [0..maxY]] | x <- [0..maxX]],
+	dirs = rectdirs (0, 0, maxX, maxY),
+	units = [(div maxX 2, div maxY 2, getPlayer (div maxX 2) (div maxY 2))],
+	message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],
+	items = [],
+	action = ' ',
+	stdgen = gen,
+	wave = 1,
+	toPick = empty,
+	store = []
+}
 
 loop :: World -> IO String
 loop world =

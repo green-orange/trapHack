@@ -48,7 +48,7 @@ msgCleanParts mon = foldr (:) [] $ map (\x -> (lostMsg (name mon)
 	$ partToStr $ kind x, color)) $ filter (not . aliveP) $ parts mon where
 	color = 
 		if name mon == "You"
-		then rED
+		then rEDiNVERSE
 		else gREEN
 
 lostMsg :: String -> String -> String
