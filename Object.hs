@@ -53,6 +53,23 @@ quaffFirst c world = rez where
 	(x, y, oldMon) = head $ units world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
+	
+readFirst :: Key -> World -> (World, Bool)
+readFirst c world = rez where
+	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	rez =
+		if (length objects == 0)
+		then (maybeAddMessage "You haven't this item!" 
+			$ changeAction ' ' world, False)
+		else if (not $ isScroll obj)
+		then (maybeAddMessage "You don't know how to read it!"
+			$ changeAction ' ' world, False)
+		else (changeMon mon' $ addNeutralMessage newMsg $ changeAction ' ' newWorld, True)
+	newMsg = (name $ getFirst world) ++ " read" ++ ending world ++ titleShow obj ++ "."
+	[(_, obj, _)] = objects
+	newWorld = actw obj world
+	(x, y, mon) = head $ units newWorld
+	mon' = delObj c mon
 
 zapFirst :: Key -> World -> (World, Bool)
 zapFirst c world = rez where
@@ -103,7 +120,7 @@ zap world x y dx dy obj =
 				else (o, g)
 		msgFilter (x', y', mon) = 
 			if (x == x') && (y == y')
-			then name mon ++ " was zapped! "
+			then name mon ++ " was zapped!"
 			else ""
 		msg = foldl (++) "" $ map msgFilter $ units world
 		(newMons, newG) = actAll (stdgen world) $ units world

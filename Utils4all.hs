@@ -77,6 +77,10 @@ isPotion :: Object -> Bool
 isPotion (Potion _ _) = True
 isPotion _ = False
 
+isScroll :: Object -> Bool
+isScroll (Scroll _ _) = True
+isScroll _ = False
+
 isWand :: Object -> Bool
 isWand (Wand _ _ _ _) = True
 isWand _ = False

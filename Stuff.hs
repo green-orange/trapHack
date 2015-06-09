@@ -17,7 +17,7 @@ deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
 deathDrop "Hunter" = 
 	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
 	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
-deathDrop "Ivy" = (\p -> ([], p))
+deathDrop "Ivy" = genRandomPotion $ bound [0.7, 0.9]
 deathDrop _ = (\p -> ([], p))
 
 bound :: [Float] -> Float -> Int
@@ -38,7 +38,7 @@ genDeathDrop = genDeathDropByAlph notAlphabet
 genDeathDropByAlph :: [Char] -> [(Object, (Float -> Int))] -> StdGen -> ([Inv], StdGen)
 genDeathDropByAlph _ [] g = ([], g)
 genDeathDropByAlph alph xs g = (zipWith (\x (o,n) -> (x,o,n)) alph ys, g') where
-	(ys, g') = (foldr1 (.*) $ map genDeathDropOne xs) g
+	(ys, g') = (foldr1 (.+) $ map genDeathDropOne xs) g
 
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
 genRandomPotion = genRandomFoo pOTIONS
@@ -51,6 +51,9 @@ genRandomLauncher = genRandomFoo lAUNCHERS
 
 wEAPONS = [dagger, shortsword, sword]
 genRandomWeapon = genRandomFoo wEAPONS
+
+sCROLLS = [scrollOfFire]
+genRandomScroll = genRandomFoo sCROLLS
 
 genRandomFoo = genRandomFooByChar $ head notAlphabet
 
@@ -74,11 +77,6 @@ genDeathDropOne (obj, f) g =
 		p :: Float
 		(p, g') = randomR (0.0, 1.0) g
 		n = f p
-infixr 0 .*
-(.*) :: (StdGen -> ([a], StdGen)) -> (StdGen -> ([a], StdGen)) -> (StdGen -> ([a], StdGen))
-(f .* g) x = (l1 ++ l2, x'') where
-	(l2, x')  = g x
-	(l1, x'') = f x'
 
 potionOfHealing :: Object
 potionOfHealing = Potion {
@@ -99,6 +97,12 @@ potionOfMutation :: Object
 potionOfMutation = Potion {
 	title = "potion of mutation",
 	act = addRandomPart
+}
+
+scrollOfFire :: Object
+scrollOfFire = Scroll {
+	title = "scroll of fire",
+	actw = fireAround 1 (5, 10)
 }
 
 wandOfStriking :: Int -> Object

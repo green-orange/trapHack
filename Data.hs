@@ -53,6 +53,10 @@ data Object =
 		act :: (Monster, StdGen) -> (Monster, StdGen),
 		range :: Int,
 		charge :: Int
+	} |
+	Scroll {
+		title :: String,
+		actw :: World -> World
 	} | 
 	Trap {
 		title :: String,
@@ -77,6 +81,7 @@ instance Eq Object where
 	(Potion t _) == (Potion t' _) = t == t'
 	(Trap t _) == (Trap t' _) = t == t'
 	(Missile t _ _) == (Missile t' _ _) = t == t'
+	(Scroll t _) == (Scroll t' _) = t == t'
 	_ == _ = False
 
 data World = World {

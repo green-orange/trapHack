@@ -150,6 +150,7 @@ symbolTer t
 
 symbolItem :: Object -> Char
 symbolItem (Potion _ _)     = '!'
+symbolItem (Scroll _ _)     = '?'
 symbolItem (Wand _ _ _ _)   = '/'
 symbolItem (Trap _ _)       = '^'
 symbolItem (Missile _ _ _)  = ']'

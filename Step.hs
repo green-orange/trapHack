@@ -28,6 +28,11 @@ step world c =
 				if correct
 				then Just $ newWaveIf toQuaff
 				else Just toQuaff
+			'r' ->
+				let (toRead, correct) = readFirst c world in
+				if correct
+				then Just $ newWaveIf toRead
+				else Just toRead
 			'z' ->
 				Just $ addDefaultMessage "In what direction?" $ changeAction 'Z' $
 					changeStore (store world ++ [(fromKey c)]) $ world
@@ -105,6 +110,11 @@ justStep world c = case dir c of
 				$ filter (isPotion . second) $ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to drink? ["
 			 ++ list ++ "]") $ changeAction 'q' world
+		KeyChar 'r' ->
+			let list = sort $ foldr (:) [] $ map first 
+				$ filter (isScroll . second) $ inv $ getFirst world in
+			Just $ addDefaultMessage ("What do you want to read? ["
+			 ++ list ++ "]") $ changeAction 'r' world
 		KeyChar 'z' ->
 			let list = sort $ foldr (:) [] $ map first 
 				$ filter (isWand . second) $ inv $ getFirst world in

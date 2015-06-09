@@ -2,10 +2,10 @@ module Utils4stuff where
 
 import Data
 import Changes
-import Utils4all
+import Utils4all hiding (split)
 import Random
 
-import System.Random (StdGen, randomR)
+import System.Random (StdGen, randomR, split)
 
 doSmthByFunc :: (a -> Part -> Part) -> (Part -> Bool) -> a -> Monster -> Monster
 doSmthByFunc doSmth f hp mon = changeParts (map filterHeal $ parts mon) mon where
@@ -96,5 +96,26 @@ addPart mon knd hp regVel = changeParts (newPart : parts mon) mon where
 		aliveP = True
 	}
 	newID = (+) 1 $ maximum $ map idP $ parts mon
+
+fireAround :: Int -> (Int, Int) -> World -> World
+fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w where
+	(xNow, yNow, _) = head $ units w
+	(newDmg, g) = randomR pair $ stdgen w
+	newMons = zipWith fireDmg (units w) (infgens g)
+	infgens :: StdGen -> [StdGen]
+	infgens g = g' : infgens g'' where
+		(g', g'') = split g
+	isClose (x, y, _) = abs (x - xNow) <= d && abs (y - yNow) <= d
+	fireDmg arg@(x, y, mon) gen = 
+		if isClose arg
+		then (x, y, fst $ dmgRandom (Just newDmg) mon gen)
+		else arg
+	msg (_,_,mon) = 
+		if name mon == "You"
+		then ("You are in fire!", rED)
+		else (name mon ++ " is in fire!", gREEN)
+	newMsgs = map msg $ filter isClose $ units w
+		
+
 
 
