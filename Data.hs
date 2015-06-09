@@ -33,8 +33,6 @@ data AI = You | AI AIfunc
 data Monster = Monster {
 	ai :: AI,
 	parts :: [Part],
-	x :: Int,
-	y :: Int,
 	name :: String,
 	stddmg :: StdDmg,
 	inv :: [Inv],

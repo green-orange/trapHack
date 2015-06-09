@@ -82,7 +82,6 @@ randomAI world _ _  = (moveFirst newWorld rx ry) where
 	(ry, g'') = randomR (-1, 1) g'
 	newWorld = changeGen g'' world
 
-
 needToBeHealedM :: Monster -> Bool
 needToBeHealedM mon =
 	foldl (||) False $ map (\x -> kind x == bODY && needToBeHealed x) $ parts mon

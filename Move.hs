@@ -15,7 +15,7 @@ moveFirst world dx dy =
 		if (name mon) /= "You" && not (isFlying mon) && worldmap world !! x !! y == bEARTRAP
 		then world
 		else
-			changeMons ((xnew, ynew, changeCoords xnew ynew $ getFirst world) 
+			changeMons ((xnew, ynew, getFirst world) 
 			: (tail $ units world)) $ addMessage (newMessage, yELLOW) $ world
 	else
 		attacks world xnew ynew $ countUpperLimbs $ getFirst world

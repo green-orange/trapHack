@@ -5,6 +5,8 @@ import Stuff
 import Random
 import AI
 import Utils4all
+import Changes
+import Move
 
 import System.Random
 
@@ -12,8 +14,6 @@ getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> Mo
 getMonster ai ps name stddmg inv slow x y g = (Monster {
 	ai = AI ai,
 	parts = zipWith ($) ps [0..],
-	x = x,
-	y = y,
 	name = name,
 	stddmg = stddmg,
 	inv = inv p,
@@ -40,6 +40,7 @@ getLeg  = getPart lEG
 getArm  = getPart aRM
 getWing = getPart wING
 getPaw  = getPart pAW
+getMain = getPart mAIN
 
 getPlayer :: Int -> Int -> Monster
 getPlayer x y = Monster {
@@ -52,8 +53,6 @@ getPlayer x y = Monster {
 			 getArm  2 20, 
 			 getArm  2 20]
 			 [0..],
-	x = x,
-	y = y,
 	name = "You",
 	stddmg = dices (1,10) 0.2,
 	inv = [],
@@ -103,6 +102,24 @@ getHunter q = getMonster (aiHunter $ aiHumanoid stupidAI)
 	 "Hunter" (dices (1,4) 0.5) 
 	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), 
 		('b', lAUNCHERS !! uniform p 0 (length lAUNCHERS - 1), 1)]) 60
+
+aiIvy :: AIfunc
+aiIvy world xPlayer yPlayer = 
+	if abs dx <= 1 && abs dy <= 1
+	then moveFirst world dx dy
+	else if isEmpty world (xNow + dx') (yNow + dy')
+	then spawnMon (getIvy q) (xNow + dx') (yNow + dy') $ changeGen g''' world
+	else world where
+		(xNow, yNow, _) = head $ units world
+		dx = xPlayer - xNow
+		dy = yPlayer - yNow
+		g = stdgen world
+		(dx', g')  = randomR (-1, 1) g
+		(dy', g'') = randomR (-1, 1) g'
+		(q, g''') = randomR (0.0, 1.0) g''
+
+getIvy q = getMonster aiIvy [getMain 2 $ uniform q 5 15] "Ivy"
+	(dices (1,5) 0) (const []) 100
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens

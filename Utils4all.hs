@@ -12,6 +12,8 @@ wING = 4 :: Int
 pAW  = 5 :: Int
 kINDS = pAW
 
+mAIN = 32 :: Int
+
 eMPTY    = 0 :: Int
 bEARTRAP = 1 :: Int
 fIRETRAP = 2 :: Int
@@ -35,7 +37,8 @@ isLowerLimb :: Part -> Bool
 isLowerLimb p = (kind p == lEG) || (kind p == wING) || (kind p == pAW)
 
 isUpperLimb :: Part -> Bool
-isUpperLimb p = (kind p == aRM) || (kind p == wING) || (kind p == pAW)
+isUpperLimb p = (kind p == aRM) || (kind p == wING) || 
+	(kind p == pAW) || (kind p == mAIN)
 
 getFirst :: World -> Monster
 getFirst world =
@@ -60,6 +63,7 @@ partToStr x
 	| x == aRM  = "Arm"
 	| x == wING = "Wing"
 	| x == pAW  = "Paw"
+	| x == mAIN = "Main"
 	| otherwise = error "unknown part"
 
 titleShow :: Object -> String
@@ -175,7 +179,8 @@ rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
 
 
 isEmpty :: World -> Int -> Int -> Bool
-isEmpty world x y = not $ elem (x, y) [ (a, b) | (a, b, _) <- units world ]
+isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
+	(not $ elem (x, y) [ (a, b) | (a, b, _) <- units world ])
 
 isValid :: World -> Int -> Int -> Int -> Int -> Bool
 isValid world x y dx dy = 

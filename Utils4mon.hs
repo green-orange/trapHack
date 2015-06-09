@@ -12,10 +12,11 @@ isSoldier mon = case name mon of
 	"Beetle"     -> True
 	"Bat"        -> False
 	"Hunter"     -> True
+	"Ivy"        -> False
 	_ -> error "unknown monster"
 
 alive :: Monster -> Bool
-alive mon = hasPart bODY mon && hasPart hEAD mon
+alive mon = hasPart bODY mon && hasPart hEAD mon || hasPart mAIN mon
 
 countPart :: Int -> Monster -> Int
 countPart knd = countPartByPred (\x -> kind x == knd)
@@ -51,7 +52,10 @@ msgCleanParts mon = foldr (:) [] $ map (\x -> (lostMsg (name mon)
 		else gREEN
 
 lostMsg :: String -> String -> String
-lostMsg monName partName = monName ++ " lost " ++ addArticle partName ++ "."
+lostMsg monName partName =
+	if partName == "Main"
+	then ""
+	else monName ++ " lost " ++ addArticle partName ++ "."
 
 isFlying :: Monster -> Bool
 isFlying mon = hasPart wING mon

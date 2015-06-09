@@ -17,6 +17,7 @@ deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
 deathDrop "Hunter" = 
 	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
 	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
+deathDrop "Ivy" = (\p -> ([], p))
 deathDrop _ = (\p -> ([], p))
 
 bound :: [Float] -> Float -> Int

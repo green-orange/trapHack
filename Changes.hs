@@ -15,17 +15,13 @@ changeHP n (Part _ maxhp kind idP regVel aliveP) =
 
 {- Monster -}
 
-changeCoords :: Int -> Int -> Monster -> Monster
-changeCoords x y (Monster ai parts _ _ name stddmg inv slowness time weapon) =
-				  Monster ai parts x y name stddmg inv slowness time weapon
-
 changeParts :: [Part] -> Monster -> Monster
-changeParts ps (Monster ai _  x y name stddmg inv slowness time weapon) =
-				Monster ai ps x y name stddmg inv slowness time weapon
+changeParts ps (Monster ai _  name stddmg inv slowness time weapon) =
+				Monster ai ps name stddmg inv slowness time weapon
 
 changeTime :: Int -> Monster -> Monster
-changeTime t (Monster ai parts x y name stddmg inv slowness _ weapon) =
-			  Monster ai parts x y name stddmg inv slowness t weapon
+changeTime t (Monster ai parts name stddmg inv slowness _ weapon) =
+			  Monster ai parts name stddmg inv slowness t weapon
 	
 tickDownMon :: Monster -> Monster
 tickDownMon m = changeTime (time m - 1) m
@@ -34,8 +30,8 @@ resetTimeMon :: Monster -> Monster
 resetTimeMon m = changeTime (effectiveSlowness m) m
 
 changeInv :: [Inv] -> Monster -> Monster
-changeInv inv (Monster ai parts x y name stddmg _   slowness time weapon) =
-			   Monster ai parts x y name stddmg inv slowness time weapon
+changeInv inv (Monster ai parts name stddmg _   slowness time weapon) =
+			   Monster ai parts name stddmg inv slowness time weapon
 
 delObj :: Key -> Monster -> Monster
 delObj c m = changeInv newInv m where
@@ -54,8 +50,8 @@ decChargeByKey c m = changeInv newInv m where
 	newInv = map (\(x, obj,n) -> if x == c then (x, decCharge obj, n) else (x, obj, n)) $ inv m
 
 changeWeapon :: Key -> Monster -> Monster
-changeWeapon c (Monster ai parts x y name stddmg inv slowness time _) =
-				Monster ai parts x y name stddmg inv slowness time weapon where
+changeWeapon c (Monster ai parts name stddmg inv slowness time _) =
+				Monster ai parts name stddmg inv slowness time weapon where
 	weapon = fromKey c
 
 {- World -}
@@ -126,6 +122,10 @@ addNeutralMessage msg w =
 	
 addDefaultMessage :: String -> World -> World
 addDefaultMessage msg w = addMessage (msg, dEFAULT) w
+
+spawnMon :: MonsterGen -> Int -> Int -> World -> World
+spawnMon mgen x y w = changeMons (units w ++ [(x, y, newMon)]) $ changeGen g w where
+	(newMon, g) = mgen x y $ stdgen w
 
 {- Object -}
 
