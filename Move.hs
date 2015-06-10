@@ -1,10 +1,11 @@
 module Move where
 
 import Data
-import Utils4stuff
+--import Utils4stuff
 import Changes
 import Utils4all
 import Utils4mon
+import HealDamage
 
 import System.Random (StdGen)
 
@@ -66,4 +67,13 @@ attack world x y = changeMons unitsNew $ addMessage (newMsg, color)
 			Just _ -> (name attacker) ++ " attacks " ++ (name mon) ++ "!"
 		(monNew, newGen') = dmgRandom newDmg mon newGen
 		unitsNew = map (change (xx,yy,monNew)) $ units world
+		
+stupidestAI :: AIfunc
+stupidestAI world xPlayer yPlayer = 
+	newWorld
+	where
+		(xNow, yNow, _) = head $ units world
+		dx = signum $ xPlayer - xNow
+		dy = signum $ yPlayer - yNow
+		newWorld = moveFirst world dx dy
 

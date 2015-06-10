@@ -29,7 +29,7 @@ genWave n g =
 			0 -> (getHomunculus frac, 2)
 			1 -> (getBeetle     frac, 3)
 			2 -> (getBat        frac, 1)
-			3 -> (getHunter     frac, 3)
+			3 -> (getHunter     frac, 4)
 			4 -> (getIvy        frac, 3)
 		(oldWave, g'') = genWave (n - d) g'
 

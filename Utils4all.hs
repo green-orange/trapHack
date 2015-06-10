@@ -233,3 +233,11 @@ ending world =
 
 isPlayerNow :: World -> Bool
 isPlayerNow world = (name $ getFirst world) == "You" && (time $ getFirst world) == 0
+
+addArticle :: String -> String
+addArticle str = 
+	if str == ""
+	then ""
+	else if (elem (head str) "aeiouAEIOU")
+	then "an " ++ str
+	else "a " ++ str

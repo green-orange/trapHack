@@ -54,7 +54,7 @@ getHunter q = getMonster (aiHunter $ aiHumanoid stupidAI)
 		('b', lAUNCHERS !! uniform p 0 (length lAUNCHERS - 1), 1)]) 60
 
 getIvy q = getMonster aiIvy [getMain 2 $ uniform q 5 15] "Ivy"
-	(dices (1,5) 0) (const []) 300
+	(dices (1,10) 0) (const []) 400
 	
 aiIvy :: AIfunc
 aiIvy world xPlayer yPlayer = 

@@ -38,15 +38,6 @@ aiHunter ai world xPlayer yPlayer =
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		
-stupidestAI :: AIfunc -- monsters attack each other
-stupidestAI world xPlayer yPlayer = 
-	newWorld
-	where
-		(xNow, yNow, _) = head $ units world
-		dx = signum $ xPlayer - xNow
-		dy = signum $ yPlayer - yNow
-		newWorld = moveFirst world dx dy
-		
 stupidAI :: AIfunc
 stupidAI world xPlayer yPlayer = 
 	newWorld

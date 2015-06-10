@@ -45,9 +45,10 @@ drawItem world(x, y, item, _) = do
 	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
-showItemsOnGround :: (Set Char) -> (Char, Int, (Object, Int)) -> IO ()
-showItemsOnGround toPick (c, n, (obj,cnt)) =
-	mvWAddStr stdScr (n + 1) 0 ([c] ++ sym ++ (show cnt) ++ " * " ++ titleShow obj) where
+showItemsOnGround :: Int -> (Set Char) -> (Char, Int, (Object, Int)) -> IO ()
+showItemsOnGround h toPick (c, n, (obj,cnt)) =
+	mvWAddStr stdScr (mod (n + 1) h) (30 * (div (n + 1) h))
+		([c] ++ sym ++ (show cnt) ++ " * " ++ titleShow obj) where
 	sym =
 		if member c toPick
 		then " + "
@@ -69,7 +70,8 @@ showMessage (msg, color) (x, y) = do
 			dy = mod dy' w
 
 draw :: World -> IO()
-draw world =
+draw world = do
+	(h, w) <- scrSize
 	case action world of
 		'i' -> let
 			items = inv $ getFirst world
@@ -81,7 +83,7 @@ draw world =
 			stringsToShow = zip [1..] $ map (\(c, obj, n) -> 
 				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items
 			showInv :: (Int, String) -> IO ()
-			showInv (n, s) = mvWAddStr stdScr n 0 $ s
+			showInv (n, s) = mvWAddStr stdScr (mod n h) (30 * (div n h)) s
 			in do
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
@@ -95,7 +97,7 @@ draw world =
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 "What do you want to pick up? (press Enter to finish)"
-			foldl (>>) doNothing $ map (showItemsOnGround $ toPick world) toShow
+			foldl (>>) doNothing $ map (showItemsOnGround h $ toPick world) toShow
 		_ -> do
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)

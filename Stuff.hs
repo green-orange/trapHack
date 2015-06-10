@@ -6,13 +6,12 @@ import Utils4all
 import Utils4mon
 import Random
 import Monsters
+import HealDamage
 
 import System.Random
 
 deathDrop :: String -> StdGen -> ([Inv], StdGen)
-deathDrop "Homunculus" = genDeathDrop
-	[((wandOfStriking 3), bound [0.7, 0.95]), 
-	(potionOfHealing, bound [0.5, 0.9])]
+deathDrop "Homunculus" = genRandomWand $ bound [0.6]
 deathDrop "Beetle" = genRandomPotion $ bound [0.5]
 deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
 deathDrop "Hunter" = 
@@ -55,6 +54,9 @@ genRandomWeapon = genRandomFoo wEAPONS
 
 sCROLLS = [scrollOfFire, scrollOfAnimation]
 genRandomScroll = genRandomFoo sCROLLS
+
+wANDS = [wandOfStriking 3, wandOfStupidity 2]
+genRandomWand = genRandomFoo wANDS
 
 genRandomFoo = genRandomFooByChar $ head notAlphabet
 
@@ -115,8 +117,16 @@ scrollOfAnimation = Scroll {
 wandOfStriking :: Int -> Object
 wandOfStriking ch = Wand {
 	title = "wand of striking",
-	act = unrandom $ dmgAll $ Just 5,
+	act = unrandom $ dmgAll $ Just 10,
 	range = 5,
+	charge = ch
+}
+
+wandOfStupidity :: Int -> Object
+wandOfStupidity ch = Wand {
+	title = "wand of stupidity",
+	act = unrandom stupidity,
+	range = 3,
 	charge = ch
 }
 

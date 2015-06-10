@@ -6,6 +6,7 @@ import Utils4all
 import Stuff
 import Utils4stuff
 import Utils4mon
+import HealDamage
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (member, empty, size)

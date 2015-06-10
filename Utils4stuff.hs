@@ -4,65 +4,13 @@ import Data
 import Changes
 import Utils4all hiding (split)
 import Random
+import Move (stupidestAI)
+import HealDamage
 
 import System.Random (StdGen, randomR, split)
 
-doSmthByFunc :: (a -> Part -> Part) -> (Part -> Bool) -> a -> Monster -> Monster
-doSmthByFunc doSmth f hp mon = changeParts (map filterHeal $ parts mon) mon where
-	filterHeal part = 
-		if f part
-		then doSmth hp part
-		else part
-		
-doSmthParts :: (a -> Part -> Part) -> Int -> a -> Monster -> Monster
-doSmthParts doSmth knd = doSmthByFunc doSmth (\x -> kind x == knd)
-
-doSmthPartById :: (a -> Part -> Part) -> Int -> a -> Monster -> Monster
-doSmthPartById doSmth id = doSmthByFunc doSmth (\x -> idP x == id)
-
-doSmthAll :: (a -> Part -> Part) -> a -> Monster -> Monster
-doSmthAll doSmth = doSmthByFunc doSmth $ const True
-
-heal :: Int -> Part -> Part
-heal n part = changeHP (min (maxhp part) $ hp part + n) part
-
-healParts = doSmthParts heal
-healPartById = doSmthPartById heal
-healAll = doSmthAll heal
-
-dmgParts = doSmthParts dmg
-dmgPartById = doSmthPartById dmg
-dmgAll = doSmthAll dmg
-
-dmgRandom :: Maybe Int -> Monster -> StdGen -> (Monster, StdGen)
-dmgRandom mbDmg mon g = (dmgPartById idNew mbDmg mon, g') where
-	(n, g') = randomR (0, (length $ parts mon) - 1) g
-	idNew = idP $ parts mon !! n
-
-dmg :: Maybe Int -> Part -> Part
-dmg Nothing part = part
-dmg (Just n) part = Part {
-	hp =
-		if die
-		then 0
-		else hp part - n,
-	maxhp = maxhp part,
-	aliveP = not die,
-	kind = kind part,
-	regVel = regVel part,
-	idP = idP part
-} where die = hp part <= n
-
 cleanParts :: Monster -> Monster
 cleanParts mon = changeParts (filter aliveP $ parts mon) mon
-
-addArticle :: String -> String
-addArticle str = 
-	if str == ""
-	then ""
-	else if (elem (head str) "aeiouAEIOU")
-	then "an " ++ str
-	else "a " ++ str
 
 upgrade :: Int -> Part -> Part
 upgrade n part = Part {
@@ -115,6 +63,12 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 		then ("You are in fire!", rED)
 		else (name mon ++ " is in fire!", gREEN)
 	newMsgs = map msg $ filter isClose $ units w
+	
+stupidity :: Monster -> Monster
+stupidity mon = mon {ai = newAI} where
+	newAI = case ai mon of
+		You -> You
+		AI _ -> AI stupidestAI
 
 
 

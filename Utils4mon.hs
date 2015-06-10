@@ -2,8 +2,9 @@ module Utils4mon where
 
 import Data
 import Utils4all
-import Utils4stuff
+--import Utils4stuff
 import Changes
+import HealDamage
 
 isSoldier :: Monster -> Bool
 isSoldier mon = case name mon of
