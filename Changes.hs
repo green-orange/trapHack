@@ -41,6 +41,10 @@ delObj c m = changeInv newInv m where
 		then (x, o, n - 1)
 		else (x, o, n)
 
+delAllObj :: Key -> Monster -> Monster
+delAllObj c m = changeInv newInv m where
+	newInv = filter (\(x,_,_) -> KeyChar x /= c) $ inv m
+		
 decChargeByKey :: Char -> Monster -> Monster
 decChargeByKey c m = changeInv newInv m where
 	newInv = map (\(x, obj,n) -> if x == c then (x, decCharge obj, n) else (x, obj, n)) $ inv m

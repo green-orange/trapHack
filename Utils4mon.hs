@@ -13,6 +13,7 @@ isSoldier mon = case name mon of
 	"Bat"        -> False
 	"Hunter"     -> True
 	"Ivy"        -> False
+	"Dummy"      -> False
 	_ -> error "unknown monster"
 
 alive :: Monster -> Bool

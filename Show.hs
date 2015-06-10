@@ -141,6 +141,7 @@ symbolMon "Beetle"     = 'a'
 symbolMon "Bat"        = 'B'
 symbolMon "Hunter"     = 'H'
 symbolMon "Ivy"        = 'I'
+symbolMon "Dummy"      = '&'
 symbolMon _            = error "unknown monster"
 
 symbolTer :: Terrain -> Char

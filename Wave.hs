@@ -2,6 +2,7 @@ module Wave where
 
 import Data
 import Monsters
+import MonsterList
 
 import System.Random (StdGen, randomR)
 
@@ -28,8 +29,8 @@ genWave n g =
 			0 -> (getHomunculus frac, 2)
 			1 -> (getBeetle     frac, 3)
 			2 -> (getBat        frac, 1)
-			3 -> (getHunter     frac, 5)
-			4 -> (getIvy        frac, 8)
+			3 -> (getHunter     frac, 3)
+			4 -> (getIvy        frac, 3)
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World

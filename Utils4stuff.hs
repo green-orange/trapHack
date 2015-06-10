@@ -115,7 +115,6 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 		then ("You are in fire!", rED)
 		else (name mon ++ " is in fire!", gREEN)
 	newMsgs = map msg $ filter isClose $ units w
-		
 
 
 

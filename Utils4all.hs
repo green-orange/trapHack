@@ -233,5 +233,3 @@ ending world =
 
 isPlayerNow :: World -> Bool
 isPlayerNow world = (name $ getFirst world) == "You" && (time $ getFirst world) == 0
-	
-	

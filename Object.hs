@@ -27,7 +27,7 @@ dropFirst c world ignoreMessages = rez where
 			$ changeAction ' ' world, True)
 	(_, obj, cnt) = head objects
 	(x, y, oldmon) = head $ units world
-	mon = delObj c $ oldmon
+	mon = delAllObj c $ oldmon
 	newMsg =
 		if ignoreMessages
 		then ""

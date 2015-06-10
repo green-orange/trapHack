@@ -5,6 +5,7 @@ import Utils4stuff
 import Utils4all
 import Utils4mon
 import Random
+import Monsters
 
 import System.Random
 
@@ -17,7 +18,7 @@ deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
 deathDrop "Hunter" = 
 	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
 	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
-deathDrop "Ivy" = genRandomPotion $ bound [0.7, 0.9]
+deathDrop "Ivy" = genRandomScroll $ bound [0.7, 0.9]
 deathDrop _ = (\p -> ([], p))
 
 bound :: [Float] -> Float -> Int
@@ -52,7 +53,7 @@ genRandomLauncher = genRandomFoo lAUNCHERS
 wEAPONS = [dagger, shortsword, sword]
 genRandomWeapon = genRandomFoo wEAPONS
 
-sCROLLS = [scrollOfFire]
+sCROLLS = [scrollOfFire, scrollOfAnimation]
 genRandomScroll = genRandomFoo sCROLLS
 
 genRandomFoo = genRandomFooByChar $ head notAlphabet
@@ -105,6 +106,12 @@ scrollOfFire = Scroll {
 	actw = fireAround 1 (5, 10)
 }
 
+scrollOfAnimation :: Object
+scrollOfAnimation = Scroll {
+	title = "scroll of animation",
+	actw = animateAround
+}
+
 wandOfStriking :: Int -> Object
 wandOfStriking ch = Wand {
 	title = "wand of striking",
@@ -127,7 +134,7 @@ fireTrap = Trap {
 
 arrow = Missile {
 	title = "arrow",
-	objdmg = dices (1,10) 0.2,
+	objdmg = dices (1,6) 0.2,
 	launcher = "bow"
 }
 

@@ -82,4 +82,3 @@ randomAI world _ _  = (moveFirst newWorld rx ry) where
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
 	newWorld = changeGen g'' world
-	
