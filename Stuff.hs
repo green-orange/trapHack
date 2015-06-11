@@ -7,6 +7,7 @@ import Utils4mon
 import Random
 import Monsters
 import HealDamage
+import GarbageCollector
 
 import System.Random
 
@@ -52,7 +53,7 @@ genRandomLauncher = genRandomFoo lAUNCHERS
 wEAPONS = [dagger, shortsword, sword]
 genRandomWeapon = genRandomFoo wEAPONS
 
-sCROLLS = [scrollOfFire, scrollOfAnimation]
+sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection]
 genRandomScroll = genRandomFoo sCROLLS
 
 wANDS = [wandOfStriking 3, wandOfStupidity 2]
@@ -112,6 +113,12 @@ scrollOfAnimation :: Object
 scrollOfAnimation = Scroll {
 	title = "scroll of animation",
 	actw = animateAround
+}
+
+scrollOfCollection :: Object
+scrollOfCollection = Scroll {
+	title = "scroll of collection",
+	actw = randomSpawn getGarbageCollector
 }
 
 wandOfStriking :: Int -> Object
@@ -186,7 +193,4 @@ trapFromTerrain t
 	| t == bEARTRAP = bearTrap
 	| t == fIRETRAP = fireTrap
 	| otherwise = error "unknown trap"
-	
-isUntrappable :: Terrain -> Bool
-isUntrappable = (/=) eMPTY
  

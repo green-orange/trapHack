@@ -137,14 +137,15 @@ flatarray2line' start (x:xs) = (zip3 [start, start..] [0, 1..] x) ++ (flatarray2
 flatarray2line = flatarray2line' 0
 
 symbolMon :: String -> Char
-symbolMon "You"        = '@'
-symbolMon "Homunculus" = 'h'
-symbolMon "Beetle"     = 'a'
-symbolMon "Bat"        = 'B'
-symbolMon "Hunter"     = 'H'
-symbolMon "Ivy"        = 'I'
-symbolMon "Dummy"      = '&'
-symbolMon _            = error "unknown monster"
+symbolMon "You"               = '@'
+symbolMon "Homunculus"        = 'h'
+symbolMon "Beetle"            = 'a'
+symbolMon "Bat"               = 'B'
+symbolMon "Hunter"            = 'H'
+symbolMon "Ivy"               = 'I'
+symbolMon "Dummy"             = '&'
+symbolMon "Garbage collector" = 'G'
+symbolMon _                   = error "unknown monster"
 
 symbolTer :: Terrain -> Char
 symbolTer t

@@ -69,6 +69,9 @@ stupidity mon = mon {ai = newAI} where
 	newAI = case ai mon of
 		You -> You
 		AI _ -> AI stupidestAI
+	
+isUntrappable :: Terrain -> Bool
+isUntrappable = (/=) eMPTY
 
 
 

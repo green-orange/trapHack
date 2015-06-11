@@ -2,19 +2,19 @@ module Utils4mon where
 
 import Data
 import Utils4all
---import Utils4stuff
 import Changes
 import HealDamage
 
 isSoldier :: Monster -> Bool
 isSoldier mon = case name mon of
-	"You"        -> False
-	"Homunculus" -> True
-	"Beetle"     -> True
-	"Bat"        -> False
-	"Hunter"     -> True
-	"Ivy"        -> False
-	"Dummy"      -> False
+	"You"               -> False
+	"Homunculus"        -> True
+	"Beetle"            -> True
+	"Bat"               -> False
+	"Hunter"            -> True
+	"Ivy"               -> False
+	"Dummy"             -> False
+	"Garbage collector" -> False
 	_ -> error "unknown monster"
 
 alive :: Monster -> Bool

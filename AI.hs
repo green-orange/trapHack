@@ -3,6 +3,7 @@ module AI where
 import Data
 import Move
 import Object
+import ObjectOverall
 import Utils4all
 import Changes
 import Utils4AI

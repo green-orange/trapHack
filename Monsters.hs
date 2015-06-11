@@ -90,3 +90,17 @@ animate x y w =
 animateAround w = foldr ($) w $ [animate] >>= applToNear x >>= applToNear y where
 	(x, y, _) = head $ units w
 	applToNear x f = map f [x-1, x, x+1]
+	
+randomSpawn :: MonsterGen -> World -> World
+randomSpawn mgen w = newWorld where
+	(x, y, _) = head $ units w
+	neighbors = [(x', y') | x' <- [x-1,x,x+1], y' <- [y-1,y,y+1]]
+	emptyNeighbors = filter (uncurry $ isEmpty w) neighbors
+	newWorld = 
+		if null emptyNeighbors
+		then maybeAddMessage "There is no place for the garbage collector!" w
+		else changeGen g $ spawnMon mgen xR yR w
+	(r, g) = randomR (0, length emptyNeighbors - 1) $ stdgen w
+	(xR, yR) = emptyNeighbors !! r
+
+
