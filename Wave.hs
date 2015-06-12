@@ -23,17 +23,17 @@ genWave n g =
 	else (genM : oldWave, g'')
 	where
 		p :: Float
-		(p, g') = randomR (0.0, 5.0) g
+		(p, g') = randomR (0.0, 6.0) g
 		frac = p - fromIntegral (floor p)
 		(genM, d) = case floor p of
-			0 -> (getHomunculus frac, 2)
-			1 -> (getBeetle     frac, 3)
-			2 -> (getBat        frac, 1)
-			3 -> (getHunter     frac, 4)
-			4 -> (getIvy        frac, 3)
+			0 -> (getHomunculus  frac, 2)
+			1 -> (getBeetle      frac, 3)
+			2 -> (getBat         frac, 1)
+			3 -> (getHunter      frac, 4)
+			4 -> (getIvy         frac, 3)
+			5 -> (getAccelerator frac, 3)
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World
-newWave (World oldUnits message items action oldStdgen  wave      toPick store worldmap dirs) =
-		 World units    message items action stdgen    (wave + 1) toPick store worldmap dirs where
-	(units, stdgen) = addWave wave (oldUnits, oldStdgen)
+newWave w = w {units = newUnits, stdgen = newStdGen, wave = wave w + 1} where
+	(newUnits, newStdGen) = addWave (wave w) (units w, stdgen w)

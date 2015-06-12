@@ -35,8 +35,8 @@ step world c =
 				then Just $ newWaveIf toRead
 				else Just toRead
 			'z' ->
-				Just $ addDefaultMessage "In what direction?" $ changeAction 'Z' $
-					changeStore (store world ++ [(fromKey c)]) $ world
+				Just $ addDefaultMessage "In what direction?" $ changeAction 'Z' 
+				$ world {prevAction = fromKey c}
 			'Z' ->
 				let (toZap, correct) = zapFirst c world in
 				if correct
@@ -60,8 +60,8 @@ step world c =
 				then Just $ newWaveIf toWield
 				else Just toWield
 			'f' ->
-				Just $ addDefaultMessage "In what direction?" $ changeAction 'F' $
-					changeStore (store world ++ [(fromKey c)]) $ world
+				Just $ addDefaultMessage "In what direction?" $ changeAction 'F' 
+				$ world {prevAction = fromKey c}
 			'F' ->
 				let (toFire, correct) = fireFirst c world in
 				if correct

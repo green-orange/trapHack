@@ -47,7 +47,7 @@ readFirst c world = rez where
 
 zapFirst :: Key -> World -> (World, Bool)
 zapFirst c world = rez where
-	objects = filter (\(x, _, _) -> x == last (store world)) $ inv $ getFirst world
+	objects = filter (\(x, _, _) -> x == prevAction world) $ inv $ getFirst world
 	rez =
 		if (length objects == 0)
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
@@ -57,7 +57,7 @@ zapFirst c world = rez where
 		then (maybeAddMessage "It's not a direction!" failWorld, False)
 		else if charge obj == 0
 		then (maybeAddMessage "This wand has no charge!" failWorld, True)
-		else (changeMon mon $ changeStore (init $ store world) $ changeAction ' ' $ newMWorld, True)
+		else (changeMon mon $ changeAction ' ' $ newMWorld, True)
 	(x, y, _) = head $ units world
 	(dx, dy) = fromJust $ dir c
 	maybeCoords = dirs world (x, y, dx, dy)
@@ -66,8 +66,8 @@ zapFirst c world = rez where
 		Nothing -> failWorld
 	(_, _, oldMon) = head $ units newMWorld
 	[(_, obj, _)] = objects
-	mon = decChargeByKey (last $ store newMWorld) $ oldMon
-	failWorld = changeStore (init $ store world) $ changeAction ' ' world
+	mon = decChargeByKey (prevAction newMWorld) $ oldMon
+	failWorld = changeAction ' ' world
 
 zap :: World -> Int -> Int -> Int -> Int -> Object -> World
 zap world x y dx dy obj = 
@@ -101,8 +101,7 @@ zap world x y dx dy obj =
 		newMWorld = changeGen newG $ addNeutralMessage msg $ changeMons newMons world
 
 zapMon :: Key -> Char -> World -> World
-zapMon dir obj world = fst $ zapFirst dir $
-	changeStore (store world ++ [obj]) world
+zapMon dir obj world = fst $ zapFirst dir $ world {prevAction = obj}
 		
 trapFirst :: Key -> World -> (World, Bool)
 trapFirst c world = rez where
@@ -148,7 +147,7 @@ wieldFirst c world = rez where
 	
 fireFirst :: Key -> World -> (World, Bool)
 fireFirst c world = rez where
-	objects = filter (\(x, _, _) -> x == last (store world)) $ inv $ getFirst world
+	objects = filter (\(x, _, _) -> x == prevAction world) $ inv $ getFirst world
 	wielded =
 		if null listWield
 		then Something
@@ -168,7 +167,7 @@ fireFirst c world = rez where
 			++ category wielded ++ "!") failWorld, False)
 		else if dir c == Nothing
 		then (maybeAddMessage "It's not a direction!" failWorld, False)
-		else (changeStore (init $ store world) $ changeAction ' ' newWorld, True)
+		else (changeAction ' ' newWorld, True)
 	(x, y, oldMon) = head $ units world
 	maybeCoords = dirs world (x, y, dx, dy)
 	cnt = min n $ count wielded
@@ -178,8 +177,8 @@ fireFirst c world = rez where
 		Nothing -> failWorld
 	Just (dx, dy) = dir c
 	[(_, obj, n)] = objects
-	fulldel = foldr (.) id $ replicate cnt $ delObj $ KeyChar $ last $ store world
-	failWorld = changeStore (init $ store world) $ changeAction ' ' world
+	fulldel = foldr (.) id $ replicate cnt $ delObj $ KeyChar $ prevAction world
+	failWorld = changeAction ' ' world
 	
 fire :: Int -> Int -> Int -> Int -> Object -> World -> World
 fire x y dx dy obj world = 
@@ -205,8 +204,7 @@ fire x y dx dy obj world =
 		newWorld = addNeutralMessage msg $ changeGen g' $ changeMons (map actFilter $ units world) world
 		
 fireMon :: Key -> Char -> World -> World
-fireMon dir obj world = fst $ fireFirst dir $
-	changeStore (store world ++ [obj]) world
+fireMon dir obj world = fst $ fireFirst dir $ world {prevAction = obj}
 
 
 	

@@ -145,6 +145,7 @@ symbolMon "Hunter"            = 'H'
 symbolMon "Ivy"               = 'I'
 symbolMon "Dummy"             = '&'
 symbolMon "Garbage collector" = 'G'
+symbolMon "Accelerator"       = 'A'
 symbolMon _                   = error "unknown monster"
 
 symbolTer :: Terrain -> Char

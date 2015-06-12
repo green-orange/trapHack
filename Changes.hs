@@ -57,9 +57,6 @@ changeWeapon c mon = mon {weapon = fromKey c}
 changeAction :: Char -> World -> World
 changeAction c w = w {action = c}
 
-changeStore :: [Char] -> World -> World
-changeStore c w = w {store = c}
-
 changeMon :: Monster -> World -> World
 changeMon mon w = changeMons ((x, y, mon) : (tail $ units w)) w
 	where (x, y, _) = head $ units w

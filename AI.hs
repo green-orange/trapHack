@@ -12,6 +12,11 @@ import System.Random
 import Data.Maybe (fromJust)
 import UI.HSCurses.Curses (Key (..))
 
+aiAccelerator :: AIfunc -> AIfunc
+aiAccelerator f w x y = f (changeMon newMon w) x y where
+	oldMon = getFirst w 
+	newMon = oldMon {slowness = max 1 $ slowness oldMon - 7}
+
 aiHumanoid :: AIfunc -> AIfunc
 aiHumanoid ai world xPlayer yPlayer =
 	if (canBeHealed $ getFirst world) && (needToBeHealedM $ getFirst world)

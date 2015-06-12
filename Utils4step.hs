@@ -10,21 +10,28 @@ import Wave
 
 import System.Random (StdGen)
 
-wAIT = 2
+bIGpAUSE = 100
+pAUSE    = 3
+
+wait :: Int -> Int
+wait n = case mod n 10 of
+	0 -> bIGpAUSE
+	_ -> pAUSE
 
 newWaveIf :: World -> World
 newWaveIf world =
 	if (not $ isPlayerNow world) ||
 		(length $ filter (isSoldier. third) $ units world) * 8 > wave world
 	then cycleWorld $ resetTime world
-	else if (length $ store world) > 0
-	then
-		if (head $ store world) /= toEnum 0
-		then changeStore [pred $ head $ store world] $ cycleWorld $ resetTime world
-		else changeStore [] $ changeAction ' ' $ addMessage ("Squad #" 
+	else
+		if stepsBeforeWave world > 0
+		then (cycleWorld $ resetTime world)
+			{stepsBeforeWave = stepsBeforeWave world - 1}
+		else if stepsBeforeWave world == 0
+		then (changeAction ' ' $ addMessage ("Squad #" 
 			++ show (wave world) ++ " landed around you!", rED) 
-			$ newWave $ cycleWorld $ resetTime world
-	else changeStore [toEnum wAIT] $ cycleWorld $ resetTime world
+			$ newWave $ cycleWorld $ resetTime world) {stepsBeforeWave = -1}
+		else (cycleWorld $ resetTime world) {stepsBeforeWave = wait $ wave world}
 
 cycleWorld :: World -> World
 cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 

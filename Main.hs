@@ -23,7 +23,8 @@ initWorld username gen = World {
 	stdgen = gen,
 	wave = 1,
 	toPick = empty,
-	store = []
+	prevAction = ' ',
+	stepsBeforeWave = 1
 }
 
 loop :: World -> IO String

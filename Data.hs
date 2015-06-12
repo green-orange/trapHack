@@ -92,7 +92,8 @@ data World = World {
 	stdgen :: StdGen,
 	wave :: Int,
 	toPick :: Set Char,
-	store :: [Char],
 	worldmap :: [[Terrain]],
-	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int)
+	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
+	stepsBeforeWave :: Int,
+	prevAction :: Char
 }
