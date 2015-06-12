@@ -19,7 +19,8 @@ deathDrop "Hunter" =
 	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
 	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
 deathDrop "Ivy" = genRandomScroll $ bound [0.7, 0.9]
-deathDrop "Accelerator" = genRandomScroll $ bound [0.3, 0.6, 0.9]
+deathDrop "Accelerator" = genRandomScroll $ bound [0.6, 0.9]
+deathDrop "Troll" = genRandomWand $ bound [0.6]
 deathDrop _ = (\p -> ([], p))
 
 bound :: [Float] -> Float -> Int

@@ -6,14 +6,15 @@ import Random
 import Move
 import Changes
 import ObjectOverall
+import Parts
 
 import Data.List (minimumBy)
 import Data.Function (on)
 import Data.Maybe (fromJust)
 import UI.HSCurses.Curses (Key (..))
 
-collecterAI :: AIfunc
-collecterAI world _ _ = 
+collectorAI :: AIfunc
+collectorAI world _ _ = 
 	if isItemHere
 	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changePickFirst . KeyChar) alphabet
 	else moveFirst world dx dy
@@ -29,7 +30,7 @@ collecterAI world _ _ =
 			else (signum $ xItem - xNow,
 				  signum $ yItem - yNow)
 				  
-getGarbageCollector = getMonster collecterAI
+getGarbageCollector = getMonster collectorAI
 	[getBody 1 30, 
 	 getHead 1 20,
 	 getLeg  1 10,

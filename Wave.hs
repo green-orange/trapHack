@@ -23,7 +23,7 @@ genWave n g =
 	else (genM : oldWave, g'')
 	where
 		p :: Float
-		(p, g') = randomR (0.0, 6.0) g
+		(p, g') = randomR (0.0, 7.0) g
 		frac = p - fromIntegral (floor p)
 		(genM, d) = case floor p of
 			0 -> (getHomunculus  frac, 2)
@@ -32,6 +32,7 @@ genWave n g =
 			3 -> (getHunter      frac, 4)
 			4 -> (getIvy         frac, 3)
 			5 -> (getAccelerator frac, 3)
+			6 -> (getTroll       frac, 3)
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World

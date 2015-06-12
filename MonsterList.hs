@@ -8,6 +8,7 @@ import Utils4all
 import Stuff
 import Move
 import AI
+import Parts
 
 import System.Random
 
@@ -61,6 +62,15 @@ getAccelerator q = getMonster (aiAccelerator stupidAI)
 	 getArm  1 $ uniform q  2  6,
 	 getArm  1 $ uniform q  2  6]
 	"Accelerator" (dices (1,6) 0.2) (const []) 150
+	
+getTroll q = getMonster (aiTroll stupidAI)
+	[getBody 2 $ uniform q 10 30,
+	 getHead 2 $ uniform q 10 20,
+	 getLeg  3 $ uniform q  8 12,
+	 getLeg  3 $ uniform q  8 12,
+	 getArm  3 $ uniform q  8 12,
+	 getArm  3 $ uniform q  8 12]
+	 "Troll" (dices (2,5) 0.2) (const []) 100
 
 getIvy q = getMonster aiIvy [getMain 2 $ uniform q 5 15] "Ivy"
 	(dices (1,10) 0) (const []) 400

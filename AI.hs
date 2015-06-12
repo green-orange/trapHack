@@ -7,6 +7,7 @@ import ObjectOverall
 import Utils4all
 import Changes
 import Utils4AI
+import Parts
 
 import System.Random
 import Data.Maybe (fromJust)
@@ -16,6 +17,24 @@ aiAccelerator :: AIfunc -> AIfunc
 aiAccelerator f w x y = f (changeMon newMon w) x y where
 	oldMon = getFirst w 
 	newMon = oldMon {slowness = max 1 $ slowness oldMon - 7}
+	
+aiTroll :: AIfunc -> AIfunc
+aiTroll f w x y = 
+	if any (<= 5) $ map hp $ filter (\x -> kind x == hEAD || kind x == bODY) 
+		$ parts $ getFirst w
+	then addMessage ("Troll turned into a rock", bLUE) $ changeMon rock w
+	else f w x y
+	
+rock = Monster {
+	ai = AI (\w _ _ -> w),
+	parts = [getMain 0 500 0],
+	name = "Rock",
+	stddmg = lol,
+	inv = [],
+	slowness = 10000,
+	time = 10000,
+	weapon = ' '
+}
 
 aiHumanoid :: AIfunc -> AIfunc
 aiHumanoid ai world xPlayer yPlayer =

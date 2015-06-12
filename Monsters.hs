@@ -4,26 +4,9 @@ import Data
 import Random
 import Utils4all
 import Changes
+import Parts
 
 import System.Random (StdGen, randomR)
-
-getPart :: Int -> Int -> Int -> Int -> Part
-getPart knd regVel hp id = Part {
-	hp = hp,
-	maxhp = hp,
-	kind = knd,
-	idP = id,
-	regVel = regVel,
-	aliveP = True
-}
-
-getBody = getPart bODY
-getHead = getPart hEAD
-getLeg  = getPart lEG
-getArm  = getPart aRM
-getWing = getPart wING
-getPaw  = getPart pAW
-getMain = getPart mAIN
 	
 getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
 getMonster ai ps name stddmg inv slow x y g = (Monster {
