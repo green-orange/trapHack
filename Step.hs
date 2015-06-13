@@ -107,41 +107,33 @@ justStep world c = case dir c of
 	Just (dx, dy) -> Just $ newWaveIf $ moveFirst world dx dy
 	Nothing -> case c of
 		KeyChar 'q' ->
-			let list = sort $ foldr (:) [] $ map first 
-				$ filter (isPotion . second) $ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to drink? ["
-			 ++ list ++ "]") $ changeAction 'q' world
+			 ++ listOfValidChars isPotion world ++ "]") 
+			 $ changeAction 'q' world
 		KeyChar 'r' ->
-			let list = sort $ foldr (:) [] $ map first 
-				$ filter (isScroll . second) $ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to read? ["
-			 ++ list ++ "]") $ changeAction 'r' world
+			 ++ listOfValidChars isScroll world ++ "]") 
+			 $ changeAction 'r' world
 		KeyChar 'z' ->
-			let list = sort $ foldr (:) [] $ map first 
-				$ filter (isWand . second) $ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to zap? ["
-			 ++ list ++ "]") $ changeAction 'z' world
+			 ++ listOfValidChars isWand world ++ "]") 
+			 $ changeAction 'z' world
 		KeyChar 'd' ->
-			let list = sort $ foldr (:) [] $ map first 
-				$ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to drop? ["
-			 ++ list ++ "]") $ changeAction 'd' world
+			 ++ listOfValidChars (const True) world ++ "]") 
+			 $ changeAction 'd' world
 		KeyChar 't' ->
-			let list = sort $ foldr (:) [] $ map first 
-				$ filter (isTrap . second) $ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to set? ["
-			 ++ list ++ "] or - to untrap") $ changeAction 't' world
-		KeyChar 'w' -> let
-			list = sort $ foldr (:) [] $ map first 
-				$ filter fil $ inv $ getFirst world
-			fil = (\x -> isWeapon (second x) || isLauncher (second x))
-			in Just $ addDefaultMessage ("What do you want to wield? ["
-				 ++ list ++ "]") $ changeAction 'w' world
+			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 
+			 $ changeAction 't' world
+		KeyChar 'w' -> 
+			Just $ addDefaultMessage ("What do you want to wield? ["
+			 ++ listOfValidChars (\x -> isLauncher x || isWeapon x) world ++ "]") 
+			 $ changeAction 'w' world
 		KeyChar 'f' ->
-			let list = sort $ foldr (:) [] $ map first 
-				$ filter (isMissile . second) $ inv $ getFirst world in
 			Just $ addDefaultMessage ("What do you want to fire? ["
-			 ++ list ++ "]") $ changeAction 'f' world
+			 ++ listOfValidChars isMissile world ++ "]") 
+			 $ changeAction 'f' world
 		KeyChar 'i' ->
 			Just $ changeAction 'i' world
 		KeyChar ',' ->

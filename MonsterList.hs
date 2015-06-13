@@ -12,8 +12,9 @@ import AI
 import Parts
 
 import System.Random
+import qualified Data.Map as M
 
-getHomunculus q = getMonster (aiHumanoid stupidestAI)
+getHomunculus q = getMonster (humanoidAI stupidestAI)
 	[getBody 1 $ uniform q 10 30, 
 	 getHead 1 $ uniform q  8 12,
 	 getLeg  1 $ uniform q  3  7,
@@ -23,8 +24,8 @@ getHomunculus q = getMonster (aiHumanoid stupidestAI)
 	"Homunculus" (dices (2,4) 0.4)
 	(\p ->
 		if p <= 0.1
-		then [('a', wandOfStriking 1, 1)]
-		else []) 100
+		then M.singleton 'a' (wandOfStriking 1, 1)
+		else M.empty) 100
 
 getBeetle q = getMonster stupidAI
 	[getBody 1 $ uniform q 10 20,
@@ -35,16 +36,16 @@ getBeetle q = getMonster stupidAI
 	 getLeg  1 $ uniform q  2  8,
 	 getLeg  1 $ uniform q  2  8,
 	 getLeg  1 $ uniform q  2  8]
-	 "Beetle" (dices (1,5) 0.1) (const []) 100
+	 "Beetle" (dices (1,5) 0.1) (const M.empty) 100
 
 getBat q = getMonster randomAI
 	[getBody 1 $ uniform q 10 50, 
 	 getHead 1 $ uniform q  5 35,
 	 getWing 2 $ uniform q  5 15,
 	 getWing 2 $ uniform q  5 15] 
-	"Bat" (dices (3,5) 0.2) (const []) 50
+	"Bat" (dices (3,5) 0.2) (const M.empty) 50
 	
-getHunter q = getMonster (aiHunter $ aiHumanoid stupidAI) 
+getHunter q = getMonster (hunterAI $ humanoidAI stupidAI) 
 	[getBody 1 $ uniform q 10 30,
 	 getHead 1 $ uniform q 10 30,
 	 getLeg  1 $ uniform q  5 10,
@@ -52,32 +53,32 @@ getHunter q = getMonster (aiHunter $ aiHumanoid stupidAI)
 	 getArm  1 $ uniform q  5 10,
 	 getArm  1 $ uniform q  5 10]
 	 "Hunter" (dices (1,4) 0.5) 
-	 (\p -> [('a', arrow, 10 * inverseSquareRandom p), 
-		('b', lAUNCHERS !! uniform p 0 (length lAUNCHERS - 1), 1)]) 60
+	 (\p -> M.insert 'a' (arrow, 10 * inverseSquareRandom p) $
+		M.singleton 'b' (lAUNCHERS !! uniform p 0 (length lAUNCHERS - 1), 1)) 60
 		
-getAccelerator q = getMonster (aiAccelerator stupidAI)
+getAccelerator q = getMonster (acceleratorAI stupidAI)
 	[getBody 1 $ uniform q 10 20, 
 	 getHead 1 $ uniform q  8 12,
 	 getLeg  1 $ uniform q  3  7,
 	 getLeg  1 $ uniform q  3  7,
 	 getArm  1 $ uniform q  2  6,
 	 getArm  1 $ uniform q  2  6]
-	"Accelerator" (dices (1,6) 0.2) (const []) 150
+	"Accelerator" (dices (1,6) 0.2) (const M.empty) 150
 	
-getTroll q = getMonster (aiTroll stupidAI)
+getTroll q = getMonster (trollAI stupidAI)
 	[getBody 2 $ uniform q 10 30,
 	 getHead 2 $ uniform q 10 20,
 	 getLeg  3 $ uniform q  8 12,
 	 getLeg  3 $ uniform q  8 12,
 	 getArm  3 $ uniform q  8 12,
 	 getArm  3 $ uniform q  8 12]
-	 "Troll" (dices (2,5) 0.2) (const []) 100
+	 "Troll" (dices (2,5) 0.2) (const M.empty) 100
 
-getIvy q = getMonster aiIvy [getMain 2 $ uniform q 5 15] "Ivy"
-	(dices (2,10) 0) (const []) 600
+getIvy q = getMonster ivyAI [getMain 2 $ uniform q 5 15] "Ivy"
+	(dices (2,10) 0) (const M.empty) 600
 
-aiIvy :: AIfunc
-aiIvy world xPlayer yPlayer = 
+ivyAI :: AIfunc
+ivyAI world xPlayer yPlayer = 
 	if abs dx <= 1 && abs dy <= 1
 	then moveFirst world dx dy
 	else if isEmpty world (xNow + dx') (yNow + dy')

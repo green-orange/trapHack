@@ -12,14 +12,15 @@ import Parts
 import System.Random
 import Data.Maybe (fromJust)
 import UI.HSCurses.Curses (Key (..))
+import Data.Map (empty)
 
-aiAccelerator :: AIfunc -> AIfunc
-aiAccelerator f w x y = f (changeMon newMon w) x y where
+acceleratorAI :: AIfunc -> AIfunc
+acceleratorAI f w x y = f (changeMon newMon w) x y where
 	oldMon = getFirst w 
 	newMon = oldMon {slowness = max 1 $ slowness oldMon - 7}
 	
-aiTroll :: AIfunc -> AIfunc
-aiTroll f w x y = 
+trollAI :: AIfunc -> AIfunc
+trollAI f w x y = 
 	if any (<= 5) $ map hp $ filter (\x -> kind x == hEAD || kind x == bODY) 
 		$ parts $ getFirst w
 	then addMessage ("Troll turned into a rock", bLUE) $ changeMon rock w
@@ -30,38 +31,56 @@ rock = Monster {
 	parts = [getMain 0 500 0],
 	name = "Rock",
 	stddmg = lol,
-	inv = [],
+	inv = empty,
 	slowness = 10000,
 	time = 10000,
 	weapon = ' '
 }
 
-aiHumanoid :: AIfunc -> AIfunc
-aiHumanoid ai world xPlayer yPlayer =
-	if (canBeHealed $ getFirst world) && (needToBeHealedM $ getFirst world)
-	then fst $ quaffFirst (KeyChar $ healAI world) world
-	else if (canZapToAttack $ getFirst world) && isOnLine 5 xNow yNow xPlayer yPlayer
-	then zapMon (undir dx dy) (zapAI world) world
-	else if length objects > 0
-	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changePickFirst . KeyChar) alphabet
-	else ai world xPlayer yPlayer
-	where
-		(xNow, yNow, _) = head $ units world
-		objects = filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items world
+humanoidAI :: AIfunc -> AIfunc
+humanoidAI = healAI . zapAttackAI . pickAI
+		
+healAI :: AIfunc -> AIfunc
+healAI f w x y = 
+	if (canBeHealed $ getFirst w) && (needToBeHealedM $ getFirst w)
+	then fst $ quaffFirst (KeyChar $ healingAI w) w
+	else f w x y
+	
+zapAttackAI :: AIfunc -> AIfunc
+zapAttackAI f w xPlayer yPlayer = 
+	if (canZapToAttack $ getFirst w) && isOnLine 5 xNow yNow xPlayer yPlayer
+	then zapMon (undir dx dy) (zapAI w) w
+	else f w xPlayer yPlayer where
+		(xNow, yNow, _) = head $ units w
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		
-aiHunter :: AIfunc -> AIfunc
-aiHunter ai world xPlayer yPlayer =
-	if (weapon $ getFirst world) == ' '
-	then fst $ wieldFirst (KeyChar $ launcherAI world) world
-	else if (canFire $ getFirst world) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
+pickAI :: AIfunc -> AIfunc
+pickAI f w x y =
+	if length objects > 0
+	then fromJust $ fst $ pickFirst $ foldr ($) w $ map (changePickFirst . KeyChar) alphabet
+	else f w x y where
+		(xNow, yNow, _) = head $ units w
+		objects = filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items w
+		
+fireAI :: AIfunc -> AIfunc
+fireAI ai world xPlayer yPlayer =
+	if (canFire $ getFirst world) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
 	then fireMon (undir dx dy) (missileAI world) world
 	else ai world xPlayer yPlayer
 	where
 		(xNow, yNow, _) = head $ units world
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
+		
+wieldLauncherAI :: AIfunc -> AIfunc
+wieldLauncherAI f w x y = 
+	if (weapon $ getFirst w) == ' '
+	then fst $ wieldFirst (KeyChar $ launcherAI w) w
+	else f w x y
+	
+hunterAI :: AIfunc -> AIfunc
+hunterAI = wieldLauncherAI . fireAI
 		
 stupidAI :: AIfunc
 stupidAI world xPlayer yPlayer = 

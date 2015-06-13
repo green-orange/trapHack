@@ -12,6 +12,7 @@ import Data.List (minimumBy)
 import Data.Function (on)
 import Data.Maybe (fromJust)
 import UI.HSCurses.Curses (Key (..))
+import Data.Map (empty)
 
 collectorAI :: AIfunc
 collectorAI world _ _ = 
@@ -37,4 +38,4 @@ getGarbageCollector = getMonster collectorAI
 	 getLeg  1 10,
 	 getArm  1 10,
 	 getArm  1 10]
-	 "Garbage collector" (dices (2,4) 0.4) (const []) 100
+	 "Garbage collector" (dices (2,4) 0.4) (const empty) 100

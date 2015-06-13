@@ -7,6 +7,7 @@ import Changes
 import Parts
 
 import System.Random (StdGen, randomR)
+import Data.Map (empty)
 	
 getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
 getMonster ai ps name stddmg inv slow x y g = (Monster {
@@ -35,13 +36,13 @@ getPlayer x y = Monster {
 		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
-	inv = [],
+	inv = empty,
 	slowness = 100,
 	time = 100,
 	weapon = ' '
 }
 		
-getDummy n q = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const []) 100
+getDummy n q = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const empty) 100
 
 addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
 addMonsters gens pair = foldr addMonster pair gens

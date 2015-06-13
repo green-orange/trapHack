@@ -8,12 +8,14 @@ import Utils4mon
 import Control.Monad ((>=>))
 import Data.Set (member, empty, size)
 import UI.HSCurses.Curses (Key (..))
+import qualified Data.Map as M
+import Data.Maybe (isNothing, fromJust)
 
 dropFirst :: Key -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages = rez where
-	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if (isNothing objects)
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
 		else if c == KeyChar (weapon $ getFirst world) && (alive $ getFirst world)
@@ -21,7 +23,7 @@ dropFirst c world ignoreMessages = rez where
 			$ changeAction ' ' world, False)
 		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
-	(_, obj, cnt) = head objects
+	(obj, cnt) = fromJust objects
 	(x, y, oldmon) = head $ units world
 	mon = delAllObj c $ oldmon
 	newMsg =
@@ -31,7 +33,7 @@ dropFirst c world ignoreMessages = rez where
 
 dropAll :: World -> World
 dropAll world = foldr (\x y -> fst $ dropFirst x y True) world $ 
-	map (KeyChar . first) $ inv $ getFirst world
+	map (KeyChar . fst) $ M.toList $ inv $ getFirst world
 
 pickFirst :: World -> (Maybe World, String)
 pickFirst world =
@@ -63,24 +65,23 @@ pickFirst world =
 			toPick = empty
 		}, "")
 
-addInvs :: [Inv] -> [(Object, Int)] -> Maybe [Inv]
+addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
 addInvs startInv items = (foldl (>=>) return $ map addInv items) startInv
 
-addInv :: (Object, Int) -> [Inv] -> Maybe [Inv]
-addInv (obj, cnt) list  =
-	if null this
-	then addInvWithAlphabet alphabet list (obj,cnt)
-	else Just $ map change list
+addInv :: (Object, Int) -> Inv -> Maybe Inv
+addInv (obj, cnt) list =
+	if isHere
+	then Just $ M.map change list 
+	else addInvWithAlphabet alphabet list (obj,cnt)
 	where
-		addInvWithAlphabet :: [Char] -> [Inv] -> (Object, Int) -> Maybe [Inv]
+		addInvWithAlphabet :: [Char] -> Inv -> (Object, Int) -> Maybe Inv
 		addInvWithAlphabet [] _ _ = Nothing
 		addInvWithAlphabet alph inv (obj, cnt) = 
-			if length this == 0
-			then Just $ (head alph, obj, cnt) : inv
-			else addInvWithAlphabet (tail alph) inv (obj, cnt) where
-				this = filter (\(x, _, _) -> x == head alph) inv
-		this = filter (\(_,obj',_) -> obj' == obj) list
-		change (c, o, n) = 
+			if M.member (head alph) list
+			then addInvWithAlphabet (tail alph) inv (obj, cnt)
+			else Just $ M.insert (head alph) (obj, cnt) inv where
+		isHere = M.foldl (||) False $ M.map (\(obj',_) -> obj' == obj) list
+		change (o, n) = 
 			if o == obj
-			then (c, o, n + cnt)
-			else (c, o, n)
+			then (o, n + cnt)
+			else (o, n)

@@ -8,50 +8,51 @@ import Utils4stuff
 import HealDamage
 
 import UI.HSCurses.Curses (Key(..))
-import Data.Maybe (fromJust)
+import Data.Maybe (isNothing, fromJust)
 import System.Random (StdGen)
+import qualified Data.Map as M
 
 quaffFirst :: Key -> World -> (World, Bool)
 quaffFirst c world = rez where
-	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if isNothing objects
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
-		else if (not $ isPotion obj)
+		else if not $ isPotion obj
 		then (maybeAddMessage "You don't know how to quaff it!"
 			$ changeAction ' ' world, False)
 		else (changeGen g $ changeMon mon' $ addNeutralMessage newMsg $ changeAction ' ' world, True)
 	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world ++ titleShow obj ++ "."
-	[(_, obj, _)] = objects
+	(obj, _) = fromJust objects
 	(x, y, oldMon) = head $ units world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
 	
 readFirst :: Key -> World -> (World, Bool)
 readFirst c world = rez where
-	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if isNothing objects
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
-		else if (not $ isScroll obj)
+		else if not $ isScroll obj
 		then (maybeAddMessage "You don't know how to read it!"
 			$ changeAction ' ' world, False)
 		else (changeMon mon' $ addNeutralMessage newMsg $ changeAction ' ' newWorld, True)
 	newMsg = (name $ getFirst world) ++ " read" ++ ending world ++ titleShow obj ++ "."
-	[(_, obj, _)] = objects
+	(obj, _) = fromJust objects
 	newWorld = actw obj world
 	(x, y, mon) = head $ units newWorld
 	mon' = delObj c mon
 
 zapFirst :: Key -> World -> (World, Bool)
 zapFirst c world = rez where
-	objects = filter (\(x, _, _) -> x == prevAction world) $ inv $ getFirst world
+	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
-		else if (not $ isWand obj)
+		else if not $ isWand obj
 		then (maybeAddMessage "You don't know how to zap it!" failWorld, False)
 		else if dir c == Nothing
 		then (maybeAddMessage "It's not a direction!" failWorld, False)
@@ -65,7 +66,7 @@ zapFirst c world = rez where
 		Just (xNew, yNew) -> zap world xNew yNew dx dy obj
 		Nothing -> failWorld
 	(_, _, oldMon) = head $ units newMWorld
-	[(_, obj, _)] = objects
+	(obj, _) = fromJust objects
 	mon = decChargeByKey (prevAction newMWorld) $ oldMon
 	failWorld = changeAction ' ' world
 
@@ -105,15 +106,15 @@ zapMon dir obj world = fst $ zapFirst dir $ world {prevAction = obj}
 		
 trapFirst :: Key -> World -> (World, Bool)
 trapFirst c world = rez where
-	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
-		else if (not $ isTrap obj)
+		else if not $ isTrap obj
 		then (maybeAddMessage "It's not a trap!" failWorld, False)
 		else (addNeutralMessage newMsg $ changeMon mon $ changeMap x y (num obj) $ changeAction ' ' $ world, True)
 	(x, y, oldMon) = head $ units world
-	[(_, obj, _)] = objects
+	(obj, _) = fromJust objects
 	mon = delObj c oldMon
 	failWorld = changeAction ' ' world
 	newMsg = (name oldMon) ++ " set" ++ ending world ++ title obj ++ "."
@@ -132,29 +133,29 @@ untrapFirst world = rez where
 	
 wieldFirst :: Key -> World -> (World, Bool)
 wieldFirst c world = rez where
-	objects = filter (\(x, _, _) -> KeyChar x == c) $ inv $ getFirst world
+	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if (length objects == 0)
+		if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not (isWeapon obj || isLauncher obj)
 		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
 		else (addNeutralMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
 	(x, y, oldMon) = head $ units world
-	[(_, obj, _)] = objects
+	(obj, _) = fromJust objects
 	mon = changeWeapon c oldMon
 	failWorld = changeAction ' ' world
 	newMsg = (name oldMon) ++ " wield" ++ ending world ++ title obj ++ "."
 	
 fireFirst :: Key -> World -> (World, Bool)
 fireFirst c world = rez where
-	objects = filter (\(x, _, _) -> x == prevAction world) $ inv $ getFirst world
+	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	wielded =
-		if null listWield
+		if isNothing listWield
 		then Something
-		else second $ head listWield
-	listWield = filter (\(x, _, _) -> x == weapon oldMon) $ inv $ getFirst world
+		else fst $ fromJust listWield
+	listWield = M.lookup (weapon oldMon) $ inv $ getFirst world
 	rez =
-		if null objects
+		if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isMissile obj
 		then (maybeAddMessage "You don't know how to fire it!" failWorld, False)
@@ -176,7 +177,7 @@ fireFirst c world = rez where
 			fire xNew yNew dx dy obj) $ changeMon (fulldel oldMon) world
 		Nothing -> failWorld
 	Just (dx, dy) = dir c
-	[(_, obj, n)] = objects
+	(obj, n) = fromJust objects
 	fulldel = foldr (.) id $ replicate cnt $ delObj $ KeyChar $ prevAction world
 	failWorld = changeAction ' ' world
 	

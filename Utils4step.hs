@@ -9,6 +9,8 @@ import Utils4stuff
 import Wave
 
 import System.Random (StdGen)
+import Data.List (sort)
+import qualified Data.Map as M
 
 bIGpAUSE = 100
 pAUSE    = 3
@@ -54,7 +56,7 @@ coordsPlayer w =
 		yous = filter (\(_,_,x) -> (name x == "You")) $ units w
 
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
-addDeathDrop mon g = (changeInv (inv mon ++ newDrop) mon, newGen) where
+addDeathDrop mon g = (changeInv (M.union (inv mon) newDrop) mon, newGen) where
 	(newDrop, newGen) = deathDrop (name mon) g
 
 tickDown :: World -> World
@@ -62,4 +64,8 @@ tickDown w = changeMon (tickDownMon $ getFirst w) w
 
 resetTime :: World -> World
 resetTime w = changeMon (resetTimeMon $ getFirst w) w
+
+listOfValidChars :: (Object -> Bool) -> World -> [Char]
+listOfValidChars f world = sort $ foldr (:) [] $ M.keys 
+	$ M.filter (f . fst) $ inv $ getFirst world
 

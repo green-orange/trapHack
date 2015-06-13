@@ -10,18 +10,17 @@ import HealDamage
 import GarbageCollector
 
 import System.Random
+import qualified Data.Map as M
 
-deathDrop :: String -> StdGen -> ([Inv], StdGen)
-deathDrop "Homunculus" = genRandomWand $ bound [0.6]
-deathDrop "Beetle" = genRandomPotion $ bound [0.5]
-deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
-deathDrop "Hunter" = 
-	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
-	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
-deathDrop "Ivy" = genRandomScroll $ bound [0.9]
-deathDrop "Accelerator" = genRandomScroll $ bound [0.6, 0.9]
-deathDrop "Troll" = genRandomWand $ bound [0.6]
-deathDrop _ = (\p -> ([], p))
+deathDrop :: String -> StdGen -> (Inv, StdGen)
+deathDrop "Homunculus" = genDeathDrop [(wANDS, bound [0.6])]
+deathDrop "Beetle" = genDeathDrop [(pOTIONS, bound [0.5])]
+deathDrop "Bat" = genDeathDrop [(pOTIONS, bound [0.3, 0.8])]
+deathDrop "Hunter" = genDeathDrop [(tRAPS, bound [0.3, 0.8]), (wEAPONS, bound [0.6])]
+deathDrop "Ivy" = genDeathDrop [(sCROLLS, bound [0.9])]
+deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
+deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
+deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int
 bound list p = bound' list p 0 where
@@ -30,64 +29,32 @@ bound list p = bound' list p 0 where
 		if p < x
 		then n
 		else bound' xs p (n + 1)
-		
-(.+) :: (a -> ([b], a)) -> (a -> ([b], a)) -> (a -> ([b], a))
-(f .+ g) x = (l1 ++ l2, x'') where
-	(l1, x' ) = g x
-	(l2, x'') = f x'
 
 genDeathDrop = genDeathDropByAlph notAlphabet
 
-genDeathDropByAlph :: [Char] -> [(Object, (Float -> Int))] -> StdGen -> ([Inv], StdGen)
-genDeathDropByAlph _ [] g = ([], g)
-genDeathDropByAlph alph xs g = (zipWith (\x (o,n) -> (x,o,n)) alph ys, g') where
-	(ys, g') = (foldr1 (.+) $ map genDeathDropOne xs) g
+genDeathDropByAlph :: String -> [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
+genDeathDropByAlph _ [] g = (M.empty, g)
+genDeathDropByAlph alph ((objs, f):xs) g =
+	case f p of
+		0 -> genDeathDropByAlph alph xs g'
+		_ -> (M.insert (head alph) newObj rest, newG)
+	where
+		(p, g') = randomR (0.0, 1.0) g
+		(ind, g'') = randomR (0, length objs - 1) g'
+		newObj = (objs !! ind, f p)
+		(rest, newG) = genDeathDropByAlph (tail alph) xs g''
 
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
-genRandomPotion = genRandomFoo pOTIONS
-
 tRAPS = [bearTrap, fireTrap]
-genRandomTrap = genRandomFoo tRAPS
-
 lAUNCHERS = [shortbow, bow, longbow]
-genRandomLauncher = genRandomFoo lAUNCHERS
-
 wEAPONS = [dagger, shortsword, sword]
-genRandomWeapon = genRandomFoo wEAPONS
-
 sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety]
-genRandomScroll = genRandomFoo sCROLLS
-
 wANDS =
 	map wandOfStriking  [1..5] ++
 	map wandOfStupidity [1..5] ++
 	map wandOfSpeed     [1..2] ++
 	map wandOfRadiation [1..4]
-genRandomWand = genRandomFoo wANDS
-
-genRandomFoo = genRandomFooByChar $ head notAlphabet
-
-genRandomFooByChar :: Char -> [Object] -> (Float -> Int) -> StdGen -> ([Inv], StdGen)
-genRandomFooByChar c foos f gen =
-	if cnt == 0
-	then ([], gen')
-	else ([(c, obj, cnt)], gen') where
-	(p, gen') = randomR (0.0, fromIntegral $ length foos) gen
-	obj = foos !! (floor p)
-	cnt = f $ p - fromIntegral (floor p)
 	
-genDeathDropOne :: (Object, (Float -> Int)) -> StdGen -> ([(Object, Int)], StdGen)
-genDeathDropOne (obj, f) g = 
-	if n == 0
-	then ([], g')
-	else if isStackable obj
-	then ([(obj, n)], g')
-	else (replicate n (obj, 1), g')
-	where
-		p :: Float
-		(p, g') = randomR (0.0, 1.0) g
-		n = f p
-
 potionOfHealing :: Object
 potionOfHealing = Potion {
 	title = "potion of healing",

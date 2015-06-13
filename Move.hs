@@ -6,7 +6,10 @@ import Utils4all
 import Utils4mon
 import HealDamage
 
+import Prelude hiding (lookup)
 import System.Random (StdGen)
+import qualified Data.Map as M
+import Data.Maybe (fromJust, isNothing)
 
 moveFirst :: World -> Int -> Int -> World
 moveFirst world dx dy =
@@ -55,11 +58,11 @@ attack world x y = changeMons unitsNew $ addMessage (newMsg, color)
 			else bLUE
 		change :: Unit -> Unit -> Unit
 		change tnew t = if found t then tnew else t
-		weapons = filter (\(c,_,_) -> c == (weapon attacker)) $ inv attacker
+		weapons = M.lookup (weapon attacker) (inv attacker)
 		dmggen = 
-			if null weapons || (not $ isWeapon $ second $ head weapons)
+			if isNothing weapons || (not $ isWeapon $ fst $ fromJust weapons)
 			then stddmg attacker
-			else objdmg $ second $ head weapons
+			else objdmg $ fst $ fromJust weapons
 		(newDmg, newGen) =  dmggen world
 		newMsg = case newDmg of
 			Nothing -> (name attacker) ++ " missed!"

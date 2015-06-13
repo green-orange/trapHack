@@ -3,9 +3,10 @@ module Changes where
 import Data
 import Utils4all
 
-import Data.Set (member, delete, insert)
+import qualified Data.Set as S
 import UI.HSCurses.Curses (Key (..))
 import System.Random (StdGen)
+import qualified Data.Map as M
 
 {- Part -}
 
@@ -26,28 +27,22 @@ tickDownMon m = changeTime (time m - 1) m
 resetTimeMon :: Monster -> Monster
 resetTimeMon m = changeTime (effectiveSlowness m) m
 
-changeInv :: [Inv] -> Monster -> Monster
+changeInv :: Inv -> Monster -> Monster
 changeInv inv mon = mon {inv = inv}
 
 delObj :: Key -> Monster -> Monster
 delObj c m = changeInv newInv m where
-	[obj] = filter (\(x,_,_) -> KeyChar x == c) $ inv m
-	newInv = 
-		if third obj == 1
-		then filter (\(x, _, _) -> KeyChar x /= c) $ inv m
-		else map decCount $ inv m
-	decCount (x, o, n) = 
-		if KeyChar x == c
-		then (x, o, n - 1)
-		else (x, o, n)
+	newInv = M.update maybeUpd (fromKey c) $ inv m
+	maybeUpd (_, 1) = Nothing
+	maybeUpd (o, n) = Just (o, n - 1)
 
 delAllObj :: Key -> Monster -> Monster
 delAllObj c m = changeInv newInv m where
-	newInv = filter (\(x,_,_) -> KeyChar x /= c) $ inv m
+	newInv = M.delete (fromKey c) $ inv m
 		
 decChargeByKey :: Char -> Monster -> Monster
 decChargeByKey c m = changeInv newInv m where
-	newInv = map (\(x, obj,n) -> if x == c then (x, decCharge obj, n) else (x, obj, n)) $ inv m
+	newInv = M.adjust (\(o, n) -> (decCharge o, n)) c $ inv m
 
 changeWeapon :: Key -> Monster -> Monster
 changeWeapon c mon = mon {weapon = fromKey c}
@@ -81,9 +76,9 @@ changePickFirst :: Key -> World -> World
 changePickFirst c w = w {toPick = newPick} where
 	KeyChar sym = c
 	newPick =
-		if member sym $ toPick w
-		then delete sym $ toPick w
-		else insert sym $ toPick w
+		if S.member sym $ toPick w
+		then S.delete sym $ toPick w
+		else S.insert sym $ toPick w
 		
 addItem :: (Int, Int, Object, Int) -> World -> World
 addItem i w = w {items = items'} where

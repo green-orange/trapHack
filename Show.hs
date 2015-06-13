@@ -6,6 +6,7 @@ import Utils4all
 import UI.HSCurses.Curses
 import Data.Set (empty, member, Set)
 import Data.Maybe
+import Data.Map (toList)
 
 shiftDown = 5 :: Int
 shiftRightHP1 = 25 :: Int
@@ -74,13 +75,13 @@ draw world = do
 	(h, w) <- scrSize
 	case action world of
 		'i' -> let
-			items = inv $ getFirst world
+			items = toList $ inv $ getFirst world
 			wield :: Char -> String
 			wield c = 
 				if (weapon $ getFirst world) == c
 				then " (wielded)"
 				else "" 
-			stringsToShow = zip [1..] $ map (\(c, obj, n) -> 
+			stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
 				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items
 			showInv :: (Int, String) -> IO ()
 			showInv (n, s) = mvWAddStr stdScr (mod n h) (30 * (div n h)) s

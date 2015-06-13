@@ -2,6 +2,7 @@ module Data where
 
 import Data.Set (Set(..))
 import System.Random (StdGen(..))
+import qualified Data.Map as M
 
 lol = undefined
 
@@ -14,9 +15,9 @@ notAlphabet = ['{'..]
 doNothing :: IO ()
 doNothing = return ()
 
-type Inv = (Char, Object, Int)
 type AIfunc = World -> Int -> Int -> World
-type InvGen = Float -> [Inv]
+type Inv = M.Map Char (Object, Int)
+type InvGen = Float -> Inv
 type StdDmg = World -> (Maybe Int, StdGen)
 type MonsterGen = Int -> Int -> StdGen -> (Monster, StdGen)
 type Unit = (Int, Int, Monster)
@@ -34,7 +35,7 @@ data Monster = Monster {
 	parts :: [Part],
 	name :: String,
 	stddmg :: StdDmg,
-	inv :: [Inv],
+	inv :: M.Map Char (Object, Int),
 	slowness :: Int,
 	time :: Int,
 	weapon :: Char
