@@ -41,13 +41,12 @@ dmg :: Maybe Int -> Part -> Part
 dmg Nothing part = part
 dmg (Just n) part = Part {
 	hp =
-		if die
+		if hp part <= n
 		then 0
 		else hp part - n,
 	maxhp = maxhp part,
-	aliveP = not die,
 	kind = kind part,
 	regVel = regVel part,
 	idP = idP part
-} where die = hp part <= n
+}
 

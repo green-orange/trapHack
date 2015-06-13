@@ -26,8 +26,7 @@ data Part = Part {
 	maxhp :: Int,
 	kind :: Int,
 	idP :: Int,
-	regVel :: Int,
-	aliveP :: Bool
+	regVel :: Int
 }
 data AI = You | AI AIfunc
 data Monster = Monster {

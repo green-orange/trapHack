@@ -38,8 +38,7 @@ addPart mon knd hp regVel = changeParts (newPart : parts mon) mon where
 		maxhp = hp,
 		kind = knd,
 		idP = newID,
-		regVel = regVel,
-		aliveP = True
+		regVel = regVel
 	}
 	newID = (+) 1 $ maximum $ map idP $ parts mon
 
@@ -88,4 +87,7 @@ safety w = w {
 
 speed :: Monster -> Monster
 speed m = m {slowness = max 10 $ slowness m - 10}
+
+radiation :: Int -> Monster -> Monster
+radiation sp m = m {parts = map (\p -> p {regVel = -sp}) $ parts m}
 

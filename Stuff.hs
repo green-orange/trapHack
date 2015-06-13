@@ -61,7 +61,8 @@ genRandomScroll = genRandomFoo sCROLLS
 wANDS =
 	map wandOfStriking  [1..5] ++
 	map wandOfStupidity [1..5] ++
-	map wandOfSpeed     [1..2]
+	map wandOfSpeed     [1..2] ++
+	map wandOfRadiation [1..4]
 genRandomWand = genRandomFoo wANDS
 
 genRandomFoo = genRandomFooByChar $ head notAlphabet
@@ -153,6 +154,14 @@ wandOfSpeed ch = Wand {
 	title = "wand of speed",
 	act = unrandom speed,
 	range = 3,
+	charge = ch
+}
+
+wandOfRadiation :: Int -> Object
+wandOfRadiation ch = Wand {
+	title = "wand of radiation",
+	act = unrandom $ radiation 2,
+	range = 5,
 	charge = ch
 }
 

@@ -9,8 +9,7 @@ getPart knd regVel hp id = Part {
 	maxhp = hp,
 	kind = knd,
 	idP = id,
-	regVel = regVel,
-	aliveP = True
+	regVel = regVel
 }
 
 getBody = getPart bODY

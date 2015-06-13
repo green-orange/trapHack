@@ -105,6 +105,9 @@ fromKey :: Key -> Char
 fromKey (KeyChar c) = c
 fromKey _ = ' '
 
+aliveP :: Part -> Bool
+aliveP p = hp p > 0
+
 numToStr :: Int -> String
 numToStr t
 	| t == 1 = "first"
