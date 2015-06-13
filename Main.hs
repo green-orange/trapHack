@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Main where
 
 import Data
@@ -10,7 +11,9 @@ import Utils4all
 import UI.HSCurses.Curses
 import System.Random (StdGen(..), getStdGen)
 import Data.Set (empty)
+#if linux_HOST_OS
 import System.Posix.User
+#endif
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {
@@ -63,8 +66,15 @@ main = do
 		putStrLn "Your screen is too small"
 		endWin
 	else do
+		endWin
 		gen <- getStdGen
+#if linux_HOST_OS
 		username <- getLoginName
+#else
+		print "What's your name?"
+		username <- getLine
+#endif
+		initScr
 		initCurses
 		startColor
 		initColors
