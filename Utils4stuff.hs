@@ -8,18 +8,16 @@ import Move (stupidestAI)
 import HealDamage
 
 import System.Random (StdGen, randomR, split)
+import Data.Set (empty)
 
 cleanParts :: Monster -> Monster
 cleanParts mon = changeParts (filter aliveP $ parts mon) mon
 
 upgrade :: Int -> Part -> Part
-upgrade n part = Part {
+upgrade n part = part {
 	hp = hp part + n,
 	maxhp = maxhp part + n,
-	aliveP = True,
-	kind = kind part,
-	regVel = regVel part + 1,
-	idP = idP part
+	regVel = regVel part + 1
 }
 
 upgradeParts = doSmthParts upgrade
@@ -68,10 +66,26 @@ stupidity :: Monster -> Monster
 stupidity mon = mon {ai = newAI} where
 	newAI = case ai mon of
 		You -> You
-		AI _ -> AI stupidestAI
+		old@(AI _) -> 
+			if canWalk mon
+			then AI stupidestAI
+			else old
 	
 isUntrappable :: Terrain -> Bool
 isUntrappable = (/=) eMPTY
+	
+safety :: World -> World
+safety w = w {
+	units = [head $ units w],
+	message = [("You suddenly found himself in a new world!", bLUE)],
+	items = [],
+	action = ' ',
+	wave = wave w + 1,
+	toPick = empty,
+	worldmap = map (map $ const eMPTY) $ worldmap w,
+	stepsBeforeWave = 2
+} 
 
-
+speed :: Monster -> Monster
+speed m = m {slowness = max 10 $ slowness m - 10}
 

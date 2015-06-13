@@ -4,6 +4,7 @@ import Data
 import Utils4all
 import Changes
 import HealDamage
+import Parts
 
 isSoldier :: Monster -> Bool
 isSoldier mon = case name mon of
@@ -84,6 +85,10 @@ actTrapFirst w =
 			then "You are in fire!"
 			else name mon ++ " is in fire!"
 		else ""
+		
+killFirst :: World -> World
+killFirst w = changeMon mon w where
+	mon = (getFirst w) {parts = [getMain 0 0 0]}
 		
 		
 		

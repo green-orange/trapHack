@@ -241,3 +241,10 @@ addArticle str =
 	else if (elem (head str) "aeiouAEIOU")
 	then "an " ++ str
 	else "a " ++ str
+	
+canWalk :: Monster -> Bool
+canWalk m = case name m of
+	"Rock" -> False
+	"Ivy"  -> False
+	_      -> True
+

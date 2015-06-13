@@ -5,6 +5,7 @@ import Random
 import Monsters
 import Changes
 import Utils4all
+import Utils4mon
 import Stuff
 import Move
 import AI
@@ -73,7 +74,7 @@ getTroll q = getMonster (aiTroll stupidAI)
 	 "Troll" (dices (2,5) 0.2) (const []) 100
 
 getIvy q = getMonster aiIvy [getMain 2 $ uniform q 5 15] "Ivy"
-	(dices (1,10) 0) (const []) 400
+	(dices (2,10) 0) (const []) 600
 
 aiIvy :: AIfunc
 aiIvy world xPlayer yPlayer = 
@@ -81,7 +82,7 @@ aiIvy world xPlayer yPlayer =
 	then moveFirst world dx dy
 	else if isEmpty world (xNow + dx') (yNow + dy')
 	then spawnMon (getIvy q) (xNow + dx') (yNow + dy') $ changeGen g''' world
-	else world where
+	else killFirst world where
 		(xNow, yNow, _) = head $ units world
 		dx = xPlayer - xNow
 		dy = yPlayer - yNow

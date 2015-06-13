@@ -110,6 +110,10 @@ draw world = do
 			mvWAddStr stdScr 40 40 $ show $ stdgen world -- debug
 			-}
 			foldl (>>) doNothing $ zipWith ($) (map drawPart $ parts $ getFirst world) [1..]
+			(attr, _) <- wAttrGet stdScr
+			wAttrSet stdScr (attr, Pair dEFAULT)
+			mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 
+				(show $ effectiveSlowness $ getFirst world)
 
 drawPart :: Part -> Int -> IO ()
 drawPart part x = do

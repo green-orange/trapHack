@@ -18,7 +18,7 @@ deathDrop "Bat" = genRandomPotion $ bound [0.3, 0.8]
 deathDrop "Hunter" = 
 	genRandomFooByChar (notAlphabet !! 0) tRAPS (bound [0.3, 0.8]) .+
 	genRandomFooByChar (notAlphabet !! 1) wEAPONS (bound [0.6])
-deathDrop "Ivy" = genRandomScroll $ bound [0.7, 0.9]
+deathDrop "Ivy" = genRandomScroll $ bound [0.9]
 deathDrop "Accelerator" = genRandomScroll $ bound [0.6, 0.9]
 deathDrop "Troll" = genRandomWand $ bound [0.6]
 deathDrop _ = (\p -> ([], p))
@@ -55,10 +55,13 @@ genRandomLauncher = genRandomFoo lAUNCHERS
 wEAPONS = [dagger, shortsword, sword]
 genRandomWeapon = genRandomFoo wEAPONS
 
-sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection]
+sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety]
 genRandomScroll = genRandomFoo sCROLLS
 
-wANDS = [wandOfStriking 3, wandOfStupidity 2]
+wANDS =
+	map wandOfStriking  [1..5] ++
+	map wandOfStupidity [1..5] ++
+	map wandOfSpeed     [1..2]
 genRandomWand = genRandomFoo wANDS
 
 genRandomFoo = genRandomFooByChar $ head notAlphabet
@@ -123,6 +126,12 @@ scrollOfCollection = Scroll {
 	actw = randomSpawn getGarbageCollector
 }
 
+scrollOfSafety :: Object
+scrollOfSafety = Scroll {
+	title = "scroll of safety",
+	actw = safety
+}
+
 wandOfStriking :: Int -> Object
 wandOfStriking ch = Wand {
 	title = "wand of striking",
@@ -135,6 +144,14 @@ wandOfStupidity :: Int -> Object
 wandOfStupidity ch = Wand {
 	title = "wand of stupidity",
 	act = unrandom stupidity,
+	range = 3,
+	charge = ch
+}
+
+wandOfSpeed :: Int -> Object
+wandOfSpeed ch = Wand {
+	title = "wand of speed",
+	act = unrandom speed,
 	range = 3,
 	charge = ch
 }
