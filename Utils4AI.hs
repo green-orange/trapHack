@@ -33,7 +33,7 @@ canFire mon = any (isValidMissile mon) alphabet
 isValidMissile :: Monster -> Char -> Bool
 isValidMissile mon c = 
 	(isJust objs) && (weapon mon /= ' ') 
-	&& (isMissile weap) 
+	&& (isLauncher weap) 
 	&& (launcher $ fst $ fromJust $ objs) == (category weap) where
 	objs = M.lookup c $ inv mon
 	weap = fst $ (M.!) (inv mon) (weapon mon)

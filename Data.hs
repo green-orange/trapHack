@@ -33,7 +33,7 @@ type AIfunc = World -> Int -> Int -> World
 type Inv = Map Char (Object, Int)
 type InvGen = Float -> Inv
 type StdDmg = World -> (Maybe Int, StdGen)
-type MonsterGen = Int -> Int -> StdGen -> (Monster, StdGen)
+type MonsterGen = StdGen -> (Monster, StdGen)
 type Unit = (Int, Int, Monster)
 
 data Part = Part {

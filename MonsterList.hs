@@ -35,7 +35,7 @@ getBeetle q = getMonster stupidAI
 	 getLeg  1 $ uniform q  2  8,
 	 getLeg  1 $ uniform q  2  8,
 	 getLeg  1 $ uniform q  2  8]
-	 "Beetle" (dices (1,5) 0.1) (const M.empty) 100
+	"Beetle" (dices (1,5) 0.1) (const M.empty) 100
 
 getBat q = getMonster randomAI
 	[getBody 1 $ uniform q 10 50, 
@@ -51,8 +51,8 @@ getHunter q = getMonster (hunterAI $ humanoidAI stupidAI)
 	 getLeg  1 $ uniform q  5 10,
 	 getArm  1 $ uniform q  5 10,
 	 getArm  1 $ uniform q  5 10]
-	 "Hunter" (dices (1,4) 0.5) 
-	 (\p -> M.insert 'a' (arrow, 10 * inverseSquareRandom p) $
+	"Hunter" (dices (1,4) 0.5) 
+	(\p -> M.insert 'a' (arrow, 10 * inverseSquareRandom p) $
 		M.singleton 'b' (lAUNCHERS !! uniform p 0 (length lAUNCHERS - 1), 1)) 60
 		
 getAccelerator q = getMonster (acceleratorAI stupidAI)
@@ -71,7 +71,11 @@ getTroll q = getMonster (trollAI stupidAI)
 	 getLeg  3 $ uniform q  8 12,
 	 getArm  3 $ uniform q  8 12,
 	 getArm  3 $ uniform q  8 12]
-	 "Troll" (dices (2,5) 0.2) (const M.empty) 100
+	"Troll" (dices (2,5) 0.2) (const M.empty) 100
+	 
+getWorm q = getMonster wormAI
+	[getMain 1 $ uniform q 100 200]
+	"Worm" (dices (3,5) 0.4) (const M.empty) 100
 
 getIvy q = getMonster ivyAI [getMain 2 $ uniform q 5 15] "Ivy"
 	(dices (2,10) 0) (const M.empty) 600
@@ -90,5 +94,4 @@ ivyAI world xPlayer yPlayer =
 		(dx', g')  = randomR (-1, 1) g
 		(dy', g'') = randomR (-1, 1) g'
 		(q, g''') = randomR (0.0, 1.0) g''
-	
- 
+		

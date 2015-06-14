@@ -7,6 +7,8 @@ import ObjectOverall
 import Changes
 import Utils4AI
 import Parts
+import Monsters
+import Utils4mon
 
 import System.Random
 import Data.Maybe (fromJust)
@@ -22,19 +24,10 @@ trollAI :: AIfunc -> AIfunc
 trollAI f w x y = 
 	if any (<= 5) $ map hp $ filter (\x -> kind x == hEAD || kind x == bODY) 
 		$ parts $ getFirst w
-	then addMessage ("Troll turned into a rock", bLUE) $ changeMon rock w
+	then addMessage ("Troll turned into a rock.", bLUE) $ changeMon rock w
 	else f w x y
-	
-rock = Monster {
-	ai = AI (\w _ _ -> w),
-	parts = [getMain 0 500 0],
-	name = "Rock",
-	stddmg = lol,
-	inv = empty,
-	slowness = 10000,
-	time = 10000,
-	weapon = ' '
-}
+
+rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . pickAI
@@ -116,3 +109,26 @@ randomAI world _ _  = (moveFirst newWorld rx ry) where
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
 	newWorld = changeGen g'' world
+	
+wormAI :: AIfunc
+wormAI world xPlayer yPlayer = 
+	if null mons
+	then spawnMon tailWorm xNow yNow $ moveFirst world dx dy
+	else if name mon == "Tail" || name mon == "Worm"
+	then killFirst world
+	else moveFirst world dx dy where
+		(xNow, yNow, _) = head $ units world
+		dx = signum $ xPlayer - xNow
+		dy = signum $ yPlayer - yNow
+		xNew = xNow + dx
+		yNew = yNow + dy
+		mons = filter (\(x, y, _) -> x == xNew && y == yNew) $ units world
+		[(_,_,mon)] =
+			if null mons
+			then error "1"
+			else if length mons > 1
+			then error "2"
+			else mons
+	
+tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const empty) 10000
+

@@ -10,7 +10,7 @@ import System.Random (StdGen, randomR)
 import Data.Map (empty)
 	
 getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
-getMonster ai ps name stddmg inv slow x y g = (Monster {
+getMonster ai ps name stddmg inv slow g = (Monster {
 	ai = AI ai,
 	parts = zipWith ($) ps [0..],
 	name = name,
@@ -55,7 +55,7 @@ addMonster gen (units, g) =
 	where
 	(x, g1) = randomR (0, maxX) g
 	(y, g2) = randomR (0, maxY) g1
-	(mon, g3) = gen x y g2
+	(mon, g3) = gen g2
 	isCorrect = 0 == length [(a,b) | (a,b,_) <- units, a == x, b == y]
 	
 animate :: Int -> Int -> World -> World

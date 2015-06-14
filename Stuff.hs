@@ -20,6 +20,7 @@ deathDrop "Hunter" = genDeathDrop [(tRAPS, bound [0.3, 0.8]), (wEAPONS, bound [0
 deathDrop "Ivy" = genDeathDrop [(sCROLLS, bound [0.9])]
 deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
 deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
+deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int
@@ -170,17 +171,22 @@ longbow = Launcher {
 
 dagger = Weapon {
 	title = "dagger",
-	objdmg = dices (1,12) 0.0
+	objdmg = dices (1,12) 0.0 -- avg = 6.5
 }
 
 shortsword = Weapon {
 	title = "shortsword",
-	objdmg = dices (2,8) 0.1
+	objdmg = dices (2,8) 0.1 -- avg = 8.1
 }
 
 sword = Weapon {
 	title = "sword",
-	objdmg = dices (2,10) 0.1
+	objdmg = dices (2,10) 0.1 -- avg = 9.9
+}
+
+crysknife = Weapon {
+	title = "crysknife",
+	objdmg = dices (5,5) 0.0 -- avg = 15
 }
 
 trapFromTerrain :: Terrain -> Object

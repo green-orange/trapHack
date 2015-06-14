@@ -90,7 +90,7 @@ changeMap x y t w = w {worldmap = worldmap'} where
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (units w ++ [(x, y, newMon)]) $ changeGen g w where
-	(newMon, g) = mgen x y $ stdgen w
+	(newMon, g) = mgen $ stdgen w
 
 {- Object -}
 
