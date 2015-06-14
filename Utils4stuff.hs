@@ -2,10 +2,11 @@ module Utils4stuff where
 
 import Data
 import Changes
-import Utils4all hiding (split)
 import Random
 import Move (stupidestAI)
 import HealDamage
+import Parts
+import Utils4mon
 
 import System.Random (StdGen, randomR, split)
 import Data.Set (empty)

@@ -2,12 +2,12 @@ module Stuff where
 
 import Data
 import Utils4stuff
-import Utils4all
 import Utils4mon
 import Random
 import Monsters
 import HealDamage
 import GarbageCollector
+import Parts
 
 import System.Random
 import qualified Data.Map as M

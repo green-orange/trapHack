@@ -1,9 +1,9 @@
 module ObjectOverall where
 
 import Data
-import Utils4all
 import Changes
 import Utils4mon
+import Messages
 
 import Control.Monad ((>=>))
 import Data.Set (member, empty, size)
@@ -85,3 +85,20 @@ addInv (obj, cnt) list =
 			if o == obj
 			then (o, n + cnt)
 			else (o, n)
+
+addIndices :: (a -> Bool) -> [a] -> [(a, Int)]
+addIndices = addIndices' 0 where
+	addIndices' :: Int -> (a -> Bool) -> [a] -> [(a, Int)]
+	addIndices' _ _ [] = []
+	addIndices' n f (x:xs) =
+		if f x
+		then (x, n) : addIndices' (n + 1) f xs
+		else (x, -1) : addIndices' n f xs
+
+split :: (a -> Bool) -> [a] -> ([a], [a])
+split f [] = ([], [])
+split f (x:xs) =
+	if f x
+	then (x:a, b)
+	else (a, x:b)
+	where (a, b) = split f xs

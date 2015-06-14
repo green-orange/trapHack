@@ -1,7 +1,7 @@
 module Changes where
 
 import Data
-import Utils4all
+import Parts
 
 import qualified Data.Set as S
 import UI.HSCurses.Curses (Key (..))
@@ -87,21 +87,6 @@ addItem i w = w {items = items'} where
 changeMap :: Int -> Int -> Terrain -> World -> World
 changeMap x y t w = w {worldmap = worldmap'} where
 	worldmap' = changeElem2 x y t $ worldmap w
-	
-maybeAddMessage :: String -> World -> World
-maybeAddMessage msg w = 
-	if isPlayerNow w
-	then addMessage (msg, yELLOW) w
-	else w
-	
-addNeutralMessage :: String -> World -> World
-addNeutralMessage msg w = 
-	if isPlayerNow w
-	then addMessage (msg, gREEN) w
-	else addMessage (msg, yELLOW) w
-	
-addDefaultMessage :: String -> World -> World
-addDefaultMessage msg w = addMessage (msg, dEFAULT) w
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (units w ++ [(x, y, newMon)]) $ changeGen g w where
@@ -135,3 +120,7 @@ addItem' i@(x, y, obj, n) list =
 			then (x', y', obj', n + n')
 			else i'
 		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') $ list
+
+fromKey :: Key -> Char
+fromKey (KeyChar c) = c
+fromKey _ = ' '

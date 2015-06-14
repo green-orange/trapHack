@@ -1,10 +1,10 @@
 module Utils4mon where
 
 import Data
-import Utils4all
 import Changes
 import HealDamage
 import Parts
+import Messages
 
 isSoldier :: Monster -> Bool
 isSoldier mon = case name mon of
@@ -57,12 +57,6 @@ msgCleanParts mon = foldr (:) [] $ map (\x -> (lostMsg (name mon)
 		then rEDiNVERSE
 		else gREEN
 
-lostMsg :: String -> String -> String
-lostMsg monName partName =
-	if partName == "Main"
-	then ""
-	else monName ++ " lost " ++ addArticle partName ++ "."
-
 isFlying :: Monster -> Bool
 isFlying mon = hasPart wING mon
 
@@ -89,6 +83,10 @@ actTrapFirst w =
 killFirst :: World -> World
 killFirst w = changeMon mon w where
 	mon = (getFirst w) {parts = [getMain 0 0 0]}
-		
-		
-		
+	
+canWalk :: Monster -> Bool
+canWalk m = case name m of
+	"Rock" -> False
+	"Ivy"  -> False
+	_      -> True
+	

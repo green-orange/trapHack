@@ -6,7 +6,6 @@ import Monsters (getPlayer)
 import Step
 import Changes (clearMessage)
 import Show
-import Utils4all
 
 import UI.HSCurses.Curses
 import System.Random (StdGen(..), getStdGen)
@@ -14,6 +13,15 @@ import Data.Set (empty)
 #if linux_HOST_OS
 import System.Posix.User
 #endif
+
+rectdirs :: (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Maybe (Int, Int)
+rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
+	if (xnew >= xmin && xnew <= xmax && ynew >= ymin && ynew <= ymax)
+	then Just (xnew, ynew)
+	else Nothing
+	where
+		xnew = x + dx
+		ynew = y + dy
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {

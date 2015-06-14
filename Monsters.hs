@@ -2,9 +2,9 @@ module Monsters where
 
 import Data
 import Random
-import Utils4all
 import Changes
 import Parts
+import Messages
 
 import System.Random (StdGen, randomR)
 import Data.Map (empty)

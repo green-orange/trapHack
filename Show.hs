@@ -1,7 +1,8 @@
 module Show where
 
 import Data
-import Utils4all
+import Parts
+import Messages
 
 import UI.HSCurses.Curses
 import Data.Set (empty, member, Set)

@@ -2,12 +2,26 @@ module Data where
 
 import Data.Set (Set(..))
 import System.Random (StdGen(..))
-import qualified Data.Map as M
+import Data.Map (Map(..))
 
 lol = undefined
 
 maxX = 30 :: Int
 maxY = 25 :: Int
+
+eMPTY    = 0 :: Int
+bEARTRAP = 1 :: Int
+fIRETRAP = 2 :: Int
+tRAPSNUM = fIRETRAP
+
+dEFAULT	   = tRAPSNUM + 1
+gREEN	   = tRAPSNUM + 2
+yELLOW	   = tRAPSNUM + 3
+rED 	   = tRAPSNUM + 4
+rEDiNVERSE = tRAPSNUM + 5
+cYAN	   = tRAPSNUM + 6
+mAGENTA	   = tRAPSNUM + 7
+bLUE       = tRAPSNUM + 8
 
 alphabet = ['a'..'z'] ++ ['A'..'Z']
 notAlphabet = ['{'..]
@@ -16,7 +30,7 @@ doNothing :: IO ()
 doNothing = return ()
 
 type AIfunc = World -> Int -> Int -> World
-type Inv = M.Map Char (Object, Int)
+type Inv = Map Char (Object, Int)
 type InvGen = Float -> Inv
 type StdDmg = World -> (Maybe Int, StdGen)
 type MonsterGen = Int -> Int -> StdGen -> (Monster, StdGen)
@@ -35,7 +49,7 @@ data Monster = Monster {
 	parts :: [Part],
 	name :: String,
 	stddmg :: StdDmg,
-	inv :: M.Map Char (Object, Int),
+	inv :: Inv,
 	slowness :: Int,
 	time :: Int,
 	weapon :: Char
@@ -84,6 +98,9 @@ instance Eq Object where
 	(Scroll t _) == (Scroll t' _) = t == t'
 	_ == _ = False
 
+isStackable :: Object -> Bool
+isStackable obj = obj == obj
+
 data World = World {
 	units :: [Unit],
 	message :: [(String, Int)],
@@ -97,3 +114,24 @@ data World = World {
 	stepsBeforeWave :: Int,
 	prevAction :: Char
 }
+
+getFirst :: World -> Monster
+getFirst world = third $ head $ units world
+
+first (x,_,_) = x
+second (_,x,_) = x
+third (_,_,x) = x
+
+isEmpty :: World -> Int -> Int -> Bool
+isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
+	(not $ elem (x, y) [ (a, b) | (a, b, _) <- units world ])
+
+isValid :: World -> Int -> Int -> Int -> Int -> Bool
+isValid world x y dx dy = 
+	case rez of
+	Nothing -> False
+	Just (x', y') -> isEmpty world x' y'
+	where rez = dirs world (x, y, dx, dy)
+
+isPlayerNow :: World -> Bool
+isPlayerNow world = (name $ getFirst world) == "You" && (time $ getFirst world) == 0

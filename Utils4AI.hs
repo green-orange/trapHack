@@ -1,10 +1,12 @@
 module Utils4AI where
 
 import Data
-import Utils4all
+import Parts
+import Utils4objects
 
 import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust)
+import UI.HSCurses.Curses (Key (..))
 
 needToBeHealedM :: Monster -> Bool
 needToBeHealedM mon =
@@ -57,5 +59,16 @@ launcherAI world = fst $ M.findMin $ M.filter (isLauncher . fst) $ inv $ getFirs
 isOnLine :: Int -> Int -> Int -> Int -> Int -> Bool
 isOnLine d x1 y1 x2 y2 = abs (x1 - x2) <= d && abs (y1 - y2) <= d &&
 	(x1 == x2 || y1 == y2 || x1 - y1 == x2 - y1 || x1 + y1 == x2 + y2)
+
+undir :: Int -> Int -> Key
+undir   0  (-1) = KeyChar 'k'
+undir   0    1  = KeyChar 'j'
+undir (-1)   0  = KeyChar 'h'
+undir   1    0  = KeyChar 'l'
+undir (-1) (-1) = KeyChar 'y'
+undir   1  (-1) = KeyChar 'u'
+undir (-1)   1  = KeyChar 'b'
+undir   1    1  = KeyChar 'n'
+undir   0    0  = KeyChar '.'
 
 

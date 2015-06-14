@@ -6,8 +6,9 @@ import Utils4step
 import Object
 import ObjectOverall
 import Changes
-import Utils4all
 import Utils4mon
+import Messages
+import Utils4objects
 
 import UI.HSCurses.Curses (Key(..))
 import Data.List (sort)

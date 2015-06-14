@@ -2,9 +2,9 @@ module Move where
 
 import Data
 import Changes
-import Utils4all
 import Utils4mon
 import HealDamage
+import Utils4objects
 
 import Prelude hiding (lookup)
 import System.Random (StdGen)

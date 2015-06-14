@@ -1,7 +1,6 @@
 module Utils4step where
 
 import Data
-import Utils4all
 import Changes
 import Stuff
 import Utils4mon
@@ -34,6 +33,10 @@ newWaveIf world =
 			++ show (wave world) ++ " landed around you!", rED) 
 			$ newWave $ cycleWorld $ resetTime world) {stepsBeforeWave = -1}
 		else (cycleWorld $ resetTime world) {stepsBeforeWave = wait $ wave world}
+
+cycle' :: [a] -> [a]
+cycle' [] = []
+cycle' (x:xs) = xs ++ [x]
 
 cycleWorld :: World -> World
 cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 
