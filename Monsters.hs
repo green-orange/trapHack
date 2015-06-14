@@ -54,7 +54,7 @@ addMonster gen (units, g) =
 	else addMonster gen (units, g3)
 	where
 	(x, g1) = randomR (0, maxX) g
-	(y, g2) = randomR (0, maxX) g1
+	(y, g2) = randomR (0, maxY) g1
 	(mon, g3) = gen x y g2
 	isCorrect = 0 == length [(a,b) | (a,b,_) <- units, a == x, b == y]
 	

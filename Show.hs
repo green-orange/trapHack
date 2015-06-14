@@ -9,8 +9,8 @@ import Data.Maybe
 import Data.Map (toList)
 
 shiftDown = 5 :: Int
-shiftRightHP1 = 25 :: Int
-shiftRightHP2 = 30 :: Int
+shiftRightHP1 = maxX + 5 :: Int
+shiftRightHP2 = maxX + 10 :: Int
 
 castEnum = toEnum . fromEnum
 
@@ -84,7 +84,7 @@ draw world = do
 			stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
 				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items
 			showInv :: (Int, String) -> IO ()
-			showInv (n, s) = mvWAddStr stdScr (mod n h) (30 * (div n h)) s
+			showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
 			in do
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
@@ -92,7 +92,7 @@ draw world = do
 			foldl (>>) doNothing $ map showInv stringsToShow
 		',' -> let
 			(xNow, yNow, _) = head $ units world
-			toShow = zip3 alphabet [1..] $ map (\(_,_,a,b) -> (a,b)) $
+			toShow = zip3 alphabet [0..] $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
 			in do
 			(attr, _) <- wAttrGet stdScr
@@ -106,10 +106,6 @@ draw world = do
 			foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
 			foldl (>>) doNothing $ map (drawItem world) $ items world
 			foldl (>>) doNothing $ map (drawUnit world) $ units world
-			{-
-			mvWAddStr stdScr 30 30 $ show $ action world : store world -- debug
-			mvWAddStr stdScr 40 40 $ show $ stdgen world -- debug
-			-}
 			foldl (>>) doNothing $ zipWith ($) (map drawPart $ parts $ getFirst world) [1..]
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)

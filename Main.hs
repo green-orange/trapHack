@@ -38,30 +38,24 @@ loop world =
 		draw world
 		refresh
 		c <- getCh
-		if (c == KeyChar 'Q')
-		then
-			if wave world == 1
-			then return "You quit. Do not pass go. Do not collect 200 zorkmids."
-			else return $ "You quit on the " ++ numToStr (wave world - 1) ++ " wave."
-		else
-			case (step (clearMessage world) c) of
-				Nothing -> return $ "You died on the " ++ numToStr (wave world - 1) ++ " wave."
-				Just newMWorld -> loop newMWorld
+		case step (clearMessage world) c of
+			Left newWorld -> loop newWorld
+			Right msg -> return msg
 	else
 		case step world $ KeyChar ' ' of
-			Nothing -> do
+			Left newWorld -> loop newWorld
+			Right msg -> do
 				erase
 				draw world
 				refresh
 				getCh
-				return $ "You died on the " ++ numToStr (wave world - 1) ++ " wave."
-			Just newMWorld -> loop newMWorld
+				return msg
 
 main :: IO ()
 main = do
 	initScr
 	(h, w) <- scrSize
-	if (w <= 40 || h <= 25)
+	if (w <= maxX + 20 || h <= maxY + 10)
 	then do
 		putStrLn "Your screen is too small"
 		endWin

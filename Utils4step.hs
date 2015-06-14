@@ -68,4 +68,9 @@ resetTime w = changeMon (resetTimeMon $ getFirst w) w
 listOfValidChars :: (Object -> Bool) -> World -> [Char]
 listOfValidChars f world = sort $ foldr (:) [] $ M.keys 
 	$ M.filter (f . fst) $ inv $ getFirst world
-
+	
+doIfCorrect :: (World, Bool) -> Either World String
+doIfCorrect (rez, correct) = 
+	if correct
+	then Left $ newWaveIf rez
+	else Left rez

@@ -76,7 +76,7 @@ isUntrappable = (/=) eMPTY
 safety :: World -> World
 safety w = w {
 	units = [head $ units w],
-	message = [("You suddenly found himself in a new world!", bLUE)],
+	message = [("You suddenly find yourself in a new world!", bLUE)],
 	items = [],
 	action = ' ',
 	wave = wave w + 1,

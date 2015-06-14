@@ -6,8 +6,8 @@ import qualified Data.Map as M
 
 lol = undefined
 
-maxX = 20 :: Int
-maxY = 20 :: Int
+maxX = 30 :: Int
+maxY = 25 :: Int
 
 alphabet = ['a'..'z'] ++ ['A'..'Z']
 notAlphabet = ['{'..]
