@@ -32,10 +32,11 @@ canFire mon = any (isValidMissile mon) alphabet
 	
 isValidMissile :: Monster -> Char -> Bool
 isValidMissile mon c = 
-	(isJust objs) && (weapon mon /= ' ') 
-	&& (isLauncher weap) 
-	&& (launcher $ fst $ fromJust $ objs) == (category weap) where
+	isJust objs && weapon mon /= ' '
+	&& isLauncher weap && isMissile obj
+	&& launcher obj == category weap where
 	objs = M.lookup c $ inv mon
+	obj = fst $ fromJust $ objs
 	weap = fst $ (M.!) (inv mon) (weapon mon)
 
 haveLauncher :: Monster -> Bool
@@ -53,8 +54,17 @@ missileAI :: World -> Char
 missileAI world = head $ filter (isValidMissile mon) alphabet where
 	mon = getFirst world
 
-launcherAI :: World -> Char
-launcherAI world = fst $ M.findMin $ M.filter (isLauncher . fst) $ inv $ getFirst world
+safeMinFst :: (Ord k) => M.Map k a -> Maybe k
+safeMinFst m = 
+	if M.null m
+	then Nothing
+	else Just $ fst $ M.findMin m
+
+launcherAI :: World -> Maybe Char
+launcherAI world = safeMinFst $ M.filter (isLauncher . fst) $ inv $ getFirst world
+
+weaponAI :: World -> Maybe Char
+weaponAI world = safeMinFst $ M.filter (isWeapon . fst) $ inv $ getFirst world
 
 isOnLine :: Int -> Int -> Int -> Int -> Int -> Bool
 isOnLine d x1 y1 x2 y2 = abs (x1 - x2) <= d && abs (y1 - y2) <= d &&

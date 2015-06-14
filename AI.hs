@@ -13,7 +13,7 @@ import Utils4mon
 import System.Random
 import Data.Maybe (fromJust)
 import UI.HSCurses.Curses (Key (..))
-import Data.Map (empty)
+import Data.Map (empty, toList)
 
 acceleratorAI :: AIfunc -> AIfunc
 acceleratorAI f w x y = f (changeMon newMon w) x y where
@@ -30,7 +30,7 @@ trollAI f w x y =
 rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
-humanoidAI = healAI . zapAttackAI . pickAI
+humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
 		
 healAI :: AIfunc -> AIfunc
 healAI f w x y = 
@@ -68,8 +68,27 @@ fireAI ai world xPlayer yPlayer =
 wieldLauncherAI :: AIfunc -> AIfunc
 wieldLauncherAI f w x y = 
 	if (weapon $ getFirst w) == ' '
-	then fst $ wieldFirst (KeyChar $ launcherAI w) w
+	then case launcherAI w of
+		Nothing -> f w x y
+		Just c -> fst $ wieldFirst (KeyChar c) w
 	else f w x y
+	
+wieldWeaponAI :: AIfunc -> AIfunc
+wieldWeaponAI f w x y = 
+	if (weapon $ getFirst w) == ' '
+	then case weaponAI w of
+		Nothing -> f w x y
+		Just c -> fst $ wieldFirst (KeyChar c) w
+	else f w x y
+	
+useItemsAI :: AIfunc -> AIfunc
+useItemsAI f w x y = case useSomeItem objs keys of
+	Nothing -> f w x y
+	Just g -> g w
+	where
+		invList = toList $ inv $ getFirst w
+		objs = map (fst . snd) invList
+		keys = map (KeyChar . fst) invList
 	
 hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
@@ -131,4 +150,21 @@ wormAI world xPlayer yPlayer =
 			else mons
 	
 tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const empty) 10000
+
+usefulItem :: Object -> Key -> Maybe (World -> World)
+usefulItem obj c = 
+	if
+		title obj == "potion of intellect" ||
+		title obj == "potion of mutation"
+	then Just $ fst . quaffFirst c
+	else if
+		title obj == "wand of speed" && charge obj > 0
+	then Just $ zapMon (KeyChar '.') (fromKey c)
+	else Nothing
+	
+useSomeItem :: [Object] -> [Key] -> Maybe (World -> World)
+useSomeItem [] _ = Nothing
+useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
+	Nothing -> useSomeItem objs cs
+	f -> f
 
