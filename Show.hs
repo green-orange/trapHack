@@ -153,6 +153,7 @@ symbolMon "Rock"              = '#'
 symbolMon "Tail"              = '~'
 symbolMon "Worm"              = 'w'
 symbolMon "Golem"             = 'g'
+symbolMon "Floating eye"      = 'e'
 symbolMon _                   = error "unknown monster"
 
 symbolTer :: Terrain -> Char

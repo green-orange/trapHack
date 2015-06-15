@@ -91,6 +91,17 @@ changeMap x y t w = w {worldmap = worldmap'} where
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (units w ++ [(x, y, newMon)]) $ changeGen g w where
 	(newMon, g) = mgen $ stdgen w
+	
+paralyse :: Int -> Int -> World -> World
+paralyse dx dy w = changeMons newMons w where
+	(xNow, yNow, _) = head $ units w
+	x = xNow + dx
+	y = yNow + dy
+	ch arg@(x', y', mon) = 
+		if x == x' && y == y'
+		then (x', y', mon {time = time mon + 2 * effectiveSlowness mon})
+		else arg
+	newMons = map ch $ units w
 
 {- Object -}
 

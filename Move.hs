@@ -11,8 +11,8 @@ import System.Random (StdGen)
 import qualified Data.Map as M
 import Data.Maybe (fromJust, isNothing)
 
-moveFirst :: World -> Int -> Int -> World
-moveFirst world dx dy =
+moveFirst :: Int -> Int -> World -> World
+moveFirst dx dy world =
 	if (isEmpty world xnew ynew) || (dx == 0 && dy == 0) || (rez == Nothing)
 	then
 		if (name mon) /= "You" && not (isFlying mon) && worldmap world !! x !! y == bEARTRAP
@@ -77,5 +77,5 @@ stupidestAI world xPlayer yPlayer =
 		(xNow, yNow, _) = head $ units world
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
-		newWorld = moveFirst world dx dy
+		newWorld = moveFirst dx dy world
 

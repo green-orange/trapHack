@@ -18,7 +18,7 @@ collectorAI :: AIfunc
 collectorAI world _ _ = 
 	if isItemHere
 	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changePickFirst . KeyChar) alphabet
-	else moveFirst world dx dy
+	else moveFirst dx dy world
 	where
 		isItemHere = not $ null $ filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items world
 		(xNow, yNow, _) = head $ units world

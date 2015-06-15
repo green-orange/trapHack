@@ -92,38 +92,39 @@ useItemsAI f w x y = case useSomeItem objs keys of
 	
 hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
-		
-stupidAI :: AIfunc
-stupidAI world xPlayer yPlayer = 
-	newWorld
-	where
-		g = stdgen world
-		(xNow, yNow, _) = head $ units world
-		dx = signum $ xPlayer - xNow
-		dy = signum $ yPlayer - yNow
-		(dx1, dy1, dx2, dy2) = 
-			if dx == 0
-			then (1, dy, -1, dy)
-			else if dy == 0
-			then (dx, 1, dx, -1)
-			else (dx, 0, 0, dy)
-		(dx', dy', newStdGen) = 
-			if isValid world xNow yNow dx dy || 
-				abs (xPlayer - xNow) <= 1 && abs (yPlayer - yNow) <= 1
-			then (dx, dy, g)
-			else if isValid world xNow yNow dx1 dy1
-			then (dx1, dy1, g)
-			else if isValid world xNow yNow dx2 dy2
-			then (dx2, dy2, g)
-			else 
-				let
-					(rx, g') = randomR (-1, 1) g
-					(ry, g'') = randomR (-1, 1) g'
-				in (rx, ry, g'')
-		newWorld = moveFirst (changeGen newStdGen world) dx' dy'
+
+stupidAI = stupidFooAI moveFirst
+stupidParalysisAI = stupidFooAI (\x y w -> moveFirst x y $ paralyse x y w)
+
+stupidFooAI :: (Int -> Int -> World -> World) -> AIfunc
+stupidFooAI foo world xPlayer yPlayer = newWorld where
+	g = stdgen world
+	(xNow, yNow, _) = head $ units world
+	dx = signum $ xPlayer - xNow
+	dy = signum $ yPlayer - yNow
+	(dx1, dy1, dx2, dy2) = 
+		if dx == 0
+		then (1, dy, -1, dy)
+		else if dy == 0
+		then (dx, 1, dx, -1)
+		else (dx, 0, 0, dy)
+	(dx', dy', newStdGen) = 
+		if isValid world xNow yNow dx dy || 
+			abs (xPlayer - xNow) <= 1 && abs (yPlayer - yNow) <= 1
+		then (dx, dy, g)
+		else if isValid world xNow yNow dx1 dy1
+		then (dx1, dy1, g)
+		else if isValid world xNow yNow dx2 dy2
+		then (dx2, dy2, g)
+		else 
+			let
+				(rx, g') = randomR (-1, 1) g
+				(ry, g'') = randomR (-1, 1) g'
+			in (rx, ry, g'')
+	newWorld = foo dx' dy' $ changeGen newStdGen world
 				
 randomAI :: AIfunc
-randomAI world _ _  = (moveFirst newWorld rx ry) where
+randomAI world _ _  = (moveFirst rx ry newWorld) where
 	g = stdgen world
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
@@ -132,10 +133,10 @@ randomAI world _ _  = (moveFirst newWorld rx ry) where
 wormAI :: AIfunc
 wormAI world xPlayer yPlayer = 
 	if null mons
-	then spawnMon tailWorm xNow yNow $ moveFirst world dx dy
+	then spawnMon tailWorm xNow yNow $ moveFirst dx dy world
 	else if name mon == "Tail" || name mon == "Worm"
 	then killFirst world
-	else moveFirst world dx dy where
+	else moveFirst dx dy world where
 		(xNow, yNow, _) = head $ units world
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow

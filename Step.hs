@@ -80,7 +80,7 @@ step world c =
 		
 justStep :: World -> Key -> Either World String
 justStep world c = case dir c of
-	Just (dx, dy) -> Left $ newWaveIf $ moveFirst world dx dy
+	Just (dx, dy) -> Left $ newWaveIf $ moveFirst dx dy world
 	Nothing -> case c of
 		KeyChar 'Q' -> 
 			if wave world == 1

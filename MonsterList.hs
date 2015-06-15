@@ -74,6 +74,12 @@ getTroll q = getMonster (trollAI stupidAI)
 	"Troll" (dices (2,5) 0.2) (const M.empty) 100
 	 
 getWorm q = getMonster wormAI
-	[getMain 1 $ uniform q 100 200]
-	"Worm" (dices (3,5) 0.4) (const M.empty) 100
+	[getMain 1 $ uniform q 200 500]
+	"Worm" (dices (5,8) 0.4) (const M.empty) 100
+	
+getFloatingEye q = getMonster stupidParalysisAI
+	[getMain 2 $ uniform q 10 20,
+	 getWing 1 $ uniform q  5 10,
+	 getWing 1 $ uniform q  5 10]
+	"Floating eye" (dices (1,5) 0.2) (const M.empty) 300
 		

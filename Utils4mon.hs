@@ -22,6 +22,7 @@ isSoldier mon = case name mon of
 	"Tail"              -> False
 	"Worm"              -> True
 	"Golem"             -> False
+	"Floating eye"      -> True
 	_ -> error "unknown monster"
 
 alive :: Monster -> Bool
@@ -53,7 +54,7 @@ regFirst w =
 	else w
 
 msgCleanParts :: Monster -> [(String, Int)]
-msgCleanParts mon = foldr (:) [] $ map (\x -> (lostMsg (name mon) 
+msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (name mon) 
 	$ partToStr $ kind x, color)) $ filter (not . aliveP) $ parts mon where
 	color = 
 		if name mon == "You"
