@@ -8,6 +8,7 @@ import Monsters
 import HealDamage
 import GarbageCollector
 import Parts
+import Golem
 
 import System.Random
 import qualified Data.Map as M
@@ -49,7 +50,7 @@ pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
 tRAPS = [bearTrap, fireTrap]
 lAUNCHERS = [shortbow, bow, longbow]
 wEAPONS = [dagger, shortsword, sword]
-sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety]
+sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll]
 wANDS =
 	map wandOfStriking  [1..5] ++
 	map wandOfStupidity [1..5] ++
@@ -99,6 +100,12 @@ scrollOfSafety :: Object
 scrollOfSafety = Scroll {
 	title = "scroll of safety",
 	actw = safety
+}
+
+kabbalisticScroll :: Object
+kabbalisticScroll = Scroll {
+	title = "Kabbalistic scroll",
+	actw = spawnGolemsAround
 }
 
 wandOfStriking :: Int -> Object

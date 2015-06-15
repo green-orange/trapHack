@@ -70,10 +70,13 @@ animate x y w =
 			else 0
 		hp = sum $ map mapfun $ items w
 		newItems = filter (not . filterfun) $ items w
-	
-animateAround w = foldr ($) w $ [animate] >>= applToNear x >>= applToNear y where
+		
+fooAround :: (Int -> Int -> World -> World) -> World -> World
+fooAround foo w = foldr ($) w $ [foo] >>= applToNear x >>= applToNear y where
 	(x, y, _) = head $ units w
 	applToNear x f = map f [x-1, x, x+1]
+	
+animateAround = fooAround animate
 	
 randomSpawn :: MonsterGen -> World -> World
 randomSpawn mgen w = newWorld where

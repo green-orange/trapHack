@@ -142,29 +142,7 @@ wormAI world xPlayer yPlayer =
 		xNew = xNow + dx
 		yNew = yNow + dy
 		mons = filter (\(x, y, _) -> x == xNew && y == yNew) $ units world
-		[(_,_,mon)] =
-			if null mons
-			then error "1"
-			else if length mons > 1
-			then error "2"
-			else mons
+		[(_,_,mon)] = mons
 	
 tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const empty) 10000
-
-usefulItem :: Object -> Key -> Maybe (World -> World)
-usefulItem obj c = 
-	if
-		title obj == "potion of intellect" ||
-		title obj == "potion of mutation"
-	then Just $ fst . quaffFirst c
-	else if
-		title obj == "wand of speed" && charge obj > 0
-	then Just $ zapMon (KeyChar '.') (fromKey c)
-	else Nothing
-	
-useSomeItem :: [Object] -> [Key] -> Maybe (World -> World)
-useSomeItem [] _ = Nothing
-useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
-	Nothing -> useSomeItem objs cs
-	f -> f
 

@@ -76,22 +76,4 @@ getTroll q = getMonster (trollAI stupidAI)
 getWorm q = getMonster wormAI
 	[getMain 1 $ uniform q 100 200]
 	"Worm" (dices (3,5) 0.4) (const M.empty) 100
-
-getIvy q = getMonster ivyAI [getMain 2 $ uniform q 5 15] "Ivy"
-	(dices (2,10) 0) (const M.empty) 600
-
-ivyAI :: AIfunc
-ivyAI world xPlayer yPlayer = 
-	if abs dx <= 1 && abs dy <= 1
-	then moveFirst world dx dy
-	else if isEmpty world (xNow + dx') (yNow + dy')
-	then spawnMon (getIvy q) (xNow + dx') (yNow + dy') $ changeGen g''' world
-	else killFirst world where
-		(xNow, yNow, _) = head $ units world
-		dx = xPlayer - xNow
-		dy = yPlayer - yNow
-		g = stdgen world
-		(dx', g')  = randomR (-1, 1) g
-		(dy', g'') = randomR (-1, 1) g'
-		(q, g''') = randomR (0.0, 1.0) g''
 		

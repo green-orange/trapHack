@@ -21,6 +21,7 @@ isSoldier mon = case name mon of
 	"Rock"              -> False
 	"Tail"              -> False
 	"Worm"              -> True
+	"Golem"             -> False
 	_ -> error "unknown monster"
 
 alive :: Monster -> Bool
@@ -87,5 +88,5 @@ killFirst w = changeMon mon w where
 	mon = (getFirst w) {parts = [getMain 0 0 0]}
 	
 canWalk :: Monster -> Bool
-canWalk m = notElem (name m) ["Rock", "Ivy", "Tail", "Worm", "Dummy"]
+canWalk m = notElem (name m) ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
 	

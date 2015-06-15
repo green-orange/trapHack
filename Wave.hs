@@ -3,6 +3,7 @@ module Wave where
 import Data
 import Monsters
 import MonsterList
+import Ivy
 
 import System.Random (StdGen, randomR)
 

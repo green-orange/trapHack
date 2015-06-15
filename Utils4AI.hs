@@ -3,6 +3,8 @@ module Utils4AI where
 import Data
 import Parts
 import Utils4objects
+import Object
+import Changes
 
 import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust)
@@ -80,5 +82,22 @@ undir   1  (-1) = KeyChar 'u'
 undir (-1)   1  = KeyChar 'b'
 undir   1    1  = KeyChar 'n'
 undir   0    0  = KeyChar '.'
+
+usefulItem :: Object -> Key -> Maybe (World -> World)
+usefulItem obj c = 
+	if
+		title obj == "potion of intellect" ||
+		title obj == "potion of mutation"
+	then Just $ fst . quaffFirst c
+	else if
+		title obj == "wand of speed" && charge obj > 0
+	then Just $ zapMon (KeyChar '.') (fromKey c)
+	else Nothing
+	
+useSomeItem :: [Object] -> [Key] -> Maybe (World -> World)
+useSomeItem [] _ = Nothing
+useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
+	Nothing -> useSomeItem objs cs
+	f -> f
 
 
