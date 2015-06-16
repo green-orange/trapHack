@@ -23,6 +23,7 @@ deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
 deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
+deathDrop "Dragon" = genDeathDrop [(sCROLLS, bound [0.5, 0.8])]
 deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int

@@ -36,10 +36,10 @@ drawUnit world (x, y, mon) = do
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon
 
 drawCell :: World -> (Int, Int, Terrain) -> IO ()
-drawCell world (x, y, t) = do
+drawCell world (x, y, _) = do
 	(attr, _) <- wAttrGet stdScr
 	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
-	mvAddCh (y + shiftDown) x $ castEnum $ symbolTer t
+	mvAddCh (y + shiftDown) x $ castEnum '.'
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = do
@@ -154,12 +154,8 @@ symbolMon "Tail"              = '~'
 symbolMon "Worm"              = 'w'
 symbolMon "Golem"             = 'g'
 symbolMon "Floating eye"      = 'e'
+symbolMon "Dragon"            = 'D'
 symbolMon _                   = error "unknown monster"
-
-symbolTer :: Terrain -> Char
-symbolTer t
-	| t == eMPTY    = '.'
-	| otherwise     = '^'
 
 symbolItem :: Object -> Char
 symbolItem (Potion _ _)     = '!'

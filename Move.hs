@@ -21,7 +21,7 @@ moveFirst dx dy world =
 			changeMons ((xnew, ynew, getFirst world) 
 			: (tail $ units world)) $ addMessage (newMessage, yELLOW) $ world
 	else
-		attacks world xnew ynew $ countUpperLimbs $ getFirst world
+		attacks xnew ynew world $ countUpperLimbs $ getFirst world
 	where
 		(x, y, _) = head $ units world
 		rez = dirs world (x, y, dx, dy)
@@ -35,11 +35,11 @@ moveFirst dx dy world =
 				Just (xnew', ynew') = rez
 		mon = getFirst world
 
-attacks :: World -> Int -> Int -> Int -> World
-attacks world x y n = foldr ($) world $ replicate n $ (\w -> attack w x y)
+attacks :: Int -> Int -> World -> Int -> World
+attacks x y world n = foldr ($) world $ replicate n $ (\w -> attack x y w)
 
-attack :: World -> Int -> Int -> World
-attack world x y = changeMons unitsNew $ addMessage (newMsg, color) 
+attack :: Int -> Int -> World -> World
+attack x y world = changeMons unitsNew $ addMessage (newMsg, color) 
 	$ changeAction ' ' $ changeGen newGen' world
 	where
 		attacker = getFirst world

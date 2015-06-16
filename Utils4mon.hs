@@ -6,24 +6,13 @@ import HealDamage
 import Parts
 import Messages
 
+nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy"]
 isSoldier :: Monster -> Bool
-isSoldier mon = case name mon of
-	"You"               -> False
-	"Homunculus"        -> True
-	"Beetle"            -> True
-	"Bat"               -> False
-	"Hunter"            -> True
-	"Ivy"               -> False
-	"Dummy"             -> False
-	"Garbage collector" -> False
-	"Accelerator"       -> True
-	"Troll"             -> True
-	"Rock"              -> False
-	"Tail"              -> False
-	"Worm"              -> True
-	"Golem"             -> False
-	"Floating eye"      -> True
-	_ -> error "unknown monster"
+isSoldier mon = notElem (name mon) nOTsOLDIERS
+
+nOTeNEMIES = ["You", "Dummy", "Garbage collector", "Rock", "Tail", "Golem"]
+isEnemy :: Monster -> Bool
+isEnemy mon = notElem (name mon) nOTeNEMIES
 
 alive :: Monster -> Bool
 alive mon = hasPart bODY mon && hasPart hEAD mon || hasPart mAIN mon

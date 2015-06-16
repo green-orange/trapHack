@@ -99,7 +99,8 @@ paralyse dx dy w = changeMons newMons w where
 	y = yNow + dy
 	ch arg@(x', y', mon) = 
 		if x == x' && y == y'
-		then (x', y', mon {time = time mon + 2 * effectiveSlowness mon})
+		then (x', y', mon {time = min (5 * effectiveSlowness mon) 
+			$ time mon + 2 * effectiveSlowness mon})
 		else arg
 	newMons = map ch $ units w
 

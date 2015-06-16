@@ -93,6 +93,17 @@ useItemsAI f w x y = case useSomeItem objs keys of
 hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
 
+attackIfClose :: Int -> AIfunc -> AIfunc
+attackIfClose dist f w x y =
+	if abs dx <= dist && abs dy <= dist
+	then moveFirst dx dy w
+	else f w x y
+	where
+		(xNow, yNow, _) = head $ units w
+		dx = x - xNow
+		dy = y - yNow
+	
+
 stupidAI = stupidFooAI moveFirst
 stupidParalysisAI = stupidFooAI (\x y w -> moveFirst x y $ paralyse x y w)
 

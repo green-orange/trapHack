@@ -52,4 +52,4 @@ getMain = getPart mAIN
 
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon =
-	div (slowness mon) $ 1 + (length $ filter isLowerLimb $ parts mon)
+	max 10 $ div (slowness mon) $ 1 + (length $ filter isLowerLimb $ parts mon)

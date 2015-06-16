@@ -17,7 +17,7 @@ golemAI world _ _ =
 	then world
 	else (uncurry moveFirst $ head nears) world where
 		(xNow, yNow, _) = head $ units world
-		needToAttack (dx, dy) = not (null mons) && isSoldier mon where
+		needToAttack (dx, dy) = not (null mons) && isEnemy mon where
 			mons = filter (\(x,y,_) -> x == xNow + dx && y == yNow + dy)
 				$ units world
 			(_,_,mon) = head mons
