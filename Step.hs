@@ -19,9 +19,7 @@ step :: World -> Key -> Either World String
 step world c =
 	if alive $ getFirst world
 	then
-		if (time $ getFirst world) > 0
-		then Left $ cycleWorld $ tickDown world 
-		else if isPlayerNow world
+		if isPlayerNow world
 		then case action world of
 			' ' -> justStep world c
 			'q' ->

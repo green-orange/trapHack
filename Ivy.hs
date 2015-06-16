@@ -21,7 +21,8 @@ ivyAI world xPlayer yPlayer =
 	else if isEmpty world (xNow + dx') (yNow + dy')
 	then spawnMon (getIvy q) (xNow + dx') (yNow + dy') $ changeGen g''' world
 	else killFirst world where
-		(xNow, yNow, _) = head $ units world
+		xNow = xFirst world
+		yNow = yFirst world
 		dx = xPlayer - xNow
 		dy = yPlayer - yNow
 		g = stdgen world

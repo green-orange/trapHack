@@ -24,7 +24,9 @@ dropFirst c world ignoreMessages = rez where
 		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
 	(obj, cnt) = fromJust objects
-	(x, y, oldmon) = head $ units world
+	x = xFirst world
+	y = yFirst world
+	oldmon = getFirst world
 	mon = delAllObj c $ oldmon
 	newMsg =
 		if ignoreMessages
@@ -40,7 +42,9 @@ pickFirst world =
 	if 0 == (size $ toPick world)
 	then (Nothing, "")
 	else let
-		(xMon, yMon, oldMon) = head $ units world
+		xMon = xFirst world
+		yMon = yFirst world
+		oldMon = getFirst world
 		itemsWithIndices :: [((Int, Int, Object, Int), Int)]
 		itemsWithIndices = addIndices (\(x', y' , _, _) -> xMon == x' && yMon == y') $ items world
 		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) && (n < length alphabet) 
@@ -58,7 +62,7 @@ pickFirst world =
 			else yELLOW
 		newMessage = message world ++ [(name mon ++ " pick" ++ ending world ++ "some objects.", color)]
 		in (Just world {
-			units = (xMon, yMon, mon) : (tail $ units world),
+			units' = (units' world) {getFirst' = mon, list = M.insert (xMon, yMon) mon $ units world},
 			message = newMessage,
 			items = newItems,
 			action = ' ',

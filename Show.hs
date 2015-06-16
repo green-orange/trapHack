@@ -8,6 +8,8 @@ import UI.HSCurses.Curses
 import Data.Set (empty, member, Set)
 import Data.Maybe
 import Data.Map (toList)
+import Data.List (sortBy)
+import Data.Function (on)
 
 shiftDown = 5 :: Int
 shiftRightHP1 = maxX + 5 :: Int
@@ -29,8 +31,8 @@ initColors = do
 	initPair (Pair mAGENTA)    (fromJust $ color "magenta") (defaultBackground)
 	initPair (Pair bLUE)       (fromJust $ color "blue")    (defaultBackground)
 
-drawUnit :: World -> Unit -> IO ()
-drawUnit world (x, y, mon) = do
+drawUnit :: World -> ((Int, Int), Monster) -> IO ()
+drawUnit world ((x, y), mon) = do
 	(attr, _) <- wAttrGet stdScr
 	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon
@@ -92,7 +94,8 @@ draw world = do
 			mvWAddStr stdScr 0 0 "Your inventory: (press Enter or Space to close it)"
 			foldl (>>) doNothing $ map showInv stringsToShow
 		',' -> let
-			(xNow, yNow, _) = head $ units world
+			xNow = xFirst world
+			yNow = yFirst world
 			toShow = zip3 alphabet [0..] $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
 			in do
@@ -106,8 +109,9 @@ draw world = do
 			showMessages $ message world
 			foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
 			foldl (>>) doNothing $ map (drawItem world) $ items world
-			foldl (>>) doNothing $ map (drawUnit world) $ units world
-			foldl (>>) doNothing $ zipWith ($) (map drawPart $ parts $ getFirst world) [1..]
+			foldl (>>) doNothing $ map (drawUnit world) $ toList $ units world
+			foldl (>>) doNothing $ zipWith ($) (map drawPart 
+				$ sortBy (on compare kind) $ parts $ getFirst world) [1..]
 			(attr, _) <- wAttrGet stdScr
 			wAttrSet stdScr (attr, Pair dEFAULT)
 			mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 

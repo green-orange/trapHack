@@ -13,6 +13,17 @@ import qualified Data.Map as M
 changeHP :: Int -> Part -> Part
 changeHP n part = part {hp = n}
 
+{- Units -}
+
+update :: Int -> Int -> Units -> Units
+update x' y' uns = 
+	if x' == x uns && y' == y uns
+	then uns {getFirst' = list uns M.! (x', y')}
+	else uns
+
+changeList :: M.Map (Int, Int) Monster -> Units -> Units
+changeList m uns = uns {list = m}
+
 {- Monster -}
 
 changeParts :: [Part] -> Monster -> Monster
@@ -20,12 +31,9 @@ changeParts ps mon = mon {parts = ps}
 
 changeTime :: Int -> Monster -> Monster
 changeTime t mon = mon {time = t}
-	
-tickDownMon :: Monster -> Monster
-tickDownMon m = changeTime (time m - 1) m
 
-resetTimeMon :: Monster -> Monster
-resetTimeMon m = changeTime (effectiveSlowness m) m
+tickFirstMon :: Monster -> Monster
+tickFirstMon m = changeTime (effectiveSlowness m + time m) m
 
 changeInv :: Inv -> Monster -> Monster
 changeInv inv mon = mon {inv = inv}
@@ -53,11 +61,22 @@ changeAction :: Char -> World -> World
 changeAction c w = w {action = c}
 
 changeMon :: Monster -> World -> World
-changeMon mon w = changeMons ((x, y, mon) : (tail $ units w)) w
-	where (x, y, _) = head $ units w
+changeMon mon w = changeMons newMons w where
+	newMons = update x y $ (units' w) {list = M.insert (x, y) mon $ list $ units' w}
+	x = xFirst w
+	y = yFirst w
 
-changeMons :: [Unit] -> World -> World
-changeMons mons w = w {units = mons}
+changeMons :: Units -> World -> World
+changeMons mons w = w {units' = mons}
+
+changeMoveFirst :: Int -> Int -> World -> World
+changeMoveFirst x y w = changeMons newMons w where
+	newMons = (units' w) {
+		x = x,
+		y = y,
+		list = M.insert (x, y) mon $ M.delete (xFirst w, yFirst w) $ units w
+	}
+	mon = units w M.! (xFirst w, yFirst w)
 
 addMessages :: [(String, Int)] -> World -> World
 addMessages s w = w {message = message w ++ s}
@@ -89,20 +108,21 @@ changeMap x y t w = w {worldmap = worldmap'} where
 	worldmap' = changeElem2 x y t $ worldmap w
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
-spawnMon mgen x y w = changeMons (units w ++ [(x, y, newMon)]) $ changeGen g w where
+spawnMon mgen x y w = changeMons (changeList 
+	(M.insert (x, y) newMon $ units w) $ units' w) $ changeGen g w where
 	(newMon, g) = mgen $ stdgen w
 	
 paralyse :: Int -> Int -> World -> World
 paralyse dx dy w = changeMons newMons w where
-	(xNow, yNow, _) = head $ units w
+	xNow = xFirst w
+	yNow = yFirst w
 	x = xNow + dx
 	y = yNow + dy
-	ch arg@(x', y', mon) = 
+	ch (x', y') mon = 
 		if x == x' && y == y'
-		then (x', y', mon {time = min (5 * effectiveSlowness mon) 
-			$ time mon + 2 * effectiveSlowness mon})
-		else arg
-	newMons = map ch $ units w
+		then mon {time = time mon + 2 * effectiveSlowness mon}
+		else mon
+	newMons = mapU ch $ units' w
 
 {- Object -}
 

@@ -2,7 +2,7 @@ module Data where
 
 import Data.Set (Set(..))
 import System.Random (StdGen(..))
-import Data.Map (Map(..))
+import qualified Data.Map as M
 
 lol = undefined
 
@@ -30,11 +30,17 @@ doNothing :: IO ()
 doNothing = return ()
 
 type AIfunc = World -> Int -> Int -> World
-type Inv = Map Char (Object, Int)
+type Inv = M.Map Char (Object, Int)
 type InvGen = Float -> Inv
 type StdDmg = World -> (Maybe Int, StdGen)
 type MonsterGen = StdGen -> (Monster, StdGen)
-type Unit = (Int, Int, Monster)
+
+data Units = Units {
+	x :: Int,
+	y :: Int,
+	getFirst' :: Monster,
+	list :: M.Map (Int, Int) Monster
+}
 
 data Part = Part {
 	hp :: Int,
@@ -102,7 +108,7 @@ isStackable :: Object -> Bool
 isStackable obj = obj == obj
 
 data World = World {
-	units :: [Unit],
+	units' :: Units,
 	message :: [(String, Int)],
 	items :: [(Int, Int, Object, Int)],
 	action :: Char,
@@ -115,16 +121,32 @@ data World = World {
 	prevAction :: Char
 }
 
-getFirst :: World -> Monster
-getFirst world = third $ head $ units world
+xFirst :: World -> Int
+xFirst = x . units'
 
-first (x,_,_) = x
-second (_,x,_) = x
-third (_,_,x) = x
+yFirst :: World -> Int
+yFirst = y . units'
+
+getFirst :: World -> Monster
+getFirst = getFirst' . units'
+
+units :: World -> M.Map (Int, Int) Monster
+units = list . units'
+
+mapU :: ((Int, Int) -> Monster -> Monster) -> Units -> Units
+mapU f uns = uns 
+	{list = M.mapWithKey f $ list uns,
+	getFirst' = f (x uns, y uns) $ getFirst' uns}
+	
+insertU :: (Int, Int) -> Monster -> Units -> Units
+insertU k m uns = uns {list = M.insert k m $ list uns}
+
+deleteU :: (Int, Int) -> Units -> Units
+deleteU k uns = uns {list = M.delete k $ list uns}
 
 isEmpty :: World -> Int -> Int -> Bool
 isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
-	(not $ elem (x, y) [ (a, b) | (a, b, _) <- units world ])
+	(M.notMember (x, y) $ units world)
 
 isValid :: World -> Int -> Int -> Int -> Int -> Bool
 isValid world x y dx dy = 
@@ -134,4 +156,4 @@ isValid world x y dx dy =
 	where rez = dirs world (x, y, dx, dy)
 
 isPlayerNow :: World -> Bool
-isPlayerNow world = (name $ getFirst world) == "You" && (time $ getFirst world) == 0
+isPlayerNow world = (name $ getFirst world) == "You"

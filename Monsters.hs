@@ -7,7 +7,7 @@ import Parts
 import Messages
 
 import System.Random (StdGen, randomR)
-import Data.Map (empty)
+import Data.Map (empty, keys)
 	
 getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
 getMonster ai ps name stddmg inv slow g = (Monster {
@@ -23,8 +23,8 @@ getMonster ai ps name stddmg inv slow g = (Monster {
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g
 
-getPlayer :: Int -> Int -> Monster
-getPlayer x y = Monster {
+getPlayer :: Monster
+getPlayer = Monster {
 	ai = You,
 	parts = zipWith ($) 
 		[getBody 1 40, 
@@ -44,19 +44,19 @@ getPlayer x y = Monster {
 		
 getDummy n q = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const empty) 100
 
-addMonsters :: [MonsterGen] -> ([Unit], StdGen) -> ([Unit], StdGen)
+addMonsters :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens
 
-addMonster :: MonsterGen -> ([Unit], StdGen) -> ([Unit], StdGen)
+addMonster :: MonsterGen -> (Units, StdGen) -> (Units, StdGen)
 addMonster gen (units, g) = 
 	if isCorrect
-	then (units ++ [(x, y, mon)], g3)
+	then (insertU (x, y) (mon {time = time $ getFirst' units}) units, g3)
 	else addMonster gen (units, g3)
 	where
-	(x, g1) = randomR (0, maxX) g
-	(y, g2) = randomR (0, maxY) g1
-	(mon, g3) = gen g2
-	isCorrect = 0 == length [(a,b) | (a,b,_) <- units, a == x, b == y]
+		(x, g1) = randomR (0, maxX) g
+		(y, g2) = randomR (0, maxY) g1
+		(mon, g3) = gen g2
+		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ keys $ list units
 	
 animate :: Int -> Int -> World -> World
 animate x y w = 
@@ -73,14 +73,16 @@ animate x y w =
 		
 fooAround :: (Int -> Int -> World -> World) -> World -> World
 fooAround foo w = foldr ($) w $ [foo] >>= applToNear x >>= applToNear y where
-	(x, y, _) = head $ units w
+	x = xFirst w
+	y = yFirst w
 	applToNear x f = map f [x-1, x, x+1]
 	
 animateAround = fooAround animate
 	
 randomSpawn :: MonsterGen -> World -> World
 randomSpawn mgen w = newWorld where
-	(x, y, _) = head $ units w
+	x = xFirst w
+	y = yFirst w
 	neighbors = [(x', y') | x' <- [x-1,x,x+1], y' <- [y-1,y,y+1]]
 	emptyNeighbors = filter (uncurry $ isEmpty w) neighbors
 	newWorld = 

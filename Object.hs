@@ -39,7 +39,9 @@ quaffFirst c world = rez where
 		else (changeGen g $ changeMon mon' $ addNeutralMessage newMsg $ changeAction ' ' world, True)
 	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world ++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
-	(x, y, oldMon) = head $ units world
+	x = xFirst world
+	y = yFirst world
+	oldMon = getFirst world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
 	
@@ -57,7 +59,9 @@ readFirst c world = rez where
 	newMsg = (name $ getFirst world) ++ " read" ++ ending world ++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
 	newWorld = actw obj world
-	(x, y, mon) = head $ units newWorld
+	x = xFirst world
+	y = yFirst world
+	mon = getFirst world
 	mon' = delObj c mon
 
 zapFirst :: Key -> World -> (World, Bool)
@@ -73,13 +77,14 @@ zapFirst c world = rez where
 		else if charge obj == 0
 		then (maybeAddMessage "This wand has no charge!" failWorld, True)
 		else (changeMon mon $ changeAction ' ' $ newMWorld, True)
-	(x, y, _) = head $ units world
 	(dx, dy) = fromJust $ dir c
 	maybeCoords = dirs world (x, y, dx, dy)
 	newMWorld = case maybeCoords of
 		Just (xNew, yNew) -> zap world xNew yNew dx dy obj
 		Nothing -> failWorld
-	(_, _, oldMon) = head $ units newMWorld
+	x = xFirst world
+	y = yFirst world
+	oldMon = getFirst world
 	(obj, _) = fromJust objects
 	mon = decChargeByKey (prevAction newMWorld) $ oldMon
 	failWorld = changeAction ' ' world
@@ -97,23 +102,19 @@ zap world x y dx dy obj =
 			Just p -> (False, p)
 		decRange :: Object -> Object
 		decRange obj = obj {range = range obj - 1}
-		actAll :: StdGen -> [(Int, Int, Monster)] -> ([(Int, Int, Monster)], StdGen)
-		actAll g [] = ([], g)
-		actAll g (o@(x',y',m):os) = (oNew : osNew, g'') where
-			(osNew, g'') = actAll g' os
-			(oNew, g') = 
+		actAll :: StdGen -> Units -> Units
+		actAll g uns = mapU bar uns where
+			bar (x', y') m = 
 				if (x == x') && (y == y')
-				then
-					let (newMon, newG) = act obj (m, g)
-					in ((x, y, newMon), newG) 
-				else (o, g)
-		msgFilter (x', y', mon) = 
+				then fst $ act obj (m, g)
+				else m
+		msgFilter (x', y') mon = 
 			if (x == x') && (y == y')
 			then name mon ++ " was zapped!"
 			else ""
-		msg = foldl (++) "" $ map msgFilter $ units world
-		(newMons, newG) = actAll (stdgen world) $ units world
-		newMWorld = changeGen newG $ addNeutralMessage msg $ changeMons newMons world
+		msg = M.foldl (++) "" $ M.mapWithKey msgFilter $ units world
+		newMons = actAll (stdgen world) $ units' world
+		newMWorld = addNeutralMessage msg $ changeMons newMons world
 
 zapMon :: Key -> Char -> World -> World
 zapMon dir obj world = fst $ zapFirst dir $ world {prevAction = obj}
@@ -127,7 +128,9 @@ trapFirst c world = rez where
 		else if not $ isTrap obj
 		then (maybeAddMessage "It's not a trap!" failWorld, False)
 		else (addNeutralMessage newMsg $ changeMon mon $ changeMap x y (num obj) $ changeAction ' ' $ world, True)
-	(x, y, oldMon) = head $ units world
+	x = xFirst world
+	y = yFirst world
+	oldMon = getFirst world
 	(obj, _) = fromJust objects
 	mon = delObj c oldMon
 	failWorld = changeAction ' ' world
@@ -140,7 +143,9 @@ untrapFirst world = rez where
 		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
 		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y eMPTY 
 			$ changeAction ' ' $ world, True)
-	(x, y, mon) = head $ units world
+	x = xFirst world
+	y = yFirst world
+	mon = getFirst world
 	failWorld = changeAction ' ' world
 	trap = trapFromTerrain $ worldmap world !! x !! y
 	newMsg = (name mon) ++ " untrap" ++ ending world ++ title trap ++ "."
@@ -154,7 +159,9 @@ wieldFirst c world = rez where
 		else if not (isWeapon obj || isLauncher obj)
 		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
 		else (addNeutralMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
-	(x, y, oldMon) = head $ units world
+	x = xFirst world
+	y = yFirst world
+	oldMon = getFirst world
 	(obj, _) = fromJust objects
 	mon = changeWeapon c oldMon
 	failWorld = changeAction ' ' world
@@ -183,7 +190,9 @@ fireFirst c world = rez where
 		else if dir c == Nothing
 		then (maybeAddMessage "It's not a direction!" failWorld, False)
 		else (changeAction ' ' newWorld, True)
-	(x, y, oldMon) = head $ units world
+	x = xFirst world
+	y = yFirst world
+	oldMon = getFirst world
 	maybeCoords = dirs world (x, y, dx, dy)
 	cnt = min n $ count wielded
 	newWorld = case maybeCoords of
@@ -199,24 +208,21 @@ fire :: Int -> Int -> Int -> Int -> Object -> World -> World
 fire x y dx dy obj world = 
 	if incorrect
 	then world
-	else if null mons
+	else if isNothing maybeMon
 	then fire xNew yNew dx dy obj world
 	else newWorld
 	where
-		mons = filter (\(x', y', _) -> x == x' && y == y') $ units world
+		maybeMon = M.lookup (x, y) $ units world 
+		Just mon = maybeMon
 		(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
 			Nothing -> (True, (0, 0))
 			Just p -> (False, p)
 		(newDmg, g) = objdmg obj world
-		(newMon, g') = dmgRandom newDmg (third $ head mons) g
-		actFilter arg@(x', y', mon) = 
-			if (x == x') && (y == y')
-			then (x', y', newMon)
-			else arg
+		(newMon, g') = dmgRandom newDmg mon g
 		msg = case newDmg of
 			Nothing -> capitalize (title obj) ++ " misses."
-			Just _ -> capitalize (title obj) ++ " hits " ++ name (third $ head mons) ++ "."
-		newWorld = addNeutralMessage msg $ changeGen g' $ changeMons (map actFilter $ units world) world
+			Just _ -> capitalize (title obj) ++ " hits " ++ name mon ++ "."
+		newWorld = addNeutralMessage msg $ changeGen g' $ changeMons (insertU (x, y) newMon $ units' world) world
 		
 fireMon :: Key -> Char -> World -> World
 fireMon dir obj world = fst $ fireFirst dir $ world {prevAction = obj}

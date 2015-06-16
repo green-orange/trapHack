@@ -7,7 +7,7 @@ import Ivy
 
 import System.Random (StdGen, randomR)
 
-addWave :: Int -> ([Unit], StdGen) -> ([Unit], StdGen)
+addWave :: Int -> (Units, StdGen) -> (Units, StdGen)
 addWave n pair@(units, g) = 
 	if null ms
 	then addWave n (units, g')
@@ -40,5 +40,5 @@ genWave n g =
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World
-newWave w = w {units = newUnits, stdgen = newStdGen, wave = wave w + 1} where
-	(newUnits, newStdGen) = addWave (wave w) (units w, stdgen w)
+newWave w = w {units' = newUnits, stdgen = newStdGen, wave = wave w + 1} where
+	(newUnits, newStdGen) = addWave (wave w) (units' w, stdgen w)

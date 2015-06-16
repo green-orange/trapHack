@@ -8,7 +8,7 @@ import Utils4mon
 import Monsters
 import Changes
 
-import Data.Map (empty)
+import qualified Data.Map as M
 import System.Random (randomR)
 
 golemAI :: AIfunc
@@ -16,11 +16,12 @@ golemAI world _ _ =
 	if null nears
 	then world
 	else (uncurry moveFirst $ head nears) world where
-		(xNow, yNow, _) = head $ units world
-		needToAttack (dx, dy) = not (null mons) && isEnemy mon where
-			mons = filter (\(x,y,_) -> x == xNow + dx && y == yNow + dy)
+		xNow = xFirst world
+		yNow = yFirst world
+		needToAttack (dx, dy) = not (M.null mons) && isEnemy mon where
+			mons = M.filterWithKey (\(x,y) _ -> x == xNow + dx && y == yNow + dy)
 				$ units world
-			(_,_,mon) = head mons
+			mon = getFirst world
 		d = [-1, 0, 1]
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
 		
@@ -31,7 +32,7 @@ getGolem q = getMonster golemAI
 	 getLeg  1 $ uniform q  3  7,
 	 getArm  1 $ uniform q  2  6,
 	 getArm  1 $ uniform q  2  6]
-	"Golem" (dices (2,4) 0.3) (const empty) 100
+	"Golem" (dices (2,4) 0.3) (const M.empty) 100
 		
 spawnGolem :: Int -> Int -> World -> World
 spawnGolem x y w = 

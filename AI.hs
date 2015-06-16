@@ -11,9 +11,9 @@ import Monsters
 import Utils4mon
 
 import System.Random
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isNothing)
 import UI.HSCurses.Curses (Key (..))
-import Data.Map (empty, toList)
+import qualified Data.Map as M
 
 acceleratorAI :: AIfunc -> AIfunc
 acceleratorAI f w x y = f (changeMon newMon w) x y where
@@ -27,7 +27,7 @@ trollAI f w x y =
 	then addMessage ("Troll turned into a rock.", bLUE) $ changeMon rock w
 	else f w x y
 
-rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const empty) 10000 lol
+rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
@@ -43,7 +43,8 @@ zapAttackAI f w xPlayer yPlayer =
 	if (canZapToAttack $ getFirst w) && isOnLine 5 xNow yNow xPlayer yPlayer
 	then zapMon (undir dx dy) (zapAI w) w
 	else f w xPlayer yPlayer where
-		(xNow, yNow, _) = head $ units w
+		xNow = xFirst w
+		yNow = yFirst w
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		
@@ -52,16 +53,18 @@ pickAI f w x y =
 	if length objects > 0
 	then fromJust $ fst $ pickFirst $ foldr ($) w $ map (changePickFirst . KeyChar) alphabet
 	else f w x y where
-		(xNow, yNow, _) = head $ units w
+		xNow = xFirst w
+		yNow = yFirst w
 		objects = filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items w
 		
 fireAI :: AIfunc -> AIfunc
-fireAI ai world xPlayer yPlayer =
-	if (canFire $ getFirst world) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
-	then fireMon (undir dx dy) (missileAI world) world
-	else ai world xPlayer yPlayer
+fireAI ai w xPlayer yPlayer =
+	if (canFire $ getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
+	then fireMon (undir dx dy) (missileAI w) w
+	else ai w xPlayer yPlayer
 	where
-		(xNow, yNow, _) = head $ units world
+		xNow = xFirst w
+		yNow = yFirst w
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		
@@ -86,7 +89,7 @@ useItemsAI f w x y = case useSomeItem objs keys of
 	Nothing -> f w x y
 	Just g -> g w
 	where
-		invList = toList $ inv $ getFirst w
+		invList = M.toList $ inv $ getFirst w
 		objs = map (fst . snd) invList
 		keys = map (KeyChar . fst) invList
 	
@@ -99,7 +102,8 @@ attackIfClose dist f w x y =
 	then moveFirst dx dy w
 	else f w x y
 	where
-		(xNow, yNow, _) = head $ units w
+		xNow = xFirst w
+		yNow = yFirst w
 		dx = x - xNow
 		dy = y - yNow
 	
@@ -108,9 +112,10 @@ stupidAI = stupidFooAI moveFirst
 stupidParalysisAI = stupidFooAI (\x y w -> moveFirst x y $ paralyse x y w)
 
 stupidFooAI :: (Int -> Int -> World -> World) -> AIfunc
-stupidFooAI foo world xPlayer yPlayer = newWorld where
-	g = stdgen world
-	(xNow, yNow, _) = head $ units world
+stupidFooAI foo w xPlayer yPlayer = newWorld where
+	g = stdgen w
+	xNow = xFirst w
+	yNow = yFirst w
 	dx = signum $ xPlayer - xNow
 	dy = signum $ yPlayer - yNow
 	(dx1, dy1, dx2, dy2) = 
@@ -120,41 +125,42 @@ stupidFooAI foo world xPlayer yPlayer = newWorld where
 		then (dx, 1, dx, -1)
 		else (dx, 0, 0, dy)
 	(dx', dy', newStdGen) = 
-		if isValid world xNow yNow dx dy || 
+		if isValid w xNow yNow dx dy || 
 			abs (xPlayer - xNow) <= 1 && abs (yPlayer - yNow) <= 1
 		then (dx, dy, g)
-		else if isValid world xNow yNow dx1 dy1
+		else if isValid w xNow yNow dx1 dy1
 		then (dx1, dy1, g)
-		else if isValid world xNow yNow dx2 dy2
+		else if isValid w xNow yNow dx2 dy2
 		then (dx2, dy2, g)
 		else 
 			let
 				(rx, g') = randomR (-1, 1) g
 				(ry, g'') = randomR (-1, 1) g'
 			in (rx, ry, g'')
-	newWorld = foo dx' dy' $ changeGen newStdGen world
+	newWorld = foo dx' dy' $ changeGen newStdGen w
 				
 randomAI :: AIfunc
-randomAI world _ _  = (moveFirst rx ry newWorld) where
-	g = stdgen world
+randomAI w _ _  = (moveFirst rx ry newWorld) where
+	g = stdgen w
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
-	newWorld = changeGen g'' world
+	newWorld = changeGen g'' w
 	
 wormAI :: AIfunc
-wormAI world xPlayer yPlayer = 
-	if null mons
-	then spawnMon tailWorm xNow yNow $ moveFirst dx dy world
+wormAI w xPlayer yPlayer = 
+	if isNothing maybeMon
+	then spawnMon tailWorm xNow yNow $ moveFirst dx dy w
 	else if name mon == "Tail" || name mon == "Worm"
-	then killFirst world
-	else moveFirst dx dy world where
-		(xNow, yNow, _) = head $ units world
+	then killFirst w
+	else moveFirst dx dy w where
+		xNow = xFirst w
+		yNow = yFirst w
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		xNew = xNow + dx
 		yNew = yNow + dy
-		mons = filter (\(x, y, _) -> x == xNew && y == yNew) $ units world
-		[(_,_,mon)] = mons
+		maybeMon = M.lookup (xNew, yNew) (units w)
+		Just mon = maybeMon
 	
-tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const empty) 10000
+tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const M.empty) 10000
 

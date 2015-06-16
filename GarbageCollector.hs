@@ -21,7 +21,8 @@ collectorAI world _ _ =
 	else moveFirst dx dy world
 	where
 		isItemHere = not $ null $ filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items world
-		(xNow, yNow, _) = head $ units world
+		xNow = xFirst world
+		yNow = yFirst world
 		(xItem, yItem, _, _) = minimumBy cmp $ items world
 		dist x y = max (x - xNow) (y - yNow)
 		cmp = on compare (\(x, y, _, _) -> dist x y)

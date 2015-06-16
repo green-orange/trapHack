@@ -18,12 +18,12 @@ moveFirst dx dy world =
 		if (name mon) /= "You" && not (isFlying mon) && worldmap world !! x !! y == bEARTRAP
 		then world
 		else
-			changeMons ((xnew, ynew, getFirst world) 
-			: (tail $ units world)) $ addMessage (newMessage, yELLOW) $ world
+			changeMoveFirst xnew ynew $ addMessage (newMessage, yELLOW) $ world
 	else
 		attacks xnew ynew world $ countUpperLimbs $ getFirst world
 	where
-		(x, y, _) = head $ units world
+		x = xFirst world
+		y = yFirst world
 		rez = dirs world (x, y, dx, dy)
 		(xnew, ynew, newMessage) =
 			if rez == Nothing
@@ -43,9 +43,7 @@ attack x y world = changeMons unitsNew $ addMessage (newMsg, color)
 	$ changeAction ' ' $ changeGen newGen' world
 	where
 		attacker = getFirst world
-		found :: Unit -> Bool
-		found (x', y', _) = (x' == x) && (y' == y)
-		(xx,yy,mon) = head $ filter found $ units world
+		mon = units world M.! (x, y)
 		color = 
 			if name attacker == "You"
 			then case newDmg of
@@ -56,8 +54,6 @@ attack x y world = changeMons unitsNew $ addMessage (newMsg, color)
 				Nothing -> yELLOW
 				_		-> rED
 			else bLUE
-		change :: Unit -> Unit -> Unit
-		change tnew t = if found t then tnew else t
 		weapons = M.lookup (weapon attacker) (inv attacker)
 		dmggen = 
 			if isNothing weapons || (not $ isWeapon $ fst $ fromJust weapons)
@@ -68,13 +64,14 @@ attack x y world = changeMons unitsNew $ addMessage (newMsg, color)
 			Nothing -> (name attacker) ++ " missed!"
 			Just _ -> (name attacker) ++ " attacks " ++ (name mon) ++ "!"
 		(monNew, newGen') = dmgRandom newDmg mon newGen
-		unitsNew = map (change (xx,yy,monNew)) $ units world
+		unitsNew = changeList (M.insert (x, y) monNew $ units world) $ units' world
 		
 stupidestAI :: AIfunc
 stupidestAI world xPlayer yPlayer = 
 	newWorld
 	where
-		(xNow, yNow, _) = head $ units world
+		xNow = xFirst world
+		yNow = yFirst world
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		newWorld = moveFirst dx dy world

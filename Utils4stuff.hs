@@ -10,6 +10,7 @@ import Utils4mon
 
 import System.Random (StdGen, randomR, split)
 import Data.Set (empty)
+import Data.Map (toList, singleton)
 
 cleanParts :: Monster -> Monster
 cleanParts mon = changeParts (filter aliveP $ parts mon) mon
@@ -45,22 +46,20 @@ addPart mon knd hp regVel = changeParts (newPart : parts mon) mon where
 
 fireAround :: Int -> (Int, Int) -> World -> World
 fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w where
-	(xNow, yNow, _) = head $ units w
+	xNow = xFirst w
+	yNow = yFirst w
 	(newDmg, g) = randomR pair $ stdgen w
-	newMons = zipWith fireDmg (units w) (infgens g)
-	infgens :: StdGen -> [StdGen]
-	infgens g = g' : infgens g'' where
-		(g', g'') = split g
-	isClose (x, y, _) = abs (x - xNow) <= d && abs (y - yNow) <= d
-	fireDmg arg@(x, y, mon) gen = 
-		if isClose arg
-		then (x, y, fst $ dmgRandom (Just newDmg) mon gen)
-		else arg
-	msg (_,_,mon) = 
+	newMons = mapU (fireDmg g) $ units' w
+	isClose ((x, y), _) = abs (x - xNow) <= d && abs (y - yNow) <= d
+	fireDmg gen (x, y) mon = 
+		if isClose ((x, y), lol)
+		then fst $ dmgRandom (Just newDmg) mon gen
+		else mon
+	msg (_,mon) = 
 		if name mon == "You"
 		then ("You are in fire!", rED)
 		else (name mon ++ " is in fire!", gREEN)
-	newMsgs = map msg $ filter isClose $ units w
+	newMsgs = map msg $ filter isClose $ toList $ units w
 	
 stupidity :: Monster -> Monster
 stupidity mon = mon {ai = newAI} where
@@ -76,7 +75,7 @@ isUntrappable = (/=) eMPTY
 	
 safety :: World -> World
 safety w = w {
-	units = [head $ units w],
+	units' = (units' w) {list = singleton (xFirst w, yFirst w) $ getFirst w},
 	message = [("You suddenly find yourself in a new world!", bLUE)],
 	items = [],
 	action = ' ',

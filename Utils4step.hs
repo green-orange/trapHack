@@ -10,63 +10,85 @@ import Wave
 import System.Random (StdGen)
 import Data.List (sort)
 import qualified Data.Map as M
+import UI.HSCurses.Logging
 
 bIGpAUSE = 100
 pAUSE    = 3
+
+minSnd :: (Ord b) => (a,b) -> (a,b) -> (a,b)
+minSnd x y = if snd x > snd y then y else x
+
+minValue :: (Ord k, Ord a) => M.Map k a -> (k, a)
+minValue m = foldr1 minSnd $ M.toList m
+	
+minimumOn :: (Ord b, Ord k) => (a -> b) -> M.Map k a -> (k, a)
+minimumOn f m = (k, m M.! k) where
+	k = fst $ minValue $ M.map f m
 
 wait :: Int -> Int
 wait n = case mod n 10 of
 	0 -> bIGpAUSE
 	_ -> pAUSE
+	
+updateFirst :: World -> World
+updateFirst w = changeMons newUnits w where
+	newUnits = (units' w) {
+		x = x,
+		y = y,
+		getFirst' = monNew
+	}
+	((x, y), monNew) = minimumOn time $ units w
 
 newWaveIf :: World -> World
 newWaveIf world =
 	if (not $ isPlayerNow world) ||
-		(length $ filter (isSoldier. third) $ units world) * 8 > wave world
-	then cycleWorld $ resetTime world
+		(M.size $ M.filter isSoldier $ units world) * 8 > wave world
+	then newWorld
 	else
 		if stepsBeforeWave world > 0
-		then (cycleWorld $ resetTime world)
+		then newWorld
 			{stepsBeforeWave = stepsBeforeWave world - 1}
 		else if stepsBeforeWave world == 0
 		then (changeAction ' ' $ addMessage ("Squad #" 
 			++ show (wave world) ++ " landed around you!", rED) 
-			$ newWave $ cycleWorld $ resetTime world) {stepsBeforeWave = -1}
-		else (cycleWorld $ resetTime world) {stepsBeforeWave = wait $ wave world}
-
-cycle' :: [a] -> [a]
-cycle' [] = []
-cycle' (x:xs) = xs ++ [x]
-
+			$ newWave $ newWorld) {stepsBeforeWave = -1}
+		else newWorld {stepsBeforeWave = wait $ wave world}
+	where
+		newWorld = cycleWorld world
+		
 cycleWorld :: World -> World
 cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 
-	$ addMessages (msgCleanParts $ third $ head newUnits) w
-	where newUnits = cycle' $ units w
+	$ addMessages (msgCleanParts monNew) newWorld where
+		newUnits = (units' newWorld) {
+			x = x,
+			y = y,
+			getFirst' = monNew
+		}
+		((x, y), monNew) = minimumOn time $ units newWorld
+		newWorld = tickFirst w
+		
 
 cleanFirst :: World -> World
 cleanFirst w = changeMon (cleanParts $ getFirst w) w
 
 remFirst :: World -> World
-remFirst world = changeMons (tail $ units world) $ changeAction ' ' world
+remFirst world = updateFirst $ changeMons (deleteU (xFirst world, yFirst world) $ units' world) 
+	$ changeAction ' ' world
 
 coordsPlayer :: World -> (Int, Int)
 coordsPlayer w =
 	if null yous
 	then (-1, -1)
-	else getCoords $ head yous
+	else fst $ head yous
 	where
-		getCoords (x,y,_) = (x,y)
-		yous = filter (\(_,_,x) -> (name x == "You")) $ units w
+		yous = filter (\q -> (name (snd q) == "You")) $ M.toList $ units w
 
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
 addDeathDrop mon g = (changeInv (M.union (inv mon) newDrop) mon, newGen) where
 	(newDrop, newGen) = deathDrop (name mon) g
 
-tickDown :: World -> World
-tickDown w = changeMon (tickDownMon $ getFirst w) w
-
-resetTime :: World -> World
-resetTime w = changeMon (resetTimeMon $ getFirst w) w
+tickFirst :: World -> World
+tickFirst w = changeMon (tickFirstMon $ getFirst w) w
 
 listOfValidChars :: (Object -> Bool) -> World -> [Char]
 listOfValidChars f world = sort $ foldr (:) [] $ M.keys 

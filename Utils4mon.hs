@@ -37,10 +37,7 @@ regMonster :: Monster -> Monster
 regMonster mon = changeParts (map regPart $ parts mon) mon
 
 regFirst :: World -> World
-regFirst w =
-	if (time $ getFirst w) == 0
-	then changeMon (regMonster $ getFirst w) w
-	else w
+regFirst w = changeMon (regMonster $ getFirst w) w
 
 msgCleanParts :: Monster -> [(String, Int)]
 msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (name mon) 
@@ -54,12 +51,10 @@ isFlying :: Monster -> Bool
 isFlying mon = hasPart wING mon
 
 actTrapFirst :: World -> World
-actTrapFirst w =
-	if time mon == 0
-	then addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w
-	else w
-	where
-	(x, y, mon) = head $ units w
+actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w where
+	x = xFirst w
+	y = yFirst w
+	mon = getFirst w
 	trap = worldmap w !! x !! y
 	(newMon, g) = 
 		if trap == fIRETRAP
