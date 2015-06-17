@@ -159,6 +159,7 @@ symbolMon "Worm"              = 'w'
 symbolMon "Golem"             = 'g'
 symbolMon "Floating eye"      = 'e'
 symbolMon "Dragon"            = 'D'
+symbolMon "Forgotten beast"   = 'X'
 symbolMon _                   = error "unknown monster"
 
 symbolItem :: Object -> Char

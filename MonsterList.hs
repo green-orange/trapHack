@@ -9,6 +9,7 @@ import Stuff
 import Move
 import AI
 import Parts
+import Forgotten
 
 import System.Random
 import qualified Data.Map as M
@@ -91,4 +92,6 @@ getDragon q = getMonster (attackIfClose 3 $ stupidAI)
 	 getWing 3 $ uniform q  5 15,
 	 getWing 3 $ uniform q  5 15]
 	"Dragon" (dices (3,4) 0.2) (const M.empty) 120
-		
+	
+getForgottenBeast q = getMonster (forgottenAI q) (forgottenParts q)
+	"Forgotten beast" (forgottenDmg q) forgottenInv (forgottenSlowness q)

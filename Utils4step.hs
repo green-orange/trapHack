@@ -30,6 +30,12 @@ wait n = case mod n 10 of
 	0 -> bIGpAUSE
 	_ -> pAUSE
 	
+almostTime :: Monster -> Int
+almostTime mon = 
+	if alive mon
+	then time mon
+	else 0
+
 updateFirst :: World -> World
 updateFirst w = changeMons newUnits w where
 	newUnits = (units' w) {
@@ -37,7 +43,7 @@ updateFirst w = changeMons newUnits w where
 		y = y,
 		getFirst' = monNew
 	}
-	((x, y), monNew) = minimumOn time $ units w
+	((x, y), monNew) = minimumOn almostTime $ units w
 
 newWaveIf :: World -> World
 newWaveIf world =
@@ -64,9 +70,8 @@ cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits
 			y = y,
 			getFirst' = monNew
 		}
-		((x, y), monNew) = minimumOn time $ units newWorld
+		((x, y), monNew) = minimumOn almostTime $ units newWorld
 		newWorld = tickFirst w
-		
 
 cleanFirst :: World -> World
 cleanFirst w = changeMon (cleanParts $ getFirst w) w

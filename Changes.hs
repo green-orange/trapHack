@@ -109,7 +109,8 @@ changeMap x y t w = w {worldmap = worldmap'} where
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (changeList 
-	(M.insert (x, y) newMon $ units w) $ units' w) $ changeGen g w where
+	(M.insert (x, y) (newMon {time = (time $ getFirst w) + effectiveSlowness newMon})
+		$ units w) $ units' w) $ changeGen g w where
 	(newMon, g) = mgen $ stdgen w
 	
 paralyse :: Int -> Int -> World -> World
@@ -120,7 +121,7 @@ paralyse dx dy w = changeMons newMons w where
 	y = yNow + dy
 	ch (x', y') mon = 
 		if x == x' && y == y'
-		then mon {time = time mon + 2 * effectiveSlowness mon}
+		then mon {time = time mon + (effectiveSlowness mon) * 3 `div` 2}
 		else mon
 	newMons = mapU ch $ units' w
 

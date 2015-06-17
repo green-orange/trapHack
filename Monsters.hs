@@ -22,25 +22,6 @@ getMonster ai ps name stddmg inv slow g = (Monster {
 }, newGen) where
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g
-
-getPlayer :: Monster
-getPlayer = Monster {
-	ai = You,
-	parts = zipWith ($) 
-		[getBody 1 40, 
-		 getHead 1 30, 
-		 getLeg  2 20, 
-		 getLeg  2 20, 
-		 getArm  2 20, 
-		 getArm  2 20]
-		 [0..],
-	name = "You",
-	stddmg = dices (1,10) 0.2,
-	inv = empty,
-	slowness = 100,
-	time = 100,
-	weapon = ' '
-}
 		
 getDummy n q = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const empty) 100
 

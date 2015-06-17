@@ -15,7 +15,8 @@ isEnemy :: Monster -> Bool
 isEnemy mon = notElem (name mon) nOTeNEMIES
 
 alive :: Monster -> Bool
-alive mon = hasPart bODY mon && hasPart hEAD mon || hasPart mAIN mon
+alive mon = hasPart bODY mon' && hasPart hEAD mon' || hasPart mAIN mon' where
+	mon' = mon {parts = filter ((>0) . hp) $ parts mon}
 
 countPart :: Int -> Monster -> Int
 countPart knd = countPartByPred (\x -> kind x == knd)

@@ -31,6 +31,8 @@ rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const M.empty)
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
+
+mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, useItemsAI]
 		
 healAI :: AIfunc -> AIfunc
 healAI f w x y = 

@@ -1,0 +1,48 @@
+module Forgotten where
+
+import Data
+import AI
+import Random
+import Parts
+import Stuff
+
+import System.Random (StdGen)
+import Control.Monad (join)
+import Data.Map (fromList)
+
+applyIf :: (a -> a) -> Bool -> (a -> a)
+applyIf f c = if c then f else id
+
+forgottenAI :: Float -> AIfunc
+forgottenAI q = foldr ($) pureAI $ zipWith applyIf mODSAI bools where
+	bools = randomBools q
+	pureAI = attackIfClose dist stupidAI
+	dist = 1 + inverseSquareRandom q
+		
+forgottenParts :: Float -> [Int -> Part]
+forgottenParts q = rez where
+	kinds :: Float
+	kinds = fromIntegral kINDS + 1
+	qs = map (frac . (*q) . (/kinds) . fromIntegral) [0..kINDS]
+	counts = map inverseSquareRandom qs
+	partgens = join $ zipWith replicate counts $ map getPart [0..]
+	qs' = map (frac . (*q) . (/ (fromIntegral $ length partgens)) 
+		. fromIntegral) [0..length partgens - 1]
+	hps = map ((*10) . inverseSquareRandom) qs'
+	rez = zipWith3 (($).($)) partgens hps $ cycle $ [3, 2, 1]
+	
+forgottenDmg :: Float -> World -> (Maybe Int, StdGen)
+forgottenDmg q = dices (count, dice) fail where
+	count = (+) 1 $ inverseSquareRandom $ frac $ q + (fromIntegral 1 / 3)
+	dice = (+) 2 $ inverseSquareRandom $ frac $ q + (fromIntegral 2 / 3)
+	fail = (*) 0.5 $ frac $ q + pi
+	
+forgottenSlowness :: Float -> Int
+forgottenSlowness q = uniform q 70 130
+
+forgottenInv :: InvGen
+forgottenInv q = fromList $ zip alphabet $ filter ((>0) . snd) 
+	$ zip sTACKABLE nums where
+	nums = map (inverseSquareRandom . frac) [q, q + pi..]
+	
+	

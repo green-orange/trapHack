@@ -2,10 +2,10 @@
 module Main where
 
 import Data
-import Monsters (getPlayer)
 import Step
 import Changes (clearMessage)
 import Show
+import Init
 
 import UI.HSCurses.Curses
 import System.Random (StdGen(..), getStdGen)
@@ -14,40 +14,6 @@ import Data.Map (singleton)
 #if linux_HOST_OS
 import System.Posix.User
 #endif
-
-rectdirs :: (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Maybe (Int, Int)
-rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
-	if (xnew >= xmin && xnew <= xmax && ynew >= ymin && ynew <= ymax)
-	then Just (xnew, ynew)
-	else Nothing
-	where
-		xnew = x + dx
-		ynew = y + dy
-		
-initUnits :: Units
-initUnits = Units {
-	x = x',
-	y = y',
-	getFirst' = getPlayer,
-	list = singleton (x', y') getPlayer
-} where
-	x' = div maxX 2
-	y' = div maxY 2
-
-initWorld :: String -> StdGen -> World
-initWorld username gen = World {
-	worldmap = [[0 | y <- [0..maxY]] | x <- [0..maxX]],
-	dirs = rectdirs (0, 0, maxX, maxY),
-	units' = initUnits,
-	message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],
-	items = [],
-	action = ' ',
-	stdgen = gen,
-	wave = 1,
-	toPick = empty,
-	prevAction = ' ',
-	stepsBeforeWave = 1
-}
 
 loop :: World -> IO String
 loop world =

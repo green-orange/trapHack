@@ -84,7 +84,7 @@ zapFirst c world = rez where
 		Nothing -> failWorld
 	x = xFirst world
 	y = yFirst world
-	oldMon = getFirst world
+	oldMon = getFirst newMWorld
 	(obj, _) = fromJust objects
 	mon = decChargeByKey (prevAction newMWorld) $ oldMon
 	failWorld = changeAction ' ' world
@@ -102,18 +102,18 @@ zap world x y dx dy obj =
 			Just p -> (False, p)
 		decRange :: Object -> Object
 		decRange obj = obj {range = range obj - 1}
-		actAll :: StdGen -> Units -> Units
-		actAll g uns = mapU bar uns where
-			bar (x', y') m = 
-				if (x == x') && (y == y')
-				then fst $ act obj (m, g)
-				else m
-		msgFilter (x', y') mon = 
-			if (x == x') && (y == y')
-			then name mon ++ " was zapped!"
-			else ""
-		msg = M.foldl (++) "" $ M.mapWithKey msgFilter $ units world
-		newMons = actAll (stdgen world) $ units' world
+		msg = 
+			case M.lookup (x, y) $ units world of
+			Nothing -> ""
+			Just mon ->
+				if name mon == "You"
+				then "You were zapped!"
+				else name mon ++ " was zapped!"
+		newMons = 
+			case M.lookup (x, y) $ units world of
+			Nothing -> units' world
+			Just mon -> update x y $ (units' world) {list = 
+				M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world}
 		newMWorld = addNeutralMessage msg $ changeMons newMons world
 
 zapMon :: Key -> Char -> World -> World

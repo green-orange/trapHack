@@ -24,6 +24,7 @@ deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
 deathDrop "Dragon" = genDeathDrop [(sCROLLS, bound [0.5, 0.8])]
+deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
 deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int
@@ -53,11 +54,13 @@ tRAPS = [bearTrap, fireTrap]
 lAUNCHERS = [shortbow, bow, longbow]
 wEAPONS = [dagger, shortsword, sword]
 sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll]
+mISSILES = [arrow]
 wANDS =
 	map wandOfStriking  [1..5] ++
 	map wandOfStupidity [1..5] ++
 	map wandOfSpeed     [1..2] ++
 	map wandOfRadiation [1..4]
+sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
 	
 potionOfHealing :: Object
 potionOfHealing = Potion {

@@ -30,5 +30,17 @@ inverseSquareRandom p = inverseSquareRandom' (0.999999 * p) 1 where
 		then n
 		else inverseSquareRandom' (p - bound) (n + 1)
 		
+inverseSquareList :: [Float]
+inverseSquareList = map (/(pi*pi/6.0*0.999)) $ inverseSquareList' 0.0 1 where
+	inverseSquareList' q n = new : inverseSquareList' new (n + 1) where
+		new = q + 1.0 / (fromIntegral n) ^ 2
+		
 uniform :: Float -> Int -> Int -> Int
 uniform p l r = (+) l $ floor $ (*) p $ fromIntegral $ r - l + 1
+
+frac :: Float -> Float
+frac q = (-) q $ fromIntegral $ floor q
+
+randomBools :: Float -> [Bool]
+randomBools q = (q > 0.5) : (randomBools $ frac $ 2 * q)
+
