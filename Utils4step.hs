@@ -48,7 +48,7 @@ updateFirst w = changeMons newUnits w where
 newWaveIf :: World -> World
 newWaveIf world =
 	if (not $ isPlayerNow world) ||
-		(M.size $ M.filter isSoldier $ units world) * 8 > wave world
+		weigthW world * 3 > wave world
 	then newWorld
 	else
 		if stepsBeforeWave world > 0
