@@ -7,6 +7,8 @@ import Utils4stuff
 import HealDamage
 import Messages
 import Utils4objects
+import Parts
+import Utils4mon
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, fromJust)
@@ -29,7 +31,10 @@ quaffFirst :: Key -> World -> (World, Bool)
 quaffFirst c world = rez where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if isNothing objects
+		if not $ hasPart aRM oldMon
+		then (maybeAddMessage "You need arms to quaff a potion!" 
+			$ changeAction ' ' world, False)
+		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
 		else if not $ isPotion obj
@@ -46,7 +51,10 @@ readFirst :: Key -> World -> (World, Bool)
 readFirst c world = rez where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if isNothing objects
+		if not $ hasPart aRM mon
+		then (maybeAddMessage "You need arms to read a scroll!" 
+			$ changeAction ' ' world, False)
+		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
 		else if not $ isScroll obj
@@ -63,7 +71,9 @@ zapFirst :: Key -> World -> (World, Bool)
 zapFirst c world = rez where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	rez =
-		if isNothing objects
+		if not $ hasPart aRM oldMon
+		then (maybeAddMessage "You need arms to zap a wand!" failWorld, False)
+		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isWand obj
 		then (maybeAddMessage "You don't know how to zap it!" failWorld, False)
@@ -125,7 +135,9 @@ trapFirst :: Key -> World -> (World, Bool)
 trapFirst c world = rez where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if isNothing objects
+		if not $ hasPart aRM oldMon
+		then (maybeAddMessage "You need arms to set a trap!" failWorld, False)
+		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isTrap obj
 		then (maybeAddMessage "It's not a trap!" failWorld, False)
@@ -141,7 +153,9 @@ trapFirst c world = rez where
 untrapFirst :: World -> (World, Bool)
 untrapFirst world = rez where
 	rez =
-		if not $ isUntrappable $ worldmap world !! x !! y
+		if not $ hasPart aRM mon
+		then (maybeAddMessage "You need arms to remove a trap!" failWorld, False)
+		else if not $ isUntrappable $ worldmap world !! x !! y
 		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
 		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y eMPTY 
 			$ changeAction ' ' $ world, True)
@@ -156,7 +170,9 @@ wieldFirst :: Key -> World -> (World, Bool)
 wieldFirst c world = rez where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
-		if isNothing objects
+		if not $ hasPart aRM oldMon
+		then (maybeAddMessage "You need arms to wield a weapon!" failWorld, False)
+		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not (isWeapon obj || isLauncher obj)
 		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
@@ -176,7 +192,9 @@ fireFirst c world = rez where
 		else fst $ fromJust listWield
 	listWield = M.lookup (weapon oldMon) $ inv $ getFirst world
 	rez =
-		if isNothing objects
+		if not $ hasPart aRM oldMon
+		then (maybeAddMessage "You need arms to fire!" failWorld, False)
+		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isMissile obj
 		then (maybeAddMessage "You don't know how to fire it!" failWorld, False)
