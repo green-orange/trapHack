@@ -16,6 +16,7 @@ w - **w**ield
 f - **f**ire  
 t - set or remove **t**rap  
 i - show **i**nventory  
-d - **d**rop  
+d - **d**rop one item  
+D - **d**rop many items  
 , - pick  
 Q - **q**uit  

@@ -37,7 +37,7 @@ initWorld username gen = World {
 	action = ' ',
 	stdgen = gen,
 	wave = 1,
-	toPick = S.empty,
+	chars = S.empty,
 	prevAction = ' ',
 	stepsBeforeWave = 1
 }

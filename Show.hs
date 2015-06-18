@@ -52,8 +52,8 @@ drawItem world(x, y, item, _) = do
 	wAttrSet stdScr (attr0, Pair $ worldmap world !! x !! y)
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
-showItemsOnGround :: Int -> (Set Char) -> (Char, Int, (Object, Int)) -> IO ()
-showItemsOnGround h toPick' (c, n, (obj,cnt)) =
+showItemsPD :: Int -> (Set Char) -> (Int, Char, (Object, Int)) -> IO ()
+showItemsPD h toPick' (n, c, (obj,cnt)) =
 	mvWAddStr stdScr (mod (n + 1) h) (30 * (div (n + 1) h))
 		([c] ++ sym ++ (show cnt) ++ " * " ++ titleShow obj) where
 	sym =
@@ -78,42 +78,47 @@ showMessage (msg, color') (x, y) = do
 draw :: World -> IO()
 draw world = do
 	(h, _) <- scrSize
-	case action world of
-		'i' -> let
-			items' = toList $ inv $ getFirst world
-			wield :: Char -> String
-			wield c = 
-				if (weapon $ getFirst world) == c
-				then " (wielded)"
-				else "" 
-			stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
-				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items'
-			showInv :: (Int, String) -> IO ()
-			showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
-			in do
+	if action world == 'i'
+	then let
+		items' = toList $ inv $ getFirst world
+		wield :: Char -> String
+		wield c = 
+			if (weapon $ getFirst world) == c
+			then " (wielded)"
+			else "" 
+		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
+			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items'
+		showInv :: (Int, String) -> IO ()
+		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
+		in do
 			wAttrSet stdScr (attr0, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 "Your inventory: (press Enter or Space to close it)"
 			foldl (>>) doNothing $ map showInv stringsToShow
-		',' -> let
-			xNow = xFirst world
-			yNow = yFirst world
-			toShow = zip3 alphabet [0..] $ map (\(_,_,a,b) -> (a,b)) $
+	else if (action world == ',' || action world == 'D')
+	then let
+		xNow = xFirst world
+		yNow = yFirst world
+		toShow =
+			if action world == ','
+			then zip3 [0..] alphabet $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
-			in do
+			else zipWith (\n (c,x) -> (n,c,x)) [0..] $ toList $ inv $ getFirst world 
+		word = if action world == ',' then "pick" else "drop"
+		in do
 			wAttrSet stdScr (attr0, Pair dEFAULT)
-			mvWAddStr stdScr 0 0 "What do you want to pick up? (press Enter to finish)"
-			foldl (>>) doNothing $ map (showItemsOnGround h $ toPick world) toShow
-		_ -> do
-			wAttrSet stdScr (attr0, Pair dEFAULT)
-			showMessages $ message world
-			foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
-			foldl (>>) doNothing $ map (drawItem world) $ items world
-			foldl (>>) doNothing $ map (drawUnit world) $ toList $ units world
-			foldl (>>) doNothing $ zipWith ($) (map drawPart 
-				$ sortBy (on compare kind) $ parts $ getFirst world) [1..]
-			wAttrSet stdScr (attr0, Pair dEFAULT)
-			mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 
-				(show $ effectiveSlowness $ getFirst world)
+			mvWAddStr stdScr 0 0 $ "What do you want to " ++ word ++ " up? (press Enter to finish)"
+			foldl (>>) doNothing $ map (showItemsPD h $ chars world) toShow
+	else do
+		wAttrSet stdScr (attr0, Pair dEFAULT)
+		showMessages $ message world
+		foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
+		foldl (>>) doNothing $ map (drawItem world) $ items world
+		foldl (>>) doNothing $ map (drawUnit world) $ toList $ units world
+		foldl (>>) doNothing $ zipWith ($) (map drawPart 
+			$ sortBy (on compare kind) $ parts $ getFirst world) [1..]
+		wAttrSet stdScr (attr0, Pair dEFAULT)
+		mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 
+			(show $ effectiveSlowness $ getFirst world)
 				
 redraw :: World -> IO Key
 redraw world = 

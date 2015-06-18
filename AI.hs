@@ -55,7 +55,7 @@ zapAttackAI f w xPlayer yPlayer =
 pickAI :: AIfunc -> AIfunc
 pickAI f w x y =
 	if length objects > 0
-	then fromJust $ fst $ pickFirst $ foldr ($) w $ map (changePickFirst . KeyChar) alphabet
+	then fromJust $ fst $ pickFirst $ foldr ($) w $ map (changeChar . KeyChar) alphabet
 	else f w x y where
 		xNow = xFirst w
 		yNow = yFirst w

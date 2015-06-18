@@ -17,7 +17,7 @@ import Data.Map (empty)
 collectorAI :: AIfunc
 collectorAI world _ _ = 
 	if isItemHere
-	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changePickFirst . KeyChar) alphabet
+	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changeChar . KeyChar) alphabet
 	else moveFirst dx dy world
 	where
 		isItemHere = not $ null $ filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items world

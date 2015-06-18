@@ -91,13 +91,16 @@ clearMessage w = w {message = []}
 changeGen :: StdGen -> World -> World
 changeGen g w = w {stdgen = g}
 
-changePickFirst :: Key -> World -> World
-changePickFirst c w = w {toPick = newPick} where
+changeChars :: S.Set Char -> World -> World
+changeChars cs w = w {chars = cs}
+
+changeChar :: Key -> World -> World
+changeChar c w = w {chars = newPick} where
 	KeyChar sym = c
 	newPick =
-		if S.member sym $ toPick w
-		then S.delete sym $ toPick w
-		else S.insert sym $ toPick w
+		if S.member sym $ chars w
+		then S.delete sym $ chars w
+		else S.insert sym $ chars w
 		
 addItem :: (Int, Int, Object, Int) -> World -> World
 addItem i w = w {items = items'} where

@@ -11,7 +11,7 @@ import Messages
 import Utils4objects
 
 import UI.HSCurses.Curses (Key(..))
-import Data.Set (toList)
+import Data.Set (empty)
 
 step :: World -> Key -> Either World String
 step world c =
@@ -48,17 +48,21 @@ step world c =
 				if c == KeyChar '\n' || c == KeyChar ' '
 				then Left $ changeAction ' ' world
 				else Left world
+			'D' ->
+				if c == KeyChar '\n' || c == KeyChar ' '
+				then case dropManyFirst world of
+					Nothing ->
+						Left $ changeChars empty $ changeAction ' ' world
+					Just w -> Left $ newWaveIf w
+				else Left $ changeChar c world
 			',' ->
-				if c == KeyChar '\n'
-				then
-					let maybePick = pickFirst world in
-					case maybePick of
-						(Nothing, s) ->
-							let cleanChangePick = foldl (.) id 
-								$ map (changePickFirst . KeyChar) $ toList $ toPick world
-							in Left $ cleanChangePick $ addDefaultMessage s $ changeAction ' ' world
-						(Just pick, _) -> Left $ newWaveIf pick
-				else Left $ changePickFirst c world
+				if c == KeyChar '\n' || c == KeyChar ' '
+				then case pickFirst world of
+					(Nothing, s) ->
+						Left $ changeChars empty $ addDefaultMessage s 
+						$ changeAction ' ' world
+					(Just pick, _) -> Left $ newWaveIf pick
+				else Left $ changeChar c world
 			_ -> Left $ addMessage ("You are cheater!", mAGENTA) world
 		else
 			let newMWorld = aiNow world x y
@@ -98,6 +102,8 @@ justStep world c = case dir c of
 			Left $ addDefaultMessage ("What do you want to drop? ["
 			 ++ listOfValidChars (const True) world ++ "]") 
 			 $ changeAction 'd' world
+		KeyChar 'D' ->
+			Left $ changeAction 'D' world
 		KeyChar 't' ->
 			Left $ addDefaultMessage ("What do you want to set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 

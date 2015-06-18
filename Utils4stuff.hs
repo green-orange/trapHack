@@ -86,7 +86,7 @@ safety w = w {
 	items = [],
 	action = ' ',
 	wave = wave w + 1,
-	toPick = empty,
+	chars = empty,
 	worldmap = map (map $ const eMPTY) $ worldmap w,
 	stepsBeforeWave = 2
 } 

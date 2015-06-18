@@ -6,7 +6,7 @@ import Utils4mon
 import Messages
 
 import Control.Monad ((>=>))
-import Data.Set (member, empty, size)
+import qualified Data.Set as S
 import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
 import Data.Maybe (isNothing, fromJust)
@@ -31,7 +31,8 @@ dropFirst c world ignoreMessages = rez where
 	newMsg =
 		if ignoreMessages
 		then ""
-		else (name $ getFirst world) ++ " drop" ++ ending world ++ titleShow obj ++ "."
+		else (name $ getFirst world) ++ " drop" ++ ending world 
+			++ titleShow obj ++ "."
 
 dropAll :: World -> World
 dropAll world = foldr (\x y -> fst $ dropFirst x y True) world $ 
@@ -39,18 +40,21 @@ dropAll world = foldr (\x y -> fst $ dropFirst x y True) world $
 
 pickFirst :: World -> (Maybe World, String)
 pickFirst world =
-	if 0 == (size $ toPick world)
+	if 0 == (S.size $ chars world)
 	then (Nothing, "")
 	else let
 		xMon = xFirst world
 		yMon = yFirst world
 		oldMon = getFirst world
 		itemsWithIndices :: [((Int, Int, Object, Int), Int)]
-		itemsWithIndices = addIndices (\(x', y' , _, _) -> xMon == x' && yMon == y') $ items world
-		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) && (n < length alphabet) 
-			&& (member (alphabet !! n) $ toPick world)) itemsWithIndices
+		itemsWithIndices = addIndices (\(x', y' , _, _) -> 
+			xMon == x' && yMon == y') $ items world
+		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) 
+			&& (n < length alphabet) 
+			&& (S.member (alphabet !! n) $ chars world)) itemsWithIndices
 		newItems = map fst rest
-		maybeInv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) $ map fst itemsToPick
+		maybeInv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) 
+			$ map fst itemsToPick
 	in case maybeInv of
 	Nothing -> (Nothing, "You knapsack is full!")
 	Just newInv ->
@@ -60,14 +64,27 @@ pickFirst world =
 			if isPlayerNow world
 			then gREEN
 			else yELLOW
-		newMessage = message world ++ [(name mon ++ " pick" ++ ending world ++ "some objects.", color)]
+		newMessage = (name mon ++ " pick" ++ ending world 
+			++ "some objects.", color) : message world
 		in (Just world {
-			units' = (units' world) {getFirst' = mon, list = M.insert (xMon, yMon) mon $ units world},
+			units' = (units' world) 
+				{getFirst' = mon, list = M.insert (xMon, yMon) mon $ units world},
 			message = newMessage,
 			items = newItems,
 			action = ' ',
-			toPick = empty
+			chars = S.empty
 		}, "")
+		
+dropManyFirst :: World -> Maybe World
+dropManyFirst world =
+	if 0 == (S.size $ chars world)
+	then Nothing
+	else Just newWorld where
+		newMsg = name (getFirst world) ++ " drop" ++ ending world 
+			++ "some objects."
+		newWorld = changeAction ' ' $ changeChars S.empty 
+			$ addNeutralMessage newMsg $ foldr (\x y -> fst $ dropFirst x y True) 
+			world $  map KeyChar $ S.toList $ chars world
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
 addInvs startInv items' = (foldl (>=>) return $ map addInv items') startInv
