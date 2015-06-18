@@ -11,10 +11,11 @@ import Data.Map (toList)
 import Data.List (sortBy)
 import Data.Function (on)
 
-shiftDown, shiftRightHP1, shiftRightHP2 :: Int
+shiftDown, shiftRightHP1, shiftRightHP2, shiftAttrs :: Int
 shiftDown = 5
 shiftRightHP1 = maxX + 5
 shiftRightHP2 = maxX + 10
+shiftAttrs = maxX + 20
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
@@ -106,7 +107,8 @@ draw world = do
 		word = if action world == ',' then "pick" else "drop"
 		in do
 			wAttrSet stdScr (attr0, Pair dEFAULT)
-			mvWAddStr stdScr 0 0 $ "What do you want to " ++ word ++ " up? (press Enter to finish)"
+			mvWAddStr stdScr 0 0 $ "What do you want to " ++ word 
+				++ " up? (press Enter to finish)"
 			foldl (>>) doNothing $ map (showItemsPD h $ chars world) toShow
 	else do
 		wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -115,10 +117,14 @@ draw world = do
 		foldl (>>) doNothing $ map (drawItem world) $ items world
 		foldl (>>) doNothing $ map (drawUnit world) $ toList $ units world
 		foldl (>>) doNothing $ zipWith ($) (map drawPart 
-			$ sortBy (on compare kind) $ parts $ getFirst world) [1..]
+			$ sortBy (on compare kind) $ parts $ getFirst world) [0..]
 		wAttrSet stdScr (attr0, Pair dEFAULT)
-		mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 
+		mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
 			(show $ effectiveSlowness $ getFirst world)
+		case poison $ getFirst world of
+			Nothing -> doNothing
+			Just n -> mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
+				$ "Poison (" ++ show n ++ ")"
 				
 redraw :: World -> IO Key
 redraw world = 
@@ -144,7 +150,8 @@ drawPart part x = do
 
 flatarray2line' :: Int -> [[a]] -> [(Int, Int, a)]
 flatarray2line' _ [] = []
-flatarray2line' start (x:xs) = (zip3 [start, start..] [0, 1..] x) ++ (flatarray2line' (start + 1) xs)
+flatarray2line' start (x:xs) = (zip3 [start, start..] [0, 1..] x) 
+	++ (flatarray2line' (start + 1) xs)
 
 flatarray2line :: [[a]] -> [(Int, Int, a)]
 flatarray2line = flatarray2line' 0
@@ -167,6 +174,7 @@ symbolMon "Golem"             = 'g'
 symbolMon "Floating eye"      = 'e'
 symbolMon "Dragon"            = 'D'
 symbolMon "Forgotten beast"   = 'X'
+symbolMon "Spider"            = 's'
 symbolMon _                   = error "unknown monster"
 
 symbolItem :: Object -> Char

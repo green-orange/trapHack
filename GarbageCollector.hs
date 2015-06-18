@@ -15,7 +15,7 @@ import UI.HSCurses.Curses (Key (..))
 import Data.Map (empty)
 
 collectorAI :: AIfunc
-collectorAI world _ _ = 
+collectorAI _ _ world = 
 	if isItemHere
 	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changeChar . KeyChar) alphabet
 	else moveFirst dx dy world

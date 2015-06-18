@@ -16,7 +16,7 @@ getIvy q = getMonster ivyAI [getMain 2 $ uniform q 5 15] "Ivy"
 	(dices (2,10) 0) (const empty) 600
 
 ivyAI :: AIfunc
-ivyAI world xPlayer yPlayer = 
+ivyAI xPlayer yPlayer world = 
 	if abs dx <= 1 && abs dy <= 1
 	then moveFirst dx dy world
 	else if isEmpty world (xNow + dx') (yNow + dy')

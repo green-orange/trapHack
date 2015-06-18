@@ -41,7 +41,12 @@ regMonster :: Monster -> Monster
 regMonster mon = changeParts (map regPart $ parts mon) mon
 
 regFirst :: World -> World
-regFirst w = changeMon (regMonster $ getFirst w) w
+regFirst w = changeMon newMon w where
+	mon = getFirst w
+	newMon = case poison mon of
+		Nothing -> regMonster mon
+		Just 0 -> changePoison Nothing mon
+		Just n -> changePoison (Just $ n - 1) mon
 
 msgCleanParts :: Monster -> [(String, Int)]
 msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (name mon) 

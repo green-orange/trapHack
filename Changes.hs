@@ -55,6 +55,12 @@ decChargeByKey c m = changeInv newInv m where
 changeWeapon :: Key -> Monster -> Monster
 changeWeapon c mon = mon {weapon = fromKey c}
 
+changePoison :: Maybe Int -> Monster -> Monster
+changePoison n m = m {poison = n}
+
+setMaxPoison :: Maybe Int -> Monster -> Monster
+setMaxPoison n m = m {poison = max n $ poison m}
+
 {- World -}
 
 changeAction :: Char -> World -> World

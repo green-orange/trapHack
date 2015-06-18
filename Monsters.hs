@@ -17,13 +17,14 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	inv = inv' p,
 	slowness = slow',
 	time = slow',
-	weapon = ' '
+	weapon = ' ',
+	poison = Nothing
 }, newGen) where
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g
 
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const empty) 100
+getDummy n _ = getMonster (\_ _ w -> w) [getMain 1 n] "Dummy" lol (const empty) 100
 
 addMonsters :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens

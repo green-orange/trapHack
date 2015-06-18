@@ -9,8 +9,8 @@ import Parts
 import Utils4mon
 
 import System.Random (StdGen, randomR)
-import Data.Set (empty)
-import Data.Map (toList, singleton)
+import qualified Data.Set as S
+import qualified Data.Map as M
 
 unrandom :: (a -> a) -> (a, x) -> (a, x)
 unrandom f (a, x) = (f a, x)
@@ -65,7 +65,7 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 		if name mon == "You"
 		then ("You are in fire!", rED)
 		else (name mon ++ " is in fire!", gREEN)
-	newMsgs = map msg $ filter isClose $ toList $ units w
+	newMsgs = map msg $ filter isClose $ M.toList $ units w
 	
 stupidity :: Monster -> Monster
 stupidity mon = mon {ai = newAI} where
@@ -81,12 +81,12 @@ isUntrappable = (/=) eMPTY
 	
 safety :: World -> World
 safety w = w {
-	units' = (units' w) {list = singleton (xFirst w, yFirst w) $ getFirst w},
+	units' = (units' w) {list = M.singleton (xFirst w, yFirst w) $ getFirst w},
 	message = [("You suddenly find yourself in a new world!", bLUE)],
 	items = [],
 	action = ' ',
 	wave = wave w + 1,
-	chars = empty,
+	chars = S.empty,
 	worldmap = map (map $ const eMPTY) $ worldmap w,
 	stepsBeforeWave = 2
 } 
@@ -100,3 +100,7 @@ radiation sp m = m {parts = map (\p -> p {regVel = -sp}) $ parts m}
 capture :: Monster -> Monster
 capture mon = mon {ai = You}
 
+randPoison :: (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
+randPoison bounds (mon, g) = (newMon, g') where
+	(duration, g') = randomR bounds g
+	newMon = setMaxPoison (Just duration) mon

@@ -58,5 +58,6 @@ getPlayer = Monster {
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
-	weapon = ' '
+	weapon = ' ',
+	poison = Nothing
 }

@@ -65,7 +65,7 @@ step world c =
 				else Left $ changeChar c world
 			_ -> Left $ addMessage ("You are cheater!", mAGENTA) world
 		else
-			let newMWorld = aiNow world x y
+			let newMWorld = aiNow x y world
 			in Left $ newWaveIf newMWorld
 	else
 		if (name $ getFirst world) == "You"

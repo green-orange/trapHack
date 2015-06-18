@@ -24,6 +24,7 @@ deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
 deathDrop "Dragon" = genDeathDrop [(sCROLLS, bound [0.2, 0.4, 0.6, 0.8])]
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
+deathDrop "Spider" = genDeathDrop [(wANDS, bound [0.4])]
 deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int
@@ -72,10 +73,12 @@ potionOfMutation = Potion {
 	act = addRandomPart
 }
 
-scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll :: Object
+scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
+	kabbalisticScroll :: Object
 
 sCROLLS :: [Object]
-sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll]
+sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, 
+	scrollOfSafety, kabbalisticScroll]
 
 scrollOfFire = Scroll {
 	title = "scroll of fire",
@@ -102,8 +105,8 @@ kabbalisticScroll = Scroll {
 	actw = spawnGolemsAround
 }
 
-wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation, wandOfPsionicBlast
-	:: Int -> Object
+wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation, 
+	wandOfPsionicBlast, wandOfPoison :: Int -> Object
 
 wANDS :: [Object]
 wANDS =
@@ -111,7 +114,7 @@ wANDS =
 	map wandOfStupidity    [1..5] ++
 	map wandOfSpeed        [1..2] ++
 	map wandOfRadiation    [1..4] ++
-	map wandOfPsionicBlast [1..2]
+	map wandOfPsionicBlast [1..2] 
 
 wandOfStriking ch = Wand {
 	title = "wand of striking",
@@ -145,6 +148,13 @@ wandOfPsionicBlast ch = Wand {
 	title = "wand of psionic blast",
 	act = unrandom $ capture,
 	range = 2,
+	charge = ch
+}
+
+wandOfPoison ch = Wand {
+	title = "wand of poison",
+	act = randPoison (1, 20),
+	range = 5,
 	charge = ch
 }
 

@@ -9,6 +9,7 @@ import Changes
 import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust)
 import UI.HSCurses.Curses (Key (..))
+import System.Random (randomR)
 
 needToBeHealedM :: Monster -> Bool
 needToBeHealedM mon =
@@ -47,7 +48,8 @@ haveLauncher mon = M.foldl (||) False $ M.map (isLauncher . fst) $ inv mon
 isAttackWand :: Object -> Bool
 isAttackWand obj = isWand obj && charge obj > 0 && 
 	title obj == "wand of striking" ||
-	title obj == "wand of radiation"
+	title obj == "wand of radiation" ||
+	title obj == "wand of poison"
 
 zapAI :: World -> Char
 zapAI world = fst $ M.findMin $ M.filter (isAttackWand . fst) $ inv $ getFirst world
@@ -101,5 +103,16 @@ useSomeItem _ [] = Nothing
 useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
 	Nothing -> useSomeItem objs cs
 	f -> f
+	
+poisonByCoords :: (Int, Int) -> Int -> Int -> World -> World
+poisonByCoords durs dx dy w = changeGen g $ changeMons newMons w where
+	(dur, g) = randomR durs $ stdgen w
+	xNew = xFirst w + dx
+	yNew = yFirst w + dy
+	maybeMon = M.lookup (xNew, yNew) $ units w
+	newMons = case maybeMon of
+		Nothing -> units' w
+		Just mon -> insertU (xNew, yNew) (setMaxPoison (Just dur) mon) 
+			$ units' w
 
 

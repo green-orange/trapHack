@@ -12,7 +12,7 @@ import qualified Data.Map as M
 import System.Random (randomR)
 
 golemAI :: AIfunc
-golemAI world _ _ = 
+golemAI _ _ world = 
 	if null nears
 	then world
 	else (uncurry moveFirst $ head nears) world where

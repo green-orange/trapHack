@@ -44,15 +44,16 @@ attack x y world = changeMons unitsNew $ addMessage (newMsg, color)
 		attacker = getFirst world
 		mon = units world M.! (x, y)
 		color = 
-			if name attacker == "You"
+			if isPlayerNow world
 			then case newDmg of
 				Nothing -> cYAN
 				_		-> gREEN
-			else if name mon == "You"
-			then case newDmg of
-				Nothing -> yELLOW
-				_		-> rED
-			else bLUE
+			else case ai mon of
+				You ->
+					case newDmg of
+						Nothing -> yELLOW
+						_		-> rED
+				_ -> bLUE
 		weapons = M.lookup (weapon attacker) (inv attacker)
 		dmggen = 
 			if isNothing weapons || (not $ isWeapon $ fst $ fromJust weapons)
@@ -66,7 +67,7 @@ attack x y world = changeMons unitsNew $ addMessage (newMsg, color)
 		unitsNew = changeList (M.insert (x, y) monNew $ units world) $ units' world
 		
 stupidestAI :: AIfunc
-stupidestAI world xPlayer yPlayer = 
+stupidestAI xPlayer yPlayer world = 
 	newWorld
 	where
 		xNow = xFirst world

@@ -34,7 +34,7 @@ notAlphabet = ['{'..]
 doNothing :: IO ()
 doNothing = return ()
 
-type AIfunc = World -> Int -> Int -> World
+type AIfunc = Int -> Int -> World -> World
 type Inv = M.Map Char (Object, Int)
 type InvGen = Float -> Inv
 type StdDmg = World -> (Maybe Int, StdGen)
@@ -63,7 +63,8 @@ data Monster = Monster {
 	inv :: Inv,
 	slowness :: Int,
 	time :: Int,
-	weapon :: Char
+	weapon :: Char,
+	poison :: Maybe Int
 }
 
 type Terrain = Int

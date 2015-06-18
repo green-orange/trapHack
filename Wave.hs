@@ -35,6 +35,7 @@ weigth "Troll"           = 4
 weigth "Worm"            = 4
 weigth "Dragon"          = 7
 weigth "Forgotten beast" = 10
+weigth "Spider"          = 4
 weigth _                 = 0
 		
 genWave :: Int -> StdGen -> ([MonsterGen], StdGen)
@@ -46,7 +47,7 @@ genWave n g =
 	else (genM frac : oldWave, g'')
 	where
 		p, frac :: Float
-		(p, g') = randomR (0.0, 11.0) g
+		(p, g') = randomR (0.0, 12.0) g
 		frac = p - fromIntegral ind
 		ind :: Int
 		ind = floor p
@@ -62,6 +63,7 @@ genWave n g =
 			8  -> getFloatingEye
 			9  -> getDragon
 			10 -> getForgottenBeast
+			11 -> getSpider
 			_  -> error "value error in function genWave"
 		d = weigth $ nameFromGen $ genM frac
 		(oldWave, g'') = genWave (n - d) g'

@@ -16,19 +16,19 @@ import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
 
 acceleratorAI :: AIfunc -> AIfunc
-acceleratorAI f w x y = f (changeMon newMon w) x y where
+acceleratorAI f x y w = f x y $ changeMon newMon w where
 	oldMon = getFirst w 
 	newMon = oldMon {slowness = max 1 $ slowness oldMon - 7}
 	
 trollAI :: AIfunc -> AIfunc
-trollAI f w x y = 
+trollAI f x y w = 
 	if any (<= 5) $ map hp $ filter (\p -> kind p == hEAD || kind p == bODY) 
 		$ parts $ getFirst w
 	then addMessage ("Troll turned into a rock.", bLUE) $ changeMon rock w
-	else f w x y
+	else f x y w
 
 rock :: Monster
-rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
+rock = fst $ getMonster (\_ _ w -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
@@ -37,35 +37,35 @@ mODSAI :: [AIfunc -> AIfunc]
 mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, useItemsAI]
 		
 healAI :: AIfunc -> AIfunc
-healAI f w x y = 
+healAI f x y w = 
 	if (canBeHealed $ getFirst w) && (needToBeHealedM $ getFirst w)
 	then fst $ quaffFirst (KeyChar $ healingAI w) w
-	else f w x y
+	else f x y w
 	
 zapAttackAI :: AIfunc -> AIfunc
-zapAttackAI f w xPlayer yPlayer = 
+zapAttackAI f xPlayer yPlayer w = 
 	if (canZapToAttack $ getFirst w) && isOnLine 5 xNow yNow xPlayer yPlayer
 	then zapMon (undir dx dy) (zapAI w) w
-	else f w xPlayer yPlayer where
+	else f xPlayer yPlayer w where
 		xNow = xFirst w
 		yNow = yFirst w
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		
 pickAI :: AIfunc -> AIfunc
-pickAI f w x y =
+pickAI f x y w =
 	if length objects > 0
 	then fromJust $ fst $ pickFirst $ foldr ($) w $ map (changeChar . KeyChar) alphabet
-	else f w x y where
+	else f x y w where
 		xNow = xFirst w
 		yNow = yFirst w
 		objects = filter (\(x', y', _, _) -> x' == xNow && y' == yNow) $ items w
 		
 fireAI :: AIfunc -> AIfunc
-fireAI f w xPlayer yPlayer =
+fireAI f xPlayer yPlayer w =
 	if (canFire $ getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
 	then fireMon (undir dx dy) (missileAI w) w
-	else f w xPlayer yPlayer
+	else f xPlayer yPlayer w
 	where
 		xNow = xFirst w
 		yNow = yFirst w
@@ -73,24 +73,24 @@ fireAI f w xPlayer yPlayer =
 		dy = signum $ yPlayer - yNow
 		
 wieldLauncherAI :: AIfunc -> AIfunc
-wieldLauncherAI f w x y = 
+wieldLauncherAI f x y w = 
 	if (weapon $ getFirst w) == ' '
 	then case launcherAI w of
-		Nothing -> f w x y
+		Nothing -> f x y w
 		Just c -> fst $ wieldFirst (KeyChar c) w
-	else f w x y
+	else f x y w
 	
 wieldWeaponAI :: AIfunc -> AIfunc
-wieldWeaponAI f w x y = 
+wieldWeaponAI f x y w = 
 	if (weapon $ getFirst w) == ' '
 	then case weaponAI w of
-		Nothing -> f w x y
+		Nothing -> f x y w
 		Just c -> fst $ wieldFirst (KeyChar c) w
-	else f w x y
+	else f x y w
 	
 useItemsAI :: AIfunc -> AIfunc
-useItemsAI f w x y = case useSomeItem objs keys of
-	Nothing -> f w x y
+useItemsAI f x y w = case useSomeItem objs keys of
+	Nothing -> f x y w
 	Just g -> g w
 	where
 		invList = M.toList $ inv $ getFirst w
@@ -101,22 +101,23 @@ hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
 
 attackIfClose :: Int -> AIfunc -> AIfunc
-attackIfClose dist f w x y =
+attackIfClose dist f x y w =
 	if abs dx <= dist && abs dy <= dist
 	then moveFirst dx dy w
-	else f w x y
+	else f x y w
 	where
 		xNow = xFirst w
 		yNow = yFirst w
 		dx = x - xNow
 		dy = y - yNow
 	
-stupidAI, stupidParalysisAI :: AIfunc
+stupidAI, stupidParalysisAI, stupidPoisonAI :: AIfunc
 stupidAI = stupidFooAI moveFirst
-stupidParalysisAI = stupidFooAI (\x y w -> moveFirst x y $ paralyse x y w)
+stupidParalysisAI = stupidFooAI (\x y -> moveFirst x y . paralyse x y)
+stupidPoisonAI = stupidFooAI (\x y -> moveFirst x y . poisonByCoords (5, 15) x y)
 
 stupidFooAI :: (Int -> Int -> World -> World) -> AIfunc
-stupidFooAI foo w xPlayer yPlayer = newWorld where
+stupidFooAI foo xPlayer yPlayer w = newWorld where
 	g = stdgen w
 	xNow = xFirst w
 	yNow = yFirst w
@@ -144,14 +145,14 @@ stupidFooAI foo w xPlayer yPlayer = newWorld where
 	newWorld = foo dx' dy' $ changeGen newStdGen w
 				
 randomAI :: AIfunc
-randomAI w _ _  = (moveFirst rx ry newWorld) where
+randomAI _ _ w  = (moveFirst rx ry newWorld) where
 	g = stdgen w
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
 	newWorld = changeGen g'' w
 	
 wormAI :: AIfunc
-wormAI w xPlayer yPlayer = 
+wormAI xPlayer yPlayer w = 
 	if isNothing maybeMon
 	then spawnMon tailWorm xNow yNow $ moveFirst dx dy w
 	else if name mon == "Tail" || name mon == "Worm"
@@ -167,5 +168,5 @@ wormAI w xPlayer yPlayer =
 		Just mon = maybeMon
 
 tailWorm :: MonsterGen
-tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const M.empty) 10000
+tailWorm = getMonster (\_ _ w -> w) [getMain 0 100] "Tail" lol (const M.empty) 10000
 
