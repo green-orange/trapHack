@@ -2,7 +2,6 @@ module Stuff where
 
 import Data
 import Utils4stuff
-import Utils4mon
 import Random
 import Monsters
 import HealDamage
@@ -23,18 +22,19 @@ deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
 deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
-deathDrop "Dragon" = genDeathDrop [(sCROLLS, bound [0.5, 0.8])]
+deathDrop "Dragon" = genDeathDrop [(sCROLLS, bound [0.2, 0.4, 0.6, 0.8])]
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
 deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int
-bound list p = bound' list p 0 where
-	bound' []     p n = n
-	bound' (x:xs) p n = 
-		if p < x
+bound list' p = bound' list' p 0 where
+	bound' []     _  n = n
+	bound' (x:xs) p' n = 
+		if p' < x
 		then n
-		else bound' xs p (n + 1)
+		else bound' xs p' (n + 1)
 
+genDeathDrop :: [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
 genDeathDrop = genDeathDropByAlph notAlphabet
 
 genDeathDropByAlph :: String -> [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
@@ -49,71 +49,68 @@ genDeathDropByAlph alph ((objs, f):xs) g =
 		newObj = (objs !! ind, f p)
 		(rest, newG) = genDeathDropByAlph (tail alph) xs g''
 
-pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
-tRAPS = [bearTrap, fireTrap]
-lAUNCHERS = [shortbow, bow, longbow]
-wEAPONS = [dagger, shortsword, sword]
-sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll]
-mISSILES = [arrow]
-wANDS =
-	map wandOfStriking  [1..5] ++
-	map wandOfStupidity [1..5] ++
-	map wandOfSpeed     [1..2] ++
-	map wandOfRadiation [1..4]
+sTACKABLE :: [Object]
 sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
 	
-potionOfHealing :: Object
+potionOfHealing, potionOfIntellect, potionOfMutation :: Object
+
+pOTIONS :: [Object]
+pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
+
 potionOfHealing = Potion {
 	title = "potion of healing",
 	act = unrandom $ healParts bODY 10
 }
 
-potionOfIntellect :: Object
 potionOfIntellect = Potion {
 	title = "potion of intellect",
 	act = unrandom $ upgradeParts hEAD 5
 }
 
-unrandom :: (a -> a) -> (a, x) -> (a, x)
-unrandom f (a, x) = (f a, x)
-
-potionOfMutation :: Object
 potionOfMutation = Potion {
 	title = "potion of mutation",
 	act = addRandomPart
 }
 
-scrollOfFire :: Object
+scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll :: Object
+
+sCROLLS :: [Object]
+sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, kabbalisticScroll]
+
 scrollOfFire = Scroll {
 	title = "scroll of fire",
 	actw = fireAround 1 (5, 10)
 }
 
-scrollOfAnimation :: Object
 scrollOfAnimation = Scroll {
 	title = "scroll of animation",
 	actw = animateAround
 }
 
-scrollOfCollection :: Object
 scrollOfCollection = Scroll {
 	title = "scroll of collection",
 	actw = randomSpawn getGarbageCollector
 }
 
-scrollOfSafety :: Object
 scrollOfSafety = Scroll {
 	title = "scroll of safety",
 	actw = safety
 }
 
-kabbalisticScroll :: Object
 kabbalisticScroll = Scroll {
 	title = "Kabbalistic scroll",
 	actw = spawnGolemsAround
 }
 
-wandOfStriking :: Int -> Object
+wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation :: Int -> Object
+
+wANDS :: [Object]
+wANDS =
+	map wandOfStriking  [1..5] ++
+	map wandOfStupidity [1..5] ++
+	map wandOfSpeed     [1..2] ++
+	map wandOfRadiation [1..4]
+
 wandOfStriking ch = Wand {
 	title = "wand of striking",
 	act = unrandom $ dmgAll $ Just 10,
@@ -121,7 +118,6 @@ wandOfStriking ch = Wand {
 	charge = ch
 }
 
-wandOfStupidity :: Int -> Object
 wandOfStupidity ch = Wand {
 	title = "wand of stupidity",
 	act = unrandom stupidity,
@@ -129,7 +125,6 @@ wandOfStupidity ch = Wand {
 	charge = ch
 }
 
-wandOfSpeed :: Int -> Object
 wandOfSpeed ch = Wand {
 	title = "wand of speed",
 	act = unrandom speed,
@@ -137,7 +132,6 @@ wandOfSpeed ch = Wand {
 	charge = ch
 }
 
-wandOfRadiation :: Int -> Object
 wandOfRadiation ch = Wand {
 	title = "wand of radiation",
 	act = unrandom $ radiation 2,
@@ -145,23 +139,36 @@ wandOfRadiation ch = Wand {
 	charge = ch
 }
 
-bearTrap :: Object
+bearTrap, fireTrap :: Object
+
+tRAPS :: [Object]
+tRAPS = [bearTrap, fireTrap]
+
 bearTrap = Trap {
 	title = "bear trap",
 	num = bEARTRAP
 }
 
-fireTrap :: Object
 fireTrap = Trap {
 	title = "fire trap",
 	num = fIRETRAP
 }
+
+arrow :: Object
+
+mISSILES :: [Object]
+mISSILES = [arrow]
 
 arrow = Missile {
 	title = "arrow",
 	objdmg = dices (1,6) 0.2,
 	launcher = "bow"
 }
+
+shortbow, bow, longbow :: Object
+
+lAUNCHERS :: [Object]
+lAUNCHERS = [shortbow, bow, longbow]
 
 shortbow = Launcher {
 	title = "short bow",
@@ -180,6 +187,11 @@ longbow = Launcher {
 	count = 3,
 	category = "bow"
 }
+
+dagger, shortsword, sword, crysknife :: Object
+
+wEAPONS :: [Object]
+wEAPONS = [dagger, shortsword, sword]
 
 dagger = Weapon {
 	title = "dagger",

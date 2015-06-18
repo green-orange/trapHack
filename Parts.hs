@@ -2,15 +2,17 @@ module Parts where
 
 import Data
 
-bODY = 0 :: Int
-hEAD = 1 :: Int
-lEG  = 2 :: Int
-aRM  = 3 :: Int
-wING = 4 :: Int
-pAW  = 5 :: Int
+bODY, hEAD, lEG, aRM, wING, pAW, kINDS, mAIN :: Int
+
+bODY = 0
+hEAD = 1
+lEG  = 2
+aRM  = 3
+wING = 4
+pAW  = 5
 kINDS = pAW
 
-mAIN = 32 :: Int
+mAIN = 32
 	
 partToStr :: Int -> String
 partToStr x
@@ -31,17 +33,19 @@ isUpperLimb p = (kind p == aRM) || (kind p == wING) ||
 	(kind p == pAW) || (kind p == mAIN)
 
 getPart :: Int -> Int -> Int -> Int -> Part
-getPart knd regVel hp id = Part {
-	hp = hp,
-	maxhp = hp,
+getPart knd regVel' hp' id' = Part {
+	hp = hp',
+	maxhp = hp',
 	kind = knd,
-	idP = id,
-	regVel = regVel
+	idP = id',
+	regVel = regVel'
 }
 
 aliveP :: Part -> Bool
 aliveP p = hp p > 0
 
+getBody, getHead, getLeg, getArm, getWing, getPaw, getMain :: 
+	Int -> Int -> Int -> Part
 getBody = getPart bODY
 getHead = getPart hEAD
 getLeg  = getPart lEG

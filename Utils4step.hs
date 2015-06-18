@@ -10,8 +10,8 @@ import Wave
 import System.Random (StdGen)
 import Data.List (sort)
 import qualified Data.Map as M
-import UI.HSCurses.Logging
 
+bIGpAUSE, pAUSE :: Int
 bIGpAUSE = 100
 pAUSE    = 3
 
@@ -39,8 +39,8 @@ almostTime mon =
 updateFirst :: World -> World
 updateFirst w = changeMons newUnits w where
 	newUnits = (units' w) {
-		x = x,
-		y = y,
+		xF = x,
+		yF = y,
 		getFirst' = monNew
 	}
 	((x, y), monNew) = minimumOn almostTime $ units w
@@ -66,8 +66,8 @@ cycleWorld :: World -> World
 cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 
 	$ addMessages (msgCleanParts monNew) newWorld where
 		newUnits = (units' newWorld) {
-			x = x,
-			y = y,
+			xF = x,
+			yF = y,
 			getFirst' = monNew
 		}
 		((x, y), monNew) = minimumOn almostTime $ units newWorld

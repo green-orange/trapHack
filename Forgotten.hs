@@ -32,10 +32,10 @@ forgottenParts q = rez where
 	rez = zipWith3 (($).($)) partgens hps $ cycle $ [3, 2, 1]
 	
 forgottenDmg :: Float -> World -> (Maybe Int, StdGen)
-forgottenDmg q = dices (count, dice) fail where
-	count = (+) 1 $ inverseSquareRandom $ frac $ q + (fromIntegral 1 / 3)
-	dice = (+) 2 $ inverseSquareRandom $ frac $ q + (fromIntegral 2 / 3)
-	fail = (*) 0.5 $ frac $ q + pi
+forgottenDmg q = dices (cnt, dice) failProb where
+	cnt = (+) 1 $ inverseSquareRandom $ frac $ q + (1.0 / 3)
+	dice = (+) 2 $ inverseSquareRandom $ frac $ q + (2.0 / 3)
+	failProb = (*) 0.5 $ frac $ q + pi
 	
 forgottenSlowness :: Float -> Int
 forgottenSlowness q = uniform q 70 130

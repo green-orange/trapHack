@@ -1,7 +1,6 @@
 module Monsters where
 
 import Data
-import Random
 import Changes
 import Parts
 import Messages
@@ -10,54 +9,56 @@ import System.Random (StdGen, randomR)
 import Data.Map (empty, keys)
 	
 getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
-getMonster ai ps name stddmg inv slow g = (Monster {
-	ai = AI ai,
+getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
+	ai = AI ai',
 	parts = zipWith ($) ps [0..],
-	name = name,
-	stddmg = stddmg,
-	inv = inv p,
-	slowness = slow,
-	time = slow,
+	name = name',
+	stddmg = stddmg',
+	inv = inv' p,
+	slowness = slow',
+	time = slow',
 	weapon = ' '
 }, newGen) where
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g
-		
-getDummy n q = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const empty) 100
+
+getDummy :: Int -> Float -> MonsterGen
+getDummy n _ = getMonster (\w _ _ -> w) [getMain 1 n] "Dummy" lol (const empty) 100
 
 addMonsters :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens
 
 addMonster :: MonsterGen -> (Units, StdGen) -> (Units, StdGen)
-addMonster gen (units, g) = 
+addMonster gen (uns, g) = 
 	if isCorrect
-	then (insertU (x, y) (mon {time = time $ getFirst' units}) units, g3)
-	else addMonster gen (units, g3)
+	then (insertU (x, y) (mon {time = time $ getFirst' uns}) uns, g3)
+	else addMonster gen (uns, g3)
 	where
 		(x, g1) = randomR (0, maxX) g
 		(y, g2) = randomR (0, maxY) g1
 		(mon, g3) = gen g2
-		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ keys $ list units
+		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ keys $ list uns
 	
 animate :: Int -> Int -> World -> World
 animate x y w = 
-	if isEmpty w x y && hp > 0
-	then spawnMon (getDummy hp lol) x y $ w {items = newItems}
+	if isEmpty w x y && hp' > 0
+	then spawnMon (getDummy hp' lol) x y $ w {items = newItems}
 	else w where
 		filterfun (x', y', _, _) = x == x' && y == y'
 		mapfun arg@(_, _, _, n) = 
 			if filterfun arg
 			then n
 			else 0
-		hp = sum $ map mapfun $ items w
+		hp' = sum $ map mapfun $ items w
 		newItems = filter (not . filterfun) $ items w
 		
 fooAround :: (Int -> Int -> World -> World) -> World -> World
 fooAround foo w = foldr ($) w $ [foo] >>= applToNear x >>= applToNear y where
 	x = xFirst w
 	y = yFirst w
-	applToNear x f = map f [x-1, x, x+1]
-	
+	applToNear t f = map f [t-1, t, t+1]
+
+animateAround :: World -> World
 animateAround = fooAround animate
 	
 randomSpawn :: MonsterGen -> World -> World

@@ -5,16 +5,18 @@ import Parts
 import Messages
 
 import UI.HSCurses.Curses
-import Data.Set (empty, member, Set)
+import Data.Set (member, Set)
 import Data.Maybe
 import Data.Map (toList)
 import Data.List (sortBy)
 import Data.Function (on)
 
-shiftDown = 5 :: Int
-shiftRightHP1 = maxX + 5 :: Int
-shiftRightHP2 = maxX + 10 :: Int
+shiftDown, shiftRightHP1, shiftRightHP2 :: Int
+shiftDown = 5
+shiftRightHP1 = maxX + 5
+shiftRightHP2 = maxX + 10
 
+castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
 
 initColors :: IO ()
@@ -50,11 +52,11 @@ drawItem world(x, y, item, _) = do
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
 showItemsOnGround :: Int -> (Set Char) -> (Char, Int, (Object, Int)) -> IO ()
-showItemsOnGround h toPick (c, n, (obj,cnt)) =
+showItemsOnGround h toPick' (c, n, (obj,cnt)) =
 	mvWAddStr stdScr (mod (n + 1) h) (30 * (div (n + 1) h))
 		([c] ++ sym ++ (show cnt) ++ " * " ++ titleShow obj) where
 	sym =
-		if member c toPick
+		if member c toPick'
 		then " + "
 		else " - "
 		
@@ -62,10 +64,10 @@ showMessages :: [(String, Int)] -> IO ()
 showMessages msgs = (foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
-showMessage (msg, color) (x, y) = do
+showMessage (msg, color') (x, y) = do
 	(attr, _) <- wAttrGet stdScr
-	(h, w) <- scrSize
-	wAttrSet stdScr (attr, Pair color)
+	(_, w) <- scrSize
+	wAttrSet stdScr (attr, Pair color')
 	mvWAddStr stdScr x y msg
 	return $ rez w where
 		rez w = (dx, dy) where
@@ -75,17 +77,17 @@ showMessage (msg, color) (x, y) = do
 
 draw :: World -> IO()
 draw world = do
-	(h, w) <- scrSize
+	(h, _) <- scrSize
 	case action world of
 		'i' -> let
-			items = toList $ inv $ getFirst world
+			items' = toList $ inv $ getFirst world
 			wield :: Char -> String
 			wield c = 
 				if (weapon $ getFirst world) == c
 				then " (wielded)"
 				else "" 
 			stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
-				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items
+				[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items'
 			showInv :: (Int, String) -> IO ()
 			showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
 			in do
@@ -112,14 +114,18 @@ draw world = do
 			foldl (>>) doNothing $ map (drawUnit world) $ toList $ units world
 			foldl (>>) doNothing $ zipWith ($) (map drawPart 
 				$ sortBy (on compare kind) $ parts $ getFirst world) [1..]
-			(attr, _) <- wAttrGet stdScr
-			wAttrSet stdScr (attr, Pair dEFAULT)
+			(attr', _) <- wAttrGet stdScr
+			wAttrSet stdScr (attr', Pair dEFAULT)
 			mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 
 				(show $ effectiveSlowness $ getFirst world)
+				
+redraw :: World -> IO Key
+redraw world = 
+	erase >> draw world >> refresh >> getCh
 
 drawPart :: Part -> Int -> IO ()
 drawPart part x = do
-	(attr, pair) <- wAttrGet stdScr
+	(attr, _) <- wAttrGet stdScr
 	wAttrSet stdScr (attr, Pair gREEN)
 	if hp part * 3 < maxhp part * 2 || hp part <= 10
 	then wAttrSet stdScr (attr, Pair yELLOW)
@@ -140,6 +146,7 @@ flatarray2line' :: Int -> [[a]] -> [(Int, Int, a)]
 flatarray2line' _ [] = []
 flatarray2line' start (x:xs) = (zip3 [start, start..] [0, 1..] x) ++ (flatarray2line' (start + 1) xs)
 
+flatarray2line :: [[a]] -> [(Int, Int, a)]
 flatarray2line = flatarray2line' 0
 
 symbolMon :: String -> Char

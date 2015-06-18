@@ -31,7 +31,8 @@ collectorAI world _ _ =
 			then (0, 0)
 			else (signum $ xItem - xNow,
 				  signum $ yItem - yNow)
-				  
+
+getGarbageCollector :: MonsterGen		  
 getGarbageCollector = getMonster collectorAI
 	[getBody 1 30, 
 	 getHead 1 20,

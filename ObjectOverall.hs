@@ -70,21 +70,21 @@ pickFirst world =
 		}, "")
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
-addInvs startInv items = (foldl (>=>) return $ map addInv items) startInv
+addInvs startInv items' = (foldl (>=>) return $ map addInv items') startInv
 
 addInv :: (Object, Int) -> Inv -> Maybe Inv
-addInv (obj, cnt) list =
+addInv (obj, cnt) list' =
 	if isHere
-	then Just $ M.map change list 
-	else addInvWithAlphabet alphabet list (obj,cnt)
+	then Just $ M.map change list'
+	else addInvWithAlphabet alphabet list' (obj,cnt)
 	where
 		addInvWithAlphabet :: [Char] -> Inv -> (Object, Int) -> Maybe Inv
 		addInvWithAlphabet [] _ _ = Nothing
-		addInvWithAlphabet alph inv (obj, cnt) = 
-			if M.member (head alph) list
-			then addInvWithAlphabet (tail alph) inv (obj, cnt)
-			else Just $ M.insert (head alph) (obj, cnt) inv where
-		isHere = M.foldl (||) False $ M.map (\(obj',_) -> obj' == obj) list
+		addInvWithAlphabet alph inv' (obj', cnt') = 
+			if M.member (head alph) list'
+			then addInvWithAlphabet (tail alph) inv' (obj', cnt')
+			else Just $ M.insert (head alph) (obj', cnt') inv' where
+		isHere = M.foldl (||) False $ M.map (\(obj',_) -> obj' == obj) list'
 		change (o, n) = 
 			if o == obj
 			then (o, n + cnt)
@@ -100,7 +100,7 @@ addIndices = addIndices' 0 where
 		else (x, -1) : addIndices' n f xs
 
 split :: (a -> Bool) -> [a] -> ([a], [a])
-split f [] = ([], [])
+split _ [] = ([], [])
 split f (x:xs) =
 	if f x
 	then (x:a, b)

@@ -17,7 +17,7 @@ changeHP n part = part {hp = n}
 
 update :: Int -> Int -> Units -> Units
 update x' y' uns = 
-	if x' == x uns && y' == y uns
+	if x' == xF uns && y' == yF uns
 	then uns {getFirst' = list uns M.! (x', y')}
 	else uns
 
@@ -36,7 +36,7 @@ tickFirstMon :: Monster -> Monster
 tickFirstMon m = changeTime (effectiveSlowness m + time m) m
 
 changeInv :: Inv -> Monster -> Monster
-changeInv inv mon = mon {inv = inv}
+changeInv inv' mon = mon {inv = inv'}
 
 delObj :: Key -> Monster -> Monster
 delObj c m = changeInv newInv m where
@@ -72,8 +72,8 @@ changeMons mons w = w {units' = mons}
 changeMoveFirst :: Int -> Int -> World -> World
 changeMoveFirst x y w = changeMons newMons w where
 	newMons = (units' w) {
-		x = x,
-		y = y,
+		xF = x,
+		yF = y,
 		list = M.insert (x, y) mon $ M.delete (xFirst w, yFirst w) $ units w
 	}
 	mon = units w M.! (xFirst w, yFirst w)
@@ -136,23 +136,25 @@ changeElem :: Int -> a -> [a] -> [a]
 changeElem x t ts
 	| x == 0 = t : tail ts
 	| x > 0 = head ts : changeElem (x - 1) t (tail ts)
+	| otherwise = error "negative index in changeElem function"
 
 changeElem2 :: Int -> Int -> a -> [[a]] -> [[a]]
 changeElem2 x y t tss
 	| x > 0 = head tss : changeElem2 (x - 1) y t (tail tss)
 	| x == 0 = changeElem y t (head tss) : tail tss
+	| otherwise = error "negative index in changeElem2 function"
 
 addItem' :: (Int, Int, Object, Int) -> [(Int, Int, Object, Int)] -> [(Int, Int, Object, Int)]
-addItem' i@(x, y, obj, n) list = 
+addItem' i@(x, y, obj, n) list' = 
 	if null this
-	then i : list
-	else map change list
+	then i : list'
+	else map change list'
 	where
 		change i'@(x', y', obj', n') = 
 			if x == x' && y == y' && obj == obj'
 			then (x', y', obj', n + n')
 			else i'
-		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') $ list
+		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') $ list'
 
 fromKey :: Key -> Char
 fromKey (KeyChar c) = c

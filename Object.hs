@@ -10,7 +10,6 @@ import Utils4objects
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, fromJust)
-import System.Random (StdGen)
 import qualified Data.Map as M
 
 dir :: Key -> Maybe (Int, Int)
@@ -39,8 +38,6 @@ quaffFirst c world = rez where
 		else (changeGen g $ changeMon mon' $ addNeutralMessage newMsg $ changeAction ' ' world, True)
 	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world ++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
-	x = xFirst world
-	y = yFirst world
 	oldMon = getFirst world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
@@ -59,8 +56,6 @@ readFirst c world = rez where
 	newMsg = (name $ getFirst world) ++ " read" ++ ending world ++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
 	newWorld = actw obj world
-	x = xFirst world
-	y = yFirst world
 	mon = getFirst world
 	mon' = delObj c mon
 
@@ -101,7 +96,7 @@ zap world x y dx dy obj =
 			Nothing -> (True, (0, 0))
 			Just p -> (False, p)
 		decRange :: Object -> Object
-		decRange obj = obj {range = range obj - 1}
+		decRange obj' = obj' {range = range obj - 1}
 		msg = 
 			case M.lookup (x, y) $ units world of
 			Nothing -> ""
@@ -117,7 +112,7 @@ zap world x y dx dy obj =
 		newMWorld = addNeutralMessage msg $ changeMons newMons world
 
 zapMon :: Key -> Char -> World -> World
-zapMon dir obj world = fst $ zapFirst dir $ world {prevAction = obj}
+zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 		
 trapFirst :: Key -> World -> (World, Bool)
 trapFirst c world = rez where
@@ -159,8 +154,6 @@ wieldFirst c world = rez where
 		else if not (isWeapon obj || isLauncher obj)
 		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
 		else (addNeutralMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
-	x = xFirst world
-	y = yFirst world
 	oldMon = getFirst world
 	(obj, _) = fromJust objects
 	mon = changeWeapon c oldMon
@@ -225,4 +218,4 @@ fire x y dx dy obj world =
 		newWorld = addNeutralMessage msg $ changeGen g' $ changeMons (insertU (x, y) newMon $ units' world) world
 		
 fireMon :: Key -> Char -> World -> World
-fireMon dir obj world = fst $ fireFirst dir $ world {prevAction = obj}
+fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}

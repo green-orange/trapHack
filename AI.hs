@@ -10,7 +10,7 @@ import Parts
 import Monsters
 import Utils4mon
 
-import System.Random
+import System.Random (randomR)
 import Data.Maybe (fromJust, isNothing)
 import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
@@ -22,16 +22,18 @@ acceleratorAI f w x y = f (changeMon newMon w) x y where
 	
 trollAI :: AIfunc -> AIfunc
 trollAI f w x y = 
-	if any (<= 5) $ map hp $ filter (\x -> kind x == hEAD || kind x == bODY) 
+	if any (<= 5) $ map hp $ filter (\p -> kind p == hEAD || kind p == bODY) 
 		$ parts $ getFirst w
 	then addMessage ("Troll turned into a rock.", bLUE) $ changeMon rock w
 	else f w x y
 
+rock :: Monster
 rock = fst $ getMonster (\w _ _ -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
 
+mODSAI :: [AIfunc -> AIfunc]
 mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, useItemsAI]
 		
 healAI :: AIfunc -> AIfunc
@@ -57,13 +59,13 @@ pickAI f w x y =
 	else f w x y where
 		xNow = xFirst w
 		yNow = yFirst w
-		objects = filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items w
+		objects = filter (\(x', y', _, _) -> x' == xNow && y' == yNow) $ items w
 		
 fireAI :: AIfunc -> AIfunc
-fireAI ai w xPlayer yPlayer =
+fireAI f w xPlayer yPlayer =
 	if (canFire $ getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
 	then fireMon (undir dx dy) (missileAI w) w
-	else ai w xPlayer yPlayer
+	else f w xPlayer yPlayer
 	where
 		xNow = xFirst w
 		yNow = yFirst w
@@ -109,7 +111,7 @@ attackIfClose dist f w x y =
 		dx = x - xNow
 		dy = y - yNow
 	
-
+stupidAI, stupidParalysisAI :: AIfunc
 stupidAI = stupidFooAI moveFirst
 stupidParalysisAI = stupidFooAI (\x y w -> moveFirst x y $ paralyse x y w)
 
@@ -163,6 +165,7 @@ wormAI w xPlayer yPlayer =
 		yNew = yNow + dy
 		maybeMon = M.lookup (xNew, yNew) (units w)
 		Just mon = maybeMon
-	
+
+tailWorm :: MonsterGen
 tailWorm = getMonster (\w _ _ -> w) [getMain 0 100] "Tail" lol (const M.empty) 10000
 

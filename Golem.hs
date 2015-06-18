@@ -24,7 +24,8 @@ golemAI world _ _ =
 			mon = getFirst world
 		d = [-1, 0, 1]
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
-		
+
+getGolem :: Float -> MonsterGen
 getGolem q = getMonster golemAI
 	[getBody 1 $ uniform q 10 30, 
 	 getHead 1 $ uniform q  8 12,
@@ -44,4 +45,5 @@ spawnGolem x y w =
 		newItems = filter (not . filterfun) $ items w
 		(p, g) = randomR (0.0, 1.0) $ stdgen w
 
+spawnGolemsAround :: World -> World
 spawnGolemsAround = fooAround spawnGolem

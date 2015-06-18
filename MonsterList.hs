@@ -3,16 +3,16 @@ module MonsterList where
 import Data
 import Random
 import Monsters
-import Changes
-import Utils4mon
 import Stuff
 import Move
 import AI
 import Parts
 import Forgotten
 
-import System.Random
 import qualified Data.Map as M
+
+getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
+	getWorm, getFloatingEye, getDragon, getForgottenBeast :: Float -> MonsterGen
 
 getHomunculus q = getMonster (humanoidAI stupidestAI)
 	[getBody 1 $ uniform q 10 30, 

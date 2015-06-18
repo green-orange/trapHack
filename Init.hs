@@ -19,8 +19,8 @@ rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
 		
 initUnits :: Units
 initUnits = Units {
-	x = x',
-	y = y',
+	xF = x',
+	yF = y',
 	getFirst' = getPlayer,
 	list = M.singleton (x', y') getPlayer
 } where
@@ -54,7 +54,7 @@ getPlayer = Monster {
 		 getArm  2 20]
 		 [0..],
 	name = "You",
-	stddmg = dices (1,1000) 0, --0.2,
+	stddmg = dices (1,10) 0.2,
 	inv = M.empty,
 	slowness = 100,
 	time = 100,

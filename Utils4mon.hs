@@ -6,6 +6,8 @@ import HealDamage
 import Parts
 import Messages
 
+nOTsOLDIERS, nOTeNEMIES :: [String]
+
 nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy"]
 isSoldier :: Monster -> Bool
 isSoldier mon = notElem (name mon) nOTsOLDIERS
@@ -25,6 +27,7 @@ countPartByPred :: (Part -> Bool) -> Monster -> Int
 countPartByPred f mon = 
 	length $ filter f $ parts mon
 
+countUpperLimbs :: Monster -> Int
 countUpperLimbs = countPartByPred isUpperLimb
 
 hasPart :: Int -> Monster -> Bool

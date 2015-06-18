@@ -8,9 +8,7 @@ import Show
 import Init
 
 import UI.HSCurses.Curses
-import System.Random (StdGen(..), getStdGen)
-import Data.Set (empty)
-import Data.Map (singleton)
+import System.Random (getStdGen)
 #if linux_HOST_OS
 import System.Posix.User
 #endif
@@ -19,47 +17,30 @@ loop :: World -> IO String
 loop world =
 	if isPlayerNow world
 	then do
-		erase
-		draw world
-		refresh
-		c <- getCh
+		c <- redraw world
 		case step (clearMessage world) c of
 			Left newWorld -> loop newWorld
 			Right msg -> return msg
 	else
 		case step world $ KeyChar ' ' of
 			Left newWorld -> loop newWorld
-			Right msg -> do
-				erase
-				draw world
-				refresh
-				getCh
-				return msg
+			Right msg -> redraw world >> return msg
 
 main :: IO ()
 main = do
-	initScr
+	_ <- initScr
 	(h, w) <- scrSize
+	_ <- endWin
 	if (w <= maxX + 20 || h <= maxY + 10)
-	then do
-		putStrLn "Your screen is too small"
-		endWin
-	else do
-		endWin
-		gen <- getStdGen
+	then putStrLn "Your screen is too small"
+	else do gen <- getStdGen
 #if linux_HOST_OS
 		username <- getLoginName
 #else
 		print "What's your name?"
 		username <- getLine
 #endif
-		initScr
-		initCurses
-		startColor
-		initColors
-		keypad stdScr True
-		echo False
-		cursSet CursorInvisible
-		msg <- loop $ initWorld username gen
-		endWin
-		putStrLn msg
+		initScr >> initCurses >> startColor >> initColors >>
+			keypad stdScr True >> echo False >>
+			cursSet CursorInvisible >> return ()
+		(loop $ initWorld username gen) >>= (\msg -> endWin >> putStrLn msg)

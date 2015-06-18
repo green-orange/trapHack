@@ -4,7 +4,8 @@ import Data
 import Changes
 
 titleShow :: Object -> String
-titleShow (Wand title _ _ charge) = title ++ " (" ++ show charge ++ ")"
+
+titleShow (Wand t _ _ ch) = t ++ " (" ++ show ch ++ ")"
 titleShow x = title x
 
 numToStr :: Int -> String

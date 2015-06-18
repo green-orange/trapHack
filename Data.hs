@@ -1,19 +1,23 @@
 module Data where
 
-import Data.Set (Set(..))
-import System.Random (StdGen(..))
+import Data.Set (Set)
+import System.Random (StdGen)
 import qualified Data.Map as M
 
+lol :: a
 lol = undefined
 
-maxX = 30 :: Int
-maxY = 25 :: Int
+maxX, maxY :: Int
+maxX = 30
+maxY = 25
 
-eMPTY    = 0 :: Int
-bEARTRAP = 1 :: Int
-fIRETRAP = 2 :: Int
+eMPTY, bEARTRAP, fIRETRAP, tRAPSNUM :: Int
+eMPTY    = 0
+bEARTRAP = 1
+fIRETRAP = 2
 tRAPSNUM = fIRETRAP
 
+dEFAULT, gREEN, yELLOW, rED, rEDiNVERSE, cYAN, mAGENTA, bLUE :: Int
 dEFAULT	   = tRAPSNUM + 1
 gREEN	   = tRAPSNUM + 2
 yELLOW	   = tRAPSNUM + 3
@@ -23,6 +27,7 @@ cYAN	   = tRAPSNUM + 6
 mAGENTA	   = tRAPSNUM + 7
 bLUE       = tRAPSNUM + 8
 
+alphabet, notAlphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z']
 notAlphabet = ['{'..]
 
@@ -36,8 +41,8 @@ type StdDmg = World -> (Maybe Int, StdGen)
 type MonsterGen = StdGen -> (Monster, StdGen)
 
 data Units = Units {
-	x :: Int,
-	y :: Int,
+	xF :: Int,
+	yF :: Int,
 	getFirst' :: Monster,
 	list :: M.Map (Int, Int) Monster
 }
@@ -122,10 +127,10 @@ data World = World {
 }
 
 xFirst :: World -> Int
-xFirst = x . units'
+xFirst = xF . units'
 
 yFirst :: World -> Int
-yFirst = y . units'
+yFirst = yF . units'
 
 getFirst :: World -> Monster
 getFirst = getFirst' . units'
@@ -136,7 +141,7 @@ units = list . units'
 mapU :: ((Int, Int) -> Monster -> Monster) -> Units -> Units
 mapU f uns = uns 
 	{list = M.mapWithKey f $ list uns,
-	getFirst' = f (x uns, y uns) $ getFirst' uns}
+	getFirst' = f (xF uns, yF uns) $ getFirst' uns}
 	
 insertU :: (Int, Int) -> Monster -> Units -> Units
 insertU k m uns = uns {list = M.insert k m $ list uns}

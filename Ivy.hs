@@ -11,6 +11,7 @@ import Move
 import System.Random (randomR)
 import Data.Map (empty)
 
+getIvy :: Float -> MonsterGen
 getIvy q = getMonster ivyAI [getMain 2 $ uniform q 5 15] "Ivy"
 	(dices (2,10) 0) (const empty) 600
 

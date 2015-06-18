@@ -82,6 +82,7 @@ undir   1  (-1) = KeyChar 'u'
 undir (-1)   1  = KeyChar 'b'
 undir   1    1  = KeyChar 'n'
 undir   0    0  = KeyChar '.'
+undir   _    _  = error "wrong direction (in function undir)"
 
 usefulItem :: Object -> Key -> Maybe (World -> World)
 usefulItem obj c = 
@@ -96,6 +97,7 @@ usefulItem obj c =
 	
 useSomeItem :: [Object] -> [Key] -> Maybe (World -> World)
 useSomeItem [] _ = Nothing
+useSomeItem _ [] = Nothing
 useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
 	Nothing -> useSomeItem objs cs
 	f -> f

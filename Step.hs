@@ -11,9 +11,7 @@ import Messages
 import Utils4objects
 
 import UI.HSCurses.Curses (Key(..))
-import Data.List (sort)
 import Data.Set (toList)
-import System.Random (StdGen)
 
 step :: World -> Key -> Either World String
 step world c =

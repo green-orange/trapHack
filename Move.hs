@@ -7,7 +7,6 @@ import HealDamage
 import Utils4objects
 
 import Prelude hiding (lookup)
-import System.Random (StdGen)
 import qualified Data.Map as M
 import Data.Maybe (fromJust, isNothing)
 

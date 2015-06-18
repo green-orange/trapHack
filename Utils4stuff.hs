@@ -8,9 +8,12 @@ import HealDamage
 import Parts
 import Utils4mon
 
-import System.Random (StdGen, randomR, split)
+import System.Random (StdGen, randomR)
 import Data.Set (empty)
 import Data.Map (toList, singleton)
+
+unrandom :: (a -> a) -> (a, x) -> (a, x)
+unrandom f (a, x) = (f a, x)
 
 cleanParts :: Monster -> Monster
 cleanParts mon = changeParts (filter aliveP $ parts mon) mon
@@ -22,25 +25,28 @@ upgrade n part = part {
 	regVel = regVel part + 1
 }
 
+upgradeParts, upgradePartById :: Int -> Int -> Monster -> Monster
+upgradeAll :: Int -> Monster -> Monster
+
 upgradeParts = doSmthParts upgrade
 upgradePartById = doSmthPartById upgrade
 upgradeAll = doSmthAll upgrade
 
 addRandomPart :: (Monster, StdGen) -> (Monster, StdGen)
-addRandomPart (m, g) = (addPart m knd hp regVel, g3) where
+addRandomPart (m, g) = (addPart m knd hp' regVel', g3) where
 	(knd, g1) = randomR (0, kINDS) g
 	(p, g2) = randomR (0.0, 1.0) g1
-	hp = 5 * inverseSquareRandom p
-	(regVel, g3) = randomR (1, 4) g2
+	hp' = 5 * inverseSquareRandom p
+	(regVel', g3) = randomR (1, 4) g2
 
 addPart :: Monster -> Int -> Int -> Int -> Monster
-addPart mon knd hp regVel = changeParts (newPart : parts mon) mon where
+addPart mon knd hp' regVel' = changeParts (newPart : parts mon) mon where
 	newPart = Part {
-		hp = hp,
-		maxhp = hp,
+		hp = hp',
+		maxhp = hp',
 		kind = knd,
 		idP = newID,
-		regVel = regVel
+		regVel = regVel'
 	}
 	newID = (+) 1 $ maximum $ map idP $ parts mon
 

@@ -8,10 +8,10 @@ import Ivy
 import System.Random (StdGen, randomR)
 
 addWave :: Int -> (Units, StdGen) -> (Units, StdGen)
-addWave n pair@(units, g) = 
+addWave n (uns, g) = 
 	if null ms
-	then addWave n (units, g')
-	else addMonsters ms (units, g')
+	then addWave n (uns, g')
+	else addMonsters ms (uns, g')
 	where
 		(ms, g') = genWave n g
 		
@@ -23,10 +23,12 @@ genWave n g =
 	then (oldWave, g'')
 	else (genM : oldWave, g'')
 	where
-		p :: Float
+		p, frac :: Float
 		(p, g') = randomR (0.0, 11.0) g
-		frac = p - fromIntegral (floor p)
-		(genM, d) = case floor p of
+		frac = p - fromIntegral ind
+		ind :: Int
+		ind = floor p
+		(genM, d) = case ind of
 			0  -> (getHomunculus     frac, 2)
 			1  -> (getBeetle         frac, 3)
 			2  -> (getBat            frac, 1)
@@ -38,6 +40,7 @@ genWave n g =
 			8  -> (getFloatingEye    frac, 3)
 			9  -> (getDragon         frac, 7)
 			10 -> (getForgottenBeast frac, 10)
+			_  -> error "value error in function genWave"
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World
