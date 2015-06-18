@@ -102,14 +102,16 @@ kabbalisticScroll = Scroll {
 	actw = spawnGolemsAround
 }
 
-wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation :: Int -> Object
+wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation, wandOfPsionicBlast
+	:: Int -> Object
 
 wANDS :: [Object]
 wANDS =
-	map wandOfStriking  [1..5] ++
-	map wandOfStupidity [1..5] ++
-	map wandOfSpeed     [1..2] ++
-	map wandOfRadiation [1..4]
+	map wandOfStriking     [1..5] ++
+	map wandOfStupidity    [1..5] ++
+	map wandOfSpeed        [1..2] ++
+	map wandOfRadiation    [1..4] ++
+	map wandOfPsionicBlast [1..2]
 
 wandOfStriking ch = Wand {
 	title = "wand of striking",
@@ -136,6 +138,13 @@ wandOfRadiation ch = Wand {
 	title = "wand of radiation",
 	act = unrandom $ radiation 2,
 	range = 5,
+	charge = ch
+}
+
+wandOfPsionicBlast ch = Wand {
+	title = "wand of psionic blast",
+	act = unrandom $ capture,
+	range = 2,
 	charge = ch
 }
 

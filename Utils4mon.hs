@@ -10,11 +10,11 @@ nOTsOLDIERS, nOTeNEMIES :: [String]
 
 nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy"]
 isSoldier :: Monster -> Bool
-isSoldier mon = notElem (name mon) nOTsOLDIERS
+isSoldier mon = not $ isPlayer mon || elem (name mon) nOTsOLDIERS
 
 nOTeNEMIES = ["You", "Dummy", "Garbage collector", "Rock", "Tail", "Golem"]
 isEnemy :: Monster -> Bool
-isEnemy mon = notElem (name mon) nOTeNEMIES
+isEnemy mon = not $ isPlayer mon || elem (name mon) nOTeNEMIES
 
 alive :: Monster -> Bool
 alive mon = hasPart bODY mon' && hasPart hEAD mon' || hasPart mAIN mon' where

@@ -109,7 +109,14 @@ zap world x y dx dy obj =
 			Nothing -> units' world
 			Just mon -> update x y $ (units' world) {list = 
 				M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world}
-		newMWorld = addNeutralMessage msg $ changeMons newMons world
+		newMWorld = addMessage (msg, color) $ changeMons newMons world
+		color = 
+			if isPlayerNow world
+			then gREEN
+			else case fmap isPlayer $ M.lookup (x, y) $ units world of
+			Nothing    -> lol
+			Just False -> bLUE
+			Just True  -> rED
 
 zapMon :: Key -> Char -> World -> World
 zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
@@ -215,7 +222,15 @@ fire x y dx dy obj world =
 		msg = case newDmg of
 			Nothing -> capitalize (title obj) ++ " misses."
 			Just _ -> capitalize (title obj) ++ " hits " ++ name mon ++ "."
-		newWorld = addNeutralMessage msg $ changeGen g' $ changeMons (insertU (x, y) newMon $ units' world) world
+		newWorld = addMessage (msg, color) $ changeGen g' 
+			$ changeMons (insertU (x, y) newMon $ units' world) world
+		color = 
+			if isPlayerNow world
+			then gREEN
+			else case fmap isPlayer $ M.lookup (x, y) $ units world of
+			Nothing    -> lol
+			Just False -> bLUE
+			Just True  -> rED
 		
 fireMon :: Key -> Char -> World -> World
 fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}

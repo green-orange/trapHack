@@ -35,20 +35,21 @@ initColors = do
 
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
 drawUnit world ((x, y), mon) = do
-	(attr, _) <- wAttrGet stdScr
 	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
-	mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon
+	mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon where
+		attr = 
+			if x == xFirst world && y == yFirst world
+			then setStandout attr0 True
+			else attr0
 
 drawCell :: World -> (Int, Int, Terrain) -> IO ()
 drawCell world (x, y, _) = do
-	(attr, _) <- wAttrGet stdScr
-	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+	wAttrSet stdScr (attr0, Pair $ worldmap world !! x !! y)
 	mvAddCh (y + shiftDown) x $ castEnum '.'
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = do
-	(attr, _) <- wAttrGet stdScr
-	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+	wAttrSet stdScr (attr0, Pair $ worldmap world !! x !! y)
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
 showItemsOnGround :: Int -> (Set Char) -> (Char, Int, (Object, Int)) -> IO ()
@@ -65,9 +66,8 @@ showMessages msgs = (foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> retu
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
 showMessage (msg, color') (x, y) = do
-	(attr, _) <- wAttrGet stdScr
 	(_, w) <- scrSize
-	wAttrSet stdScr (attr, Pair color')
+	wAttrSet stdScr (attr0, Pair color')
 	mvWAddStr stdScr x y msg
 	return $ rez w where
 		rez w = (dx, dy) where
@@ -91,8 +91,7 @@ draw world = do
 			showInv :: (Int, String) -> IO ()
 			showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
 			in do
-			(attr, _) <- wAttrGet stdScr
-			wAttrSet stdScr (attr, Pair dEFAULT)
+			wAttrSet stdScr (attr0, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 "Your inventory: (press Enter or Space to close it)"
 			foldl (>>) doNothing $ map showInv stringsToShow
 		',' -> let
@@ -101,21 +100,18 @@ draw world = do
 			toShow = zip3 alphabet [0..] $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
 			in do
-			(attr, _) <- wAttrGet stdScr
-			wAttrSet stdScr (attr, Pair dEFAULT)
+			wAttrSet stdScr (attr0, Pair dEFAULT)
 			mvWAddStr stdScr 0 0 "What do you want to pick up? (press Enter to finish)"
 			foldl (>>) doNothing $ map (showItemsOnGround h $ toPick world) toShow
 		_ -> do
-			(attr, _) <- wAttrGet stdScr
-			wAttrSet stdScr (attr, Pair dEFAULT)
+			wAttrSet stdScr (attr0, Pair dEFAULT)
 			showMessages $ message world
 			foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
 			foldl (>>) doNothing $ map (drawItem world) $ items world
 			foldl (>>) doNothing $ map (drawUnit world) $ toList $ units world
 			foldl (>>) doNothing $ zipWith ($) (map drawPart 
 				$ sortBy (on compare kind) $ parts $ getFirst world) [1..]
-			(attr', _) <- wAttrGet stdScr
-			wAttrSet stdScr (attr', Pair dEFAULT)
+			wAttrSet stdScr (attr0, Pair dEFAULT)
 			mvWAddStr stdScr shiftDown shiftRightHP1 $ "Slowness: " ++ 
 				(show $ effectiveSlowness $ getFirst world)
 				
@@ -125,16 +121,15 @@ redraw world =
 
 drawPart :: Part -> Int -> IO ()
 drawPart part x = do
-	(attr, _) <- wAttrGet stdScr
-	wAttrSet stdScr (attr, Pair gREEN)
+	wAttrSet stdScr (attr0, Pair gREEN)
 	if hp part * 3 < maxhp part * 2 || hp part <= 10
-	then wAttrSet stdScr (attr, Pair yELLOW)
+	then wAttrSet stdScr (attr0, Pair yELLOW)
 	else doNothing
 	if hp part * 3 < maxhp part || hp part <= 5
-	then wAttrSet stdScr (attr, Pair rED)
+	then wAttrSet stdScr (attr0, Pair rED)
 	else doNothing
 	if hp part * 8 < maxhp part || hp part <= 3
-	then wAttrSet stdScr (attr, Pair rEDiNVERSE)
+	then wAttrSet stdScr (attr0, Pair rEDiNVERSE)
 	else doNothing
 	mvWAddStr stdScr (shiftDown + x) shiftRightHP1 str1
 	mvWAddStr stdScr (shiftDown + x) shiftRightHP2 str2

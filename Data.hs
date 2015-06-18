@@ -160,5 +160,10 @@ isValid world x y dx dy =
 	Just (x', y') -> isEmpty world x' y'
 	where rez = dirs world (x, y, dx, dy)
 
+isPlayer :: Monster -> Bool
+isPlayer mon = case ai mon of
+	You -> True
+	AI _ -> False
+
 isPlayerNow :: World -> Bool
-isPlayerNow world = (name $ getFirst world) == "You"
+isPlayerNow world = isPlayer $ getFirst world
