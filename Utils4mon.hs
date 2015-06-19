@@ -60,31 +60,6 @@ msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (
 
 isFlying :: Monster -> Bool
 isFlying mon = hasPart wING mon
-
-actTrapFirst :: World -> World
-actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w where
-	x = xFirst w
-	y = yFirst w
-	mon = getFirst w
-	trap = worldmap w !! x !! y
-	(newMon, g) = 
-		if trap == fIRETRAP
-		then dmgRandom (Just 8) mon $ stdgen w
-		else if trap == pOISONTRAP
-		then randPoison (5, 15) (mon, stdgen w)
-		else (mon, stdgen w)
-	newMsg = 
-		if trap == fIRETRAP
-		then
-			if name mon == "You"
-			then "You are in fire!"
-			else name mon ++ " is in fire!"
-		else if trap == pOISONTRAP
-		then
-			if name mon == "You"
-			then "You were poisoned!"
-			else name mon ++ " was poisoned!"
-		else ""
 		
 killFirst :: World -> World
 killFirst w = changeMon mon w where

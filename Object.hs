@@ -107,18 +107,12 @@ zap world x y dx dy obj =
 			Just p -> (False, p)
 		decRange :: Object -> Object
 		decRange obj' = obj' {range = range obj - 1}
-		msg = 
+		(newMons, msg) = 
 			case M.lookup (x, y) $ units world of
-			Nothing -> ""
-			Just mon ->
-				if name mon == "You"
-				then "You were zapped!"
-				else name mon ++ " was zapped!"
-		newMons = 
-			case M.lookup (x, y) $ units world of
-			Nothing -> units' world
-			Just mon -> update x y $ (units' world) {list = 
-				M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world}
+			Nothing -> (units' world, "")
+			Just mon -> (update x y $ (units' world) {list = 
+				M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world},
+				msgWand (title obj) (name mon))
 		newMWorld = addMessage (msg, color) $ changeMons newMons world
 		color = 
 			if isPlayerNow world

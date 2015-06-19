@@ -26,6 +26,7 @@ initColors = do
 	initPair (Pair bEARTRAP)   (defaultForeground)          (fromJust $ color "yellow")
 	initPair (Pair fIRETRAP)   (defaultForeground)          (fromJust $ color "red")
 	initPair (Pair pOISONTRAP) (defaultForeground)          (fromJust $ color "cyan")
+	initPair (Pair mAGICTRAP)  (defaultForeground)          (fromJust $ color "magenta")
 	initPair (Pair dEFAULT)    (defaultForeground)          (defaultBackground)
 	initPair (Pair gREEN)      (fromJust $ color "green")   (defaultBackground)
 	initPair (Pair yELLOW)     (fromJust $ color "yellow")  (defaultBackground)

@@ -94,8 +94,11 @@ safety w = w {
 speed :: Monster -> Monster
 speed m = m {slowness = max 10 $ slowness m - 10}
 
+slow :: Monster -> Monster
+slow m = m {slowness = slowness m + 10}
+
 radiation :: Int -> Monster -> Monster
-radiation sp m = m {parts = map (\p -> p {regVel = -sp}) $ parts m}
+radiation sp m = m {parts = map (\p -> p {regVel = regVel p - sp}) $ parts m}
 
 capture :: Monster -> Monster
 capture mon = mon {ai = You}

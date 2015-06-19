@@ -6,8 +6,10 @@ import Stuff
 import Utils4mon
 import Utils4stuff
 import Wave
+import HealDamage
+import Messages
 
-import System.Random (StdGen)
+import System.Random (StdGen, randomR)
 import Data.List (sort)
 import qualified Data.Map as M
 
@@ -104,3 +106,28 @@ doIfCorrect (rez, correct) =
 	if correct
 	then Left $ newWaveIf rez
 	else Left rez
+
+actTrapFirst :: World -> World
+actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w where
+	x = xFirst w
+	y = yFirst w
+	mon = getFirst w
+	trap = worldmap w !! x !! y
+	((newMon, g), newMsg) = 
+		if trap == fIRETRAP
+		then (dmgRandom (Just 8) mon $ stdgen w,
+			if name mon == "You"
+			then "You are in fire!"
+			else name mon ++ " is in fire!")
+		else if trap == pOISONTRAP
+		then (randPoison (5, 15) (mon, stdgen w),
+			if name mon == "You"
+			then "You were poisoned!"
+			else name mon ++ " was poisoned!")
+		else if trap == mAGICTRAP
+		then let
+			(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
+			obj = wANDS !! ind
+			(newMon', g'') = act obj (mon, g')
+			in ((newMon', g''), msgWand (title obj) (name mon))
+		else ((mon, stdgen w), "")

@@ -107,7 +107,7 @@ kabbalisticScroll = Scroll {
 }
 
 wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation, 
-	wandOfPsionicBlast, wandOfPoison :: Int -> Object
+	wandOfPsionicBlast, wandOfPoison, wandOfSlowing :: Int -> Object
 
 wANDS :: [Object]
 wANDS =
@@ -115,7 +115,8 @@ wANDS =
 	map wandOfStupidity    [1..5] ++
 	map wandOfSpeed        [1..2] ++
 	map wandOfRadiation    [1..4] ++
-	map wandOfPsionicBlast [1..2] 
+	map wandOfPsionicBlast [1..2] ++
+	map wandOfSlowing      [1..3]
 
 wandOfStriking ch = Wand {
 	title = "wand of striking",
@@ -140,7 +141,7 @@ wandOfSpeed ch = Wand {
 
 wandOfRadiation ch = Wand {
 	title = "wand of radiation",
-	act = unrandom $ radiation 2,
+	act = unrandom $ radiation 1,
 	range = 5,
 	charge = ch
 }
@@ -159,10 +160,17 @@ wandOfPoison ch = Wand {
 	charge = ch
 }
 
-bearTrap, fireTrap, poisonTrap :: Object
+wandOfSlowing ch = Wand {
+	title = "wand of slowing",
+	act = unrandom $ slow,
+	range = 5,
+	charge = ch
+}
+
+bearTrap, fireTrap, poisonTrap, magicTrap :: Object
 
 tRAPS :: [Object]
-tRAPS = [bearTrap, fireTrap, poisonTrap]
+tRAPS = [bearTrap, fireTrap, poisonTrap, magicTrap]
 
 bearTrap = Trap {
 	title = "bear trap",
@@ -177,6 +185,11 @@ fireTrap = Trap {
 poisonTrap = Trap {
 	title = "poison trap",
 	num = pOISONTRAP
+}
+
+magicTrap = Trap {
+	title = "magic trap",
+	num = mAGICTRAP
 }
 
 arrow :: Object

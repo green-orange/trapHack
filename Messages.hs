@@ -90,3 +90,23 @@ addNeutralMessage msg w =
 	
 addDefaultMessage :: String -> World -> World
 addDefaultMessage msg w = addMessage (msg, dEFAULT) w
+
+msgWand :: String -> String -> String
+msgWand title' name' = 
+	case title' of
+		"wand of striking" -> prefixPast ++ "struck!"
+		"wand of stupidity" -> name' ++ " feel" ++ end ++ " stupid!"
+		"wand of speed" -> prefix ++ "suddenly moving faster!"
+		"wand of radiation" -> prefix ++ "infected by radiation!"
+		"wand of psionic blast" -> name' ++ "feel" ++ end ++ 
+			" that " ++ (if isYou then "your" else "its") ++ " brains melt!"
+		"wand of poison" -> prefixPast ++ "poisoned!"
+		"wand of slowing" -> prefix ++ "suddenly moving slowly!"
+		_ -> error "unknown wand"
+	where
+	isYou = name' == "You"
+	prefix = if isYou then "You are " else name' ++ " is "
+	prefixPast = if isYou then "You were " else name' ++ " was "
+	end = if isYou then "" else "s"
+
+
