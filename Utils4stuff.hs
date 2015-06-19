@@ -99,8 +99,3 @@ radiation sp m = m {parts = map (\p -> p {regVel = -sp}) $ parts m}
 
 capture :: Monster -> Monster
 capture mon = mon {ai = You}
-
-randPoison :: (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
-randPoison bounds (mon, g) = (newMon, g') where
-	(duration, g') = randomR bounds g
-	newMon = setMaxPoison (Just duration) mon

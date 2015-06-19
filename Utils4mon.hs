@@ -6,6 +6,8 @@ import HealDamage
 import Parts
 import Messages
 
+import System.Random (StdGen, randomR)
+
 nOTsOLDIERS, nOTeNEMIES :: [String]
 
 nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy"]
@@ -68,6 +70,8 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 	(newMon, g) = 
 		if trap == fIRETRAP
 		then dmgRandom (Just 8) mon $ stdgen w
+		else if trap == pOISONTRAP
+		then randPoison (5, 15) (mon, stdgen w)
 		else (mon, stdgen w)
 	newMsg = 
 		if trap == fIRETRAP
@@ -75,6 +79,11 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 			if name mon == "You"
 			then "You are in fire!"
 			else name mon ++ " is in fire!"
+		else if trap == pOISONTRAP
+		then
+			if name mon == "You"
+			then "You were poisoned!"
+			else name mon ++ " was poisoned!"
 		else ""
 		
 killFirst :: World -> World
@@ -83,4 +92,9 @@ killFirst w = changeMon mon w where
 	
 canWalk :: Monster -> Bool
 canWalk m = notElem (name m) ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
+
+randPoison :: (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
+randPoison bounds (mon, g) = (newMon, g') where
+	(duration, g') = randomR bounds g
+	newMon = setMaxPoison (Just duration) mon
 	

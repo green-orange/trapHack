@@ -8,6 +8,7 @@ import HealDamage
 import GarbageCollector
 import Parts
 import Golem
+import Utils4mon
 
 import System.Random
 import qualified Data.Map as M
@@ -158,10 +159,10 @@ wandOfPoison ch = Wand {
 	charge = ch
 }
 
-bearTrap, fireTrap :: Object
+bearTrap, fireTrap, poisonTrap :: Object
 
 tRAPS :: [Object]
-tRAPS = [bearTrap, fireTrap]
+tRAPS = [bearTrap, fireTrap, poisonTrap]
 
 bearTrap = Trap {
 	title = "bear trap",
@@ -171,6 +172,11 @@ bearTrap = Trap {
 fireTrap = Trap {
 	title = "fire trap",
 	num = fIRETRAP
+}
+
+poisonTrap = Trap {
+	title = "poison trap",
+	num = pOISONTRAP
 }
 
 arrow :: Object
@@ -233,8 +239,5 @@ crysknife = Weapon {
 }
 
 trapFromTerrain :: Terrain -> Object
-trapFromTerrain t
-	| t == bEARTRAP = bearTrap
-	| t == fIRETRAP = fireTrap
-	| otherwise = error "unknown trap"
+trapFromTerrain t = tRAPS !! (t - 1)
  
