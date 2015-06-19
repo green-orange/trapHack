@@ -45,14 +45,9 @@ dmgRandom mbDmg mon g = (dmgPartById idNew mbDmg mon, g') where
 
 dmg :: Maybe Int -> Part -> Part
 dmg Nothing part = part
-dmg (Just n) part = Part {
-	hp =
-		if hp part <= n
-		then 0
-		else hp part - n,
-	maxhp = maxhp part,
-	kind = kind part,
-	regVel = regVel part,
-	idP = idP part
+dmg (Just n) part = part {hp =
+	if hp part <= n
+	then 0
+	else hp part - n
 }
 

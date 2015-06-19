@@ -134,6 +134,13 @@ paralyse dx dy w = changeMons newMons w where
 		else mon
 	newMons = mapU ch $ units' w
 
+changeShiftOn :: Int -> World -> World
+changeShiftOn n w = w {shift = mod (shift w + n) $ length $ parts $ getFirst w}
+
+downshift, upshift :: World -> World
+downshift = changeShiftOn 1
+upshift = changeShiftOn (-1)
+
 {- Object -}
 
 decCharge :: Object -> Object

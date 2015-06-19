@@ -3,6 +3,7 @@ module Init where
 import Data
 import Parts
 import Random
+import Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S
@@ -39,7 +40,8 @@ initWorld username gen = World {
 	wave = 1,
 	chars = S.empty,
 	prevAction = ' ',
-	stepsBeforeWave = 1
+	stepsBeforeWave = 1,
+	shift = 0
 }
 
 getPlayer :: Monster
@@ -55,7 +57,8 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
-	inv = M.empty,
+	--inv = M.empty,
+	inv = M.singleton 'a' (sword, 1),
 	slowness = 100,
 	time = 100,
 	weapon = ' ',

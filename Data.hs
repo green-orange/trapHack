@@ -52,7 +52,8 @@ data Part = Part {
 	maxhp :: Int,
 	kind :: Int,
 	idP :: Int,
-	regVel :: Int
+	regVel :: Int,
+	objectKey :: Char
 }
 data AI = You | AI AIfunc
 data Monster = Monster {
@@ -124,7 +125,8 @@ data World = World {
 	worldmap :: [[Terrain]],
 	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
 	stepsBeforeWave :: Int,
-	prevAction :: Char
+	prevAction :: Char,
+	shift :: Int
 }
 
 xFirst :: World -> Int

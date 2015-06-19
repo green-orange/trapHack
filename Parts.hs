@@ -38,7 +38,8 @@ getPart knd regVel' hp' id' = Part {
 	maxhp = hp',
 	kind = knd,
 	idP = id',
-	regVel = regVel'
+	regVel = regVel',
+	objectKey = ' '
 }
 
 aliveP :: Part -> Bool

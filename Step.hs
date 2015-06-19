@@ -63,7 +63,16 @@ step world c =
 						$ changeAction ' ' world
 					(Just pick, _) -> Left $ newWaveIf pick
 				else Left $ changeChar c world
-			_ -> Left $ addMessage ("You are cheater!", mAGENTA) world
+			'E' -> case c of
+				KeyDown -> Left $ downshift world
+				KeyUp -> Left $ upshift world
+				KeyChar '\n' -> Left $ changeAction 'e' world
+				KeyChar '\ESC' -> Left $ changeAction ' ' world
+				_ -> Left world
+			'e' ->
+				doIfCorrect $ bindFirst c world
+			_ -> Left $ addMessage ("You are cheater!", mAGENTA) 
+				$ changeAction ' ' world
 		else
 			let newMWorld = aiNow x y world
 			in Left $ newWaveIf newMWorld
@@ -116,6 +125,8 @@ justStep world c = case dir c of
 			Left $ addDefaultMessage ("What do you want to fire? ["
 			 ++ listOfValidChars isMissile world ++ "]") 
 			 $ changeAction 'f' world
+		KeyChar 'E' ->
+			Left $ changeAction 'E' world {shift = 0}
 		KeyChar 'i' ->
 			Left $ changeAction 'i' world
 		KeyChar ',' ->
