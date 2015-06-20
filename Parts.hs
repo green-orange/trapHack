@@ -2,6 +2,8 @@ module Parts where
 
 import Data
 
+import qualified Data.Map as M
+
 bODY, hEAD, lEG, aRM, wING, pAW, kINDS, mAIN :: Int
 
 bODY = 0
@@ -58,3 +60,7 @@ getMain = getPart mAIN
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon =
 	max 10 $ div (slowness mon) $ 1 + (length $ filter isLowerLimb $ parts mon)
+	
+isEmptyPart :: Monster -> Part -> Bool
+isEmptyPart mon part = M.notMember (objectKey part) $ inv mon
+

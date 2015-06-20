@@ -156,14 +156,11 @@ bindFirst c w = rez where
 		else part'
 	newParts = map change $ parts mon
 	newPartsSpace = map changeSpace $ parts mon
+	
+bindMon :: Char -> Int -> World -> World
+bindMon c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind}
 
 binds :: Object -> Int -> Bool
 binds obj knd = isWeapon obj && knd == aRM ||
 				isLauncher obj && knd == aRM
-
-isExistingBinding :: Monster -> Char -> Bool
-isExistingBinding mon c = elem c $ map objectKey $ parts mon
-
-isExistingBindingFirst :: World -> Char -> Bool
-isExistingBindingFirst = isExistingBinding . getFirst
 
