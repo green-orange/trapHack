@@ -10,7 +10,7 @@ import System.Random (StdGen, randomR)
 
 nOTsOLDIERS, nOTeNEMIES :: [String]
 
-nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy"]
+nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy", "Worm"]
 isSoldier :: Monster -> Bool
 isSoldier mon = not $ isPlayer mon || elem (name mon) nOTsOLDIERS
 

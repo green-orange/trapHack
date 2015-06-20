@@ -43,6 +43,6 @@ forgottenSlowness q = uniform q 70 130
 forgottenInv :: InvGen
 forgottenInv q = fromList $ zip alphabet $ filter ((>0) . snd) 
 	$ zip sTACKABLE nums where
-	nums = map (inverseSquareRandom . frac) [q, q + pi..]
+	nums = map ((`div` 3) . inverseSquareRandom . frac) [q, q + pi..]
 	
 	

@@ -41,6 +41,9 @@ inverseSquareList = map (/(pi*pi/6.0*0.999)) $ inverseSquareList' 0.0 1 where
 uniform :: Float -> Int -> Int -> Int
 uniform p l r = (+) l $ floor $ (*) p $ intToFloat $ r - l + 1
 
+uniformFromList :: Float -> [a] -> a
+uniformFromList q xs = xs !! n where n = uniform q 0 $ length xs - 1
+
 frac :: Float -> Float
 frac q = (-) q $ ((intToFloat $ floor q) :: Float)
 

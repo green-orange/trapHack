@@ -14,7 +14,7 @@ import Data.Function (on)
 shiftDown, shiftRightHP, shiftAttrs :: Int
 shiftDown = 5
 shiftRightHP = maxX + 5
-shiftAttrs = maxX + 40
+shiftAttrs = maxX + 30
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
@@ -130,6 +130,7 @@ draw world = do
 		wAttrSet stdScr (attr0, Pair dEFAULT)
 		mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
 			(show $ effectiveSlowness $ getFirst world)
+		wAttrSet stdScr (attr0, Pair rED)
 		case poison $ getFirst world of
 			Nothing -> doNothing
 			Just n -> mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
@@ -161,7 +162,7 @@ drawPartFull x y mon part = do
 		str2 = (show $ hp part) ++ "/" ++ (show $ maxhp part) ++
 			case objs of
 			Nothing -> ""
-			Just (obj,_) -> " (with " ++ title obj ++ ")"
+			Just (obj,_) -> " (" ++ title obj ++ ")"
 		objs = M.lookup (objectKey part) $ inv mon
 
 flatarray2line' :: Int -> [[a]] -> [(Int, Int, a)]
@@ -191,6 +192,7 @@ symbolMon "Floating eye"      = 'e'
 symbolMon "Dragon"            = 'D'
 symbolMon "Forgotten beast"   = 'X'
 symbolMon "Spider"            = 's'
+symbolMon "Soldier"           = '@'
 symbolMon _                   = error "unknown monster"
 
 symbolItem :: Object -> Char
@@ -201,5 +203,6 @@ symbolItem (Trap _ _)       = '^'
 symbolItem (Missile _ _ _)  = ']'
 symbolItem (Weapon _ _)     = ')'
 symbolItem (Launcher _ _ _) = '}'
+symbolItem (Armor _ _ _)    = '['
 symbolItem _              = error "unknown object"
 

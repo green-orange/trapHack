@@ -30,6 +30,10 @@ isMissile :: Object -> Bool
 isMissile (Missile _ _ _) = True
 isMissile _ = False
 
+isArmor :: Object -> Bool
+isArmor (Armor _ _ _) = True
+isArmor _ = False
+
 isExistingBinding :: Monster -> Char -> Bool
 isExistingBinding mon c = elem c $ map objectKey $ parts mon
 

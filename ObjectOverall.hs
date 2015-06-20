@@ -15,7 +15,6 @@ import Data.Maybe (isNothing, fromJust)
 
 dropFirst :: Key -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages = rez where
-	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	rez =
 		if (isNothing objects)
 		then (maybeAddMessage "You haven't this item!" 
@@ -26,6 +25,7 @@ dropFirst c world ignoreMessages = rez where
 			$ changeAction ' ' world, False)
 		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
+	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	(obj, cnt) = fromJust objects
 	x = xFirst world
 	y = yFirst world
@@ -140,7 +140,8 @@ bindFirst c w = rez where
 		else if isExistingBindingFirst w $ fromKey c
 		then (maybeAddMessage "This item is already bound to some part!"
 			newWorld, False)
-		else (changeMon (changeParts newParts mon) newWorld, True)
+		else (addNeutralMessage msg $ changeMon 
+			(changeParts newParts mon) newWorld, True)
 	objects = M.lookup (fromKey c) $ inv mon
 	(obj, _) = fromJust objects
 	newWorld = changeAction ' ' w
@@ -156,11 +157,14 @@ bindFirst c w = rez where
 		else part'
 	newParts = map change $ parts mon
 	newPartsSpace = map changeSpace $ parts mon
+	msg = name mon ++ " begin" ++ ending w 
+		++ "to use " ++ title obj ++ "!"
 	
 bindMon :: Char -> Int -> World -> World
 bindMon c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind}
 
 binds :: Object -> Int -> Bool
 binds obj knd = isWeapon obj && knd == aRM ||
-				isLauncher obj && knd == aRM
+				isLauncher obj && knd == aRM ||
+				isArmor obj && knd == bind obj
 

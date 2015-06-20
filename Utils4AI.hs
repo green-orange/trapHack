@@ -72,6 +72,12 @@ weaponAI, launcherAI :: World -> Maybe Char
 weaponAI = getterByCond isWeapon
 launcherAI = getterByCond isLauncher
 
+isArmorByKind :: Int -> (Object -> Bool)
+isArmorByKind knd obj = isArmor obj && bind obj == knd
+
+getArmorByKind :: Int -> World -> Maybe Char
+getArmorByKind = getterByCond . isArmorByKind
+
 isOnLine :: Int -> Int -> Int -> Int -> Int -> Bool
 isOnLine d x1 y1 x2 y2 = abs (x1 - x2) <= d && abs (y1 - y2) <= d &&
 	(x1 == x2 || y1 == y2 || x1 - y1 == x2 - y1 || x1 + y1 == x2 + y2)

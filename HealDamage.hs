@@ -2,6 +2,7 @@ module HealDamage where
 
 import Data
 import Changes
+import Parts
 
 import System.Random (StdGen, randomR)
 
@@ -32,22 +33,22 @@ healAll :: Int -> Monster -> Monster
 healAll = doSmthAll heal
 
 dmgParts, dmgPartById :: Int -> Maybe Int -> Monster -> Monster
-dmgParts = doSmthParts dmg
-dmgPartById = doSmthPartById dmg
+dmgParts a b mon = doSmthParts (dmg mon) a b mon
+dmgPartById a b mon = doSmthPartById (dmg mon) a b mon
 
 dmgAll :: Maybe Int -> Monster -> Monster
-dmgAll = doSmthAll dmg
+dmgAll n mon = doSmthAll (dmg mon) n mon
 
 dmgRandom :: Maybe Int -> Monster -> StdGen -> (Monster, StdGen)
 dmgRandom mbDmg mon g = (dmgPartById idNew mbDmg mon, g') where
 	(n, g') = randomR (0, (length $ parts mon) - 1) g
 	idNew = idP $ parts mon !! n
 
-dmg :: Maybe Int -> Part -> Part
-dmg Nothing part = part
-dmg (Just n) part = part {hp =
-	if hp part <= n
+dmg :: Monster -> Maybe Int -> Part -> Part
+dmg _ Nothing part = part
+dmg mon (Just n) part = part {hp =
+	if hp part <= n'
 	then 0
-	else hp part - n
-}
+	else hp part - n'
+} where n' = max 1 $ n - acPart mon part
 

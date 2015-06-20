@@ -3,7 +3,6 @@ module Init where
 import Data
 import Parts
 import Random
-import Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S

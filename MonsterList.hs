@@ -12,8 +12,8 @@ import Forgotten
 import qualified Data.Map as M
 
 getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
-	getWorm, getFloatingEye, getDragon, getForgottenBeast, getSpider 
-	:: Float -> MonsterGen
+	getWorm, getFloatingEye, getDragon, getForgottenBeast, getSpider, 
+	getSoldier :: Float -> MonsterGen
 
 getHomunculus q = getMonster (humanoidAI stupidestAI)
 	[getBody 1 $ uniform q 10 30, 
@@ -109,3 +109,18 @@ getSpider q = getMonster stupidPoisonAI
 	 getLeg  1 $ uniform q  2  5,
 	 getLeg  1 $ uniform q  2  5]
 	"Spider" (dices (2,3) 0.1) (const M.empty) 250
+	
+getSoldier q = getMonster (humanoidAI stupidAI)
+	[getBody 2 $ uniform q 10 30,
+	 getHead 2 $ uniform q 10 20,
+	 getLeg  3 $ uniform q  8 12,
+	 getLeg  3 $ uniform q  8 12,
+	 getArm  3 $ uniform q  8 12,
+	 getArm  3 $ uniform q  8 12]
+	"Soldier" (dices (1,10) 0.2) soldierInv 100
+
+soldierInv :: InvGen
+soldierInv q = M.fromList $ zip alphabet $ flip zip [1,1..] 
+	$ uniformFromList q wEAPONS :
+	uniformFromList (frac $ q + pi) aRMOR : 
+	uniformFromList (frac $ q + 2 * pi) aRMOR : []

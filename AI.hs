@@ -31,7 +31,7 @@ rock :: Monster
 rock = fst $ getMonster (\_ _ w -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
-humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
+humanoidAI = healAI . zapAttackAI . bindArmorAI . wieldWeaponAI . useItemsAI . pickAI
 
 mODSAI :: [AIfunc -> AIfunc]
 mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, useItemsAI]
@@ -72,8 +72,8 @@ fireAI f xPlayer yPlayer w =
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 
-wieldSomethingAI :: (World -> Maybe Char) -> AIfunc -> AIfunc
-wieldSomethingAI getter f x y w = 
+bindSomethingAI :: Int -> (World -> Maybe Char) -> AIfunc -> AIfunc
+bindSomethingAI knd getter f x y w = 
 	if null emptyParts
 	then f x y w
 	else case getter w of
@@ -81,12 +81,21 @@ wieldSomethingAI getter f x y w =
 		Just c -> bindMon c (fst $ head emptyParts) w
 	where
 		mon = getFirst w
-		emptyParts = filter (isUpperLimb . snd) $ filter (isEmptyPart mon . snd) 
+		emptyParts = filter ((\o -> kind o == knd) . snd) $ filter (isEmptyPart mon . snd) 
 			$ zip [0..] $ parts mon
+
+wieldSomethingAI :: (World -> Maybe Char) -> AIfunc -> AIfunc
+wieldSomethingAI = bindSomethingAI aRM
 
 wieldLauncherAI, wieldWeaponAI :: AIfunc -> AIfunc
 wieldLauncherAI = wieldSomethingAI launcherAI
 wieldWeaponAI = wieldSomethingAI weaponAI
+
+bindArmorByKind :: Int -> AIfunc -> AIfunc
+bindArmorByKind knd = bindSomethingAI knd $ getArmorByKind knd
+
+bindArmorAI :: AIfunc -> AIfunc
+bindArmorAI = foldr (.) id $ map bindArmorByKind [bODY, hEAD, aRM, lEG]
 
 useItemsAI :: AIfunc -> AIfunc
 useItemsAI f x y w = case useSomeItem objs keys of

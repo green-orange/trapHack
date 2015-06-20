@@ -1,6 +1,7 @@
 module Parts where
 
 import Data
+import Utils4objects
 
 import qualified Data.Map as M
 
@@ -63,4 +64,10 @@ effectiveSlowness mon =
 	
 isEmptyPart :: Monster -> Part -> Bool
 isEmptyPart mon part = M.notMember (objectKey part) $ inv mon
+
+acPart :: Monster -> Part -> Int
+acPart mon part = case armor of
+	Nothing -> 0
+	Just (obj, _) -> if isArmor obj then ac obj else 0
+	where armor = M.lookup (objectKey part) (inv mon)
 

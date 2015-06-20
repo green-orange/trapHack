@@ -98,7 +98,7 @@ msgWand title' name' =
 		"wand of stupidity" -> name' ++ " feel" ++ end ++ " stupid!"
 		"wand of speed" -> prefix ++ "suddenly moving faster!"
 		"wand of radiation" -> prefix ++ "infected by radiation!"
-		"wand of psionic blast" -> name' ++ "feel" ++ end ++ 
+		"wand of psionic blast" -> name' ++ " feel" ++ end ++ 
 			" that " ++ (if isYou then "your" else "its") ++ " brains melt!"
 		"wand of poison" -> prefixPast ++ "poisoned!"
 		"wand of slowing" -> prefix ++ "suddenly moving slowly!"

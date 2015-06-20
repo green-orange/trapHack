@@ -8,8 +8,8 @@ lol :: a
 lol = undefined
 
 maxX, maxY :: Int
-maxX = 30
-maxY = 25
+maxX = 39
+maxY = 19
 
 eMPTY, bEARTRAP, fIRETRAP, pOISONTRAP, tRAPSNUM, mAGICTRAP :: Int
 eMPTY      = 0
@@ -103,6 +103,11 @@ data Object =
 	Weapon {
 		title :: String,
 		objdmg :: StdDmg
+	} |
+	Armor {
+		title :: String,
+		ac :: Int,
+		bind :: Int
 	}
 
 instance Eq Object where
