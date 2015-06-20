@@ -12,7 +12,7 @@ b j n
 q - **q**uaff (a potion)  
 r - **r**ead (a scroll)  
 z - **z**ap (a wand)  
-w - **w**ield  
+E - **e**quip a part by something  
 f - **f**ire  
 t - set or remove **t**rap  
 i - show **i**nventory  

@@ -31,10 +31,10 @@ rock :: Monster
 rock = fst $ getMonster (\_ _ w -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
 
 humanoidAI :: AIfunc -> AIfunc
-humanoidAI = healAI . zapAttackAI . wieldWeaponAI . useItemsAI . pickAI
+humanoidAI = healAI . zapAttackAI . {-wieldWeaponAI . -}useItemsAI . pickAI
 
 mODSAI :: [AIfunc -> AIfunc]
-mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, useItemsAI]
+mODSAI = [healAI, zapAttackAI, pickAI, {-fireAI, wieldLauncherAI, wieldWeaponAI, -}useItemsAI]
 		
 healAI :: AIfunc -> AIfunc
 healAI f x y w = 
@@ -60,7 +60,7 @@ pickAI f x y w =
 		xNow = xFirst w
 		yNow = yFirst w
 		objects = filter (\(x', y', _, _) -> x' == xNow && y' == yNow) $ items w
-		
+{-
 fireAI :: AIfunc -> AIfunc
 fireAI f xPlayer yPlayer w =
 	if (canFire $ getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
@@ -87,7 +87,7 @@ wieldWeaponAI f x y w =
 		Nothing -> f x y w
 		Just c -> fst $ wieldFirst (KeyChar c) w
 	else f x y w
-	
+-}	
 useItemsAI :: AIfunc -> AIfunc
 useItemsAI f x y w = case useSomeItem objs keys of
 	Nothing -> f x y w
@@ -96,9 +96,11 @@ useItemsAI f x y w = case useSomeItem objs keys of
 		invList = M.toList $ inv $ getFirst w
 		objs = map (fst . snd) invList
 		keys = map (KeyChar . fst) invList
-	
+{-
 hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
+-}
+hunterAI = id
 
 attackIfClose :: Int -> AIfunc -> AIfunc
 attackIfClose dist f x y w =

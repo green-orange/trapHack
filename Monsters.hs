@@ -17,7 +17,6 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	inv = inv' p,
 	slowness = slow',
 	time = slow',
-	weapon = ' ',
 	poison = Nothing
 }, newGen) where
 	p :: Float

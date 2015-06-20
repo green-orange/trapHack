@@ -35,8 +35,6 @@ step world c =
 					doIfCorrect $ untrapFirst world 
 				else
 					doIfCorrect $ trapFirst c world
-			'w' -> 
-				doIfCorrect $ wieldFirst c world
 			'f' ->
 				Left $ addDefaultMessage "In what direction?" $ changeAction 'F' 
 				$ world {prevAction = fromKey c}
@@ -117,10 +115,6 @@ justStep world c = case dir c of
 			Left $ addDefaultMessage ("What do you want to set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 
 			 $ changeAction 't' world
-		KeyChar 'w' -> 
-			Left $ addDefaultMessage ("What do you want to wield? ["
-			 ++ listOfValidChars (\x -> isLauncher x || isWeapon x) world ++ "]") 
-			 $ changeAction 'w' world
 		KeyChar 'f' ->
 			Left $ addDefaultMessage ("What do you want to fire? ["
 			 ++ listOfValidChars isMissile world ++ "]") 

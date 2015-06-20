@@ -20,8 +20,9 @@ dropFirst c world ignoreMessages = rez where
 		if (isNothing objects)
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
-		else if c == KeyChar (weapon $ getFirst world) && (alive $ getFirst world)
-		then (maybeAddMessage "You can't drop weapon that you wield!" 
+		else if isExistingBindingFirst world (fromKey c) 
+			&& (alive $ getFirst world)
+		then (maybeAddMessage "You can't drop the item wich you have equipped!" 
 			$ changeAction ' ' world, False)
 		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)

@@ -58,9 +58,8 @@ getPlayer = Monster {
 	name = "You",
 	stddmg = dices (1,10) 0.2,
 	--inv = M.empty,
-	inv = M.singleton 'a' (sword, 1),
+	inv = M.insert 'd' (arrow, 1000) $ M.insert 'c' (bow, 1) $ M.insert 'b' (bow, 1) $ M.singleton 'a' (sword, 1),
 	slowness = 100,
 	time = 100,
-	weapon = ' ',
 	poison = Nothing
 }

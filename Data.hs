@@ -64,7 +64,6 @@ data Monster = Monster {
 	inv :: Inv,
 	slowness :: Int,
 	time :: Int,
-	weapon :: Char,
 	poison :: Maybe Int
 }
 

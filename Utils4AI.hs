@@ -29,7 +29,7 @@ healingAI world = fst $ M.findMin $ M.filter (isHealing . fst) $ inv $ getFirst 
 
 canZapToAttack :: Monster -> Bool
 canZapToAttack mon = M.foldl (||) False $ M.map (isAttackWand . fst) $ inv mon
-
+{-
 canFire :: Monster -> Bool
 canFire mon = any (isValidMissile mon) alphabet
 	
@@ -41,7 +41,7 @@ isValidMissile mon c =
 	objs = M.lookup c $ inv mon
 	obj = fst $ fromJust $ objs
 	weap = fst $ (M.!) (inv mon) (weapon mon)
-
+-}
 haveLauncher :: Monster -> Bool
 haveLauncher mon = M.foldl (||) False $ M.map (isLauncher . fst) $ inv mon
 
@@ -53,11 +53,11 @@ isAttackWand obj = isWand obj && charge obj > 0 &&
 
 zapAI :: World -> Char
 zapAI world = fst $ M.findMin $ M.filter (isAttackWand . fst) $ inv $ getFirst world
-
+{-
 missileAI :: World -> Char
 missileAI world = head $ filter (isValidMissile mon) alphabet where
 	mon = getFirst world
-
+-}
 safeMinFst :: (Ord k) => M.Map k a -> Maybe k
 safeMinFst m = 
 	if M.null m

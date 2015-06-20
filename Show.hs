@@ -81,13 +81,8 @@ draw world = do
 	if action world == 'i' || action world == 'e'
 	then let
 		items' = M.toList $ inv $ getFirst world
-		wield :: Char -> String
-		wield c = 
-			if (weapon $ getFirst world) == c
-			then " (wielded)"
-			else "" 
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
-			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++ wield c) items'
+			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj) items'
 		showInv :: (Int, String) -> IO ()
 		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
 		str = 
