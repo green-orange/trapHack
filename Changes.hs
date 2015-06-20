@@ -52,9 +52,6 @@ decChargeByKey :: Char -> Monster -> Monster
 decChargeByKey c m = changeInv newInv m where
 	newInv = M.adjust (\(o, n) -> (decCharge o, n)) c $ inv m
 
-changeWeapon :: Key -> Monster -> Monster
-changeWeapon c mon = mon {weapon = fromKey c}
-
 changePoison :: Maybe Int -> Monster -> Monster
 changePoison n m = m {poison = n}
 
@@ -133,6 +130,13 @@ paralyse dx dy w = changeMons newMons w where
 		then mon {time = time mon + (effectiveSlowness mon) * 3 `div` 2}
 		else mon
 	newMons = mapU ch $ units' w
+
+changeShiftOn :: Int -> World -> World
+changeShiftOn n w = w {shift = mod (shift w + n) $ length $ parts $ getFirst w}
+
+downshift, upshift :: World -> World
+downshift = changeShiftOn 1
+upshift = changeShiftOn (-1)
 
 {- Object -}
 

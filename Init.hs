@@ -40,7 +40,8 @@ initWorld username gen = World {
 	wave = 1,
 	chars = S.empty,
 	prevAction = ' ',
-	stepsBeforeWave = 1
+	stepsBeforeWave = 1,
+	shift = 0
 }
 
 getPlayer :: Monster
@@ -59,6 +60,5 @@ getPlayer = Monster {
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
-	weapon = ' ',
 	poison = Nothing
 }

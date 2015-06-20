@@ -4,6 +4,8 @@ import Data
 import Changes
 import Utils4mon
 import Messages
+import Utils4objects
+import Parts
 
 import Control.Monad ((>=>))
 import qualified Data.Set as S
@@ -18,8 +20,9 @@ dropFirst c world ignoreMessages = rez where
 		if (isNothing objects)
 		then (maybeAddMessage "You haven't this item!" 
 			$ changeAction ' ' world, False)
-		else if c == KeyChar (weapon $ getFirst world) && (alive $ getFirst world)
-		then (maybeAddMessage "You can't drop weapon that you wield!" 
+		else if isExistingBindingFirst world (fromKey c) 
+			&& (alive $ getFirst world)
+		then (maybeAddMessage "You can't drop the item wich you have equipped!" 
 			$ changeAction ' ' world, False)
 		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 			$ changeAction ' ' world, True)
@@ -123,3 +126,41 @@ split f (x:xs) =
 	then (x:a, b)
 	else (a, x:b)
 	where (a, b) = split f xs
+	
+bindFirst :: Key -> World -> (World, Bool)
+bindFirst c w = rez where
+	rez = 
+		if c == KeyChar '-'
+		then (changeMon (changeParts newPartsSpace mon) newWorld, True)
+		else if isNothing objects
+		then (maybeAddMessage "You haven't this item!" newWorld, False)
+		else if not $ binds obj $ kind part
+		then (maybeAddMessage "This objects doesn't intended to this part!" 
+			newWorld, False)
+		else if isExistingBindingFirst w $ fromKey c
+		then (maybeAddMessage "This item is already bound to some part!"
+			newWorld, False)
+		else (changeMon (changeParts newParts mon) newWorld, True)
+	objects = M.lookup (fromKey c) $ inv mon
+	(obj, _) = fromJust objects
+	newWorld = changeAction ' ' w
+	mon = getFirst w
+	part = parts mon !! shift w
+	change part' = 
+		if idP part == idP part'
+		then part' {objectKey = fromKey c}
+		else part'
+	changeSpace part' =
+		if idP part == idP part'
+		then part' {objectKey = ' '}
+		else part'
+	newParts = map change $ parts mon
+	newPartsSpace = map changeSpace $ parts mon
+	
+bindMon :: Char -> Int -> World -> World
+bindMon c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind}
+
+binds :: Object -> Int -> Bool
+binds obj knd = isWeapon obj && knd == aRM ||
+				isLauncher obj && knd == aRM
+

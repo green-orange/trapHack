@@ -29,3 +29,9 @@ isWeapon _ = False
 isMissile :: Object -> Bool
 isMissile (Missile _ _ _) = True
 isMissile _ = False
+
+isExistingBinding :: Monster -> Char -> Bool
+isExistingBinding mon c = elem c $ map objectKey $ parts mon
+
+isExistingBindingFirst :: World -> Char -> Bool
+isExistingBindingFirst = isExistingBinding . getFirst

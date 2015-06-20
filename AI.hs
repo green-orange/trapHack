@@ -60,7 +60,7 @@ pickAI f x y w =
 		xNow = xFirst w
 		yNow = yFirst w
 		objects = filter (\(x', y', _, _) -> x' == xNow && y' == yNow) $ items w
-		
+
 fireAI :: AIfunc -> AIfunc
 fireAI f xPlayer yPlayer w =
 	if (canFire $ getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
@@ -71,23 +71,23 @@ fireAI f xPlayer yPlayer w =
 		yNow = yFirst w
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
-		
-wieldLauncherAI :: AIfunc -> AIfunc
-wieldLauncherAI f x y w = 
-	if (weapon $ getFirst w) == ' '
-	then case launcherAI w of
+
+wieldSomethingAI :: (World -> Maybe Char) -> AIfunc -> AIfunc
+wieldSomethingAI getter f x y w = 
+	if null emptyParts
+	then f x y w
+	else case getter w of
 		Nothing -> f x y w
-		Just c -> fst $ wieldFirst (KeyChar c) w
-	else f x y w
-	
-wieldWeaponAI :: AIfunc -> AIfunc
-wieldWeaponAI f x y w = 
-	if (weapon $ getFirst w) == ' '
-	then case weaponAI w of
-		Nothing -> f x y w
-		Just c -> fst $ wieldFirst (KeyChar c) w
-	else f x y w
-	
+		Just c -> bindMon c (fst $ head emptyParts) w
+	where
+		mon = getFirst w
+		emptyParts = filter (isUpperLimb . snd) $ filter (isEmptyPart mon . snd) 
+			$ zip [0..] $ parts mon
+
+wieldLauncherAI, wieldWeaponAI :: AIfunc -> AIfunc
+wieldLauncherAI = wieldSomethingAI launcherAI
+wieldWeaponAI = wieldSomethingAI weaponAI
+
 useItemsAI :: AIfunc -> AIfunc
 useItemsAI f x y w = case useSomeItem objs keys of
 	Nothing -> f x y w
@@ -96,7 +96,7 @@ useItemsAI f x y w = case useSomeItem objs keys of
 		invList = M.toList $ inv $ getFirst w
 		objs = map (fst . snd) invList
 		keys = map (KeyChar . fst) invList
-	
+
 hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
 

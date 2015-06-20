@@ -35,12 +35,12 @@ canFire mon = any (isValidMissile mon) alphabet
 	
 isValidMissile :: Monster -> Char -> Bool
 isValidMissile mon c = 
-	isJust objs && weapon mon /= ' '
-	&& isLauncher weap && isMissile obj
-	&& launcher obj == category weap where
-	objs = M.lookup c $ inv mon
-	obj = fst $ fromJust $ objs
-	weap = fst $ (M.!) (inv mon) (weapon mon)
+	isJust objs && isMissile obj && not (null intended) where
+		objs = M.lookup c $ inv mon
+		obj = fst $ fromJust $ objs
+		launchers = filter isLauncher $ map (fst . fromJust) $ filter isJust 
+			$ map ((flip M.lookup $ inv mon) . objectKey) $ parts mon
+		intended = filter (\w -> launcher obj == category w) launchers
 
 haveLauncher :: Monster -> Bool
 haveLauncher mon = M.foldl (||) False $ M.map (isLauncher . fst) $ inv mon
@@ -64,11 +64,13 @@ safeMinFst m =
 	then Nothing
 	else Just $ fst $ M.findMin m
 
-launcherAI :: World -> Maybe Char
-launcherAI world = safeMinFst $ M.filter (isLauncher . fst) $ inv $ getFirst world
+getterByCond :: (Object -> Bool) -> World -> Maybe Char
+getterByCond cond world = safeMinFst $ M.filterWithKey fun $ inv $ getFirst world where
+	fun c (o, _) = not (isExistingBindingFirst world c) && cond o
 
-weaponAI :: World -> Maybe Char
-weaponAI world = safeMinFst $ M.filter (isWeapon . fst) $ inv $ getFirst world
+weaponAI, launcherAI :: World -> Maybe Char
+weaponAI = getterByCond isWeapon
+launcherAI = getterByCond isLauncher
 
 isOnLine :: Int -> Int -> Int -> Int -> Int -> Bool
 isOnLine d x1 y1 x2 y2 = abs (x1 - x2) <= d && abs (y1 - y2) <= d &&

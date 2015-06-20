@@ -11,7 +11,7 @@ import Parts
 import Utils4mon
 
 import UI.HSCurses.Curses (Key(..))
-import Data.Maybe (isNothing, fromJust)
+import Data.Maybe (isNothing, isJust, fromJust)
 import qualified Data.Map as M
 
 dir :: Key -> Maybe (Int, Int)
@@ -160,31 +160,13 @@ untrapFirst world = rez where
 	trap = trapFromTerrain $ worldmap world !! x !! y
 	newMsg = (name mon) ++ " untrap" ++ ending world ++ title trap ++ "."
 	
-wieldFirst :: Key -> World -> (World, Bool)
-wieldFirst c world = rez where
-	objects = M.lookup (fromKey c) $ inv $ getFirst world
-	rez =
-		if not $ hasPart aRM oldMon
-		then (maybeAddMessage "You need arms to wield a weapon!" failWorld, False)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" failWorld, False)
-		else if not (isWeapon obj || isLauncher obj)
-		then (maybeAddMessage "You don't know how to wield it!" failWorld, False)
-		else (addNeutralMessage newMsg $ changeMon mon $ changeAction ' ' $ world, True)
-	oldMon = getFirst world
-	(obj, _) = fromJust objects
-	mon = changeWeapon c oldMon
-	failWorld = changeAction ' ' world
-	newMsg = (name oldMon) ++ " wield" ++ ending world ++ title obj ++ "."
-	
 fireFirst :: Key -> World -> (World, Bool)
 fireFirst c world = rez where
-	objects = M.lookup (prevAction world) $ inv $ getFirst world
-	wielded =
-		if isNothing listWield
-		then Something
-		else fst $ fromJust listWield
-	listWield = M.lookup (weapon oldMon) $ inv $ getFirst world
+	objects = M.lookup (prevAction world) $ inv oldMon
+	listWield = map (fst . fromJust) $ filter isJust 
+		$ map ((flip M.lookup $ inv oldMon) . objectKey) 
+		$ filter isUpperLimb $ parts oldMon
+	intended = filter (\w -> isLauncher w && launcher obj == category w) listWield
 	rez =
 		if not $ hasPart aRM oldMon
 		then (maybeAddMessage "You need arms to fire!" failWorld, False)
@@ -192,13 +174,9 @@ fireFirst c world = rez where
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isMissile obj
 		then (maybeAddMessage "You don't know how to fire it!" failWorld, False)
-		else if weapon oldMon == ' '
-		then (maybeAddMessage "You have no weapon!" failWorld, False)
-		else if not $ isLauncher wielded
-		then (maybeAddMessage "Your weapon is not intended for firing" failWorld, False)
-		else if launcher obj /= category wielded
-		then (maybeAddMessage ("You can't fire " ++ title obj ++ " by " 
-			++ category wielded ++ "!") failWorld, False)
+		else if null intended
+		then (maybeAddMessage "You have no weapon appropriate to this missile!" 
+			failWorld, False)
 		else if dir c == Nothing
 		then (maybeAddMessage "It's not a direction!" failWorld, False)
 		else (changeAction ' ' newWorld, True)
@@ -206,7 +184,7 @@ fireFirst c world = rez where
 	y = yFirst world
 	oldMon = getFirst world
 	maybeCoords = dirs world (x, y, dx, dy)
-	cnt = min n $ count wielded
+	cnt = min n $ sum $ map count intended
 	newWorld = case maybeCoords of
 		Just (xNew, yNew) -> foldr (.) id (replicate cnt $ 
 			fire xNew yNew dx dy obj) $ changeMon (fulldel oldMon) world

@@ -5,6 +5,7 @@ import Changes
 import Utils4mon
 import HealDamage
 import Utils4objects
+import Parts
 
 import Prelude hiding (lookup)
 import qualified Data.Map as M
@@ -19,7 +20,7 @@ moveFirst dx dy world =
 		else
 			changeMoveFirst xnew ynew $ addMessage (newMessage, yELLOW) $ world
 	else
-		attacks xnew ynew world $ countUpperLimbs $ getFirst world
+		attacks xnew ynew world $ map objectKey $ filter isUpperLimb $ parts $ getFirst world
 	where
 		x = xFirst world
 		y = yFirst world
@@ -34,11 +35,11 @@ moveFirst dx dy world =
 				Just (xnew', ynew') = rez
 		mon = getFirst world
 
-attacks :: Int -> Int -> World -> Int -> World
-attacks x y world n = foldr ($) world $ replicate n $ (\w -> attack x y w)
+attacks :: Int -> Int -> World -> [Char] -> World
+attacks x y world links = foldr ($) world $ map (\c w -> attack x y c w) $ links
 
-attack :: Int -> Int -> World -> World
-attack x y world = changeMons unitsNew $ addMessage (newMsg, color) 
+attack :: Int -> Int -> Char -> World -> World
+attack x y c world = changeMons unitsNew $ addMessage (newMsg, color) 
 	$ changeAction ' ' $ changeGen newGen' world
 	where
 		attacker = getFirst world
@@ -54,7 +55,7 @@ attack x y world = changeMons unitsNew $ addMessage (newMsg, color)
 						Nothing -> yELLOW
 						_		-> rED
 				_ -> bLUE
-		weapons = M.lookup (weapon attacker) (inv attacker)
+		weapons = M.lookup c (inv attacker)
 		dmggen = 
 			if isNothing weapons || (not $ isWeapon $ fst $ fromJust weapons)
 			then stddmg attacker

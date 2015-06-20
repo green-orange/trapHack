@@ -46,7 +46,8 @@ addPart mon knd hp' regVel' = changeParts (newPart : parts mon) mon where
 		maxhp = hp',
 		kind = knd,
 		idP = newID,
-		regVel = regVel'
+		regVel = regVel',
+		objectKey = ' '
 	}
 	newID = (+) 1 $ maximum $ map idP $ parts mon
 
