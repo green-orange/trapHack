@@ -40,7 +40,8 @@ initWorld username gen = World {
 	chars = S.empty,
 	prevAction = ' ',
 	stepsBeforeWave = 1,
-	shift = 0
+	shift = 0,
+	slot = WeaponSlot
 }
 
 getPlayer :: Monster

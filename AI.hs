@@ -72,27 +72,27 @@ fireAI f xPlayer yPlayer w =
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 
-bindSomethingAI :: Int -> (World -> Maybe Char) -> AIfunc -> AIfunc
-bindSomethingAI knd getter f x y w = 
+bindSomethingAI :: Slot -> Int -> (World -> Maybe Char) -> AIfunc -> AIfunc
+bindSomethingAI sl knd getter f x y w = 
 	if null emptyParts
 	then f x y w
 	else case getter w of
 		Nothing -> f x y w
-		Just c -> bindMon c (fst $ head emptyParts) w
+		Just c -> bindMon sl c (fst $ head emptyParts) w
 	where
 		mon = getFirst w
-		emptyParts = filter ((\o -> kind o == knd) . snd) $ filter (isEmptyPart mon . snd) 
-			$ zip [0..] $ parts mon
+		emptyParts = filter ((\o -> kind o == knd) . snd) 
+			$ filter (isEmptyPart sl mon . snd) $ zip [0..] $ parts mon
 
 wieldSomethingAI :: (World -> Maybe Char) -> AIfunc -> AIfunc
-wieldSomethingAI = bindSomethingAI aRM
+wieldSomethingAI = bindSomethingAI WeaponSlot aRM
 
 wieldLauncherAI, wieldWeaponAI :: AIfunc -> AIfunc
 wieldLauncherAI = wieldSomethingAI launcherAI
 wieldWeaponAI = wieldSomethingAI weaponAI
 
 bindArmorByKind :: Int -> AIfunc -> AIfunc
-bindArmorByKind knd = bindSomethingAI knd $ getArmorByKind knd
+bindArmorByKind knd = bindSomethingAI ArmorSlot knd $ getArmorByKind knd
 
 bindArmorAI :: AIfunc -> AIfunc
 bindArmorAI = foldr (.) id $ map bindArmorByKind [bODY, hEAD, aRM, lEG]

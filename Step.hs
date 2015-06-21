@@ -64,6 +64,8 @@ step world c =
 			'E' -> case c of
 				KeyDown -> Left $ downshift world
 				KeyUp -> Left $ upshift world
+				KeyLeft -> Left $ decslot world
+				KeyRight -> Left $ incslot world
 				KeyChar '\n' -> Left $ changeAction 'e' world
 				KeyChar '\ESC' -> Left $ changeAction ' ' world
 				_ -> Left world

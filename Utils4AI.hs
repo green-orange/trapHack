@@ -39,7 +39,8 @@ isValidMissile mon c =
 		objs = M.lookup c $ inv mon
 		obj = fst $ fromJust $ objs
 		launchers = filter isLauncher $ map (fst . fromJust) $ filter isJust 
-			$ map ((flip M.lookup $ inv mon) . objectKey) $ parts mon
+			$ map ((flip M.lookup $ inv mon) . (\p -> objectKeys p 
+			!! fromEnum WeaponSlot)) $ parts mon
 		intended = filter (\w -> launcher obj == category w) launchers
 
 haveLauncher :: Monster -> Bool

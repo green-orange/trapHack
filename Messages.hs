@@ -2,11 +2,17 @@ module Messages where
 
 import Data
 import Changes
+import Utils4objects
 
 titleShow :: Object -> String
 
-titleShow (Wand t _ _ ch) = t ++ " (" ++ show ch ++ ")"
-titleShow x = title x
+titleShow x = title x ++ 
+	if isWand x
+	then " (" ++ show (charge x) ++ ")"
+	else if isWeapon x || isArmor x || isLauncher x
+	then " (" ++ (if enchantment x >= 0 then "+" else "") 
+		++ show (enchantment x) ++ ")"
+	else ""
 
 numToStr :: Int -> String
 numToStr t

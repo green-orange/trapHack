@@ -42,7 +42,7 @@ getPart knd regVel' hp' id' = Part {
 	kind = knd,
 	idP = id',
 	regVel = regVel',
-	objectKey = ' '
+	objectKeys = replicate sLOTS ' '
 }
 
 aliveP :: Part -> Bool
@@ -61,13 +61,13 @@ getMain = getPart mAIN
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon =
 	max 10 $ div (slowness mon) $ 1 + (length $ filter isLowerLimb $ parts mon)
-	
-isEmptyPart :: Monster -> Part -> Bool
-isEmptyPart mon part = M.notMember (objectKey part) $ inv mon
+
+isEmptyPart :: Slot -> Monster -> Part -> Bool
+isEmptyPart sl mon part = M.notMember (objectKeys part !! fromEnum sl) $ inv mon
 
 acPart :: Monster -> Part -> Int
 acPart mon part = case armor of
 	Nothing -> 0
 	Just (obj, _) -> if isArmor obj then ac obj else 0
-	where armor = M.lookup (objectKey part) (inv mon)
+	where armor = M.lookup (objectKeys part !! fromEnum ArmorSlot) (inv mon)
 

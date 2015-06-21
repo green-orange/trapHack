@@ -131,17 +131,23 @@ paralyse dx dy w = changeMons newMons w where
 		else mon
 	newMons = mapU ch $ units' w
 
-changeShiftOn :: Int -> World -> World
+changeShiftOn, changeSlotOn :: Int -> World -> World
 changeShiftOn n w = w {shift = mod (shift w + n) $ length $ parts $ getFirst w}
+changeSlotOn n w = w {slot = toEnum $ flip mod sLOTS $ (+n) $ fromEnum $ slot w}
 
-downshift, upshift :: World -> World
+downshift, upshift, decslot, incslot :: World -> World
 downshift = changeShiftOn 1
 upshift = changeShiftOn (-1)
+incslot = changeSlotOn 1
+decslot = changeSlotOn (-1)
 
 {- Object -}
 
 decCharge :: Object -> Object
 decCharge obj = obj {charge = charge obj - 1}
+
+enchant :: Int -> Object -> Object
+enchant n obj = obj {enchantment = enchantment obj + n} 
 
 {- Other -}
 

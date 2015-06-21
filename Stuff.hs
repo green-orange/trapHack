@@ -54,10 +54,12 @@ genDeathDropByAlph alph ((objs, f):xs) g =
 sTACKABLE :: [Object]
 sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
 	
-potionOfHealing, potionOfIntellect, potionOfMutation :: Object
+potionOfHealing, potionOfIntellect, potionOfMutation, potionOfEnchantWeapon,
+	potionOfEnchantArmor :: Object
 
 pOTIONS :: [Object]
-pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation]
+pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation, 
+	potionOfEnchantWeapon, potionOfEnchantArmor]
 
 potionOfHealing = Potion {title = "potion of healing",
 	act = unrandom $ healParts bODY 10}
@@ -67,6 +69,12 @@ potionOfIntellect = Potion {title = "potion of intellect",
 
 potionOfMutation = Potion {title = "potion of mutation",
 	act = addRandomPart}
+
+potionOfEnchantWeapon = Potion {title = "potion of enchant weapon",
+	act = unrandom $ enchantAll WeaponSlot 1}
+
+potionOfEnchantArmor = Potion {title = "potion of enchant armor",
+	act = unrandom $ enchantAll ArmorSlot 1}
 
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
 	kabbalisticScroll :: Object
@@ -138,22 +146,26 @@ arrow :: Object
 mISSILES :: [Object]
 mISSILES = [arrow]
 
-arrow = Missile {title = "arrow", objdmg = dices (1,6) 0.2,
-	launcher = "bow"}
+getMissile :: String -> StdDmg -> String -> Object
+getMissile t o l = Missile {title = t, objdmg' = o, launcher = l,
+	enchantment = 0}
+
+arrow = getMissile "arrow" (dices (1,6) 0.2) "bow"
 
 shortbow, bow, longbow :: Object
 
 lAUNCHERS :: [Object]
 lAUNCHERS = [shortbow, bow, longbow]
 
-shortbow = Launcher {title = "short bow",
-	count = 1, category = "bow"}
+getLauncher :: String -> Int -> String -> Object
+getLauncher t c cat = Launcher {title = t, count' = c, category = cat, 
+	enchantment = 0}
 
-bow = Launcher {title = "bow",
-	count = 2, category = "bow"}
+shortbow = getLauncher "short bow" 1 "bow"
 
-longbow = Launcher {title = "longbow",
-	count = 3, category = "bow"}
+bow = getLauncher "bow" 2 "bow"
+
+longbow = getLauncher "longbow" 3 "bow"
 
 dagger, shortsword, sword, crysknife :: Object
 
@@ -163,20 +175,22 @@ wEAPONS =
 	replicate 2 shortsword ++
 	replicate 1 sword
 
-dagger = Weapon {title = "dagger",
-	objdmg = dices (1,12) 0.0} -- avg = 6.5
+getWeapon :: String -> StdDmg -> Object
+getWeapon t o = Weapon {title = t, objdmg' = o, enchantment = 0}
 
-shortsword = Weapon {title = "shortsword",
-	objdmg = dices (2,8) 0.1} -- avg = 8.1
+dagger = getWeapon "dagger" $ dices (1,12) 0.0 -- avg = 6.5
 
-sword = Weapon {title = "sword",
-	objdmg = dices (2,10) 0.1} -- avg = 9.9
+shortsword = getWeapon "shortsword" $ dices (2,8) 0.1 -- avg = 8.1
 
-crysknife = Weapon {title = "crysknife",
-	objdmg = dices (5,5) 0.0} -- avg = 15
+sword = getWeapon "sword" $ dices (2,10) 0.1 -- avg = 9.9
+
+crysknife = getWeapon "crysknife" $ dices (5,5) 0.0 -- avg = 15
 
 aRMOR, bODYaRMOR, hELMETS, gLOVES, bOOTS :: [Object]
 aRMOR = bODYaRMOR ++ hELMETS ++ gLOVES ++ bOOTS
+
+getArmor :: String -> Int -> Int -> Object
+getArmor t a b = Armor {title = t, ac' = a, bind = b, enchantment = 0}
 
 leatherJacket, leatherArmor, ringMail, plateMail :: Object
 bODYaRMOR = 
@@ -185,34 +199,34 @@ bODYaRMOR =
 	replicate 2 ringMail ++
 	replicate 1 plateMail
 
-leatherJacket = Armor {title = "leather jacket", ac = 1, bind = bODY}
-leatherArmor = Armor {title = "leather armor", ac = 2, bind = bODY}
-ringMail = Armor {title = "ring mail", ac = 3, bind = bODY}
-plateMail = Armor {title = "plate mail", ac = 4, bind = bODY}
+leatherJacket = getArmor "leather jacket" 1 bODY
+leatherArmor = getArmor "leather armor" 2 bODY
+ringMail = getArmor "ring mail" 3 bODY
+plateMail = getArmor "plate mail" 4 bODY
 
 fedora, hardHat, helmet, kabuto :: Object
-hELMETS = 
+hELMETS =
 	replicate 4 fedora ++
 	replicate 3 hardHat ++ 
 	replicate 2 helmet ++
 	replicate 1 kabuto
 
-fedora = Armor {title = "fedora", ac = 1, bind = hEAD}
-hardHat = Armor {title = "hard hat", ac = 2, bind = hEAD}
-helmet = Armor {title = "helmet", ac = 3, bind = hEAD}
-kabuto = Armor {title = "kabuto", ac = 4, bind = hEAD}
+fedora = getArmor "fedora" 1 hEAD
+hardHat = getArmor "hard hat" 2 hEAD
+helmet = getArmor "helmet" 3 hEAD
+kabuto = getArmor "kabuto" 4 hEAD
 
 glove, gauntlet :: Object
 gLOVES = [glove, gauntlet]
 
-glove = Armor {title = "glove", ac = 1, bind = aRM}
-gauntlet = Armor {title = "gauntlet", ac = 2, bind = aRM}
+glove = getArmor "glove" 1 aRM
+gauntlet = getArmor "gauntlet" 2 aRM
 
 lowBoot, highBoot :: Object
 bOOTS = [lowBoot, highBoot]
 
-lowBoot = Armor {title = "low boot", ac = 1, bind = lEG}
-highBoot = Armor {title = "high boot", ac = 2, bind = lEG}
+lowBoot = getArmor "low boot" 1 lEG
+highBoot = getArmor "high boot" 2 lEG
 
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain t = tRAPS !! (t - 1)

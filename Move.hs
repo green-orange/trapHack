@@ -19,8 +19,8 @@ moveFirst dx dy world =
 		then world
 		else
 			changeMoveFirst xnew ynew $ addMessage (newMessage, yELLOW) $ world
-	else
-		attacks xnew ynew world $ map objectKey $ filter isUpperLimb $ parts $ getFirst world
+	else attacks xnew ynew world $ map (\p -> objectKeys p !! fromEnum WeaponSlot) 
+		$ filter isUpperLimb $ parts $ getFirst world
 	where
 		x = xFirst world
 		y = yFirst world

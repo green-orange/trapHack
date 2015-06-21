@@ -47,7 +47,7 @@ addPart mon knd hp' regVel' = changeParts (newPart : parts mon) mon where
 		kind = knd,
 		idP = newID,
 		regVel = regVel',
-		objectKey = ' '
+		objectKeys = replicate sLOTS ' '
 	}
 	newID = (+) 1 $ maximum $ map idP $ parts mon
 
@@ -103,3 +103,10 @@ radiation sp m = m {parts = map (\p -> p {regVel = regVel p - sp}) $ parts m}
 
 capture :: Monster -> Monster
 capture mon = mon {ai = You}
+
+enchantAll :: Slot -> Int -> Monster -> Monster
+enchantAll sl n mon = foldr ($) mon $ map (enchantByLetter 
+	. (\p -> objectKeys p !! fromEnum sl)) $ parts mon where
+	enchantByLetter c mon' = case M.lookup c $ inv mon' of
+		Nothing -> mon'
+		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}

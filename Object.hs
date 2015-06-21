@@ -183,7 +183,7 @@ fireFirst c world = rez where
 	objects = M.lookup (prevAction world) $ inv oldMon
 	intended = filter (\w -> isLauncher w && launcher obj == category w) listWield
 	listWield = map (fst . fromJust) $ filter isJust 
-		$ map ((flip M.lookup $ inv oldMon) . objectKey) 
+		$ map ((flip M.lookup $ inv oldMon) . (\p -> objectKeys p !! fromEnum WeaponSlot)) 
 		$ filter isUpperLimb $ parts oldMon
 	x = xFirst world
 	y = yFirst world

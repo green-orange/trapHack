@@ -134,7 +134,7 @@ bindFirst c w = rez where
 		then (changeMon (changeParts newPartsSpace mon) newWorld, True)
 		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" newWorld, False)
-		else if not $ binds obj $ kind part
+		else if isNothing maybeNewSlot || newSlot /= slot w
 		then (maybeAddMessage "This objects doesn't intended to this part!" 
 			newWorld, False)
 		else if isExistingBindingFirst w $ fromKey c
@@ -143,28 +143,36 @@ bindFirst c w = rez where
 		else (addNeutralMessage msg $ changeMon 
 			(changeParts newParts mon) newWorld, True)
 	objects = M.lookup (fromKey c) $ inv mon
+	maybeNewSlot = binds obj $ kind part
+	Just newSlot = maybeNewSlot
 	(obj, _) = fromJust objects
 	newWorld = changeAction ' ' w
 	mon = getFirst w
 	part = parts mon !! shift w
 	change part' = 
 		if idP part == idP part'
-		then part' {objectKey = fromKey c}
+		then part' {objectKeys = changeElem (fromEnum newSlot) 
+			(fromKey c) $ objectKeys part}
 		else part'
 	changeSpace part' =
 		if idP part == idP part'
-		then part' {objectKey = ' '}
+		then part' {objectKeys = changeElem (fromEnum $ slot w) ' '
+			$ objectKeys part}
 		else part'
+	
 	newParts = map change $ parts mon
 	newPartsSpace = map changeSpace $ parts mon
 	msg = name mon ++ " begin" ++ ending w 
 		++ "to use " ++ title obj ++ "!"
 	
-bindMon :: Char -> Int -> World -> World
-bindMon c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind}
+bindMon :: Slot -> Char -> Int -> World -> World
+bindMon sl c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind, slot = sl}
 
-binds :: Object -> Int -> Bool
-binds obj knd = isWeapon obj && knd == aRM ||
-				isLauncher obj && knd == aRM ||
-				isArmor obj && knd == bind obj
+binds :: Object -> Int -> Maybe Slot
+binds obj knd = 
+	if isWeapon obj && knd == aRM || isLauncher obj && knd == aRM
+	then Just WeaponSlot
+	else if isArmor obj && knd == bind obj
+	then Just ArmorSlot
+	else Nothing
 

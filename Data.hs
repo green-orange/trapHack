@@ -29,6 +29,10 @@ cYAN	   = tRAPSNUM + 6
 mAGENTA	   = tRAPSNUM + 7
 bLUE       = tRAPSNUM + 8
 
+sLOTS :: Int
+sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
+data Slot = WeaponSlot | ArmorSlot deriving (Enum, Bounded, Eq)
+
 alphabet, notAlphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z']
 notAlphabet = ['{'..]
@@ -55,7 +59,7 @@ data Part = Part {
 	kind :: Int,
 	idP :: Int,
 	regVel :: Int,
-	objectKey :: Char
+	objectKeys :: [Char]
 }
 data AI = You | AI AIfunc
 data Monster = Monster {
@@ -92,28 +96,42 @@ data Object =
 	} |
 	Missile {
 		title :: String,
-		objdmg :: StdDmg,
-		launcher :: String
+		objdmg' :: StdDmg,
+		launcher :: String,
+		enchantment :: Int
 	} |
 	Launcher {
 		title :: String,
-		count :: Int,
-		category :: String
+		count' :: Int,
+		category :: String,
+		enchantment :: Int
 	} |
 	Weapon {
 		title :: String,
-		objdmg :: StdDmg
+		objdmg' :: StdDmg,
+		enchantment :: Int
 	} |
 	Armor {
 		title :: String,
-		ac :: Int,
-		bind :: Int
+		ac' :: Int,
+		bind :: Int,
+		enchantment :: Int
 	}
+	
+objdmg :: Object -> StdDmg
+objdmg obj w = (fmap (+ enchantment obj) n, g) where
+	(n, g) = objdmg' obj w
+
+count :: Object -> Int
+count obj = count' obj + enchantment obj
+
+ac :: Object -> Int
+ac obj = ac' obj + enchantment obj
 
 instance Eq Object where
 	(Potion t _) == (Potion t' _) = t == t'
 	(Trap t _) == (Trap t' _) = t == t'
-	(Missile t _ _) == (Missile t' _ _) = t == t'
+	(Missile t _ _ _) == (Missile t' _ _ _) = t == t'
 	(Scroll t _) == (Scroll t' _) = t == t'
 	_ == _ = False
 
@@ -132,7 +150,8 @@ data World = World {
 	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
 	stepsBeforeWave :: Int,
 	prevAction :: Char,
-	shift :: Int
+	shift :: Int,
+	slot :: Slot
 }
 
 xFirst :: World -> Int
