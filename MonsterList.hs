@@ -119,8 +119,11 @@ getSoldier q = getMonster (humanoidAI stupidAI)
 	 getArm  3 $ uniform q  8 12]
 	"Soldier" (dices (1,10) 0.2) soldierInv 100
 
+c :: Float
+c = 0.28989850379988
+
 soldierInv :: InvGen
 soldierInv q = M.fromList $ zip alphabet $ flip zip [1,1..] 
 	$ uniformFromList q wEAPONS :
-	uniformFromList (frac $ q + pi) aRMOR : 
-	uniformFromList (frac $ q + 2 * pi) aRMOR : []
+	uniformFromList (frac $ 2 * q + c) aRMOR : 
+	uniformFromList (frac $ 3 * q + 2 * c) aRMOR : []

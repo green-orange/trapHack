@@ -23,13 +23,14 @@ forgottenParts :: Float -> [Int -> Part]
 forgottenParts q = rez where
 	kinds :: Float
 	kinds = fromIntegral kINDS + 1
-	qs = map (frac . (*q) . (/kinds) . fromIntegral) [0..kINDS]
+	qs = map (frac . (*2) . (+0.346738259) . (*q) . (/kinds) . fromIntegral) [0..kINDS]
 	counts = map inverseSquareRandom qs
 	partgens = join $ zipWith replicate counts $ map getPart [0..]
-	qs' = map (frac . (*q) . (/ (fromIntegral $ length partgens)) 
+	qs' = map (frac . (*2) . (+0.246895409) . (*q) 
+		. (/ (fromIntegral $ length partgens)) 
 		. fromIntegral) [0..length partgens - 1]
 	hps = map ((*10) . inverseSquareRandom) qs'
-	rez = zipWith3 (($).($)) partgens hps $ cycle $ [3, 2, 1]
+	rez = zipWith3 (($).($)) partgens (cycle [3, 2, 1]) hps
 	
 forgottenDmg :: Float -> World -> (Maybe Int, StdGen)
 forgottenDmg q = dices (cnt, dice) failProb where

@@ -164,7 +164,7 @@ wEAPONS =
 	replicate 1 sword
 
 dagger = Weapon {title = "dagger",
-	objdmg = dices (1,12) 0.0} -- avg = 6.5}
+	objdmg = dices (1,12) 0.0} -- avg = 6.5
 
 shortsword = Weapon {title = "shortsword",
 	objdmg = dices (2,8) 0.1} -- avg = 8.1

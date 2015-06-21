@@ -3,6 +3,8 @@ module Show where
 import Data
 import Parts
 import Messages
+import ObjectOverall
+import Utils4objects
 
 import UI.HSCurses.Curses
 import qualified Data.Set as S
@@ -77,26 +79,37 @@ showMessage (msg, color') (x, y) = do
 			dx = x + div dy' w
 			dy = mod dy' w
 
-draw :: World -> IO ()
-draw world = do
-	(h, _) <- scrSize
-	if action world == 'i' || action world == 'e'
-	then let
+drawInventory :: World -> Int -> IO ()
+drawInventory world h = do
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr 0 0 "Your inventory: (press Enter or Space to close it)"
+	foldl (>>) doNothing $ map showInv stringsToShow where
 		items' = M.toList $ inv $ getFirst world
+		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
+			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++
+			(if isExistingBindingFirst world c then " (is used)" else "")) items'
+		showInv :: (Int, String) -> IO ()
+		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
+
+drawEquipMenu :: World -> Int -> IO ()
+drawEquipMenu world h = do
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr 0 0 "Change an item or press - to change nothing"
+	foldl (>>) doNothing $ map showInv stringsToShow where
+		items' = filter (\(c, (obj, _)) -> binds obj knd 
+			&& not (isExistingBindingFirst world c)) $ M.toList $ inv $ getFirst world
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
 			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj) items'
 		showInv :: (Int, String) -> IO ()
 		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
-		str = 
-			if action world == 'i'
-			then "Your inventory: (press Enter or Space to close it)"
-			else "Change an item or press - to change nothing"
-		in do
-			wAttrSet stdScr (attr0, Pair dEFAULT)
-			mvWAddStr stdScr 0 0 str
-			foldl (>>) doNothing $ map showInv stringsToShow
-	else if action world == ',' || action world == 'D'
-	then let
+		knd = kind $ parts (getFirst world) !! shift world
+		
+drawPickOrDrop :: Bool -> World -> Int -> IO ()
+drawPickOrDrop isPick world h = do
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr 0 0 $ "What do you want to " ++ word 
+		++ " up? (press Enter to finish)"
+	foldl (>>) doNothing $ map (showItemsPD h $ chars world) toShow where
 		xNow = xFirst world
 		yNow = yFirst world
 		toShow =
@@ -104,47 +117,59 @@ draw world = do
 			then zip3 [0..] alphabet $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
 			else zipWith (\n (c,x) -> (n,c,x)) [0..] $ M.toList $ inv $ getFirst world 
-		word = if action world == ',' then "pick" else "drop"
-		in do
-			wAttrSet stdScr (attr0, Pair dEFAULT)
-			mvWAddStr stdScr 0 0 $ "What do you want to " ++ word 
-				++ " up? (press Enter to finish)"
-			foldl (>>) doNothing $ map (showItemsPD h $ chars world) toShow
-	else if action world == 'E'
-	then do
-		wAttrSet stdScr (attr0, Pair dEFAULT)
-		mvWAddStr stdScr 0 0 "Change your part to bind."
-		foldl (>>) doNothing $ zipWith3 (($).($)) (map (drawPartFull 1) [1..])
-			(cycle [getFirst world]) $ parts $ getFirst world
-		wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
-		mvAddCh (shift world + 1) 0 $ castEnum '>'
-	else do
-		wAttrSet stdScr (attr0, Pair dEFAULT)
-		showMessages $ message world
-		foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
-		foldl (>>) doNothing $ map (drawItem world) $ items world
-		foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
-		foldl (>>) doNothing $ zipWith3 ($) (map drawPart [0..])
-			(cycle [getFirst world]) $ sortBy (on compare kind) 
-			$ parts $ getFirst world
-		wAttrSet stdScr (attr0, Pair dEFAULT)
-		mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
-			(show $ effectiveSlowness $ getFirst world)
-		wAttrSet stdScr (attr0, Pair rED)
-		case poison $ getFirst world of
-			Nothing -> doNothing
-			Just n -> mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
-				$ "Poison (" ++ show n ++ ")"
+		word = if isPick then "pick" else "drop"
+
+drawPartChange :: World -> Int -> IO ()
+drawPartChange world _ = do
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr 0 0 "Change your part to bind."
+	foldl (>>) doNothing $ zipWith3 (($).($)) (map (drawPartFull True 1) [1..])
+		(cycle [getFirst world]) $ parts $ getFirst world
+	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
+	mvAddCh (shift world + 1) 0 $ castEnum '>'
+
+drawJustWorld :: World -> Int -> IO ()
+drawJustWorld world _ = do
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	showMessages $ message world
+	foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
+	foldl (>>) doNothing $ map (drawItem world) $ items world
+	foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
+	foldl (>>) doNothing $ zipWith3 ($) (map (drawPart False) [0..])
+		(cycle [getFirst world]) $ sortBy (on compare kind) 
+		$ parts $ getFirst world
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
+		(show $ effectiveSlowness $ getFirst world)
+	mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
+			$ "Next wave: " ++ (show $ wave world)
+	wAttrSet stdScr (attr0, Pair rED)
+	case poison $ getFirst world of
+		Nothing -> doNothing
+		Just n -> mvWAddStr stdScr (shiftDown + 2) shiftAttrs 
+			$ "Poison (" ++ show n ++ ")"
+
+draw :: World -> IO ()
+draw world = do
+	(h, _) <- scrSize
+	(case action world of 
+		'i' -> drawInventory
+		'e' -> drawEquipMenu
+		',' -> drawPickOrDrop True
+		'D' -> drawPickOrDrop False
+		'E' -> drawPartChange
+		_   -> drawJustWorld) world h
+		
 				
 redraw :: World -> IO Key
 redraw world = 
 	erase >> draw world >> refresh >> getCh
 
-drawPart :: Int -> Monster -> Part -> IO ()
-drawPart y = drawPartFull shiftRightHP $ shiftDown + y
+drawPart :: Bool -> Int -> Monster -> Part -> IO ()
+drawPart isFull y = drawPartFull isFull shiftRightHP $ shiftDown + y
 
-drawPartFull :: Int -> Int -> Monster -> Part -> IO ()
-drawPartFull x y mon part = do
+drawPartFull :: Bool -> Int -> Int -> Monster -> Part -> IO ()
+drawPartFull isFull x y mon part = do
 	wAttrSet stdScr (attr0, Pair gREEN)
 	if hp part * 3 < maxhp part * 2 || hp part <= 10
 	then wAttrSet stdScr (attr0, Pair yELLOW)
@@ -160,9 +185,12 @@ drawPartFull x y mon part = do
 	where
 		str1 = (partToStr $ kind part) ++ ":"
 		str2 = (show $ hp part) ++ "/" ++ (show $ maxhp part) ++
-			case objs of
-			Nothing -> ""
-			Just (obj,_) -> " (" ++ title obj ++ ")"
+			" rv: " ++ (show $ regVel part) ++
+			(if isFull
+			then case objs of
+				Nothing -> ""
+				Just (obj,_) -> " (" ++ title obj ++ ")"
+			else "")
 		objs = M.lookup (objectKey part) $ inv mon
 
 flatarray2line' :: Int -> [[a]] -> [(Int, Int, a)]
