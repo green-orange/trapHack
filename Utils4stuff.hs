@@ -9,6 +9,7 @@ import Parts
 import Utils4mon
 
 import System.Random (StdGen, randomR)
+import Data.Maybe (isJust, fromJust)
 import qualified Data.Set as S
 import qualified Data.Map as M
 
@@ -16,7 +17,11 @@ unrandom :: (a -> a) -> (a, x) -> (a, x)
 unrandom f (a, x) = (f a, x)
 
 cleanParts :: Monster -> Monster
-cleanParts mon = changeParts (filter aliveP $ parts mon) mon
+cleanParts mon = delEffects $ changeParts (filter aliveP $ parts mon) mon
+	where delEffects = foldr (.) id $ map (\(obj,_) -> effectOff obj 
+		$ enchantment obj) $ map fromJust $ filter isJust 
+		$ map (flip M.lookup $ inv mon) $ map (\p -> objectKeys p 
+		!! fromEnum JewelrySlot) $ filter (not . aliveP) $ parts mon
 
 upgrade :: Int -> Part -> Part
 upgrade n part = part {
@@ -92,17 +97,14 @@ safety w = w {
 	stepsBeforeWave = 2
 } 
 
-speed :: Monster -> Monster
-speed m = m {slowness = max 10 $ slowness m - 10}
-
-slow :: Monster -> Monster
-slow m = m {slowness = slowness m + 10}
+speed :: Int -> Monster -> Monster
+speed x m = m {slowness = max 10 $ slowness m - x}
 
 radiation :: Int -> Monster -> Monster
 radiation sp m = m {parts = map (\p -> p {regVel = regVel p - sp}) $ parts m}
 
 capture :: Monster -> Monster
-capture mon = mon {ai = You}
+capture mon = if canWalk mon then mon {ai = You} else mon
 
 enchantAll :: Slot -> Int -> Monster -> Monster
 enchantAll sl n mon = foldr ($) mon $ map (enchantByLetter 

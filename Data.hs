@@ -31,7 +31,9 @@ bLUE       = tRAPSNUM + 8
 
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
-data Slot = WeaponSlot | ArmorSlot deriving (Enum, Bounded, Eq)
+data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
+
+data Elem = Fire | Poison deriving (Enum, Show, Bounded)
 
 alphabet, notAlphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z']
@@ -70,7 +72,8 @@ data Monster = Monster {
 	inv :: Inv,
 	slowness :: Int,
 	time :: Int,
-	poison :: Maybe Int
+	poison :: Maybe Int,
+	res :: [Int]
 }
 
 type Terrain = Int
@@ -116,6 +119,13 @@ data Object =
 		ac' :: Int,
 		bind :: Int,
 		enchantment :: Int
+	} |
+	Jewelry {
+		title :: String,
+		enchantment :: Int,
+		bind :: Int,
+		effectOn :: Int -> Monster -> Monster,
+		effectOff :: Int -> Monster -> Monster
 	}
 	
 objdmg :: Object -> StdDmg

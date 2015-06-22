@@ -58,6 +58,11 @@ changePoison n m = m {poison = n}
 setMaxPoison :: Maybe Int -> Monster -> Monster
 setMaxPoison n m = m {poison = max n $ poison m}
 
+addRes :: Elem -> Int -> Monster -> Monster
+addRes elem' n m = m {res = changeElem pos new $ res m} where
+	pos = fromEnum elem'
+	new = res m !! pos + n
+
 {- World -}
 
 changeAction :: Char -> World -> World

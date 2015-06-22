@@ -36,6 +36,10 @@ isArmor :: Object -> Bool
 isArmor (Armor _ _ _ _) = True
 isArmor _ = False
 
+isJewelry :: Object -> Bool
+isJewelry (Jewelry _ _ _ _ _) = True
+isJewelry _ = False
+
 isExistingBinding :: Monster -> Char -> Bool
 isExistingBinding mon c = elem c $ join $ map objectKeys $ parts mon
 

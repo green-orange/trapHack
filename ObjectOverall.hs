@@ -131,7 +131,7 @@ bindFirst :: Key -> World -> (World, Bool)
 bindFirst c w = rez where
 	rez = 
 		if c == KeyChar '-'
-		then (changeMon (changeParts newPartsSpace mon) newWorld, True)
+		then (changeMon (changeParts newPartsSpace $ remEffect mon) newWorld, True)
 		else if isNothing objects
 		then (maybeAddMessage "You haven't this item!" newWorld, False)
 		else if isNothing maybeNewSlot || newSlot /= slot w
@@ -141,7 +141,7 @@ bindFirst c w = rez where
 		then (maybeAddMessage "This item is already bound to some part!"
 			newWorld, False)
 		else (addNeutralMessage msg $ changeMon 
-			(changeParts newParts mon) newWorld, True)
+			(changeParts newParts newMon) newWorld, True)
 	objects = M.lookup (fromKey c) $ inv mon
 	maybeNewSlot = binds obj $ kind part
 	Just newSlot = maybeNewSlot
@@ -159,7 +159,15 @@ bindFirst c w = rez where
 		then part' {objectKeys = changeElem (fromEnum $ slot w) ' '
 			$ objectKeys part}
 		else part'
-	
+	remEffect = 
+		case M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon of
+			Nothing -> id
+			Just (obj',_) -> effectOff obj' $ enchantment obj'
+	addEffect = 
+		if isJewelry obj
+		then effectOn obj $ enchantment obj
+		else id
+	newMon = remEffect $ addEffect mon
 	newParts = map change $ parts mon
 	newPartsSpace = map changeSpace $ parts mon
 	msg = name mon ++ " begin" ++ ending w 
@@ -174,5 +182,7 @@ binds obj knd =
 	then Just WeaponSlot
 	else if isArmor obj && knd == bind obj
 	then Just ArmorSlot
+	else if isJewelry obj && knd == bind obj
+	then Just JewelrySlot
 	else Nothing
 

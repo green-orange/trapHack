@@ -13,12 +13,14 @@ import qualified Data.Map as M
 import Data.List (sortBy)
 import Data.Function (on)
 
-shiftDown, shiftRightHP, shiftAttrs, shiftW, shiftA :: Int
+shiftDown, shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
 shiftDown = 5
 shiftRightHP = maxX + 5
 shiftAttrs = maxX + 30
+diff = 15
 shiftW = 30
-shiftA = 45
+shiftA = shiftW + diff
+shiftJ = shiftA + diff
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
@@ -81,6 +83,15 @@ showMessage (msg, color') (x, y) = do
 			dx = x + div dy' w
 			dy = mod dy' w
 
+showElemRes :: World -> Elem -> IO ()
+showElemRes world e =
+	if value == 0
+	then doNothing
+	else mvWAddStr stdScr (shiftDown + 3 + pos) shiftAttrs str where
+	pos = fromEnum e
+	value = res (getFirst world) !! pos
+	str = show e ++ " res: " ++ show value
+
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -127,10 +138,11 @@ drawPartChange world _ = do
 	mvWAddStr stdScr 0 0 "Change your part to bind."
 	mvWAddStr stdScr 0 shiftW "Weapon"
 	mvWAddStr stdScr 0 shiftA "Armor"
+	mvWAddStr stdScr 0 shiftJ "Jewelry"
 	foldl (>>) doNothing $ zipWith3 (($).($)) (map (drawPartFull True 1) [1..])
 		(cycle [getFirst world]) $ parts $ getFirst world
 	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
-	mvAddCh (shift world + 1) (15 * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
+	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
 
 drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
@@ -152,6 +164,8 @@ drawJustWorld world _ = do
 		Nothing -> doNothing
 		Just n -> mvWAddStr stdScr (shiftDown + 2) shiftAttrs 
 			$ "Poison (" ++ show n ++ ")"
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	foldl (>>) doNothing $ map (\e -> showElemRes world e) [minBound :: Elem .. maxBound :: Elem]
 
 draw :: World -> IO ()
 draw world = do
@@ -188,21 +202,26 @@ drawPartFull isFull x y mon part = do
 	mvWAddStr stdScr y (x+5) str2
 	mvWAddStr stdScr y (x+shiftW-1) strW
 	mvWAddStr stdScr y (x+shiftA-1) strA
+	mvWAddStr stdScr y (x+shiftJ-1) strJ
 	where
 		str1 = (partToStr $ kind part) ++ ":"
 		str2 = (show $ hp part) ++ "/" ++ (show $ maxhp part) ++
 			" rv: " ++ (show $ regVel part)
-		(strW, strA) =
+		(strW, strA, strJ) =
 			if isFull
 			then (case objsW of
 				Nothing -> ""
 				Just (obj,_) -> titleShow obj,
 				case objsA of
 				Nothing -> ""
+				Just (obj,_) -> titleShow obj,
+				case objsJ of
+				Nothing -> ""
 				Just (obj,_) -> titleShow obj)
-			else ("","")
+			else ("","","")
 		objsW = M.lookup (objectKeys part !! fromEnum WeaponSlot) $ inv mon
 		objsA = M.lookup (objectKeys part !! fromEnum ArmorSlot) $ inv mon
+		objsJ = M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon
 
 flatarray2line' :: Int -> [[a]] -> [(Int, Int, a)]
 flatarray2line' _ [] = []
@@ -235,13 +254,14 @@ symbolMon "Soldier"           = '@'
 symbolMon _                   = error "unknown monster"
 
 symbolItem :: Object -> Char
-symbolItem (Potion _ _)       = '!'
-symbolItem (Scroll _ _)       = '?'
-symbolItem (Wand _ _ _ _)     = '/'
-symbolItem (Trap _ _)         = '^'
-symbolItem (Missile _ _ _ _)  = ']'
-symbolItem (Weapon _ _ _)     = ')'
-symbolItem (Launcher _ _ _ _) = '}'
-symbolItem (Armor _ _ _ _)    = '['
-symbolItem _                  = error "unknown object"
+symbolItem (Potion _ _)        = '!'
+symbolItem (Scroll _ _)        = '?'
+symbolItem (Wand _ _ _ _)      = '/'
+symbolItem (Trap _ _)          = '^'
+symbolItem (Missile _ _ _ _)   = ']'
+symbolItem (Weapon _ _ _)      = ')'
+symbolItem (Launcher _ _ _ _)  = '}'
+symbolItem (Armor _ _ _ _)     = '['
+symbolItem (Jewelry _ _ _ _ _) = '='
+symbolItem _                   = error "unknown object"
 

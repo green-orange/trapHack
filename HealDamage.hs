@@ -43,6 +43,14 @@ dmgRandom :: Maybe Int -> Monster -> StdGen -> (Monster, StdGen)
 dmgRandom mbDmg mon g = (dmgPartById idNew mbDmg mon, g') where
 	(n, g') = randomR (0, (length $ parts mon) - 1) g
 	idNew = idP $ parts mon !! n
+	
+dmgRandomElem :: Elem -> Maybe Int -> Monster -> StdGen -> (Monster, StdGen)
+dmgRandomElem elem' mbDmg mon g = (dmgElemPartById elem' idNew mbDmg mon, g') where
+	(n, g') = randomR (0, (length $ parts mon) - 1) g
+	idNew = idP $ parts mon !! n
+
+dmgElemPartById :: Elem -> Int -> Maybe Int -> Monster -> Monster
+dmgElemPartById elem' a b mon = doSmthPartById (elemDmg elem' mon) a b mon
 
 dmg :: Monster -> Maybe Int -> Part -> Part
 dmg _ Nothing part = part
@@ -51,4 +59,12 @@ dmg mon (Just n) part = part {hp =
 	then 0
 	else hp part - n'
 } where n' = max 1 $ n - acPart mon part
+
+elemDmg :: Elem -> Monster -> Maybe Int -> Part -> Part
+elemDmg _ _ Nothing part = part
+elemDmg elem' mon (Just n) part = part {hp =
+	if hp part <= n'
+	then 0
+	else hp part - n'
+} where n' = max 1 $ n - res mon !! fromEnum elem'
 

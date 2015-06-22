@@ -9,7 +9,7 @@ titleShow :: Object -> String
 titleShow x = title x ++ 
 	if isWand x
 	then " (" ++ show (charge x) ++ ")"
-	else if isWeapon x || isArmor x || isLauncher x
+	else if isWeapon x || isArmor x || isLauncher x || isJewelry x
 	then " (" ++ (if enchantment x >= 0 then "+" else "") 
 		++ show (enchantment x) ++ ")"
 	else ""
@@ -114,5 +114,9 @@ msgWand title' name' =
 	prefix = if isYou then "You are " else name' ++ " is "
 	prefixPast = if isYou then "You were " else name' ++ " was "
 	end = if isYou then "" else "s"
+
+attackName :: Elem -> String
+attackName Fire = "burn"
+attackName Poison = lol
 
 

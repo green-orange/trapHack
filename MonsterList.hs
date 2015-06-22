@@ -85,7 +85,7 @@ getFloatingEye q = getMonster stupidParalysisAI
 	 getWing 1 $ uniform q  5 10]
 	"Floating eye" (dices (1,5) 0.2) (const M.empty) 200
 	
-getDragon q = getMonster (attackIfClose 3 $ stupidAI)
+getDragon q = getMonster (attackIfClose Fire 3 $ stupidAI)
 	[getBody 2 $ uniform q 10 40,
 	 getHead 2 $ uniform q 10 30,
 	 getLeg  3 $ uniform q  5 15,

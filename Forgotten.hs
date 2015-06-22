@@ -16,7 +16,7 @@ applyIf f c = if c then f else id
 forgottenAI :: Float -> AIfunc
 forgottenAI q = foldr ($) pureAI $ zipWith applyIf mODSAI bools where
 	bools = randomBools q
-	pureAI = attackIfClose dist stupidAI
+	pureAI = attackIfClose Fire dist stupidAI
 	dist = 1 + inverseSquareRandom q
 		
 forgottenParts :: Float -> [Int -> Part]

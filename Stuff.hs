@@ -9,6 +9,7 @@ import GarbageCollector
 import Parts
 import Golem
 import Utils4mon
+import Changes
 
 import System.Random
 import qualified Data.Map as M
@@ -23,9 +24,9 @@ deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
 deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
-deathDrop "Dragon" = genDeathDrop [(sCROLLS, bound [0.2, 0.4, 0.6, 0.8])]
+deathDrop "Dragon" = genDeathDrop [(rINGS, bound [0.2, 0.4, 0.6, 0.8])]
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
-deathDrop "Spider" = genDeathDrop [(wANDS, bound [0.4])]
+deathDrop "Spider" = genDeathDrop [(rINGS, bound [0.4])]
 deathDrop _ = (\p -> (M.empty, p))
 
 bound :: [Float] -> Float -> Int
@@ -117,7 +118,7 @@ wandOfStupidity ch = Wand {title = "wand of stupidity",
 	act = unrandom stupidity, range = 3, charge = ch}
 
 wandOfSpeed ch = Wand {title = "wand of speed",
-	act = unrandom speed, range = 3, charge = ch}
+	act = unrandom $ speed 10, range = 3, charge = ch}
 
 wandOfRadiation ch = Wand {title = "wand of radiation",
 	act = unrandom $ radiation 1, range = 5, charge = ch}
@@ -129,7 +130,7 @@ wandOfPoison ch = Wand {title = "wand of poison",
 	act = randPoison (1, 20), range = 5, charge = ch}
 
 wandOfSlowing ch = Wand {title = "wand of slowing",
-	act = unrandom $ slow, range = 5, charge = ch}
+	act = unrandom $ speed (-10), range = 5, charge = ch}
 
 bearTrap, fireTrap, poisonTrap, magicTrap :: Object
 
@@ -227,6 +228,24 @@ bOOTS = [lowBoot, highBoot]
 
 lowBoot = getArmor "low boot" 1 lEG
 highBoot = getArmor "high boot" 2 lEG
+
+ringOfSpeed, ringOfFireRes, ringOfPoisonRes :: Int -> Object
+
+rINGS :: [Object]
+rINGS = 
+	map ringOfSpeed     [5,10,15,20] ++
+	map ringOfFireRes   [1..3] ++
+	map ringOfPoisonRes [1..3]
+
+ringOfSpeed ench = Jewelry {title = "ring of speed", enchantment = ench,
+	bind = aRM, effectOn = speed, effectOff = \ench' -> speed (-ench')}
+
+getRingRes :: String -> Elem -> Int -> Object
+getRingRes title' elem' ench = Jewelry {title = title', enchantment = ench,
+	bind = aRM, effectOn = addRes elem', effectOff = addRes elem' . negate}
+
+ringOfFireRes = getRingRes "ring of fire resistance" Fire
+ringOfPoisonRes = getRingRes "ring of poison resistance" Poison
 
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain t = tRAPS !! (t - 1)

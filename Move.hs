@@ -6,6 +6,7 @@ import Utils4mon
 import HealDamage
 import Utils4objects
 import Parts
+import Messages
 
 import Prelude hiding (lookup)
 import qualified Data.Map as M
@@ -63,7 +64,8 @@ attack x y c world = changeMons unitsNew $ addMessage (newMsg, color)
 		(newDmg, newGen) =  dmggen world
 		newMsg = case newDmg of
 			Nothing -> (name attacker) ++ " missed!"
-			Just _ -> (name attacker) ++ " attacks " ++ (name mon) ++ "!"
+			Just _ -> (name attacker) ++ " attack" ++ (ending world) 
+				++ (name mon) ++ "!"
 		(monNew, newGen') = dmgRandom newDmg mon newGen
 		unitsNew = changeList (M.insert (x, y) monNew $ units world) $ units' world
 		
@@ -77,3 +79,25 @@ stupidestAI xPlayer yPlayer world =
 		dy = signum $ yPlayer - yNow
 		newWorld = moveFirst dx dy world
 
+attackElem :: Elem -> Int -> Int -> World -> World
+attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color) 
+	$ changeAction ' ' $ changeGen newGen' w where
+	attacker = getFirst w
+	xNow = xFirst w
+	yNow = yFirst w
+	xNew = xNow + dx
+	yNew = yNow + dy
+	mon = units w M.! (xNew, yNew)
+	color = case ai mon of
+		You -> case newDmg of
+			Nothing -> yELLOW
+			_		-> rED
+		_ -> bLUE
+	dmggen = stddmg attacker
+	(newDmg, newGen) =  dmggen w
+	newMsg = case newDmg of
+		Nothing -> (name attacker) ++ " missed!"
+		Just _ -> (name attacker) ++ " " ++ (attackName elem') 
+			++ ending w ++ (name mon) ++ "!"
+	(monNew, newGen') = dmgRandomElem elem' newDmg mon newGen
+	unitsNew = changeList (M.insert (xNew, yNew) monNew $ units w) $ units' w

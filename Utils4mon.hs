@@ -38,7 +38,8 @@ regFirst w = changeMon newMon w where
 	newMon = case poison mon of
 		Nothing -> regMonster mon
 		Just 0 -> changePoison Nothing mon
-		Just n -> changePoison (Just $ n - 1) mon
+		Just n -> changePoison (Just $ max 0 $ (-) n 
+			$ max 1 $ res mon !! fromEnum Poison) mon
 
 msgCleanParts :: Monster -> [(String, Int)]
 msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (name mon) 

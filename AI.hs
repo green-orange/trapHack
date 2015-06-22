@@ -109,10 +109,10 @@ useItemsAI f x y w = case useSomeItem objs keys of
 hunterAI :: AIfunc -> AIfunc
 hunterAI = wieldLauncherAI . fireAI
 
-attackIfClose :: Int -> AIfunc -> AIfunc
-attackIfClose dist f x y w =
+attackIfClose :: Elem -> Int -> AIfunc -> AIfunc
+attackIfClose elem' dist f x y w =
 	if abs dx <= dist && abs dy <= dist
-	then moveFirst dx dy w
+	then attackElem elem' dx dy w
 	else f x y w
 	where
 		xNow = xFirst w
