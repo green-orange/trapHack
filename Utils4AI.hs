@@ -50,7 +50,8 @@ isAttackWand :: Object -> Bool
 isAttackWand obj = isWand obj && charge obj > 0 && 
 	title obj == "wand of striking" ||
 	title obj == "wand of radiation" ||
-	title obj == "wand of poison"
+	title obj == "wand of poison" ||
+	title obj == "wand of slowing"
 
 zapAI :: World -> Char
 zapAI world = fst $ M.findMin $ M.filter (isAttackWand . fst) $ inv $ getFirst world

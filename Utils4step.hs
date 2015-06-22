@@ -8,6 +8,7 @@ import Utils4stuff
 import Wave
 import HealDamage
 import Messages
+import Colors
 
 import System.Random (StdGen, randomR)
 import Data.List (sort)

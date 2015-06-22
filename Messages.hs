@@ -3,6 +3,7 @@ module Messages where
 import Data
 import Changes
 import Utils4objects
+import Colors
 
 titleShow :: Object -> String
 
@@ -117,6 +118,7 @@ msgWand title' name' =
 
 attackName :: Elem -> String
 attackName Fire = "burn"
-attackName Poison = lol
+attackName Poison = "poison"
+attackName Cold = "freeze"
 
 

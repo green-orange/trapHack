@@ -6,6 +6,7 @@ import Step
 import Changes (clearMessage)
 import Show
 import Init
+import Colors
 
 import UI.HSCurses.Curses
 import System.Random (getStdGen)

@@ -12,8 +12,8 @@ import Forgotten
 import qualified Data.Map as M
 
 getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
-	getWorm, getFloatingEye, getDragon, getForgottenBeast, getSpider, 
-	getSoldier :: Float -> MonsterGen
+	getWorm, getFloatingEye, getRedDragon, getWhiteDragon, getGreenDragon,
+	getForgottenBeast, getSpider, getSoldier :: Float -> MonsterGen
 
 getHomunculus q = getMonster (humanoidAI stupidestAI)
 	[getBody 1 $ uniform q 10 30, 
@@ -85,14 +85,32 @@ getFloatingEye q = getMonster stupidParalysisAI
 	 getWing 1 $ uniform q  5 10]
 	"Floating eye" (dices (1,5) 0.2) (const M.empty) 200
 	
-getDragon q = getMonster (attackIfClose Fire 3 $ stupidAI)
+getRedDragon q = getMonster (attackIfClose Fire 3 $ stupidAI)
 	[getBody 2 $ uniform q 10 40,
 	 getHead 2 $ uniform q 10 30,
-	 getLeg  3 $ uniform q  5 15,
-	 getLeg  3 $ uniform q  5 15,
+	 getLeg  1 $ uniform q  5 15,
+	 getLeg  1 $ uniform q  5 15,
 	 getWing 3 $ uniform q  5 15,
 	 getWing 3 $ uniform q  5 15]
-	"Dragon" (dices (3,4) 0.2) (const M.empty) 120
+	"Red dragon" (dices (3,4) 0.2) (const M.empty) 120
+
+getWhiteDragon q = getMonster (attackIfClose Cold 3 $ stupidAI)
+	[getBody 2 $ uniform q 10 40,
+	 getHead 2 $ uniform q 10 30,
+	 getLeg  1 $ uniform q  5 15,
+	 getLeg  1 $ uniform q  5 15,
+	 getWing 3 $ uniform q 10 20,
+	 getWing 3 $ uniform q 10 20]
+	"White dragon" (dices (4,5) 0.2) (const M.empty) 200
+	
+getGreenDragon q = getMonster (attackIfClose Poison 3 $ stupidAI)
+	[getBody 2 $ uniform q 10 40,
+	 getHead 2 $ uniform q 10 30,
+	 getLeg  1 $ uniform q 10 20,
+	 getLeg  1 $ uniform q 10 20,
+	 getWing 3 $ uniform q 10 30,
+	 getWing 3 $ uniform q 10 30]
+	"Green dragon" (dices (2,5) 0.2) (const M.empty) 80
 	
 getForgottenBeast q = getMonster (forgottenAI q) (forgottenParts q)
 	"Forgotten beast" (forgottenDmg q) forgottenInv (forgottenSlowness q)

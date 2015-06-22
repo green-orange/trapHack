@@ -5,10 +5,10 @@ import Parts
 import Messages
 import ObjectOverall
 import Utils4objects
+import Colors
 
 import UI.HSCurses.Curses
 import qualified Data.Set as S
-import Data.Maybe
 import qualified Data.Map as M
 import Data.List (sortBy)
 import Data.Function (on)
@@ -17,7 +17,7 @@ shiftDown, shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
 shiftDown = 5
 shiftRightHP = maxX + 5
 shiftAttrs = maxX + 30
-diff = 15
+diff = 20
 shiftW = 30
 shiftA = shiftW + diff
 shiftJ = shiftA + diff
@@ -25,30 +25,16 @@ shiftJ = shiftA + diff
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
 
-initColors :: IO ()
-initColors = do
-	initPair (Pair eMPTY)      (defaultForeground)          (defaultBackground)
-	initPair (Pair bEARTRAP)   (defaultForeground)          (fromJust $ color "yellow")
-	initPair (Pair fIRETRAP)   (defaultForeground)          (fromJust $ color "red")
-	initPair (Pair pOISONTRAP) (defaultForeground)          (fromJust $ color "cyan")
-	initPair (Pair mAGICTRAP)  (defaultForeground)          (fromJust $ color "magenta")
-	initPair (Pair dEFAULT)    (defaultForeground)          (defaultBackground)
-	initPair (Pair gREEN)      (fromJust $ color "green")   (defaultBackground)
-	initPair (Pair yELLOW)     (fromJust $ color "yellow")  (defaultBackground)
-	initPair (Pair rED)        (fromJust $ color "red")     (defaultBackground)
-	initPair (Pair rEDiNVERSE) (fromJust $ color "red")     (fromJust $ color "white")
-	initPair (Pair cYAN)       (fromJust $ color "cyan")    (defaultBackground)
-	initPair (Pair mAGENTA)    (fromJust $ color "magenta") (defaultBackground)
-	initPair (Pair bLUE)       (fromJust $ color "blue")    (defaultBackground)
-
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
 drawUnit world ((x, y), mon) = do
-	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
-	mvAddCh (y + shiftDown) x $ castEnum $ symbolMon $ name mon where
+	wAttrSet stdScr (attr, Pair $ back + color' - 8)
+	mvAddCh (y + shiftDown) x $ castEnum sym where
 		attr = 
 			if x == xFirst world && y == yFirst world
 			then setStandout attr0 True
 			else attr0
+		(sym, color') = symbolMon $ name mon
+		back = worldmap world !! x !! y
 
 drawCell :: World -> (Int, Int, Terrain) -> IO ()
 drawCell world (x, y, _) = do
@@ -230,28 +216,6 @@ flatarray2line' start (x:xs) = (zip3 [start, start..] [0, 1..] x)
 
 flatarray2line :: [[a]] -> [(Int, Int, a)]
 flatarray2line = flatarray2line' 0
-
-symbolMon :: String -> Char
-symbolMon "You"               = '@'
-symbolMon "Homunculus"        = 'h'
-symbolMon "Beetle"            = 'a'
-symbolMon "Bat"               = 'B'
-symbolMon "Hunter"            = 'H'
-symbolMon "Ivy"               = 'I'
-symbolMon "Dummy"             = '&'
-symbolMon "Garbage collector" = 'G'
-symbolMon "Accelerator"       = 'A'
-symbolMon "Troll"             = 'T'
-symbolMon "Rock"              = '#'
-symbolMon "Tail"              = '~'
-symbolMon "Worm"              = 'w'
-symbolMon "Golem"             = 'g'
-symbolMon "Floating eye"      = 'e'
-symbolMon "Dragon"            = 'D'
-symbolMon "Forgotten beast"   = 'X'
-symbolMon "Spider"            = 's'
-symbolMon "Soldier"           = '@'
-symbolMon _                   = error "unknown monster"
 
 symbolItem :: Object -> Char
 symbolItem (Potion _ _)        = '!'

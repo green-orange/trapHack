@@ -5,6 +5,7 @@ import Changes
 import HealDamage
 import Parts
 import Messages
+import Colors
 
 import System.Random (StdGen, randomR)
 

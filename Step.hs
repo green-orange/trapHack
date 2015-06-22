@@ -9,6 +9,7 @@ import Changes
 import Utils4mon
 import Messages
 import Utils4objects
+import Colors
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)

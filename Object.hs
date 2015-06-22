@@ -9,6 +9,7 @@ import Messages
 import Utils4objects
 import Parts
 import Utils4mon
+import Colors
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, isJust, fromJust)

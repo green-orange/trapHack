@@ -10,6 +10,7 @@ import Parts
 import Golem
 import Utils4mon
 import Changes
+import Colors
 
 import System.Random
 import qualified Data.Map as M
@@ -24,10 +25,15 @@ deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
 deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
 deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
-deathDrop "Dragon" = genDeathDrop [(rINGS, bound [0.2, 0.4, 0.6, 0.8])]
+deathDrop "Red dragon" = dragonDrop
+deathDrop "White dragon" = dragonDrop
+deathDrop "Green dragon" = dragonDrop
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
 deathDrop "Spider" = genDeathDrop [(rINGS, bound [0.4])]
 deathDrop _ = (\p -> (M.empty, p))
+
+dragonDrop :: StdGen -> (Inv, StdGen)
+dragonDrop = genDeathDrop [(rINGS, bound [0.2, 0.4, 0.6, 0.8])]
 
 bound :: [Float] -> Float -> Int
 bound list' p = bound' list' p 0 where
@@ -248,5 +254,10 @@ ringOfFireRes = getRingRes "ring of fire resistance" Fire
 ringOfPoisonRes = getRingRes "ring of poison resistance" Poison
 
 trapFromTerrain :: Terrain -> Object
-trapFromTerrain t = tRAPS !! (t - 1)
+trapFromTerrain x = 
+	if x == bEARTRAP then bearTrap
+	else if x == fIRETRAP then fireTrap
+	else if x == pOISONTRAP then poisonTrap
+	else if x == mAGICTRAP then magicTrap
+	else error "unknown trap"
  

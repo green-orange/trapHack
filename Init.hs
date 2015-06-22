@@ -3,7 +3,8 @@ module Init where
 import Data
 import Parts
 import Random
---import Stuff
+import Colors
+import Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S
@@ -30,7 +31,7 @@ initUnits = Units {
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {
-	worldmap = replicate (1 + maxX) $ replicate (1 + maxY) 0,
+	worldmap = replicate (1 + maxX) $ replicate (1 + maxY) eMPTY,
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
 	message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],
@@ -58,7 +59,7 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
-	inv = M.empty,
+	inv = M.fromList [('a', (fireTrap, 1)),('b',(bearTrap,1)),('c',(poisonTrap,1)),('d',(magicTrap,1))],
 	slowness = 100,
 	time = 100,
 	poison = Nothing,

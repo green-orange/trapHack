@@ -11,29 +11,11 @@ maxX, maxY :: Int
 maxX = 39
 maxY = 19
 
-eMPTY, bEARTRAP, fIRETRAP, pOISONTRAP, tRAPSNUM, mAGICTRAP :: Int
-eMPTY      = 0
-bEARTRAP   = 1
-fIRETRAP   = 2
-pOISONTRAP = 3
-mAGICTRAP  = 4
-tRAPSNUM = mAGICTRAP
-
-dEFAULT, gREEN, yELLOW, rED, rEDiNVERSE, cYAN, mAGENTA, bLUE :: Int
-dEFAULT	   = tRAPSNUM + 1
-gREEN	   = tRAPSNUM + 2
-yELLOW	   = tRAPSNUM + 3
-rED 	   = tRAPSNUM + 4
-rEDiNVERSE = tRAPSNUM + 5
-cYAN	   = tRAPSNUM + 6
-mAGENTA	   = tRAPSNUM + 7
-bLUE       = tRAPSNUM + 8
-
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
 
-data Elem = Fire | Poison deriving (Enum, Show, Bounded)
+data Elem = Fire | Poison | Cold deriving (Enum, Show, Bounded)
 
 alphabet, notAlphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z']

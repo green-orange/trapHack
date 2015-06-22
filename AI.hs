@@ -9,6 +9,7 @@ import Utils4AI
 import Parts
 import Monsters
 import Utils4mon
+import Colors
 
 import System.Random (randomR)
 import Data.Maybe (fromJust, isNothing)

@@ -7,6 +7,7 @@ import Move (stupidestAI)
 import HealDamage
 import Parts
 import Utils4mon
+import Colors
 
 import System.Random (StdGen, randomR)
 import Data.Maybe (isJust, fromJust)

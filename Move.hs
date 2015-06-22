@@ -7,6 +7,7 @@ import HealDamage
 import Utils4objects
 import Parts
 import Messages
+import Colors
 
 import Prelude hiding (lookup)
 import qualified Data.Map as M

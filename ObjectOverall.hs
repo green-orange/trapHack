@@ -6,6 +6,7 @@ import Utils4mon
 import Messages
 import Utils4objects
 import Parts
+import Colors
 
 import Control.Monad ((>=>))
 import qualified Data.Set as S
