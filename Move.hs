@@ -9,24 +9,28 @@ import Parts
 import Messages
 import Colors
 
-import Prelude hiding (lookup)
 import qualified Data.Map as M
 import Data.Maybe (fromJust, isNothing)
+import System.Random (randomR)
 
 moveFirst :: Int -> Int -> World -> World
 moveFirst dx dy world =
 	if (isEmpty world xnew ynew) || (dx == 0 && dy == 0) || (rez == Nothing)
 	then
-		if (name mon) /= "You" && not (isFlying mon) && worldmap world !! x !! y == bEARTRAP
+		if (name mon) /= "You" && not (isFlying mon) 
+			&& worldmap world !! x !! y == bEARTRAP
 		then world
-		else
-			changeMoveFirst xnew ynew $ addMessage (newMessage, yELLOW) $ world
+		else changeGen g'' $ changeMoveFirst xnew ynew 
+			$ addMessage (newMessage, yELLOW) $ world
 	else attacks xnew ynew world $ map (\p -> objectKeys p !! fromEnum WeaponSlot) 
 		$ filter isUpperLimb $ parts $ getFirst world
 	where
 		x = xFirst world
 		y = yFirst world
-		rez = dirs world (x, y, dx, dy)
+		rez = 
+			if q <= tele
+			then Just (xR, yR)
+			else dirs world (x, y, dx, dy)
 		(xnew, ynew, newMessage) =
 			if rez == Nothing
 			then
@@ -36,6 +40,10 @@ moveFirst dx dy world =
 			else (xnew', ynew', "") where
 				Just (xnew', ynew') = rez
 		mon = getFirst world
+		tele = intr mon !! fromEnum Teleport
+		(q, g) = randomR (1, 100) $ stdgen world
+		(xR, g') = randomR (0, maxX) g
+		(yR, g'') = randomR (0, maxY) g'
 
 attacks :: Int -> Int -> World -> [Char] -> World
 attacks x y world links = foldr ($) world $ map (\c w -> attack x y c w) $ links

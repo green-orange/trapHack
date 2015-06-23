@@ -16,6 +16,7 @@ sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
 
 data Elem = Fire | Poison | Cold deriving (Enum, Show, Bounded)
+data Intr = Teleport deriving (Enum, Show, Bounded)
 
 alphabet, notAlphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z']
@@ -55,7 +56,8 @@ data Monster = Monster {
 	slowness :: Int,
 	time :: Int,
 	poison :: Maybe Int,
-	res :: [Int]
+	res :: [Int],
+	intr :: [Int]
 }
 
 type Terrain = Int

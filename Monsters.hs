@@ -18,7 +18,8 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	slowness = slow',
 	time = slow',
 	poison = Nothing,
-	res = [0,0..]
+	res = [0,0..],
+	intr = [0,0..]
 }, newGen) where
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g

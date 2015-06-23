@@ -29,11 +29,11 @@ deathDrop "Red dragon" = dragonDrop
 deathDrop "White dragon" = dragonDrop
 deathDrop "Green dragon" = dragonDrop
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
-deathDrop "Spider" = genDeathDrop [(rINGS, bound [0.4])]
+deathDrop "Spider" = genDeathDrop [(jEWELRY, bound [0.6])]
 deathDrop _ = (\p -> (M.empty, p))
 
 dragonDrop :: StdGen -> (Inv, StdGen)
-dragonDrop = genDeathDrop [(rINGS, bound [0.2, 0.4, 0.6, 0.8])]
+dragonDrop = genDeathDrop [(jEWELRY, bound [0.4])]
 
 bound :: [Float] -> Float -> Int
 bound list' p = bound' list' p 0 where
@@ -235,9 +235,10 @@ bOOTS = [lowBoot, highBoot]
 lowBoot = getArmor "low boot" 1 lEG
 highBoot = getArmor "high boot" 2 lEG
 
-ringOfSpeed, ringOfFireRes, ringOfPoisonRes :: Int -> Object
+jEWELRY, rINGS, aMULETS :: [Object]
+jEWELRY = rINGS ++ aMULETS
 
-rINGS :: [Object]
+ringOfSpeed, ringOfFireRes, ringOfPoisonRes :: Int -> Object
 rINGS = 
 	map ringOfSpeed     [5,10,15,20] ++
 	map ringOfFireRes   [1..3] ++
@@ -252,6 +253,16 @@ getRingRes title' elem' ench = Jewelry {title = title', enchantment = ench,
 
 ringOfFireRes = getRingRes "ring of fire resistance" Fire
 ringOfPoisonRes = getRingRes "ring of poison resistance" Poison
+
+amuletOfTeleportation :: Int -> Object
+aMULETS = 
+	map amuletOfTeleportation [3,6..18]
+
+getIntrAmulet :: String -> Intr -> Int -> Object
+getIntrAmulet title' intr' ench = Jewelry {title = title', enchantment = ench,
+	bind = hEAD, effectOn = addIntr intr', effectOff = addIntr intr' . negate}
+
+amuletOfTeleportation = getIntrAmulet "amulet of teleportation" Teleport
 
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain x = 

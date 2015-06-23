@@ -4,7 +4,7 @@ import Data
 import Parts
 import Random
 import Colors
-import Stuff
+--import Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S
@@ -59,9 +59,11 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
-	inv = M.fromList [('a', (fireTrap, 1)),('b',(bearTrap,1)),('c',(poisonTrap,1)),('d',(magicTrap,1))],
+	--inv = M.fromList [('a', (amuletOfTeleportation 50, 1))],
+	inv = M.empty,
 	slowness = 100,
 	time = 100,
 	poison = Nothing,
-	res = [0,0..]
+	res = [0,0..],
+	intr = [0,0..]
 }

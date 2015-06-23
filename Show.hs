@@ -78,6 +78,16 @@ showElemRes world e =
 	value = res (getFirst world) !! pos
 	str = show e ++ " res: " ++ show value
 
+showIntr :: World -> Intr -> IO ()
+showIntr world i = 
+	if value == 0
+	then doNothing
+	else mvWAddStr stdScr (shiftDown + 4 + elems + pos) shiftAttrs str where
+	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
+	pos = fromEnum i
+	value = intr (getFirst world) !! pos
+	str = show i ++ ": " ++ show value
+
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -151,7 +161,8 @@ drawJustWorld world _ = do
 		Just n -> mvWAddStr stdScr (shiftDown + 2) shiftAttrs 
 			$ "Poison (" ++ show n ++ ")"
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	foldl (>>) doNothing $ map (\e -> showElemRes world e) [minBound :: Elem .. maxBound :: Elem]
+	foldl (>>) doNothing $ map (showElemRes world) [minBound :: Elem .. maxBound :: Elem]
+	foldl (>>) doNothing $ map (showIntr world) [minBound :: Intr .. maxBound :: Intr]
 
 draw :: World -> IO ()
 draw world = do

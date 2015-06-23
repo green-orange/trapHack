@@ -63,6 +63,11 @@ addRes elem' n m = m {res = changeElem pos new $ res m} where
 	pos = fromEnum elem'
 	new = res m !! pos + n
 
+addIntr :: Intr -> Int -> Monster -> Monster
+addIntr intr' n m = m {intr = changeElem pos new $ intr m} where
+	pos = fromEnum intr'
+	new = intr m !! pos + n
+
 {- World -}
 
 changeAction :: Char -> World -> World
