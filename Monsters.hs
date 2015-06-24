@@ -17,9 +17,9 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	inv = inv' p,
 	slowness = slow',
 	time = slow',
-	poison = Nothing,
-	res = [0,0..],
-	intr = [0,0..]
+	res = map (const 0) [minBound :: Elem .. maxBound :: Elem],
+	intr = map (const 0) [minBound :: Intr .. maxBound :: Intr],
+	temp = map (const Nothing) [minBound :: Temp .. maxBound :: Temp]
 }, newGen) where
 	p :: Float
 	(p, newGen) = randomR (0.0, 1.0) g

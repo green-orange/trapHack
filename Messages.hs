@@ -118,7 +118,7 @@ msgWand title' name' =
 
 attackName :: Elem -> String
 attackName Fire = "burn"
-attackName Poison = "poison"
+attackName Poison' = "poison"
 attackName Cold = "freeze"
 
 

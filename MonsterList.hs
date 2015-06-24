@@ -103,7 +103,7 @@ getWhiteDragon q = getMonster (attackIfClose Cold 3 $ stupidAI)
 	 getWing 3 $ uniform q 10 20]
 	"White dragon" (dices (4,5) 0.2) (const M.empty) 200
 	
-getGreenDragon q = getMonster (attackIfClose Poison 3 $ stupidAI)
+getGreenDragon q = getMonster (attackIfClose Poison' 3 $ stupidAI)
 	[getBody 2 $ uniform q 10 40,
 	 getHead 2 $ uniform q 10 30,
 	 getLeg  1 $ uniform q 10 20,
@@ -137,11 +137,9 @@ getSoldier q = getMonster (humanoidAI stupidAI)
 	 getArm  3 $ uniform q  8 12]
 	"Soldier" (dices (1,10) 0.2) soldierInv 100
 
-c :: Float
-c = 0.28989850379988
-
 soldierInv :: InvGen
 soldierInv q = M.fromList $ zip alphabet $ flip zip [1,1..] 
 	$ uniformFromList q wEAPONS :
 	uniformFromList (frac $ 2 * q + c) aRMOR : 
-	uniformFromList (frac $ 3 * q + 2 * c) aRMOR : []
+	uniformFromList (frac $ 3 * q + 2 * c) aRMOR : [] where
+	c = 0.28989850379988

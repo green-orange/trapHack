@@ -66,8 +66,8 @@ newWaveIf world =
 		newWorld = cycleWorld world
 		
 cycleWorld :: World -> World
-cycleWorld w = actTrapFirst $ regFirst $ cleanFirst $ changeMons newUnits 
-	$ addMessages (msgCleanParts monNew) newWorld where
+cycleWorld w = tempFirst $ actTrapFirst $ regFirst $ cleanFirst 
+	$ changeMons newUnits $ addMessages (msgCleanParts monNew) newWorld where
 		newUnits = (units' newWorld) {
 			xF = x,
 			yF = y,
@@ -90,6 +90,16 @@ coordsPlayer w =
 	else fst $ head yous
 	where
 		yous = filter (\q -> (name (snd q) == "You")) $ M.toList $ units w
+
+tempFirst :: World -> World
+tempFirst w = changeMon newMon w where
+	mon = getFirst w
+	newMon = mon {temp = map decMaybe $ temp mon}
+
+decMaybe :: Maybe Int -> Maybe Int
+decMaybe Nothing = Nothing
+decMaybe (Just 0) = Nothing
+decMaybe (Just n) = Just $ n - 1
 
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
 addDeathDrop mon g = (changeInv (M.union (inv mon) newDrop) mon, newGen) where

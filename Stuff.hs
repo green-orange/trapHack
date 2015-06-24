@@ -252,7 +252,7 @@ getRingRes title' elem' ench = Jewelry {title = title', enchantment = ench,
 	bind = aRM, effectOn = addRes elem', effectOff = addRes elem' . negate}
 
 ringOfFireRes = getRingRes "ring of fire resistance" Fire
-ringOfPoisonRes = getRingRes "ring of poison resistance" Poison
+ringOfPoisonRes = getRingRes "ring of poison resistance" Poison'
 
 amuletOfTeleportation :: Int -> Object
 aMULETS = 

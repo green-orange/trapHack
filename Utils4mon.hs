@@ -36,11 +36,10 @@ regMonster mon = changeParts (map regPart $ parts mon) mon
 regFirst :: World -> World
 regFirst w = changeMon newMon w where
 	mon = getFirst w
-	newMon = case poison mon of
+	newMon = case temp mon !! fromEnum Poison of
 		Nothing -> regMonster mon
-		Just 0 -> changePoison Nothing mon
-		Just n -> changePoison (Just $ max 0 $ (-) n 
-			$ max 1 $ res mon !! fromEnum Poison) mon
+		Just n -> changeTemp Poison (Just $ max 0 $ (-) n 
+			$ res mon !! fromEnum Poison') mon
 
 msgCleanParts :: Monster -> [(String, Int)]
 msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (name mon) 
@@ -63,5 +62,5 @@ canWalk m = notElem (name m) ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
 randPoison :: (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
 randPoison bounds (mon, g) = (newMon, g') where
 	(duration, g') = randomR bounds g
-	newMon = setMaxPoison (Just duration) mon
+	newMon = setMaxTemp Poison (Just duration) mon
 	

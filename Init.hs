@@ -62,7 +62,7 @@ getPlayer = Monster {
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
-	poison = Nothing,
-	res = [0,0..],
-	intr = [0,0..]
+	res = map (const 0) [minBound :: Elem .. maxBound :: Elem],
+	intr = map (const 0) [minBound :: Intr .. maxBound :: Intr],
+	temp = map (const Nothing) [minBound :: Temp .. maxBound :: Temp]
 }

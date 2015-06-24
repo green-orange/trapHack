@@ -122,7 +122,7 @@ poisonByCoords durs dx dy w = changeGen g $ changeMons newMons w where
 	maybeMon = M.lookup (xNew, yNew) $ units w
 	newMons = case maybeMon of
 		Nothing -> units' w
-		Just mon -> insertU (xNew, yNew) (setMaxPoison (Just dur) mon) 
+		Just mon -> insertU (xNew, yNew) (setMaxTemp Poison (Just dur) mon) 
 			$ units' w
 
 

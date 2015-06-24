@@ -99,7 +99,7 @@ safety w = w {
 } 
 
 speed :: Int -> Monster -> Monster
-speed x m = m {slowness = max 10 $ slowness m - x}
+speed x m = m {slowness = slowness m - x}
 
 radiation :: Int -> Monster -> Monster
 radiation sp m = m {parts = map (\p -> p {regVel = regVel p - sp}) $ parts m}

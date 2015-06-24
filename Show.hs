@@ -73,7 +73,7 @@ showElemRes :: World -> Elem -> IO ()
 showElemRes world e =
 	if value == 0
 	then doNothing
-	else mvWAddStr stdScr (shiftDown + 3 + pos) shiftAttrs str where
+	else mvWAddStr stdScr (shiftDown + 2 + pos) shiftAttrs str where
 	pos = fromEnum e
 	value = res (getFirst world) !! pos
 	str = show e ++ " res: " ++ show value
@@ -82,11 +82,24 @@ showIntr :: World -> Intr -> IO ()
 showIntr world i = 
 	if value == 0
 	then doNothing
-	else mvWAddStr stdScr (shiftDown + 4 + elems + pos) shiftAttrs str where
+	else mvWAddStr stdScr (shiftDown + 3 + elems + pos) shiftAttrs str where
 	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
 	pos = fromEnum i
 	value = intr (getFirst world) !! pos
 	str = show i ++ ": " ++ show value
+
+showTemp :: World -> Temp -> IO ()
+showTemp world t = 
+	case value of
+	Nothing -> doNothing
+	_ -> mvWAddStr stdScr (shiftDown + 4 + elems + intrs + pos) shiftAttrs str
+	where
+	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
+	intrs = fromEnum (maxBound :: Intr) - fromEnum (minBound :: Intr)
+	pos = fromEnum t
+	value = temp (getFirst world) !! pos
+	Just rez = value
+	str = show t ++ " (" ++ show rez ++ ")"
 
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
@@ -156,13 +169,10 @@ drawJustWorld world _ = do
 	mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
 			$ "Next wave: " ++ (show $ wave world)
 	wAttrSet stdScr (attr0, Pair rED)
-	case poison $ getFirst world of
-		Nothing -> doNothing
-		Just n -> mvWAddStr stdScr (shiftDown + 2) shiftAttrs 
-			$ "Poison (" ++ show n ++ ")"
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	foldl (>>) doNothing $ map (showElemRes world) [minBound :: Elem .. maxBound :: Elem]
 	foldl (>>) doNothing $ map (showIntr world) [minBound :: Intr .. maxBound :: Intr]
+	foldl (>>) doNothing $ map (showTemp world) [minBound :: Temp .. maxBound :: Temp]
 
 draw :: World -> IO ()
 draw world = do

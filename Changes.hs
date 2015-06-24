@@ -52,12 +52,6 @@ decChargeByKey :: Char -> Monster -> Monster
 decChargeByKey c m = changeInv newInv m where
 	newInv = M.adjust (\(o, n) -> (decCharge o, n)) c $ inv m
 
-changePoison :: Maybe Int -> Monster -> Monster
-changePoison n m = m {poison = n}
-
-setMaxPoison :: Maybe Int -> Monster -> Monster
-setMaxPoison n m = m {poison = max n $ poison m}
-
 addRes :: Elem -> Int -> Monster -> Monster
 addRes elem' n m = m {res = changeElem pos new $ res m} where
 	pos = fromEnum elem'
@@ -67,6 +61,15 @@ addIntr :: Intr -> Int -> Monster -> Monster
 addIntr intr' n m = m {intr = changeElem pos new $ intr m} where
 	pos = fromEnum intr'
 	new = intr m !! pos + n
+
+changeTemp:: Temp -> Maybe Int -> Monster -> Monster
+changeTemp temp' n m = m {temp = changeElem pos n $ temp m} where
+	pos = fromEnum temp'
+
+setMaxTemp :: Temp -> Maybe Int -> Monster -> Monster
+setMaxTemp temp' n m = changeTemp temp' (max n old) m where
+	pos = fromEnum temp'
+	old = temp m !! pos
 
 {- World -}
 
