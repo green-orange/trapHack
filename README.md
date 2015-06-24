@@ -20,3 +20,4 @@ d - **d**rop one item
 D - **d**rop many items  
 , - pick  
 Q - **q**uit  
+C - **c**all upon the new wave  

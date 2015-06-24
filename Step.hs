@@ -74,6 +74,10 @@ step world c =
 				_ -> Left world
 			'e' ->
 				doIfCorrect $ bindFirst c world
+			'C' ->
+				if c == KeyChar 'y' || c == KeyChar 'Y'
+				then Left $ callUpon world
+				else Left $ changeAction ' ' world
 			_ -> Left $ addMessage ("You are cheater!", mAGENTA) 
 				$ changeAction ' ' world
 		else
@@ -132,5 +136,8 @@ justStep world c = case dir c of
 			Left $ changeAction 'i' world
 		KeyChar ',' ->
 			Left $ changeAction ',' world
+		KeyChar 'C' ->
+			Left $ changeAction 'C' $ addDefaultMessage
+				"Do you really want to call upon the next wave? (y/N)" world
 		_  ->
 			Left $ addMessage ("Unknown action!", yELLOW) world

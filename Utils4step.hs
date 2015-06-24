@@ -58,9 +58,7 @@ newWaveIf world =
 		then newWorld
 			{stepsBeforeWave = stepsBeforeWave world - 1}
 		else if stepsBeforeWave world == 0
-		then (changeAction ' ' $ addMessage ("Squad #" 
-			++ show (wave world) ++ " landed around you!", rED) 
-			$ newWave $ newWorld) {stepsBeforeWave = -1}
+		then callUpon world
 		else newWorld {stepsBeforeWave = wait $ wave world}
 	where
 		newWorld = cycleWorld world
@@ -142,3 +140,10 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 			(newMon', g'') = act obj (mon, g')
 			in ((newMon', g''), msgWand (title obj) (name mon))
 		else ((mon, stdgen w), "")
+
+callUpon :: World -> World
+callUpon w = changeAction ' ' $ addMessage ("Squad #" 
+	++ show (wave w) ++ " landed around you!", rED) 
+	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
+
+

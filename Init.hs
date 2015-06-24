@@ -4,7 +4,7 @@ import Data
 import Parts
 import Random
 import Colors
-import Stuff
+--import Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S
@@ -59,8 +59,7 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
-	inv = M.singleton 'a' (wandOfStun 5, 1),
-	--inv = M.empty,
+	inv = M.empty,
 	slowness = 100,
 	time = 100,
 	res = map (const 0) [minBound :: Elem .. maxBound :: Elem],
