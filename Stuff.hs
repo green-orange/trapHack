@@ -106,7 +106,8 @@ kabbalisticScroll = Scroll {title = "Kabbalistic scroll",
 	actw = spawnGolemsAround}
 
 wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation, 
-	wandOfPsionicBlast, wandOfPoison, wandOfSlowing :: Int -> Object
+	wandOfPsionicBlast, wandOfPoison, wandOfSlowing, wandOfStun 
+	:: Int -> Object
 
 wANDS :: [Object]
 wANDS =
@@ -115,7 +116,8 @@ wANDS =
 	map wandOfSpeed        [1..2] ++
 	map wandOfRadiation    [1..3] ++
 	map wandOfPsionicBlast [1..2] ++
-	map wandOfSlowing      [1..5]
+	map wandOfSlowing      [1..5] ++
+	map wandOfStun         [1..4]
 
 wandOfStriking ch = Wand {title = "wand of striking",
 	act = unrandom $ dmgAll $ Just 10, range = 5, charge = ch}
@@ -133,10 +135,13 @@ wandOfPsionicBlast ch = Wand {title = "wand of psionic blast",
 	act = unrandom $ capture, range = 2, charge = ch}
 
 wandOfPoison ch = Wand {title = "wand of poison",
-	act = randPoison (1, 20), range = 5, charge = ch}
+	act = randTemp Poison (1, 20), range = 5, charge = ch}
 
 wandOfSlowing ch = Wand {title = "wand of slowing",
 	act = unrandom $ speed (-10), range = 5, charge = ch}
+
+wandOfStun ch = Wand {title = "wand of stun", act = randTemp Stun (1, 10),
+	range = 3, charge = ch}
 
 bearTrap, fireTrap, poisonTrap, magicTrap :: Object
 

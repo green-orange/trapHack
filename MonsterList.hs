@@ -25,8 +25,12 @@ getHomunculus q = getMonster (humanoidAI stupidestAI)
 	"Homunculus" (dices (2,4) 0.4)
 	(\p ->
 		if p <= 0.1
-		then M.singleton 'a' (wandOfStriking 1, 1)
+		then M.singleton 'a' (wandForHom q 1, 1)
 		else M.empty) 100
+
+wandForHom :: Float -> (Int -> Object)
+wandForHom = flip uniformFromList [wandOfPoison, wandOfSlowing, 
+	wandOfSpeed, wandOfStriking, wandOfStun]
 
 getBeetle q = getMonster stupidAI
 	[getBody 1 $ uniform q 10 20,

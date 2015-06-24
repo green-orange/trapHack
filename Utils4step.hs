@@ -131,7 +131,7 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 			then "You are in fire!"
 			else name mon ++ " is in fire!")
 		else if trap == pOISONTRAP
-		then (randPoison (5, 15) (mon, stdgen w),
+		then (randTemp Poison (5, 15) (mon, stdgen w),
 			if name mon == "You"
 			then "You were poisoned!"
 			else name mon ++ " was poisoned!")

@@ -10,15 +10,17 @@ import Utils4mon
 import Messages
 import Utils4objects
 import Colors
+import AI (randomAI)
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)
+import Data.Maybe (isJust)
 
 step :: World -> Key -> Either World String
 step world c =
-	if alive $ getFirst world
+	if alive mon
 	then
-		if isPlayerNow world
+		if isPlayerNow world && not stun
 		then case action world of
 			' ' -> justStep world c
 			'q' ->
@@ -78,14 +80,16 @@ step world c =
 			let newMWorld = aiNow x y world
 			in Left $ newWaveIf newMWorld
 	else
-		if (name $ getFirst world) == "You"
+		if name mon == "You"
 		then Right $ "You died on the " ++ numToStr (wave world - 1) ++ " wave."
 		else
-			let (deadMonster, newStdGen) = addDeathDrop (getFirst world) (stdgen world)
+			let (deadMonster, newStdGen) = addDeathDrop (mon) (stdgen world)
 			in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
-				$ addMessage (name (getFirst world) ++ " die!", cYAN) world
+				$ addMessage (name mon ++ " die!", cYAN) world
 	where
-		AI aiNow = ai $ getFirst world
+		stun = isJust $ temp mon !! fromEnum Stun
+		mon = getFirst world
+		AI aiNow = if stun then AI randomAI else ai mon
 		(x, y) = coordsPlayer world
 		
 justStep :: World -> Key -> Either World String

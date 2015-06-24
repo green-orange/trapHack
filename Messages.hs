@@ -109,6 +109,7 @@ msgWand title' name' =
 			" that " ++ (if isYou then "your" else "its") ++ " brains melt!"
 		"wand of poison" -> prefixPast ++ "poisoned!"
 		"wand of slowing" -> prefix ++ "suddenly moving slowly!"
+		"wand of stun" -> prefix ++ "stunned!"
 		_ -> error "unknown wand"
 	where
 	isYou = name' == "You"

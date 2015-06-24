@@ -59,8 +59,8 @@ killFirst w = changeMon mon w where
 canWalk :: Monster -> Bool
 canWalk m = notElem (name m) ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
 
-randPoison :: (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
-randPoison bounds (mon, g) = (newMon, g') where
+randTemp :: Temp -> (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
+randTemp temp' bounds (mon, g) = (newMon, g') where
 	(duration, g') = randomR bounds g
-	newMon = setMaxTemp Poison (Just duration) mon
+	newMon = setMaxTemp temp' (Just duration) mon
 	

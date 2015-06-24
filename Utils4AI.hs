@@ -48,10 +48,8 @@ haveLauncher mon = M.foldl (||) False $ M.map (isLauncher . fst) $ inv mon
 
 isAttackWand :: Object -> Bool
 isAttackWand obj = isWand obj && charge obj > 0 && 
-	title obj == "wand of striking" ||
-	title obj == "wand of radiation" ||
-	title obj == "wand of poison" ||
-	title obj == "wand of slowing"
+	elem (title obj) ["wand of striking", "wand of radiation",
+	"wand of poison", "wand of slowing", "wand of stun"]
 
 zapAI :: World -> Char
 zapAI world = fst $ M.findMin $ M.filter (isAttackWand . fst) $ inv $ getFirst world
