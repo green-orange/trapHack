@@ -66,7 +66,7 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 	isClose ((x, y), _) = abs (x - xNow) <= d && abs (y - yNow) <= d
 	fireDmg gen (x, y) mon = 
 		if isClose ((x, y), lol)
-		then fst $ dmgRandom (Just newDmg) mon gen
+		then fst $ dmgRandomElem Fire (Just newDmg) mon gen
 		else mon
 	msg (_,mon) = 
 		if name mon == "You"

@@ -59,7 +59,6 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = dices (1,10) 0.2,
-	--inv = M.fromList [('a', (amuletOfTeleportation 50, 1))],
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
