@@ -25,6 +25,9 @@ instance Show Elem where
 data Intr = Teleport deriving (Enum, Show, Bounded)
 data Temp = Poison | Stun deriving (Enum, Show, Bounded)
 
+getAll :: (Bounded a, Enum a) => [a]
+getAll = [minBound..maxBound]
+
 alphabet, notAlphabet :: String
 alphabet = ['a'..'z'] ++ ['A'..'Z']
 notAlphabet = ['{'..]
