@@ -50,4 +50,5 @@ symbolMon "Green dragon"      = ('D', gREEN)
 symbolMon "Forgotten beast"   = ('X', mAGENTA)
 symbolMon "Spider"            = ('s', dEFAULT)
 symbolMon "Soldier"           = ('@', yELLOW)
+symbolMon "Umber hulk"        = ('U', dEFAULT)
 symbolMon _                   = error "unknown monster"

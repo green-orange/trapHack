@@ -147,3 +147,12 @@ soldierInv q = M.fromList $ zip alphabet $ flip zip [1,1..]
 	uniformFromList (frac $ 2 * q + c) aRMOR : 
 	uniformFromList (frac $ 3 * q + 2 * c) aRMOR : [] where
 	c = 0.28989850379988
+
+getUmberHulk q = getMonster (humanoidAI stupidConfAI)
+	[getBody 2 $ uniform q 10 20,
+	 getHead 2 $ uniform q 10 15,
+	 getLeg  3 $ uniform q  5 10,
+	 getLeg  3 $ uniform q  5 10,
+	 getArm  3 $ uniform q  5 10,
+	 getArm  3 $ uniform q  5 10]
+	"Umber hulk" (dices (1,10) 0.2) (const M.empty) 100

@@ -15,6 +15,7 @@ import AI (randomAI)
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)
 import Data.Maybe (isJust)
+import System.Random (randomR)
 
 step :: World -> Key -> Either World String
 step world c =
@@ -91,7 +92,10 @@ step world c =
 			in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
 				$ addMessage (name mon ++ " die!", cYAN) world
 	where
-		stun = isJust $ temp mon !! fromEnum Stun
+		stun = (isJust $ temp mon !! fromEnum Stun) ||
+			(isJust $ temp mon !! fromEnum Conf) && 3*p > 1
+		p::Float
+		(p, _) = randomR (0.0, 1.0) $ stdgen world
 		mon = getFirst world
 		AI aiNow = if stun then AI randomAI else ai mon
 		(x, y) = coordsPlayer world

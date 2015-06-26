@@ -111,16 +111,16 @@ useSomeItem _ [] = Nothing
 useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
 	Nothing -> useSomeItem objs cs
 	f -> f
-	
-poisonByCoords :: (Int, Int) -> Int -> Int -> World -> World
-poisonByCoords durs dx dy w = changeGen g $ changeMons newMons w where
+
+addTempByCoords :: Temp -> (Int, Int) -> Int -> Int -> World -> World
+addTempByCoords t durs dx dy w = changeGen g $ changeMons newMons w where
 	(dur, g) = randomR durs $ stdgen w
 	xNew = xFirst w + dx
 	yNew = yFirst w + dy
 	maybeMon = M.lookup (xNew, yNew) $ units w
 	newMons = case maybeMon of
 		Nothing -> units' w
-		Just mon -> insertU (xNew, yNew) (setMaxTemp Poison (Just dur) mon) 
+		Just mon -> insertU (xNew, yNew) (setMaxTemp t (Just dur) mon) 
 			$ units' w
 
 
