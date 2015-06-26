@@ -13,7 +13,7 @@ import qualified Data.Map as M
 
 getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
 	getWorm, getFloatingEye, getRedDragon, getWhiteDragon, getGreenDragon,
-	getForgottenBeast, getSpider, getSoldier :: Float -> MonsterGen
+	getForgottenBeast, getSpider, getSoldier, getUmberHulk :: Float -> MonsterGen
 
 getHomunculus q = getMonster (humanoidAI stupidestAI)
 	[getBody 1 $ uniform q 10 30, 
@@ -155,4 +155,4 @@ getUmberHulk q = getMonster (humanoidAI stupidConfAI)
 	 getLeg  3 $ uniform q  5 10,
 	 getArm  3 $ uniform q  5 10,
 	 getArm  3 $ uniform q  5 10]
-	"Umber hulk" (dices (1,10) 0.2) (const M.empty) 100
+	"Umber hulk" (dices (2,4) 0.2) (const M.empty) 100

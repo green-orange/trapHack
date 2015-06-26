@@ -121,7 +121,7 @@ attackIfClose elem' dist f x y w =
 		dx = x - xNow
 		dy = y - yNow
 	
-stupidAI, stupidParalysisAI, stupidPoisonAI :: AIfunc
+stupidAI, stupidParalysisAI, stupidPoisonAI, stupidConfAI :: AIfunc
 stupidAI = stupidFooAI moveFirst
 stupidParalysisAI = stupidFooAI (\x y -> moveFirst x y . paralyse x y)
 stupidPoisonAI = stupidFooAI (\x y -> moveFirst x y . 

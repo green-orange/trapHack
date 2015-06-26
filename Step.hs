@@ -93,7 +93,7 @@ step world c =
 				$ addMessage (name mon ++ " die!", cYAN) world
 	where
 		stun = (isJust $ temp mon !! fromEnum Stun) ||
-			(isJust $ temp mon !! fromEnum Conf) && 3*p > 1
+			(isJust $ temp mon !! fromEnum Conf) && 5*p > 1
 		p::Float
 		(p, _) = randomR (0.0, 1.0) $ stdgen world
 		mon = getFirst world
