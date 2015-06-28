@@ -5,8 +5,9 @@ import Changes
 import Utils4objects
 import Colors
 
-titleShow :: Object -> String
+import qualified Data.Map as M
 
+titleShow :: Object -> String
 titleShow x = title x ++ 
 	if isWand x
 	then " (" ++ show (charge x) ++ ")"
@@ -121,5 +122,37 @@ attackName :: Elem -> String
 attackName Fire = "burn"
 attackName Poison' = "poison"
 attackName Cold = "freeze"
+
+getInfo :: World -> World
+getInfo w = changeAction ' ' $ 
+	addNeutralMessage msg w where msg = infoMessage w
+
+showT :: Terrain -> String
+showT t = if t == eMPTY then "empty cell"
+	else if t == bEARTRAP then "bear trap"
+	else if t == fIRETRAP then "fire trap"
+	else if t == pOISONTRAP then "poison trap"
+	else if t == mAGICTRAP then "magic trap"
+	else error "unknown terrain"
+
+infoMessage :: World -> String
+infoMessage w = if last str == ' ' then init str else str where
+	x = xInfo w
+	y = yInfo w
+	terr = worldmap w !! x !! y
+	un = M.lookup (x, y) $ units w
+	objs = filter (\(x',y',_,_) -> x' == x && y' == y) $ items w
+	terrInfo = "Terrain: " ++ showT terr ++ ". "
+	monInfo = case un of
+		Nothing -> ""
+		Just mon -> "Monster: " ++ name mon ++ ". "
+	objsInfo = case objs of
+		[] -> ""
+		_ -> (++) "Objects: " $ foldr (++) [] $ 
+			map (\(_,_,i,n) -> titleShow i ++ 
+			(if n == 1 then "; " else " (" ++ show n ++ "); ")) objs
+	str = terrInfo ++ monInfo ++ objsInfo
+
+
 
 

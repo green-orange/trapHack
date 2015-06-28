@@ -38,8 +38,12 @@ drawUnit world ((x, y), mon) = do
 
 drawCell :: World -> (Int, Int, Terrain) -> IO ()
 drawCell world (x, y, _) = do
-	wAttrSet stdScr (attr0, Pair $ worldmap world !! x !! y)
-	mvAddCh (y + shiftDown) x $ castEnum '.'
+	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+	mvAddCh (y + shiftDown) x $ castEnum '.' where
+	attr = 
+		if action world == '?' && x == xInfo world && y == yInfo world
+		then setStandout attr0 True
+		else attr0
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = do

@@ -79,6 +79,13 @@ step world c =
 				if c == KeyChar 'y' || c == KeyChar 'Y'
 				then Left $ callUpon world
 				else Left $ changeAction ' ' world
+			'?' ->
+				if c == KeyChar '.'
+				then Left $ getInfo world
+				else case dir c of
+					Nothing -> Left world
+					Just (dx, dy) -> Left $ world {xInfo = xInfo world + dx, 
+						yInfo = yInfo world + dy}
 			_ -> Left $ addMessage ("You are cheater!", mAGENTA) 
 				$ changeAction ' ' world
 		else
@@ -143,5 +150,9 @@ justStep world c = case dir c of
 		KeyChar 'C' ->
 			Left $ changeAction 'C' $ addDefaultMessage
 				"Do you really want to call upon the next wave? (y/N)" world
+		KeyChar '?'->
+			Left $ changeAction '?' $ addDefaultMessage
+				"Pick an object and press ." world {xInfo = xFirst world,
+				 yInfo = yFirst world}
 		_  ->
 			Left $ addMessage ("Unknown action!", yELLOW) world

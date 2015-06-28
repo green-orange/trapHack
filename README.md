@@ -21,3 +21,4 @@ D - **d**rop many items
 , - pick  
 Q - **q**uit  
 C - **c**all upon the new wave  
+? - get info about monster or item  

@@ -155,7 +155,9 @@ data World = World {
 	stepsBeforeWave :: Int,
 	prevAction :: Char,
 	shift :: Int,
-	slot :: Slot
+	slot :: Slot,
+	xInfo :: Int,
+	yInfo :: Int
 }
 
 xFirst :: World -> Int
