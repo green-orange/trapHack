@@ -4,6 +4,7 @@ import Data
 import Changes
 import Utils4objects
 import Colors
+import Parts
 
 import qualified Data.Map as M
 
@@ -125,7 +126,7 @@ attackName Cold = "freeze"
 
 getInfo :: World -> World
 getInfo w = changeAction ' ' $ 
-	addNeutralMessage msg w where msg = infoMessage w
+	addDefaultMessage msg w where msg = infoMessage w
 
 showT :: Terrain -> String
 showT t = if t == eMPTY then "empty cell"
@@ -145,14 +146,11 @@ infoMessage w = if last str == ' ' then init str else str where
 	terrInfo = "Terrain: " ++ showT terr ++ ". "
 	monInfo = case un of
 		Nothing -> ""
-		Just mon -> "Monster: " ++ name mon ++ ". "
+		Just mon -> "Monster: " ++ name mon ++ ". Parts: " ++ 
+			(foldr (++) [] $ map (\p -> partToStr (kind p) ++ "; ") $ parts mon)
 	objsInfo = case objs of
 		[] -> ""
 		_ -> (++) "Objects: " $ foldr (++) [] $ 
 			map (\(_,_,i,n) -> titleShow i ++ 
 			(if n == 1 then "; " else " (" ++ show n ++ "); ")) objs
 	str = terrInfo ++ monInfo ++ objsInfo
-
-
-
-
