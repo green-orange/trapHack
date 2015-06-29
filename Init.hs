@@ -43,7 +43,9 @@ initWorld username gen = World {
 	prevAction = ' ',
 	stepsBeforeWave = 1,
 	shift = 0,
-	slot = toEnum 0
+	slot = toEnum 0,
+	xInfo = 0,
+	yInfo = 0
 }
 
 getPlayer :: Monster
