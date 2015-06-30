@@ -63,11 +63,11 @@ sTACKABLE :: [Object]
 sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
 	
 potionOfHealing, potionOfIntellect, potionOfMutation, potionOfEnchantWeapon,
-	potionOfEnchantArmor :: Object
+	potionOfEnchantArmor, potionOfEnchantJewelry :: Object
 
 pOTIONS :: [Object]
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation, 
-	potionOfEnchantWeapon, potionOfEnchantArmor]
+	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantJewelry]
 
 potionOfHealing = Potion {title = "potion of healing",
 	act = unrandom $ healParts bODY 10}
@@ -83,6 +83,9 @@ potionOfEnchantWeapon = Potion {title = "potion of enchant weapon",
 
 potionOfEnchantArmor = Potion {title = "potion of enchant armor",
 	act = unrandom $ enchantAll ArmorSlot 1}
+
+potionOfEnchantJewelry = Potion {title = "potion of enchant jewelry",
+	act = unrandom $ enchantAll JewelrySlot 1}
 
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
 	kabbalisticScroll :: Object
@@ -244,31 +247,36 @@ highBoot = getArmor "high boot" 2 lEG
 jEWELRY, rINGS, aMULETS :: [Object]
 jEWELRY = rINGS ++ aMULETS
 
-ringOfSpeed, ringOfFireRes, ringOfPoisonRes :: Int -> Object
+ringOfSpeed, ringOfFireRes, ringOfColdRes, ringOfPoisonRes :: Int -> Object
 rINGS = 
-	map ringOfSpeed     [5,10,15,20] ++
+	map ringOfSpeed     [1..4] ++
 	map ringOfFireRes   [1..3] ++
+	map ringOfColdRes   [1..3] ++
 	map ringOfPoisonRes [1..3]
 
 ringOfSpeed ench = Jewelry {title = "ring of speed", enchantment = ench,
-	bind = aRM, effectOn = speed, effectOff = \ench' -> speed (-ench')}
+	bind = aRM, effectOn = \ench' -> speed (5 * ench'), 
+	effectOff = \ench' -> speed (-5 * ench')}
 
 getRingRes :: String -> Elem -> Int -> Object
 getRingRes title' elem' ench = Jewelry {title = title', enchantment = ench,
-	bind = aRM, effectOn = addRes elem', effectOff = addRes elem' . negate}
+	bind = aRM, effectOn = \ench' -> addRes elem' (2 * ench'), 
+	effectOff = \ench' -> addRes elem' (-2 * ench')}
 
 ringOfFireRes = getRingRes "ring of fire resistance" Fire
+ringOfColdRes = getRingRes "ring of cold resistance" Cold
 ringOfPoisonRes = getRingRes "ring of poison resistance" Poison'
 
 amuletOfTeleportation :: Int -> Object
 aMULETS = 
-	map amuletOfTeleportation [3,6..18]
+	map amuletOfTeleportation [1..6]
 
-getIntrAmulet :: String -> Intr -> Int -> Object
-getIntrAmulet title' intr' ench = Jewelry {title = title', enchantment = ench,
-	bind = hEAD, effectOn = addIntr intr', effectOff = addIntr intr' . negate}
+getIntrAmulet :: Int -> String -> Intr -> Int -> Object
+getIntrAmulet mult title' intr' ench = Jewelry {title = title', enchantment = ench,
+	bind = hEAD, effectOn = \ench' -> addIntr intr' (mult * ench'), 
+	effectOff = \ench' -> addIntr intr' (-mult * ench')}
 
-amuletOfTeleportation = getIntrAmulet "amulet of teleportation" Teleport
+amuletOfTeleportation = getIntrAmulet 5 "amulet of teleportation" Teleport
 
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain x = 
