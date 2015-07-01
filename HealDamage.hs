@@ -58,7 +58,7 @@ dmg mon (Just n) part = part {hp =
 	if hp part <= n'
 	then 0
 	else hp part - n'
-} where n' = max 1 $ n - acPart mon part
+} where n' = max 1 $ n - 2 * (acPart mon part)
 
 elemDmg :: Elem -> Monster -> Maybe Int -> Part -> Part
 elemDmg _ _ Nothing part = part
