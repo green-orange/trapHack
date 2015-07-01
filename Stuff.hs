@@ -247,12 +247,14 @@ highBoot = getArmor "high boot" 2 lEG
 jEWELRY, rINGS, aMULETS :: [Object]
 jEWELRY = rINGS ++ aMULETS
 
-ringOfSpeed, ringOfFireRes, ringOfColdRes, ringOfPoisonRes :: Int -> Object
+ringOfSpeed, ringOfFireRes, ringOfColdRes, ringOfPoisonRes, ringOfProtection 
+	:: Int -> Object
 rINGS = 
-	map ringOfSpeed     [1..4] ++
-	map ringOfFireRes   [1..3] ++
-	map ringOfColdRes   [1..3] ++
-	map ringOfPoisonRes [1..3]
+	map ringOfSpeed      [1..4] ++
+	map ringOfFireRes    [1..3] ++
+	map ringOfColdRes    [1..3] ++
+	map ringOfPoisonRes  [1..3] ++
+	map ringOfProtection [1..3]
 
 ringOfSpeed ench = Jewelry {title = "ring of speed", enchantment = ench,
 	bind = aRM, effectOn = \ench' -> speed (5 * ench'), 
@@ -266,6 +268,9 @@ getRingRes title' elem' ench = Jewelry {title = title', enchantment = ench,
 ringOfFireRes = getRingRes "ring of fire resistance" Fire
 ringOfColdRes = getRingRes "ring of cold resistance" Cold
 ringOfPoisonRes = getRingRes "ring of poison resistance" Poison'
+
+ringOfProtection ench = Jewelry {title = "ring of protection", enchantment = ench,
+	bind = aRM, effectOn = flip const, effectOff = flip const}
 
 amuletOfTeleportation :: Int -> Object
 aMULETS = 

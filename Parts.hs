@@ -66,8 +66,14 @@ isEmptyPart :: Slot -> Monster -> Part -> Bool
 isEmptyPart sl mon part = M.notMember (objectKeys part !! fromEnum sl) $ inv mon
 
 acPart :: Monster -> Part -> Int
-acPart mon part = case armor of
+acPart mon part = (case armor of
 	Nothing -> 0
-	Just (obj, _) -> if isArmor obj then ac obj else 0
-	where armor = M.lookup (objectKeys part !! fromEnum ArmorSlot) (inv mon)
+	Just (obj, _) -> if isArmor obj then ac obj else 0) +
+	(case jewelry of
+	Nothing -> 0
+	Just (obj,_) -> 
+		if title obj == "ring of protection" then enchantment obj else 0)
+	where
+		armor = M.lookup (objectKeys part !! fromEnum ArmorSlot) (inv mon)
+		jewelry = M.lookup (objectKeys part !! fromEnum JewelrySlot) (inv mon)
 
