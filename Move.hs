@@ -10,6 +10,7 @@ import Messages
 import Colors
 
 import qualified Data.Map as M
+import qualified Data.Array as A
 import Data.Maybe (fromJust, isNothing)
 import System.Random (randomR)
 
@@ -18,7 +19,7 @@ moveFirst dx dy world =
 	if (isEmpty world xnew ynew) || (dx == 0 && dy == 0) || (rez == Nothing)
 	then
 		if (name mon) /= "You" && not (isFlying mon) 
-			&& worldmap world !! x !! y == bEARTRAP
+			&& worldmap world A.! (x,y) == bEARTRAP
 		then world
 		else changeGen g'' $ changeMoveFirst xnew ynew 
 			$ addMessage (newMessage, yELLOW) $ world

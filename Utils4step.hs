@@ -13,6 +13,7 @@ import Colors
 import System.Random (StdGen, randomR)
 import Data.List (sort)
 import qualified Data.Map as M
+import qualified Data.Array as A
 
 bIGpAUSE, pAUSE :: Int
 bIGpAUSE = 100
@@ -121,7 +122,7 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 	x = xFirst w
 	y = yFirst w
 	mon = getFirst w
-	trap = worldmap w !! x !! y
+	trap = worldmap w A.! (x,y)
 	((newMon, g), newMsg) = 
 		if trap == fIRETRAP
 		then (dmgRandom (Just 8) mon $ stdgen w,

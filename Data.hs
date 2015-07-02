@@ -3,6 +3,7 @@ module Data where
 import Data.Set (Set)
 import System.Random (StdGen)
 import qualified Data.Map as M
+import Data.Array
 
 lol :: a
 lol = undefined
@@ -150,7 +151,7 @@ data World = World {
 	stdgen :: StdGen,
 	wave :: Int,
 	chars :: Set Char,
-	worldmap :: [[Terrain]],
+	worldmap :: Array (Int, Int) Terrain,
 	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
 	stepsBeforeWave :: Int,
 	prevAction :: Char,

@@ -14,6 +14,7 @@ import Colors
 import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, isJust, fromJust)
 import qualified Data.Map as M
+import qualified Data.Array as A
 
 dir :: Key -> Maybe (Int, Int)
 dir c = case c of
@@ -155,7 +156,7 @@ untrapFirst world = rez where
 	rez =
 		if not $ hasPart aRM mon
 		then (maybeAddMessage "You need arms to remove a trap!" failWorld, False)
-		else if not $ isUntrappable $ worldmap world !! x !! y
+		else if not $ isUntrappable $ worldmap world A.! (x, y)
 		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
 		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y eMPTY 
 			$ changeAction ' ' $ world, True)
@@ -163,7 +164,7 @@ untrapFirst world = rez where
 	y = yFirst world
 	mon = getFirst world
 	failWorld = changeAction ' ' world
-	trap = trapFromTerrain $ worldmap world !! x !! y
+	trap = trapFromTerrain $ worldmap world A.! (x,y)
 	newMsg = (name mon) ++ " untrap" ++ ending world ++ title trap ++ "."
 	
 fireFirst :: Key -> World -> (World, Bool)

@@ -7,6 +7,7 @@ import Colors
 import Parts
 
 import qualified Data.Map as M
+import Data.Array
 
 titleShow :: Object -> String
 titleShow x = title x ++ 
@@ -140,7 +141,7 @@ infoMessage :: World -> String
 infoMessage w = if last str == ' ' then init str else str where
 	x = xInfo w
 	y = yInfo w
-	terr = worldmap w !! x !! y
+	terr = worldmap w ! (x, y)
 	un = M.lookup (x, y) $ units w
 	objs = filter (\(x',y',_,_) -> x' == x && y' == y) $ items w
 	terrInfo = "Terrain: " ++ showT terr ++ ". "

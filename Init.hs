@@ -9,6 +9,7 @@ import Colors
 import System.Random (StdGen)
 import qualified Data.Set as S
 import qualified Data.Map as M
+import Data.Array
 
 rectdirs :: (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Maybe (Int, Int)
 rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
@@ -31,7 +32,7 @@ initUnits = Units {
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {
-	worldmap = replicate (1 + maxX) $ replicate (1 + maxY) eMPTY,
+	worldmap = listArray ((0,0), (maxX,maxY)) $ cycle [eMPTY],
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
 	message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],

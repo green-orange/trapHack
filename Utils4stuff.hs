@@ -13,6 +13,7 @@ import System.Random (StdGen, randomR)
 import Data.Maybe (isJust, fromJust)
 import qualified Data.Set as S
 import qualified Data.Map as M
+import qualified Data.Array as A
 
 unrandom :: (a -> a) -> (a, x) -> (a, x)
 unrandom f (a, x) = (f a, x)
@@ -94,7 +95,7 @@ safety w = w {
 	action = ' ',
 	wave = wave w + 1,
 	chars = S.empty,
-	worldmap = map (map $ const eMPTY) $ worldmap w,
+	worldmap = A.listArray ((0,0), (maxX,maxY)) $ cycle [eMPTY],
 	stepsBeforeWave = 2
 } 
 

@@ -12,6 +12,7 @@ import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.List (sortBy)
 import Data.Function (on)
+import qualified Data.Array as A
 
 shiftDown, shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
 shiftDown = 5
@@ -34,11 +35,11 @@ drawUnit world ((x, y), mon) = do
 			then setStandout attr0 True
 			else attr0
 		(sym, color') = symbolMon $ name mon
-		back = worldmap world !! x !! y
+		back = worldmap world A.! (x,y)
 
-drawCell :: World -> (Int, Int, Terrain) -> IO ()
-drawCell world (x, y, _) = do
-	wAttrSet stdScr (attr, Pair $ worldmap world !! x !! y)
+drawCell :: World -> ((Int, Int), Terrain) -> IO ()
+drawCell world ((x, y), _) = do
+	wAttrSet stdScr (attr, Pair $ worldmap world A.! (x,y))
 	mvAddCh (y + shiftDown) x $ castEnum '.' where
 	attr = 
 		if action world == '?' && x == xInfo world && y == yInfo world
@@ -47,7 +48,7 @@ drawCell world (x, y, _) = do
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = do
-	wAttrSet stdScr (attr0, Pair $ worldmap world !! x !! y)
+	wAttrSet stdScr (attr0, Pair $ worldmap world A.! (x,y))
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
 showItemsPD :: Int -> (S.Set Char) -> (Int, Char, (Object, Int)) -> IO ()
@@ -161,7 +162,7 @@ drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	showMessages $ message world
-	foldl (>>) doNothing $ map (drawCell world) $ flatarray2line $ worldmap world
+	foldl (>>) doNothing $ map (drawCell world) $ A.assocs $ worldmap world
 	foldl (>>) doNothing $ map (drawItem world) $ items world
 	foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
 	foldl (>>) doNothing $ zipWith3 ($) (map (drawPart False) [0..])
@@ -233,14 +234,6 @@ drawPartFull isFull x y mon part = do
 		objsW = M.lookup (objectKeys part !! fromEnum WeaponSlot) $ inv mon
 		objsA = M.lookup (objectKeys part !! fromEnum ArmorSlot) $ inv mon
 		objsJ = M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon
-
-flatarray2line' :: Int -> [[a]] -> [(Int, Int, a)]
-flatarray2line' _ [] = []
-flatarray2line' start (x:xs) = (zip3 [start, start..] [0, 1..] x) 
-	++ (flatarray2line' (start + 1) xs)
-
-flatarray2line :: [[a]] -> [(Int, Int, a)]
-flatarray2line = flatarray2line' 0
 
 symbolItem :: Object -> Char
 symbolItem (Potion _ _)        = '!'

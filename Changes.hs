@@ -7,6 +7,7 @@ import qualified Data.Set as S
 import UI.HSCurses.Curses (Key (..))
 import System.Random (StdGen)
 import qualified Data.Map as M
+import Data.Array
 
 {- Part -}
 
@@ -124,7 +125,7 @@ addItem i w = w {items = items'} where
 
 changeMap :: Int -> Int -> Terrain -> World -> World
 changeMap x y t w = w {worldmap = worldmap'} where
-	worldmap' = changeElem2 x y t $ worldmap w
+	worldmap' = (worldmap w) // [((x, y), t)]
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (changeList 
@@ -169,12 +170,6 @@ changeElem x t ts
 	| x == 0 = t : tail ts
 	| x > 0 = head ts : changeElem (x - 1) t (tail ts)
 	| otherwise = error "negative index in changeElem function"
-
-changeElem2 :: Int -> Int -> a -> [[a]] -> [[a]]
-changeElem2 x y t tss
-	| x > 0 = head tss : changeElem2 (x - 1) y t (tail tss)
-	| x == 0 = changeElem y t (head tss) : tail tss
-	| otherwise = error "negative index in changeElem2 function"
 
 addItem' :: (Int, Int, Object, Int) -> [(Int, Int, Object, Int)] -> [(Int, Int, Object, Int)]
 addItem' i@(x, y, obj, n) list' = 
