@@ -129,14 +129,6 @@ getInfo :: World -> World
 getInfo w = changeAction ' ' $ 
 	addDefaultMessage msg w where msg = infoMessage w
 
-showT :: Terrain -> String
-showT t = if t == eMPTY then "empty cell"
-	else if t == bEARTRAP then "bear trap"
-	else if t == fIRETRAP then "fire trap"
-	else if t == pOISONTRAP then "poison trap"
-	else if t == mAGICTRAP then "magic trap"
-	else error "unknown terrain"
-
 infoMessage :: World -> String
 infoMessage w = if last str == ' ' then init str else str where
 	x = xInfo w
@@ -144,7 +136,7 @@ infoMessage w = if last str == ' ' then init str else str where
 	terr = worldmap w ! (x, y)
 	un = M.lookup (x, y) $ units w
 	objs = filter (\(x',y',_,_) -> x' == x && y' == y) $ items w
-	terrInfo = "Terrain: " ++ showT terr ++ ". "
+	terrInfo = "Terrain: " ++ show terr ++ ". "
 	monInfo = case un of
 		Nothing -> ""
 		Just mon -> "Monster: " ++ name mon ++ ". Parts: " ++ 

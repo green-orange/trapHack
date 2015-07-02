@@ -124,17 +124,17 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 	mon = getFirst w
 	trap = worldmap w A.! (x,y)
 	((newMon, g), newMsg) = 
-		if trap == fIRETRAP
-		then (dmgRandom (Just 8) mon $ stdgen w,
+		if trap == FireTrap
+		then (dmgRandomElem Fire (Just 8) mon $ stdgen w,
 			if name mon == "You"
 			then "You are in fire!"
 			else name mon ++ " is in fire!")
-		else if trap == pOISONTRAP
+		else if trap == PoisonTrap
 		then (randTemp Poison (5, 15) (mon, stdgen w),
 			if name mon == "You"
 			then "You were poisoned!"
 			else name mon ++ " was poisoned!")
-		else if trap == mAGICTRAP
+		else if trap == MagicTrap
 		then let
 			(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
 			obj = wANDS !! ind

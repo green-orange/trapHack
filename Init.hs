@@ -32,7 +32,7 @@ initUnits = Units {
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {
-	worldmap = listArray ((0,0), (maxX,maxY)) $ cycle [eMPTY],
+	worldmap = listArray ((0,0), (maxX,maxY)) $ cycle [Empty],
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
 	message = [("Welcome to the TrapHack, " ++ username ++ ".", bLUE)],

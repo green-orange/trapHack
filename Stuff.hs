@@ -10,7 +10,6 @@ import Parts
 import Golem
 import Utils4mon
 import Changes
-import Colors
 
 import System.Random
 import qualified Data.Map as M
@@ -152,10 +151,10 @@ bearTrap, fireTrap, poisonTrap, magicTrap :: Object
 tRAPS :: [Object]
 tRAPS = [bearTrap, fireTrap, poisonTrap, magicTrap]
 
-bearTrap = Trap {title = "bear trap", num = bEARTRAP}
-fireTrap = Trap {title = "fire trap", num = fIRETRAP}
-poisonTrap = Trap {title = "poison trap", num = pOISONTRAP}
-magicTrap = Trap {title = "magic trap",	num = mAGICTRAP}
+bearTrap = Trap {title = "bear trap", num = BearTrap}
+fireTrap = Trap {title = "fire trap", num = FireTrap}
+poisonTrap = Trap {title = "poison trap", num = PoisonTrap}
+magicTrap = Trap {title = "magic trap",	num = MagicTrap}
 
 arrow :: Object
 
@@ -284,10 +283,10 @@ getIntrAmulet mult title' intr' ench = Jewelry {title = title', enchantment = en
 amuletOfTeleportation = getIntrAmulet 5 "amulet of teleportation" Teleport
 
 trapFromTerrain :: Terrain -> Object
-trapFromTerrain x = 
-	if x == bEARTRAP then bearTrap
-	else if x == fIRETRAP then fireTrap
-	else if x == pOISONTRAP then poisonTrap
-	else if x == mAGICTRAP then magicTrap
-	else error "unknown trap"
+trapFromTerrain x = case x of
+	BearTrap -> bearTrap
+	FireTrap -> fireTrap
+	PoisonTrap -> poisonTrap
+	MagicTrap -> magicTrap
+	_ -> error "unknown trap"
  

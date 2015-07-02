@@ -85,7 +85,7 @@ stupidity mon = mon {ai = newAI} where
 			else old
 	
 isUntrappable :: Terrain -> Bool
-isUntrappable = (/=) eMPTY
+isUntrappable = (/=) Empty
 	
 safety :: World -> World
 safety w = w {
@@ -95,7 +95,7 @@ safety w = w {
 	action = ' ',
 	wave = wave w + 1,
 	chars = S.empty,
-	worldmap = A.listArray ((0,0), (maxX,maxY)) $ cycle [eMPTY],
+	worldmap = A.listArray ((0,0), (maxX,maxY)) $ cycle [Empty],
 	stepsBeforeWave = 2
 } 
 

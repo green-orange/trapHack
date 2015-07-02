@@ -24,7 +24,18 @@ instance Show Elem where
 	show Cold = "Cold"
 	
 data Intr = Teleport deriving (Enum, Show, Bounded)
+
 data Temp = Poison | Stun | Conf deriving (Enum, Show, Bounded)
+
+data Terrain = Empty | BearTrap | FireTrap | PoisonTrap | MagicTrap 
+	deriving (Eq)
+
+instance Show Terrain where
+	show Empty = "empty cell"
+	show BearTrap = "bear trap"
+	show FireTrap = "fire trap"
+	show PoisonTrap = "poison trap"
+	show MagicTrap = "magic trap"
 
 getAll :: (Bounded a, Enum a) => [a]
 getAll = [minBound..maxBound]
@@ -71,7 +82,6 @@ data Monster = Monster {
 	temp :: [Maybe Int]
 }
 
-type Terrain = Int
 data Object =
 	Something |
 	Potion {
@@ -90,7 +100,7 @@ data Object =
 	} | 
 	Trap {
 		title :: String,
-		num :: Int
+		num :: Terrain
 	} |
 	Missile {
 		title :: String,

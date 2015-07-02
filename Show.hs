@@ -35,11 +35,11 @@ drawUnit world ((x, y), mon) = do
 			then setStandout attr0 True
 			else attr0
 		(sym, color') = symbolMon $ name mon
-		back = worldmap world A.! (x,y)
+		back = colorFromTerr $ worldmap world A.! (x,y)
 
 drawCell :: World -> ((Int, Int), Terrain) -> IO ()
 drawCell world ((x, y), _) = do
-	wAttrSet stdScr (attr, Pair $ worldmap world A.! (x,y))
+	wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
 	mvAddCh (y + shiftDown) x $ castEnum '.' where
 	attr = 
 		if action world == '?' && x == xInfo world && y == yInfo world
@@ -48,7 +48,7 @@ drawCell world ((x, y), _) = do
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = do
-	wAttrSet stdScr (attr0, Pair $ worldmap world A.! (x,y))
+	wAttrSet stdScr (attr0, Pair $ colorFromTerr $ worldmap world A.! (x,y))
 	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
 
 showItemsPD :: Int -> (S.Set Char) -> (Int, Char, (Object, Int)) -> IO ()

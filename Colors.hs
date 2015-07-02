@@ -1,14 +1,9 @@
 module Colors where
 
+import Data (Terrain (..))
+
 import UI.HSCurses.Curses
 import Data.Maybe (fromJust)
-
-eMPTY, bEARTRAP, fIRETRAP, pOISONTRAP, mAGICTRAP :: Int
-eMPTY      = 8
-bEARTRAP   = 32
-fIRETRAP   = 16
-pOISONTRAP = 56
-mAGICTRAP  = 48
 
 dEFAULT, gREEN, yELLOW, rED, cYAN, mAGENTA, bLUE, rEDiNVERSE :: Int
 dEFAULT    = 1
@@ -19,6 +14,13 @@ bLUE       = 5
 mAGENTA    = 6
 cYAN       = 7
 rEDiNVERSE = 58
+
+colorFromTerr :: Terrain -> Int
+colorFromTerr Empty      = 8
+colorFromTerr BearTrap   = 32
+colorFromTerr FireTrap   = 16
+colorFromTerr PoisonTrap = 56
+colorFromTerr MagicTrap  = 48
 
 initColors :: IO ()
 initColors = foldr (>>) (return ()) $ actions where

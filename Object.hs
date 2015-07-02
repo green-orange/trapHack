@@ -158,7 +158,7 @@ untrapFirst world = rez where
 		then (maybeAddMessage "You need arms to remove a trap!" failWorld, False)
 		else if not $ isUntrappable $ worldmap world A.! (x, y)
 		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
-		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y eMPTY 
+		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y Empty 
 			$ changeAction ' ' $ world, True)
 	x = xFirst world
 	y = yFirst world
