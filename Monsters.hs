@@ -6,7 +6,7 @@ import Parts
 import Messages
 
 import System.Random (StdGen, randomR)
-import Data.Map (empty, keys)
+import qualified Data.Map as M
 	
 getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
 getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
@@ -25,7 +25,8 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	(p, newGen) = randomR (0.0, 1.0) g
 
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (\_ _ w -> w) [getMain 1 n] "Dummy" lol (const empty) 100
+getDummy n _ = getMonster (\_ _ w -> w) [getMain 1 n] "Dummy" lol 
+	(const M.empty) 100
 
 addMonsters :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens
@@ -36,10 +37,14 @@ addMonster gen (uns, g) =
 	then (insertU (x, y) (mon {time = time $ getFirst' uns}) uns, g3)
 	else addMonster gen (uns, g3)
 	where
-		(x, g1) = randomR (0, maxX) g
-		(y, g2) = randomR (0, maxY) g1
+		(x, g1) = randomR (max 0 (xPlayer - xSight), 
+			min maxX (xPlayer + xSight)) g
+		(y, g2) = randomR (max 0 (yPlayer - ySight), 
+			min maxY (yPlayer + ySight)) g1
 		(mon, g3) = gen g2
-		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ keys $ list uns
+		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ M.keys $ list uns
+		[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
+			$ M.toList $ list uns
 	
 animate :: Int -> Int -> World -> World
 animate x y w = 

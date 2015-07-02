@@ -16,8 +16,8 @@ import qualified Data.Array as A
 
 shiftDown, shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
 shiftDown = 5
-shiftRightHP = maxX + 5
-shiftAttrs = maxX + 30
+shiftRightHP = 2 * xSight + 5
+shiftAttrs = 2 * xSight + 30
 diff = 20
 shiftW = 30
 shiftA = shiftW + diff
@@ -26,30 +26,50 @@ shiftJ = shiftA + diff
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
 
+placeChar :: Int -> Int -> Char -> IO ()
+placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight)
+	. castEnum
+
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
-drawUnit world ((x, y), mon) = do
-	wAttrSet stdScr (attr, Pair $ back + color' - 8)
-	mvAddCh (y + shiftDown) x $ castEnum sym where
+drawUnit world ((x, y), mon) =
+	if abs dx > xSight || abs dy > ySight
+	then return ()
+	else do
+		wAttrSet stdScr (attr, Pair $ back + color' - 8)
+		placeChar dx dy sym where
 		attr = 
 			if x == xFirst world && y == yFirst world
 			then setStandout attr0 True
 			else attr0
 		(sym, color') = symbolMon $ name mon
 		back = colorFromTerr $ worldmap world A.! (x,y)
+		dx = x - xFirst world
+		dy = y - yFirst world
 
 drawCell :: World -> ((Int, Int), Terrain) -> IO ()
-drawCell world ((x, y), _) = do
-	wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
-	mvAddCh (y + shiftDown) x $ castEnum '.' where
-	attr = 
-		if action world == '?' && x == xInfo world && y == yInfo world
-		then setStandout attr0 True
-		else attr0
+drawCell world ((x, y), _) = 
+	if abs dx > xSight || abs dy > ySight
+	then return ()
+	else do
+		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
+		placeChar dx dy sym where
+		attr = 
+			if action world == '?' && x == xInfo world && y == yInfo world
+			then setStandout attr0 True
+			else attr0
+		dx = x - xFirst world
+		dy = y - yFirst world
+		sym = if x == div maxX 2 && y == div maxY 2 then '*' else '.'
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
-drawItem world(x, y, item, _) = do
-	wAttrSet stdScr (attr0, Pair $ colorFromTerr $ worldmap world A.! (x,y))
-	mvAddCh (y + shiftDown) x $ castEnum $ symbolItem item
+drawItem world(x, y, item, _) = 
+	if abs dx > xSight || abs dy > ySight
+	then return ()
+	else do
+		wAttrSet stdScr (attr0, Pair $ colorFromTerr $ worldmap world A.! (x,y))
+		placeChar dx dy $ symbolItem item where
+		dx = x - xFirst world
+		dy = y - yFirst world
 
 showItemsPD :: Int -> (S.Set Char) -> (Int, Char, (Object, Int)) -> IO ()
 showItemsPD h toPick' (n, c, (obj,cnt)) =

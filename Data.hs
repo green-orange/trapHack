@@ -8,9 +8,11 @@ import Data.Array
 lol :: a
 lol = undefined
 
-maxX, maxY :: Int
-maxX = 39
-maxY = 19
+maxX, maxY, xSight, ySight :: Int
+maxX = 99
+maxY = 59
+xSight = 20
+ySight = 10
 
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1

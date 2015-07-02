@@ -32,7 +32,7 @@ main = do
 	_ <- initScr
 	(h, w) <- scrSize
 	_ <- endWin
-	if (w <= maxX + 42 || h <= maxY + 5)
+	if (w <= 2 * xSight + 42 || h <= 2 * ySight + 5)
 	then putStrLn "Your screen is too small"
 	else do gen <- getStdGen
 #if linux_HOST_OS

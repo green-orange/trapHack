@@ -3,7 +3,7 @@ trapHack is a roguelike-survival based on NetHack, IVAN and HyperRogue. trapHack
 ### How to install
 trapHack is written in Haskell. You can use [GHC](https://www.haskell.org/ghc/) (Glasgow Haskell Compiler) to compile it. Also you must install [HSCurses](https://hackage.haskell.org/package/hscurses) module.
 ### About game
-This is a roguelike without walking through dungeons but with lots of monsters. Scene is very small (now it's a rectangle 20x40) and empty but teems with life. And you need to create a stronghold in this wilderness because you will die quickly on the empty space. Your goal is to survive as long as you can, there is no victory conditions. Remember that all your enemies might become your friends.
+This is a roguelike without walking through dungeons but with lots of monsters. Scene is one empty level (now it's a rectangle 100x60). It teems with all forms of life. And you need to create a stronghold in this wilderness because you will die quickly on the empty space. Your goal is to survive as long as you can, there is no victory conditions. Remember that all your enemies might become your friends.
 ### Keybindings
 y k u  
 h . l - move or attack  
