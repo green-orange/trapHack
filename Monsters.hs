@@ -28,8 +28,9 @@ getDummy :: Int -> Float -> MonsterGen
 getDummy n _ = getMonster (\_ _ w -> w) [getMain 1 n] "Dummy" lol 
 	(const M.empty) 100
 
-addMonsters :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
+addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens
+addMonstersFull gens pair = foldr addMonsterFull pair gens
 
 addMonster :: MonsterGen -> (Units, StdGen) -> (Units, StdGen)
 addMonster gen (uns, g) = 
@@ -45,6 +46,17 @@ addMonster gen (uns, g) =
 		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ M.keys $ list uns
 		[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
 			$ M.toList $ list uns
+
+addMonsterFull :: MonsterGen -> (Units, StdGen) -> (Units, StdGen)
+addMonsterFull gen (uns, g) = 
+	if isCorrect
+	then (insertU (x, y) (mon {time = time $ getFirst' uns}) uns, g3)
+	else addMonster gen (uns, g3)
+	where
+		(x, g1) = randomR (0, maxX) g
+		(y, g2) = randomR (0, maxY) g1
+		(mon, g3) = gen g2
+		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ M.keys $ list uns
 	
 animate :: Int -> Int -> World -> World
 animate x y w = 

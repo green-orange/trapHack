@@ -12,16 +12,25 @@ import qualified Data.Map as M
 nameFromGen :: MonsterGen -> String
 nameFromGen mgen = name $ fst $ mgen lol
 
-addWave :: Int -> (Units, StdGen) -> (Units, StdGen)
-addWave n (uns, g) = 
+addWaveBy :: ([MonsterGen] -> (Units, StdGen) -> (Units, StdGen)) 
+	-> Int -> (Units, StdGen) -> (Units, StdGen)
+addWaveBy fun n (uns, g) = 
 	if null ms
 	then addWave n (uns, g')
-	else addMonsters ms (uns, g')
+	else fun ms (uns, g')
 	where
 		(ms, g') = genWave n g
+
+addWave, addWaveFull :: Int -> (Units, StdGen) -> (Units, StdGen)
+addWave = addWaveBy addMonsters
+addWaveFull = addWaveBy addMonstersFull
 		
 weigthW :: World -> Int
-weigthW w = M.foldr (+) 0 $ M.map (weigth . name) $ M.filter isSoldier $ units w
+weigthW w = M.foldr (+) 0 $ M.map (weigth . name) $ M.filter isSoldier 
+	$ M.filterWithKey (\(x, y) _ -> abs (x - xPlayer) <= xSight 
+	&& abs (y - yPlayer) <= ySight) $ units w where
+	[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
+		$ M.toList $ units w
 		
 weigth :: String -> Int
 weigth "Bat"             = 1
@@ -78,4 +87,5 @@ genWave n g =
 
 newWave :: World -> World
 newWave w = w {units' = newUnits, stdgen = newStdGen, wave = wave w + 1} where
-	(newUnits, newStdGen) = addWave (wave w) (units' w, stdgen w)
+	(newUnits, newStdGen) = addWave (wave w) 
+		$ addWaveFull (wave w) (units' w, stdgen w)
