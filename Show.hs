@@ -38,7 +38,8 @@ drawUnit world ((x, y), mon) =
 		wAttrSet stdScr (attr, Pair $ back + color' - 8)
 		placeChar dx dy sym where
 		attr = 
-			if x == xFirst world && y == yFirst world
+			if x == xFirst world && y == yFirst world ||
+				action world == '?' && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
 			else attr0
 		(sym, color') = symbolMon $ name mon
@@ -66,10 +67,14 @@ drawItem world(x, y, item, _) =
 	if abs dx > xSight || abs dy > ySight
 	then return ()
 	else do
-		wAttrSet stdScr (attr0, Pair $ colorFromTerr $ worldmap world A.! (x,y))
+		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
 		placeChar dx dy $ symbolItem item where
 		dx = x - xFirst world
 		dy = y - yFirst world
+		attr = 
+			if action world == '?' && x == xInfo world && y == yInfo world
+			then setStandout attr0 True
+			else attr0
 
 showItemsPD :: Int -> (S.Set Char) -> (Int, Char, (Object, Int)) -> IO ()
 showItemsPD h toPick' (n, c, (obj,cnt)) =

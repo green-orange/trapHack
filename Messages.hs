@@ -130,7 +130,12 @@ getInfo w = changeAction ' ' $
 	addDefaultMessage msg w where msg = infoMessage w
 
 infoMessage :: World -> String
-infoMessage w = if last str == ' ' then init str else str where
+infoMessage w = 
+	if xInfo w < 0 || yInfo w < 0 || xInfo w > maxX || yInfo w > maxY
+	then "This cell doesn't exist!"
+	else if abs (xInfo w - xFirst w) > xSight || abs (yInfo w - yFirst w) > ySight
+	then "You can't see this cell!"
+	else if last str == ' ' then init str else str where
 	x = xInfo w
 	y = yInfo w
 	terr = worldmap w ! (x, y)
