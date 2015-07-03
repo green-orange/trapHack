@@ -79,16 +79,25 @@ cleanFirst :: World -> World
 cleanFirst w = changeMon (cleanParts $ getFirst w) w
 
 remFirst :: World -> World
-remFirst world = updateFirst $ changeMons (deleteU (xFirst world, yFirst world) $ units' world) 
+remFirst world = updateFirst $ changeMons 
+	(deleteU (xFirst world, yFirst world) $ units' world) 
 	$ changeAction ' ' world
 
-coordsPlayer :: World -> (Int, Int)
-coordsPlayer w =
-	if null yous
-	then (-1, -1)
-	else fst $ head yous
+closestPlayerChar :: Int -> Int -> World -> Maybe (Int, Int)
+closestPlayerChar x y w = 
+	if M.null yous || abs (x - xP) > xSight || abs (y - yP) > ySight
+	then Nothing
+	else Just (xP, yP)
 	where
-		yous = filter (\q -> (name (snd q) == "You")) $ M.toList $ units w
+	yous = M.filter (\q -> case ai q of
+		You -> True
+		_ -> False) $ units w
+	closest (x1,y1) (x2,y2) = 
+		if max (abs $ x1 - x) (abs $ y1 - y) > 
+			max (abs $ x2 - x) (abs $ y2 - y)
+		then (x2, y2)
+		else (x1, y1)
+	(xP, yP) = foldr1 closest $ M.keys yous
 
 tempFirst :: World -> World
 tempFirst w = changeMon newMon w where
@@ -108,7 +117,7 @@ tickFirst :: World -> World
 tickFirst w = changeMon (tickFirstMon $ getFirst w) w
 
 listOfValidChars :: (Object -> Bool) -> World -> [Char]
-listOfValidChars f world = sort $ foldr (:) [] $ M.keys 
+listOfValidChars f world = sort $ M.keys 
 	$ M.filter (f . fst) $ inv $ getFirst world
 	
 doIfCorrect :: (World, Bool) -> Either World String

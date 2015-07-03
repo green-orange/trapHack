@@ -18,7 +18,7 @@ import Data.Maybe (isJust)
 import System.Random (randomR)
 
 step :: World -> Key -> Either World String
-step world c =
+step world c = 
 	if alive mon
 	then
 		if isPlayerNow world && not stun
@@ -102,10 +102,14 @@ step world c =
 		stun = (isJust $ temp mon !! fromEnum Stun) ||
 			(isJust $ temp mon !! fromEnum Conf) && 5*p > 1
 		p::Float
-		(p, _) = randomR (0.0, 1.0) $ stdgen world
+		(p, g) = randomR (0.0, 1.0) $ stdgen world
 		mon = getFirst world
 		AI aiNow = if stun then AI randomAI else ai mon
-		(x, y) = coordsPlayer world
+		(xR, g1) = randomR (0, maxX) g
+		(yR, _) = randomR (0, maxY) g1 
+		(x, y) = case closestPlayerChar (xFirst world) (yFirst world) world of
+			Just (xP, yP) -> (xP, yP)
+			Nothing -> (xR, yR)
 		
 justStep :: World -> Key -> Either World String
 justStep world c = case dir c of
