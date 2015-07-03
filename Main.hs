@@ -14,11 +14,16 @@ import System.Random (getStdGen)
 import System.Posix.User
 #endif
 
+logName :: String
+logName = "trapHack.log"
+
 loop :: World -> IO String
 loop world =
 	if isPlayerNow world
 	then do
 		c <- redraw world
+		maybeAppendFile logName $ filter (not . null) 
+			$ map fst $ message world
 		case step (clearMessage world) c of
 			Left newWorld -> loop newWorld
 			Right msg -> return msg
@@ -26,9 +31,15 @@ loop world =
 		case step world $ KeyChar ' ' of
 			Left newWorld -> loop newWorld
 			Right msg -> redraw world >> return msg
+	where
+	maybeAppendFile fileName strings = 
+		if null strings
+		then return ()
+		else appendFile fileName $ unwords strings ++ "\n"
 
 main :: IO ()
 main = do
+	writeFile logName ""
 	_ <- initScr
 	(h, w) <- scrSize
 	_ <- endWin
