@@ -34,10 +34,10 @@ collectorAI _ _ world =
 
 getGarbageCollector :: MonsterGen		  
 getGarbageCollector = getMonster collectorAI
-	[getBody 1 30, 
-	 getHead 1 20,
-	 getLeg  1 10,
-	 getLeg  1 10,
-	 getArm  1 10,
-	 getArm  1 10]
+	[(getBody 1, (20, 40)), 
+	 (getHead 1, (10, 30)),
+	 (getLeg  1, ( 8, 12)),
+	 (getLeg  1, ( 8, 12)),
+	 (getArm  1, ( 8, 12)),
+	 (getArm  1, ( 8, 12))]
 	 "Garbage collector" (dices (2,4) 0.4) (const empty) 100

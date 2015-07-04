@@ -8,10 +8,11 @@ import Messages
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
 	
-getMonster :: AIfunc -> [Int -> Part] -> String -> StdDmg -> InvGen -> Int -> MonsterGen
+getMonster :: AIfunc -> [(Int -> Int -> Part, (Int, Int))]
+	-> String -> StdDmg -> InvGen -> Int -> MonsterGen
 getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	ai = AI ai',
-	parts = zipWith ($) ps [0..],
+	parts = zipWith ($) partGens [0..],
 	name = name',
 	stddmg = stddmg',
 	inv = inv' p,
@@ -20,12 +21,20 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
 	temp = map (const Nothing) (getAll :: [Temp])
-}, newGen) where
+}, g'') where
 	p :: Float
-	(p, newGen) = randomR (0.0, 1.0) g
+	(p, g') = randomR (0.0, 1.0) g
+	addHPs :: [(Int -> Int -> Part, (Int, Int))] 
+		-> StdGen -> ([Int -> Part], StdGen)
+	addHPs [] gen = ([], gen)
+	addHPs ((genPart, pair):xs) gen = (newPart:oldParts, newGen) where
+		(oldParts, oldGen) = addHPs xs gen
+		(newHP, newGen) = randomR pair oldGen
+		newPart = genPart newHP
+	(partGens, g'') = addHPs ps g'
 
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (\_ _ w -> w) [getMain 1 n] "Dummy" lol 
+getDummy n _ = getMonster (\_ _ w -> w) [(getMain 1, (n, n))] "Dummy" lol 
 	(const M.empty) 100
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)

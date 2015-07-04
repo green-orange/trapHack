@@ -57,13 +57,10 @@ genWave n g =
 	then ([], g)
 	else if d > n
 	then (oldWave, g'')
-	else (genM frac : oldWave, g'')
+	else (genM : oldWave, g'')
 	where
-		p, frac :: Float
-		(p, g') = randomR (0.0, 16.0) g
-		frac = p - fromIntegral ind
 		ind :: Int
-		ind = floor p
+		(ind, g') = randomR (0, 14) g
 		genM = case ind of
 			0  -> getHomunculus
 			1  -> getBeetle
@@ -77,12 +74,12 @@ genWave n g =
 			9  -> getRedDragon
 			10 -> getWhiteDragon
 			11 -> getGreenDragon
-			12 -> getForgottenBeast
-			13 -> getSpider
-			14 -> getSoldier
-			15 -> getUmberHulk
+			--12 -> getForgottenBeast
+			12 -> getSpider
+			13 -> getSoldier
+			14 -> getUmberHulk
 			_  -> error "value error in function genWave"
-		d = weigth $ nameFromGen $ genM frac
+		d = weigth $ nameFromGen genM
 		(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World

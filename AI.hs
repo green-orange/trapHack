@@ -11,7 +11,7 @@ import Monsters
 import Utils4mon
 import Colors
 
-import System.Random (randomR)
+import System.Random (randomR, StdGen)
 import Data.Maybe (fromJust, isNothing)
 import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
@@ -25,11 +25,13 @@ trollAI :: AIfunc -> AIfunc
 trollAI f x y w = 
 	if any (<= 5) $ map hp $ filter (\p -> kind p == hEAD || kind p == bODY) 
 		$ parts $ getFirst w
-	then addMessage ("Troll turned into a rock.", bLUE) $ changeMon rock w
+	then addMessage ("Troll turned into a rock.", bLUE) 
+		$ changeMon (rock $ stdgen w) w
 	else f x y w
 
-rock :: Monster
-rock = fst $ getMonster (\_ _ w -> w) [getMain 0 500] "Rock" lol (const M.empty) 10000 lol
+rock :: StdGen -> Monster
+rock g = fst $ getMonster (\_ _ w -> w) [(getMain 0, (100, 5000))] 
+	"Rock" lol (const M.empty) 10000 g
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . bindArmorAI . wieldWeaponAI . useItemsAI . pickAI
@@ -181,5 +183,6 @@ wormAI xPlayer yPlayer w =
 		Just mon = maybeMon
 
 tailWorm :: MonsterGen
-tailWorm = getMonster (\_ _ w -> w) [getMain 0 100] "Tail" lol (const M.empty) 10000
+tailWorm = getMonster (\_ _ w -> w) [(getMain 0, (100, 200))] 
+	"Tail" lol (const M.empty) 10000
 
