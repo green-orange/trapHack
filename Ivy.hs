@@ -9,11 +9,10 @@ import Changes
 import Move
 
 import System.Random (randomR)
-import Data.Map (empty)
 
 getIvy :: MonsterGen
 getIvy = getMonster ivyAI [(getMain 2, (5, 15))] "Ivy"
-	(dices (2,10) 0) (const empty) 600
+	(dices (2,10) 0) emptyInv 600
 
 ivyAI :: AIfunc
 ivyAI xPlayer yPlayer world = 

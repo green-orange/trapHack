@@ -51,9 +51,12 @@ doNothing = return ()
 
 type AIfunc = Int -> Int -> World -> World
 type Inv = M.Map Char (Object, Int)
-type InvGen = Float -> Inv
+type InvGen = StdGen -> (Inv, StdGen)
 type StdDmg = World -> (Maybe Int, StdGen)
 type MonsterGen = StdGen -> (Monster, StdGen)
+
+emptyInv :: InvGen
+emptyInv g = (M.empty, g)
 
 data Units = Units {
 	xF :: Int,

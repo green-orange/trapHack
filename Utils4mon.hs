@@ -63,4 +63,3 @@ randTemp :: Temp -> (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
 randTemp temp' bounds (mon, g) = (newMon, g') where
 	(duration, g') = randomR bounds g
 	newMon = setMaxTemp temp' (Just duration) mon
-	

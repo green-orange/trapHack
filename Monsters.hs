@@ -15,15 +15,13 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	parts = zipWith ($) partGens [0..],
 	name = name',
 	stddmg = stddmg',
-	inv = inv' p,
+	inv = newInv,
 	slowness = slow',
 	time = slow',
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
 	temp = map (const Nothing) (getAll :: [Temp])
 }, g'') where
-	p :: Float
-	(p, g') = randomR (0.0, 1.0) g
 	addHPs :: [(Int -> Int -> Part, (Int, Int))] 
 		-> StdGen -> ([Int -> Part], StdGen)
 	addHPs [] gen = ([], gen)
@@ -31,11 +29,12 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 		(oldParts, oldGen) = addHPs xs gen
 		(newHP, newGen) = randomR pair oldGen
 		newPart = genPart newHP
-	(partGens, g'') = addHPs ps g'
+	(partGens, g') = addHPs ps g
+	(newInv, g'') = inv' g'
 
 getDummy :: Int -> Float -> MonsterGen
 getDummy n _ = getMonster (\_ _ w -> w) [(getMain 1, (n, n))] "Dummy" lol 
-	(const M.empty) 100
+	emptyInv 100
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens
