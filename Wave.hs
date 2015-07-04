@@ -4,6 +4,7 @@ import Data
 import Monsters
 import MonsterList
 import Ivy
+import Forgotten
 import Utils4mon
 
 import System.Random (StdGen, randomR)
@@ -37,7 +38,7 @@ weigth "Bat"             = 1
 weigth "Homunculus"      = 2
 weigth "Beetle"          = 3
 weigth "Ivy"             = 3
-weigth "Accelerator"     = 3
+weigth "Accelerator"     = 4
 weigth "Floating eye"    = 3
 weigth "Hunter"          = 4
 weigth "Troll"           = 4
@@ -60,7 +61,7 @@ genWave n g =
 	else (genM : oldWave, g'')
 	where
 		ind :: Int
-		(ind, g') = randomR (0, 14) g
+		(ind, g') = randomR (0, 15) g
 		genM = case ind of
 			0  -> getHomunculus
 			1  -> getBeetle
@@ -74,10 +75,10 @@ genWave n g =
 			9  -> getRedDragon
 			10 -> getWhiteDragon
 			11 -> getGreenDragon
-			--12 -> getForgottenBeast
-			12 -> getSpider
-			13 -> getSoldier
-			14 -> getUmberHulk
+			12 -> getForgottenBeast
+			13 -> getSpider
+			14 -> getSoldier
+			15 -> getUmberHulk
 			_  -> error "value error in function genWave"
 		d = weigth $ nameFromGen genM
 		(oldWave, g'') = genWave (n - d) g'

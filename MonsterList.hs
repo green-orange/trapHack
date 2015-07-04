@@ -7,14 +7,13 @@ import Stuff
 import Move
 import AI
 import Parts
---import Forgotten
 
 import qualified Data.Map as M
 import System.Random (randomR)
 
 getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
 	getWorm, getFloatingEye, getRedDragon, getWhiteDragon, getGreenDragon,
-	{-getForgottenBeast,-} getSpider, getSoldier, getUmberHulk :: MonsterGen
+	getSpider, getSoldier, getUmberHulk :: MonsterGen
 
 getHomunculus = getMonster (humanoidAI stupidestAI)
 	[(getBody 1, (10, 30)), 
@@ -124,10 +123,7 @@ getGreenDragon = getMonster (attackIfClose Poison' 3 $ stupidAI)
 	 (getWing 3, (10, 30)),
 	 (getWing 3, (10, 30))]
 	"Green dragon" (dices (2,5) 0.2) emptyInv 80
-{-	
-getForgottenBeast = getMonster (forgottenAI q) (forgottenParts q)
-	"Forgotten beast" (forgottenDmg q) forgottenInv (forgottenSlowness q)
--}
+
 getSpider = getMonster stupidPoisonAI
 	[(getBody 1, (10, 20)),
 	 (getHead 1, (5, 15)),
