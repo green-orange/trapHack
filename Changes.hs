@@ -102,8 +102,16 @@ addMessage :: (String, Int) -> World -> World
 addMessage ("", _) = id
 addMessage s = addMessages [s]
 
-clearMessage :: World -> World
-clearMessage w = w {message = []}
+clearMessage :: Int -> World -> World
+clearMessage width w = w {message = 
+	dropAccum (message w) maxLen} where
+	maxLen = width * (shiftDown - 1) - 2
+	dropAccum :: [([a], b)] -> Int -> [([a], b)]
+	dropAccum [] _ = []
+	dropAccum arg@((x, _):xs) n = 
+		if length x <= n
+		then dropAccum xs $ n - length x - 1
+		else arg
 
 changeGen :: StdGen -> World -> World
 changeGen g w = w {stdgen = g}

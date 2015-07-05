@@ -22,9 +22,10 @@ loop world =
 	if isPlayerNow world
 	then do
 		c <- redraw world
+		(_, width) <- scrSize
 		maybeAppendFile logName $ filter (not . null) 
 			$ map fst $ message world
-		case step (clearMessage world) c of
+		case step (clearMessage width world) c of
 			Left newWorld -> loop newWorld
 			Right msg ->
 				appendFile logName (msg ++ "\n")

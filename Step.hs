@@ -154,7 +154,8 @@ justStep world c = case dir c of
 		KeyChar 'C' ->
 			Left $ changeAction 'C' $ addDefaultMessage
 				"Do you really want to call upon the next wave? (y/N)" world
-		KeyChar '?'->
+		KeyChar '\n' -> Left world
+		KeyChar '?' ->
 			Left $ changeAction '?' $ addDefaultMessage
 				"Pick an object and press ." world {xInfo = xFirst world,
 				 yInfo = yFirst world}

@@ -49,6 +49,9 @@ notAlphabet = ['{'..]
 doNothing :: IO ()
 doNothing = return ()
 
+shiftDown :: Int
+shiftDown = 5
+
 type AIfunc = Int -> Int -> World -> World
 type Inv = M.Map Char (Object, Int)
 type InvGen = StdGen -> (Inv, StdGen)

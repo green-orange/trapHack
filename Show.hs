@@ -14,8 +14,7 @@ import Data.List (sortBy)
 import Data.Function (on)
 import qualified Data.Array as A
 
-shiftDown, shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
-shiftDown = 5
+shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
 shiftRightHP = 2 * xSight + 5
 shiftAttrs = 2 * xSight + 30
 diff = 20
@@ -86,14 +85,21 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 		else " - "
 		
 showMessages :: [(String, Int)] -> IO ()
-showMessages msgs = (foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> return ()
+showMessages msgs = 
+	if null msgs then return () 
+	else (mvWAddStr stdScr (shiftDown - 1) 0 "--MORE--") >>
+	(foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
 showMessage (msg, color') (x, y) = do
 	(_, w) <- scrSize
-	wAttrSet stdScr (attr0, Pair color')
-	mvWAddStr stdScr x y msg
-	return $ rez w where
+	if fst (rez w) < shiftDown - 1
+	then do
+		wAttrSet stdScr (attr0, Pair color')
+		mvWAddStr stdScr x y msg
+		return $ rez w
+	else return (x, y)
+	where
 		rez w = (dx, dy) where
 			dy' = y + 1 + length msg
 			dx = x + div dy' w
@@ -186,7 +192,7 @@ drawPartChange world _ = do
 drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	showMessages $ message world
+	_ <- showMessages $ message world
 	foldl (>>) doNothing $ map (drawCell world) $ A.assocs $ worldmap world
 	foldl (>>) doNothing $ map (drawItem world) $ items world
 	foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
