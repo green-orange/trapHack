@@ -26,11 +26,14 @@ loop world =
 			$ map fst $ message world
 		case step (clearMessage world) c of
 			Left newWorld -> loop newWorld
-			Right msg -> return msg
+			Right msg ->
+				appendFile logName (msg ++ "\n")
+				>> return msg
 	else
 		case step world $ KeyChar ' ' of
 			Left newWorld -> loop newWorld
-			Right msg -> redraw world >> return msg
+			Right msg -> redraw world >> 
+				appendFile logName (msg ++ "\n") >> return msg
 	where
 	maybeAppendFile fileName strings = 
 		if null strings
