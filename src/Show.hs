@@ -84,10 +84,11 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 		then " + "
 		else " - "
 		
-showMessages :: [(String, Int)] -> IO ()
-showMessages msgs = 
-	if null msgs then return () 
-	else (mvWAddStr stdScr (shiftDown - 1) 0 "--MORE--") >>
+showMessages :: Int -> [(String, Int)] -> IO ()
+showMessages width msgs = 
+	(if (sum $ map ((1+) . length . fst) msgs) < shiftDown * width - 2
+	then return ()
+	else (mvWAddStr stdScr (shiftDown - 1) 0 "--MORE--")) >>
 	(foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
@@ -192,7 +193,8 @@ drawPartChange world _ = do
 drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	_ <- showMessages $ message world
+	(_, w) <- scrSize
+	showMessages w $ message world
 	foldl (>>) doNothing $ map (drawCell world) $ A.assocs $ worldmap world
 	foldl (>>) doNothing $ map (drawItem world) $ items world
 	foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
