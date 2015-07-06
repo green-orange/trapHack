@@ -12,7 +12,7 @@ import System.Random (randomR)
 
 getIvy :: MonsterGen
 getIvy = getMonster ivyAI [(getMain 2, (5, 15))] "Ivy"
-	(dices (2,10) 0) emptyInv 600
+	(dices (2,10) 0) emptyInv 400
 
 ivyAI :: AIfunc
 ivyAI xPlayer yPlayer world = 

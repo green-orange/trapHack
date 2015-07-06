@@ -35,21 +35,21 @@ weigthW w = M.foldr (+) 0 $ M.map (weigth . name) $ M.filter isSoldier
 		
 weigth :: String -> Int
 weigth "Bat"             = 1
-weigth "Homunculus"      = 2
-weigth "Beetle"          = 3
+weigth "Homunculus"      = 3
+weigth "Beetle"          = 5
 weigth "Ivy"             = 3
-weigth "Accelerator"     = 4
-weigth "Floating eye"    = 3
-weigth "Hunter"          = 4
-weigth "Troll"           = 4
-weigth "Worm"            = 4
-weigth "Red dragon"      = 7
-weigth "Green dragon"    = 7
-weigth "White dragon"    = 7
-weigth "Forgotten beast" = 10
-weigth "Spider"          = 4
-weigth "Soldier"         = 5
-weigth "Umber hulk"      = 5
+weigth "Accelerator"     = 6
+weigth "Floating eye"    = 5
+weigth "Hunter"          = 7
+weigth "Troll"           = 7
+weigth "Worm"            = 5
+weigth "Red dragon"      = 10
+weigth "Green dragon"    = 10
+weigth "White dragon"    = 10
+weigth "Forgotten beast" = 15
+weigth "Spider"          = 8
+weigth "Soldier"         = 8
+weigth "Umber hulk"      = 9
 weigth _                 = 0
 		
 genWave :: Int -> StdGen -> ([MonsterGen], StdGen)
