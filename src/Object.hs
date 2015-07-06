@@ -140,6 +140,9 @@ trapFirst c world = rez where
 		then (maybeAddMessage "You haven't this item!" failWorld, False)
 		else if not $ isTrap obj
 		then (maybeAddMessage "It's not a trap!" failWorld, False)
+		else if worldmap world A.! (x, y) /= Empty
+		then (maybeAddMessage "You can't set a trap over another trap!"
+			failWorld, False)
 		else (addNeutralMessage newMsg $ changeMon mon 
 			$ changeMap x y (num obj) $ changeAction ' ' $ world, True)
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
