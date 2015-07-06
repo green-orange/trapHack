@@ -99,8 +99,9 @@ step world c =
 			in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
 				$ addMessage (name mon ++ " die!", cYAN) world
 	where
-		stun = (isJust $ temp mon !! fromEnum Stun) ||
-			(isJust $ temp mon !! fromEnum Conf) && 5*p > 1
+		stun = ((isJust $ temp mon !! fromEnum Stun) ||
+			(isJust $ temp mon !! fromEnum Conf) && 5*p > 1) &&
+			canWalk mon
 		p::Float
 		(p, g) = randomR (0.0, 1.0) $ stdgen world
 		mon = getFirst world

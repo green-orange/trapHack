@@ -168,11 +168,11 @@ randomAI _ _ w  = (moveFirst rx ry newWorld) where
 	
 wormAI :: AIfunc
 wormAI xPlayer yPlayer w = 
-	if isNothing maybeMon
-	then spawnMon tailWorm xNow yNow $ moveFirst dx dy w
-	else if name mon == "Tail" || name mon == "Worm"
-	then killFirst w
-	else moveFirst dx dy w where
+	(if isNothing maybeMon
+	then spawnMon tailWorm xNow yNow . moveFirst dx dy
+	else if name mon == "Tail" && p < 0.2
+	then killFirst
+	else moveFirst dx dy) $ changeGen g w where
 		xNow = xFirst w
 		yNow = yFirst w
 		dx = signum $ xPlayer - xNow
@@ -181,6 +181,8 @@ wormAI xPlayer yPlayer w =
 		yNew = yNow + dy
 		maybeMon = M.lookup (xNew, yNew) (units w)
 		Just mon = maybeMon
+		p :: Float
+		(p, g) = randomR (0.0, 1.0) $ stdgen w
 
 tailWorm :: MonsterGen
 tailWorm = getMonster (\_ _ w -> w) [(getMain 0, (100, 200))] 
