@@ -13,7 +13,7 @@ import Data.Array
 
 rectdirs :: (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Maybe (Int, Int)
 rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
-	if (xnew >= xmin && xnew <= xmax && ynew >= ymin && ynew <= ymax)
+	if xnew >= xmin && xnew <= xmax && ynew >= ymin && ynew <= ymax
 	then Just (xnew, ynew)
 	else Nothing
 	where
@@ -32,7 +32,7 @@ initUnits = Units {
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {
-	worldmap = listArray ((0,0), (maxX,maxY)) $ cycle [Empty],
+	worldmap = listArray ((0,0), (maxX,maxY)) $ repeat Empty,
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
 	message = [("Welcome to the trapHack, " ++ username ++ ".", bLUE)],

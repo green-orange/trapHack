@@ -9,6 +9,7 @@ import Init
 import Colors
 
 import UI.HSCurses.Curses
+import Control.Monad (unless)
 import System.Random (getStdGen)
 #if linux_HOST_OS
 import System.Posix.User
@@ -37,9 +38,7 @@ loop world =
 				appendFile logName (msg ++ "\n") >> return msg
 	where
 	maybeAppendFile fileName strings = 
-		if null strings
-		then return ()
-		else appendFile fileName $ unwords strings ++ "\n"
+		unless (null strings) $ appendFile fileName $ unwords strings ++ "\n"
 
 main :: IO ()
 main = do
@@ -47,7 +46,7 @@ main = do
 	_ <- initScr
 	(h, w) <- scrSize
 	_ <- endWin
-	if (w <= 2 * xSight + 42 || h <= 2 * ySight + 5)
+	if w <= 2 * xSight + 42 || h <= 2 * ySight + 5
 	then putStrLn "Your screen is too small"
 	else do gen <- getStdGen
 #if linux_HOST_OS
@@ -59,4 +58,4 @@ main = do
 		initScr >> initCurses >> startColor >> initColors >>
 			keypad stdScr True >> echo False >>
 			cursSet CursorInvisible >> return ()
-		(loop $ initWorld username gen) >>= (\msg -> endWin >> putStrLn msg)
+		loop (initWorld username gen) >>= (\msg -> endWin >> putStrLn msg)

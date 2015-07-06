@@ -45,5 +45,5 @@ uniformFromList :: Float -> [a] -> a
 uniformFromList q xs = xs !! n where n = uniform q 0 $ length xs - 1
 
 frac :: Float -> Float
-frac q = (-) q $ ((intToFloat $ floor q) :: Float)
+frac q = (-) q ((intToFloat $ floor q) :: Float)
 

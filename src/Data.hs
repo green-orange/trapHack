@@ -74,7 +74,7 @@ data Part = Part {
 	kind :: Int,
 	idP :: Int,
 	regVel :: Int,
-	objectKeys :: [Char]
+	objectKeys :: String
 }
 data AI = You | AI AIfunc
 data Monster = Monster {
@@ -204,7 +204,7 @@ deleteU k uns = uns {list = M.delete k $ list uns}
 
 isEmpty :: World -> Int -> Int -> Bool
 isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
-	(M.notMember (x, y) $ units world)
+	M.notMember (x, y) (units world)
 
 isValid :: World -> Int -> Int -> Int -> Int -> Bool
 isValid world x y dx dy = 

@@ -13,10 +13,10 @@ import System.Random (randomR)
 
 needToBeHealedM :: Monster -> Bool
 needToBeHealedM mon =
-	foldl (||) False $ map (\x -> kind x == bODY && needToBeHealed x) $ parts mon
+	any (\x -> kind x == bODY && needToBeHealed x) $ parts mon
 
 needToBeHealed :: Part -> Bool
-needToBeHealed part = 2 * (hp part) < maxhp part
+needToBeHealed part = 2 * hp part < maxhp part
 
 canBeHealed :: Monster -> Bool
 canBeHealed mon = M.foldl (||) False $ M.map (isHealing . fst) $ inv mon
@@ -37,9 +37,9 @@ isValidMissile :: Monster -> Char -> Bool
 isValidMissile mon c = 
 	isJust objs && isMissile obj && not (null intended) where
 		objs = M.lookup c $ inv mon
-		obj = fst $ fromJust $ objs
+		obj = fst $ fromJust objs
 		launchers = filter isLauncher $ map (fst . fromJust) $ filter isJust 
-			$ map ((flip M.lookup $ inv mon) . (\p -> objectKeys p 
+			$ map (flip M.lookup (inv mon) . (\p -> objectKeys p 
 			!! fromEnum WeaponSlot)) $ parts mon
 		intended = filter (\w -> launcher obj == category w) launchers
 
@@ -72,7 +72,7 @@ weaponAI, launcherAI :: World -> Maybe Char
 weaponAI = getterByCond isWeapon
 launcherAI = getterByCond isLauncher
 
-isArmorByKind :: Int -> (Object -> Bool)
+isArmorByKind :: Int -> Object -> Bool
 isArmorByKind knd obj = isArmor obj && bind obj == knd
 
 getArmorByKind :: Int -> World -> Maybe Char
@@ -95,15 +95,13 @@ undir   0    0  = KeyChar '.'
 undir   _    _  = error "wrong direction (in function undir)"
 
 usefulItem :: Object -> Key -> Maybe (World -> World)
-usefulItem obj c = 
-	if
-		title obj == "potion of intellect" ||
-		title obj == "potion of mutation"
-	then Just $ fst . quaffFirst c
-	else if
-		title obj == "wand of speed" && charge obj > 0
-	then Just $ zapMon (KeyChar '.') (fromKey c)
-	else Nothing
+usefulItem obj c
+	| title obj == "potion of intellect" ||
+		title obj == "potion of mutation" =
+		Just $ fst . quaffFirst c
+	| title obj == "wand of speed" && charge obj > 0 =
+		Just $ zapMon (KeyChar '.') (fromKey c)
+	| otherwise = Nothing
 	
 useSomeItem :: [Object] -> [Key] -> Maybe (World -> World)
 useSomeItem [] _ = Nothing
@@ -123,4 +121,8 @@ addTempByCoords t durs dx dy w = changeGen g $ changeMons newMons w where
 		Just mon -> insertU (xNew, yNew) (setMaxTemp t (Just dur) mon) 
 			$ units' w
 
-
+coordsFromWorld :: Int -> Int -> World -> (Int, Int, Int, Int)
+coordsFromWorld xP yP w = 
+	(xNow, yNow, signum $ xP - xNow, signum $ yP - yNow) where
+		xNow = xFirst w
+		yNow = yFirst w

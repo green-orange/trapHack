@@ -18,9 +18,8 @@ import Data.Maybe (isJust)
 import System.Random (randomR)
 
 step :: World -> Key -> Either World String
-step world c = 
-	if alive mon
-	then
+step world c
+	| alive mon = 
 		if isPlayerNow world && not stun
 		then case action world of
 			' ' -> justStep world c
@@ -34,7 +33,7 @@ step world c =
 			'Z' ->
 				doIfCorrect $ zapFirst c world
 			't' ->
-				if (c == KeyChar '-')
+				if c == KeyChar '-'
 				then
 					doIfCorrect $ untrapFirst world 
 				else
@@ -91,16 +90,15 @@ step world c =
 		else
 			let newMWorld = aiNow x y world
 			in Left $ newWaveIf newMWorld
-	else
-		if name mon == "You"
-		then Right $ "You died on the " ++ numToStr (wave world - 1) ++ " wave."
-		else
-			let (deadMonster, newStdGen) = addDeathDrop (mon) (stdgen world)
-			in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
-				$ addMessage (name mon ++ " die!", cYAN) world
+	| name mon == "You" =
+		Right $ "You died on the " ++ numToStr (wave world - 1) ++ " wave."
+	| otherwise =
+		let (deadMonster, newStdGen) = addDeathDrop mon (stdgen world)
+		in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
+			$ addMessage (name mon ++ " die!", cYAN) world
 	where
-		stun = ((isJust $ temp mon !! fromEnum Stun) ||
-			(isJust $ temp mon !! fromEnum Conf) && 5*p > 1) &&
+		stun = (isJust (temp mon !! fromEnum Stun) ||
+			isJust (temp mon !! fromEnum Conf) && 5*p > 1) &&
 			canWalk mon
 		p::Float
 		(p, g) = randomR (0.0, 1.0) $ stdgen world

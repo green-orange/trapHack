@@ -53,35 +53,32 @@ weigth "Umber hulk"      = 9
 weigth _                 = 0
 		
 genWave :: Int -> StdGen -> ([MonsterGen], StdGen)
-genWave n g = 
-	if n <= 0
-	then ([], g)
-	else if d > n
-	then (oldWave, g'')
-	else (genM : oldWave, g'')
-	where
-		ind :: Int
-		(ind, g') = randomR (0, 15) g
-		genM = case ind of
-			0  -> getHomunculus
-			1  -> getBeetle
-			2  -> getBat
-			3  -> getHunter
-			4  -> getIvy
-			5  -> getAccelerator
-			6  -> getTroll
-			7  -> getWorm
-			8  -> getFloatingEye
-			9  -> getRedDragon
-			10 -> getWhiteDragon
-			11 -> getGreenDragon
-			12 -> getForgottenBeast
-			13 -> getSpider
-			14 -> getSoldier
-			15 -> getUmberHulk
-			_  -> error "value error in function genWave"
-		d = weigth $ nameFromGen genM
-		(oldWave, g'') = genWave (n - d) g'
+genWave n g
+	| n <= 0 = ([], g)
+	| d > n = (oldWave, g'')
+	| otherwise = (genM : oldWave, g'') where
+	ind :: Int
+	(ind, g') = randomR (0, 15) g
+	genM = case ind of
+		0  -> getHomunculus
+		1  -> getBeetle
+		2  -> getBat
+		3  -> getHunter
+		4  -> getIvy
+		5  -> getAccelerator
+		6  -> getTroll
+		7  -> getWorm
+		8  -> getFloatingEye
+		9  -> getRedDragon
+		10 -> getWhiteDragon
+		11 -> getGreenDragon
+		12 -> getForgottenBeast
+		13 -> getSpider
+		14 -> getSoldier
+		15 -> getUmberHulk
+		_  -> error "value error in function genWave"
+	d = weigth $ nameFromGen genM
+	(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World
 newWave w = w {units' = newUnits, stdgen = newStdGen, wave = wave w + 1} where

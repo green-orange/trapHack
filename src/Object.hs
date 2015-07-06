@@ -30,21 +30,21 @@ dir c = case c of
 	_           -> Nothing
 
 quaffFirst :: Key -> World -> (World, Bool)
-quaffFirst c world = rez where
-	rez =
-		if not $ hasPart aRM oldMon
-		then (maybeAddMessage "You need arms to quaff a potion!" 
-			$ changeAction ' ' world, False)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" 
-			$ changeAction ' ' world, False)
-		else if not $ isPotion obj
-		then (maybeAddMessage "You don't know how to quaff it!"
-			$ changeAction ' ' world, False)
-		else (changeGen g $ changeMon mon' $ addNeutralMessage newMsg 
-			$ changeAction ' ' world, True)
+quaffFirst c world
+	| not $ hasPart aRM oldMon
+		= (maybeAddMessage "You need arms to quaff a potion!" 
+		$ changeAction ' ' world, False)
+	| isNothing objects
+		= (maybeAddMessage "You haven't this item!" 
+		$ changeAction ' ' world, False)
+	| not $ isPotion obj
+		= (maybeAddMessage "You don't know how to quaff it!"
+		$ changeAction ' ' world, False)
+	| otherwise
+		= (changeGen g $ changeMon mon' $ addNeutralMessage newMsg 
+		$ changeAction ' ' world, True) where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
-	newMsg = (name $ getFirst world) ++ " quaff" ++ ending world 
+	newMsg = name (getFirst world) ++ " quaff" ++ ending world 
 		++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
 	oldMon = getFirst world
@@ -52,21 +52,21 @@ quaffFirst c world = rez where
 	mon' = delObj c mon
 	
 readFirst :: Key -> World -> (World, Bool)
-readFirst c world = rez where
-	rez =
-		if not $ hasPart aRM mon
-		then (maybeAddMessage "You need arms to read a scroll!" 
-			$ changeAction ' ' world, False)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" 
-			$ changeAction ' ' world, False)
-		else if not $ isScroll obj
-		then (maybeAddMessage "You don't know how to read it!"
-			$ changeAction ' ' world, False)
-		else (changeMon mon' $ addNeutralMessage newMsg 
-			$ changeAction ' ' newWorld, True)
+readFirst c world 
+	| not $ hasPart aRM mon =
+		(maybeAddMessage "You need arms to read a scroll!" 
+		$ changeAction ' ' world, False)
+	| isNothing objects =
+		(maybeAddMessage "You haven't this item!" 
+		$ changeAction ' ' world, False)
+	| not $ isScroll obj =
+		(maybeAddMessage "You don't know how to read it!"
+		$ changeAction ' ' world, False)
+	| otherwise =
+		(changeMon mon' $ addNeutralMessage newMsg 
+		$ changeAction ' ' newWorld, True) where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
-	newMsg = (name $ getFirst world) ++ " read" ++ ending world 
+	newMsg = name (getFirst world) ++ " read" ++ ending world 
 		++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
 	newWorld = actw obj world
@@ -74,19 +74,19 @@ readFirst c world = rez where
 	mon' = delObj c mon
 
 zapFirst :: Key -> World -> (World, Bool)
-zapFirst c world = rez where
-	rez =
-		if not $ hasPart aRM $ getFirst world
-		then (maybeAddMessage "You need arms to zap a wand!" failWorld, False)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" failWorld, False)
-		else if not $ isWand obj
-		then (maybeAddMessage "You don't know how to zap it!" failWorld, False)
-		else if dir c == Nothing
-		then (maybeAddMessage "It's not a direction!" failWorld, False)
-		else if charge obj == 0
-		then (maybeAddMessage "This wand has no charge!" failWorld, True)
-		else (changeMon mon $ changeAction ' ' $ newWorld, True)
+zapFirst c world 
+	| not $ hasPart aRM $ getFirst world =
+		(maybeAddMessage "You need arms to zap a wand!" failWorld, False)
+	| isNothing objects =
+		(maybeAddMessage "You haven't this item!" failWorld, False)
+	| not $ isWand obj =
+		(maybeAddMessage "You don't know how to zap it!" failWorld, False)
+	| isNothing $ dir c =
+		(maybeAddMessage "It's not a direction!" failWorld, False)
+	| charge obj == 0 =
+		(maybeAddMessage "This wand has no charge!" failWorld, True)
+	| otherwise =
+		(changeMon mon $ changeAction ' ' newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	(dx, dy) = fromJust $ dir c
 	maybeCoords = dirs world (x, y, dx, dy)
@@ -97,54 +97,51 @@ zapFirst c world = rez where
 	y = yFirst world
 	oldMon = getFirst newWorld
 	(obj, _) = fromJust objects
-	mon = decChargeByKey (prevAction newWorld) $ oldMon
+	mon = decChargeByKey (prevAction newWorld) oldMon
 	failWorld = changeAction ' ' world
 
 zap :: World -> Int -> Int -> Int -> Int -> Object -> World
-zap world x y dx dy obj = 
-	if (range obj == 0) || incorrect
-	then world
-	else if (dx == 0) && (dy == 0)
-	then newMWorld
-	else zap newMWorld xNew yNew dx dy $ decRange obj
-	where
-		(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
-			Nothing -> (True, (0, 0))
-			Just p -> (False, p)
-		decRange :: Object -> Object
-		decRange obj' = obj' {range = range obj - 1}
-		(newMons, msg) = 
-			case M.lookup (x, y) $ units world of
-			Nothing -> (units' world, "")
-			Just mon -> (update x y $ (units' world) {list = 
-				M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world},
-				msgWand (title obj) (name mon))
-		newMWorld = addMessage (msg, color) $ changeMons newMons world
-		color = 
-			if isPlayerNow world
-			then gREEN
-			else case fmap isPlayer $ M.lookup (x, y) $ units world of
-			Nothing    -> lol
-			Just False -> bLUE
-			Just True  -> rED
+zap world x y dx dy obj
+	| (range obj == 0) || incorrect = world
+	| (dx == 0) && (dy == 0) = newMWorld
+	| otherwise = zap newMWorld xNew yNew dx dy $ decRange obj where
+	(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
+		Nothing -> (True, (0, 0))
+		Just p -> (False, p)
+	decRange :: Object -> Object
+	decRange obj' = obj' {range = range obj - 1}
+	(newMons, msg) = 
+		case M.lookup (x, y) $ units world of
+		Nothing -> (units' world, "")
+		Just mon -> (update x y $ (units' world) {list = 
+			M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world},
+			msgWand (title obj) (name mon))
+	newMWorld = addMessage (msg, color) $ changeMons newMons world
+	color = 
+		if isPlayerNow world
+		then gREEN
+		else case fmap isPlayer $ M.lookup (x, y) $ units world of
+		Nothing    -> lol
+		Just False -> bLUE
+		Just True  -> rED
 
 zapMon :: Key -> Char -> World -> World
 zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 		
 trapFirst :: Key -> World -> (World, Bool)
-trapFirst c world = rez where
-	rez =
-		if not $ hasPart aRM oldMon
-		then (maybeAddMessage "You need arms to set a trap!" failWorld, False)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" failWorld, False)
-		else if not $ isTrap obj
-		then (maybeAddMessage "It's not a trap!" failWorld, False)
-		else if worldmap world A.! (x, y) /= Empty
-		then (maybeAddMessage "You can't set a trap over another trap!"
-			failWorld, False)
-		else (addNeutralMessage newMsg $ changeMon mon 
-			$ changeMap x y (num obj) $ changeAction ' ' $ world, True)
+trapFirst c world
+	| not $ hasPart aRM oldMon =
+		(maybeAddMessage "You need arms to set a trap!" failWorld, False)
+	| isNothing objects =
+		(maybeAddMessage "You haven't this item!" failWorld, False)
+	| not $ isTrap obj =
+		(maybeAddMessage "It's not a trap!" failWorld, False)
+	| worldmap world A.! (x, y) /= Empty =
+		(maybeAddMessage "You can't set a trap over another trap!"
+		failWorld, False)
+	| otherwise =
+		(addNeutralMessage newMsg $ changeMon mon 
+		$ changeMap x y (num obj) $ changeAction ' ' world, True) where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	x = xFirst world
 	y = yFirst world
@@ -152,43 +149,42 @@ trapFirst c world = rez where
 	(obj, _) = fromJust objects
 	mon = delObj c oldMon
 	failWorld = changeAction ' ' world
-	newMsg = (name oldMon) ++ " set" ++ ending world ++ title obj ++ "."
+	newMsg = name oldMon ++ " set" ++ ending world ++ title obj ++ "."
 	
 untrapFirst :: World -> (World, Bool)
-untrapFirst world = rez where
-	rez =
-		if not $ hasPart aRM mon
-		then (maybeAddMessage "You need arms to remove a trap!" failWorld, False)
-		else if not $ isUntrappable $ worldmap world A.! (x, y)
-		then (maybeAddMessage "It's nothing to untrap here!" failWorld, False)
-		else (addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y Empty 
-			$ changeAction ' ' $ world, True)
+untrapFirst world 
+	| not $ hasPart aRM mon =
+		(maybeAddMessage "You need arms to remove a trap!" failWorld, False)
+	| not $ isUntrappable $ worldmap world A.! (x, y) =
+		(maybeAddMessage "It's nothing to untrap here!" failWorld, False)
+	| otherwise =
+		(addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y Empty 
+		$ changeAction ' ' world, True) where
 	x = xFirst world
 	y = yFirst world
 	mon = getFirst world
 	failWorld = changeAction ' ' world
 	trap = trapFromTerrain $ worldmap world A.! (x,y)
-	newMsg = (name mon) ++ " untrap" ++ ending world ++ title trap ++ "."
+	newMsg = name mon ++ " untrap" ++ ending world ++ title trap ++ "."
 	
 fireFirst :: Key -> World -> (World, Bool)
-fireFirst c world = rez where
-	rez =
-		if not $ hasPart aRM oldMon
-		then (maybeAddMessage "You need arms to fire!" failWorld, False)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" failWorld, False)
-		else if not $ isMissile obj
-		then (maybeAddMessage "You don't know how to fire it!" failWorld, False)
-		else if null intended
-		then (maybeAddMessage "You have no weapon appropriate to this missile!" 
-			failWorld, False)
-		else if dir c == Nothing
-		then (maybeAddMessage "It's not a direction!" failWorld, False)
-		else (changeAction ' ' newWorld, True)
+fireFirst c world
+	| not $ hasPart aRM oldMon =
+		(maybeAddMessage "You need arms to fire!" failWorld, False)
+	| isNothing objects =
+		(maybeAddMessage "You haven't this item!" failWorld, False)
+	| not $ isMissile obj =
+		(maybeAddMessage "You don't know how to fire it!" failWorld, False)
+	| null intended =
+		(maybeAddMessage "You have no weapon appropriate to this missile!" 
+		failWorld, False)
+	| isNothing $ dir c =
+		(maybeAddMessage "It's not a direction!" failWorld, False)
+	| otherwise = (changeAction ' ' newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv oldMon
 	intended = filter (\w -> isLauncher w && launcher obj == category w) listWield
 	listWield = map (fst . fromJust) $ filter isJust 
-		$ map ((flip M.lookup $ inv oldMon) . (\p -> objectKeys p !! fromEnum WeaponSlot)) 
+		$ map (flip M.lookup (inv oldMon) . (\ p -> objectKeys p !! fromEnum WeaponSlot)) 
 		$ filter isUpperLimb $ parts oldMon
 	x = xFirst world
 	y = yFirst world
@@ -205,32 +201,29 @@ fireFirst c world = rez where
 	failWorld = changeAction ' ' world
 	
 fire :: Int -> Int -> Int -> Int -> Object -> World -> World
-fire x y dx dy obj world = 
-	if incorrect
-	then world
-	else if isNothing maybeMon
-	then fire xNew yNew dx dy obj world
-	else newWorld
-	where
-		maybeMon = M.lookup (x, y) $ units world 
-		Just mon = maybeMon
-		(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
-			Nothing -> (True, (0, 0))
-			Just p -> (False, p)
-		(newDmg, g) = objdmg obj world
-		(newMon, g') = dmgRandom newDmg mon g
-		msg = case newDmg of
-			Nothing -> capitalize (title obj) ++ " misses."
-			Just _ -> capitalize (title obj) ++ " hits " ++ name mon ++ "."
-		newWorld = addMessage (msg, color) $ changeGen g' 
-			$ changeMons (insertU (x, y) newMon $ units' world) world
-		color = 
-			if isPlayerNow world
-			then gREEN
-			else case fmap isPlayer $ M.lookup (x, y) $ units world of
-			Nothing    -> lol
-			Just False -> bLUE
-			Just True  -> rED
+fire x y dx dy obj world
+	| incorrect = world
+	| isNothing maybeMon = fire xNew yNew dx dy obj world
+	| otherwise = newWorld where
+	maybeMon = M.lookup (x, y) $ units world 
+	Just mon = maybeMon
+	(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
+		Nothing -> (True, (0, 0))
+		Just p -> (False, p)
+	(newDmg, g) = objdmg obj world
+	(newMon, g') = dmgRandom newDmg mon g
+	msg = case newDmg of
+		Nothing -> capitalize (title obj) ++ " misses."
+		Just _ -> capitalize (title obj) ++ " hits " ++ name mon ++ "."
+	newWorld = addMessage (msg, color) $ changeGen g' 
+		$ changeMons (insertU (x, y) newMon $ units' world) world
+	color = 
+		if isPlayerNow world
+		then gREEN
+		else case fmap isPlayer $ M.lookup (x, y) $ units world of
+		Nothing    -> lol
+		Just False -> bLUE
+		Just True  -> rED
 		
 fireMon :: Key -> Char -> World -> World
 fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}

@@ -110,7 +110,7 @@ addInv (obj, cnt) list' =
 			if o == obj
 			then (o, n + cnt)
 			else (o, n)
-
+			
 addIndices :: (a -> Bool) -> [a] -> [(a, Int)]
 addIndices = addIndices' 0 where
 	addIndices' :: Int -> (a -> Bool) -> [a] -> [(a, Int)]

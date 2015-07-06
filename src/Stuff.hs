@@ -30,7 +30,7 @@ deathDrop "Green dragon" = dragonDrop
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
 deathDrop "Spider" = genDeathDrop [(jEWELRY, bound [0.6])]
 deathDrop "Umber hulk" = genDeathDrop [(wANDS, bound [0.6])]
-deathDrop _ = (\p -> (M.empty, p))
+deathDrop _ = \p -> (M.empty, p)
 
 dragonDrop :: StdGen -> (Inv, StdGen)
 dragonDrop = genDeathDrop [(jEWELRY, bound [0.4])]
@@ -135,7 +135,7 @@ wandOfRadiation ch = Wand {title = "wand of radiation",
 	act = unrandom $ radiation 1, range = 5, charge = ch}
 
 wandOfPsionicBlast ch = Wand {title = "wand of psionic blast",
-	act = unrandom $ capture, range = 2, charge = ch}
+	act = unrandom capture, range = 2, charge = ch}
 
 wandOfPoison ch = Wand {title = "wand of poison",
 	act = randTemp Poison (1, 20), range = 5, charge = ch}

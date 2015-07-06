@@ -20,10 +20,11 @@ unrandom f (a, x) = (f a, x)
 
 cleanParts :: Monster -> Monster
 cleanParts mon = delEffects $ changeParts (filter aliveP $ parts mon) mon
-	where delEffects = foldr (.) id $ map (\(obj,_) -> effectOff obj 
-		$ enchantment obj) $ map fromJust $ filter isJust 
-		$ map (flip M.lookup $ inv mon) $ map (\p -> objectKeys p 
-		!! fromEnum JewelrySlot) $ filter (not . aliveP) $ parts mon
+	where delEffects = foldr (((.) . (\ (obj, _) -> effectOff obj 
+		$ enchantment obj)) . fromJust) id $ filter isJust 
+		$ map (flip M.lookup (inv mon) . (\ p -> objectKeys p 
+		!! fromEnum JewelrySlot)) $ filter (not . aliveP) $ parts mon
+
 
 upgrade :: Int -> Part -> Part
 upgrade n part = part {
@@ -95,7 +96,7 @@ safety w = w {
 	action = ' ',
 	wave = wave w + 1,
 	chars = S.empty,
-	worldmap = A.listArray ((0,0), (maxX,maxY)) $ cycle [Empty],
+	worldmap = A.listArray ((0,0), (maxX,maxY)) $ repeat Empty,
 	stepsBeforeWave = 2
 } 
 
@@ -109,8 +110,8 @@ capture :: Monster -> Monster
 capture mon = if canWalk mon then mon {ai = You} else mon
 
 enchantAll :: Slot -> Int -> Monster -> Monster
-enchantAll sl n mon = foldr ($) mon $ map (enchantByLetter 
-	. (\p -> objectKeys p !! fromEnum sl)) $ parts mon where
+enchantAll sl n mon = foldr (enchantByLetter . 
+	(\ p -> objectKeys p !! fromEnum sl)) mon $ parts mon where
 	enchantByLetter c mon' = case M.lookup c $ inv mon' of
 		Nothing -> mon'
 		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}

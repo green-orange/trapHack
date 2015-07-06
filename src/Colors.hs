@@ -23,7 +23,7 @@ colorFromTerr PoisonTrap = 56
 colorFromTerr MagicTrap  = 48
 
 initColors :: IO ()
-initColors = foldr (>>) (return ()) $ actions where
+initColors = sequence_ actions where
 	colorList = ["red", "green", "yellow", "blue", "magenta", "cyan", "white"]
 	colorListFore = defaultForeground : map (fromJust . color) colorList
 	colorListBack = defaultBackground : map (fromJust . color) colorList

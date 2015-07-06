@@ -13,6 +13,7 @@ import qualified Data.Map as M
 import Data.List (sortBy)
 import Data.Function (on)
 import qualified Data.Array as A
+import Control.Monad (unless)
 
 shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
 shiftRightHP = 2 * xSight + 5
@@ -31,9 +32,7 @@ placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight)
 
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
 drawUnit world ((x, y), mon) =
-	if abs dx > xSight || abs dy > ySight
-	then return ()
-	else do
+	unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, Pair $ back + color' - 8)
 		placeChar dx dy sym where
 		attr = 
@@ -48,9 +47,7 @@ drawUnit world ((x, y), mon) =
 
 drawCell :: World -> ((Int, Int), Terrain) -> IO ()
 drawCell world ((x, y), _) = 
-	if abs dx > xSight || abs dy > ySight
-	then return ()
-	else do
+	unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
 		placeChar dx dy sym where
 		attr = 
@@ -63,9 +60,7 @@ drawCell world ((x, y), _) =
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = 
-	if abs dx > xSight || abs dy > ySight
-	then return ()
-	else do
+	unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
 		placeChar dx dy $ symbolItem item where
 		dx = x - xFirst world
@@ -75,10 +70,10 @@ drawItem world(x, y, item, _) =
 			then setStandout attr0 True
 			else attr0
 
-showItemsPD :: Int -> (S.Set Char) -> (Int, Char, (Object, Int)) -> IO ()
+showItemsPD :: Int -> S.Set Char -> (Int, Char, (Object, Int)) -> IO ()
 showItemsPD h toPick' (n, c, (obj,cnt)) =
-	mvWAddStr stdScr (mod (n + 1) h) (30 * (div (n + 1) h))
-		([c] ++ sym ++ (show cnt) ++ " * " ++ titleShow obj) where
+	mvWAddStr stdScr (mod (n + 1) h) (30 * div (n + 1) h)
+		([c] ++ sym ++ show cnt ++ " * " ++ titleShow obj) where
 	sym =
 		if S.member c toPick'
 		then " + "
@@ -86,10 +81,9 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 		
 showMessages :: Int -> [(String, Int)] -> IO ()
 showMessages width msgs = 
-	(if (sum $ map ((1+) . length . fst) msgs) < shiftDown * width - 2
-	then return ()
-	else (mvWAddStr stdScr (shiftDown - 1) 0 "--MORE--")) >>
-	(foldl (>>=) (return (0, 0)) $ map showMessage msgs) >> return ()
+	unless (sum (map ((1+) . length . fst) msgs) < shiftDown * width - 2)
+	(mvWAddStr stdScr (shiftDown - 1) 0 "--MORE--") >>
+	foldl (>>=) (return (0, 0)) (map showMessage msgs) >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
 showMessage (msg, color') (x, y) = do
@@ -145,10 +139,10 @@ drawInventory world h = do
 	foldl (>>) doNothing $ map showInv stringsToShow where
 		items' = M.toList $ inv $ getFirst world
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
-			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj ++
+			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj ++
 			(if isExistingBindingFirst world c then " (is used)" else "")) items'
 		showInv :: (Int, String) -> IO ()
-		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
+		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
 
 drawEquipMenu :: World -> Int -> IO ()
 drawEquipMenu world h = do
@@ -158,9 +152,9 @@ drawEquipMenu world h = do
 		items' = filter (\(c, (obj, _)) -> (binds obj knd == Just (slot world)) 
 			&& not (isExistingBindingFirst world c)) $ M.toList $ inv $ getFirst world
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
-			[c] ++ " - " ++ (show n) ++ " * " ++ titleShow obj) items'
+			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj) items'
 		showInv :: (Int, String) -> IO ()
-		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * (div n $ h-1)) s
+		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
 		knd = kind $ parts (getFirst world) !! shift world
 		
 drawPickOrDrop :: Bool -> World -> Int -> IO ()
@@ -185,8 +179,8 @@ drawPartChange world _ = do
 	mvWAddStr stdScr 0 shiftW "Weapon"
 	mvWAddStr stdScr 0 shiftA "Armor"
 	mvWAddStr stdScr 0 shiftJ "Jewelry"
-	foldl (>>) doNothing $ zipWith3 (($).($)) (map (drawPartFull True 1) [1..])
-		(cycle [getFirst world]) $ parts $ getFirst world
+	foldl (>>) doNothing $ zipWith3 ($) (map (drawPartFull True 1) [1..])
+		(repeat $ getFirst world) $ parts $ getFirst world
 	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
 	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
 
@@ -199,13 +193,13 @@ drawJustWorld world _ = do
 	foldl (>>) doNothing $ map (drawItem world) $ items world
 	foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
 	foldl (>>) doNothing $ zipWith3 ($) (map (drawPart False) [0..])
-		(cycle [getFirst world]) $ sortBy (on compare kind) 
+		(repeat $ getFirst world) $ sortBy (on compare kind) 
 		$ parts $ getFirst world
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
-		(show $ effectiveSlowness $ getFirst world)
+		show (effectiveSlowness $ getFirst world)
 	mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
-			$ "Next wave: " ++ (show $ wave world)
+			$ "Next wave: " ++ show (wave world)
 	wAttrSet stdScr (attr0, Pair rED)
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	foldl (>>) doNothing $ map (showElemRes world) [minBound :: Elem .. maxBound :: Elem]
@@ -249,9 +243,9 @@ drawPartFull isFull x y mon part = do
 	mvWAddStr stdScr y (x+shiftA-1) strA
 	mvWAddStr stdScr y (x+shiftJ-1) strJ
 	where
-		str1 = (partToStr $ kind part) ++ ":"
-		str2 = (show $ hp part) ++ "/" ++ (show $ maxhp part) ++
-			" rv: " ++ (show $ regVel part)
+		str1 = partToStr (kind part) ++ ":"
+		str2 = show (hp part) ++ "/" ++ show (maxhp part) ++
+			" rv: " ++ show (regVel part)
 		(strW, strA, strJ) =
 			if isFull
 			then (case objsW of
@@ -269,14 +263,14 @@ drawPartFull isFull x y mon part = do
 		objsJ = M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon
 
 symbolItem :: Object -> Char
-symbolItem (Potion _ _)        = '!'
-symbolItem (Scroll _ _)        = '?'
-symbolItem (Wand _ _ _ _)      = '/'
-symbolItem (Trap _ _)          = '^'
-symbolItem (Missile _ _ _ _)   = ']'
-symbolItem (Weapon _ _ _)      = ')'
-symbolItem (Launcher _ _ _ _)  = '}'
-symbolItem (Armor _ _ _ _)     = '['
-symbolItem (Jewelry _ _ _ _ _) = '='
-symbolItem _                   = error "unknown object"
+symbolItem (Potion {})   = '!'
+symbolItem (Scroll {})   = '?'
+symbolItem (Wand {})     = '/'
+symbolItem (Trap {})     = '^'
+symbolItem (Missile {})  = ']'
+symbolItem (Weapon {})   = ')'
+symbolItem (Launcher {}) = '}'
+symbolItem (Armor {})    = '['
+symbolItem (Jewelry {})  = '='
+symbolItem _             = error "unknown object"
 

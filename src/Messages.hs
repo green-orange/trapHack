@@ -73,12 +73,10 @@ ending world =
 	else "s "
 
 addArticle :: String -> String
-addArticle str = 
-	if str == ""
-	then ""
-	else if (elem (head str) "aeiouAEIOU")
-	then "an " ++ str
-	else "a " ++ str
+addArticle str
+	| str == "" = ""
+	| head str `elem` "aeiouAEIOU" = "an " ++ str
+	| otherwise = "a " ++ str
 
 lostMsg :: String -> String -> String
 lostMsg monName partName =
@@ -99,7 +97,7 @@ addNeutralMessage msg w =
 	else addMessage (msg, yELLOW) w
 	
 addDefaultMessage :: String -> World -> World
-addDefaultMessage msg w = addMessage (msg, dEFAULT) w
+addDefaultMessage msg = addMessage (msg, dEFAULT)
 
 msgWand :: String -> String -> String
 msgWand title' name' = 
@@ -130,12 +128,13 @@ getInfo w = changeAction ' ' $
 	addDefaultMessage msg w where msg = infoMessage w
 
 infoMessage :: World -> String
-infoMessage w = 
-	if xInfo w < 0 || yInfo w < 0 || xInfo w > maxX || yInfo w > maxY
-	then "This cell doesn't exist!"
-	else if abs (xInfo w - xFirst w) > xSight || abs (yInfo w - yFirst w) > ySight
-	then "You can't see this cell!"
-	else if last str == ' ' then init str else str where
+infoMessage w
+	| xInfo w < 0 || yInfo w < 0 || xInfo w > maxX || yInfo w > maxY
+		= "This cell doesn't exist!"
+	| abs (xInfo w - xFirst w) > xSight || abs (yInfo w - yFirst w) > ySight
+		= "You can't see this cell!"
+	| last str == ' ' = init str 
+	| otherwise = str where
 	x = xInfo w
 	y = yInfo w
 	terr = worldmap w ! (x, y)
@@ -145,10 +144,9 @@ infoMessage w =
 	monInfo = case un of
 		Nothing -> ""
 		Just mon -> "Monster: " ++ name mon ++ ". Parts: " ++ 
-			(foldr (++) [] $ map (\p -> partToStr (kind p) ++ "; ") $ parts mon)
+			concatMap (\p -> partToStr (kind p) ++ "; ") (parts mon)
 	objsInfo = case objs of
 		[] -> ""
-		_ -> (++) "Objects: " $ foldr (++) [] $ 
-			map (\(_,_,i,n) -> titleShow i ++ 
+		_ -> (++) "Objects: " $ concatMap (\(_,_,i,n) -> titleShow i ++ 
 			(if n == 1 then "; " else " (" ++ show n ++ "); ")) objs
 	str = terrInfo ++ monInfo ++ objsInfo

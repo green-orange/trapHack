@@ -31,7 +31,7 @@ getHomunculus = getMonster (humanoidAI stupidestAI)
 		then M.singleton 'a' (wandForHom q 1, 1)
 		else M.empty, g'')) 100
 
-wandForHom :: Float -> (Int -> Object)
+wandForHom :: Float -> Int -> Object
 wandForHom = flip uniformFromList [wandOfPoison, wandOfSlowing, 
 	wandOfSpeed, wandOfStriking, wandOfStun]
 
@@ -97,7 +97,7 @@ getFloatingEye = getMonster stupidParalysisAI
 	 (getWing 1, (5, 10))]
 	"Floating eye" (dices (1,5) 0.2) emptyInv 200
 	
-getRedDragon = getMonster (attackIfClose Fire 3 $ stupidAI)
+getRedDragon = getMonster (attackIfClose Fire 3 stupidAI)
 	[(getBody 2, (10, 40)),
 	 (getHead 2, (10, 30)),
 	 (getLeg 1, (5, 15)),
@@ -106,7 +106,7 @@ getRedDragon = getMonster (attackIfClose Fire 3 $ stupidAI)
 	 (getWing 3, (5, 15))]
 	"Red dragon" (dices (3,4) 0.2) emptyInv 120
 
-getWhiteDragon = getMonster (attackIfClose Cold 3 $ stupidAI)
+getWhiteDragon = getMonster (attackIfClose Cold 3 stupidAI)
 	[(getBody 2, (10, 40)),
 	 (getHead 2, (10, 30)),
 	 (getLeg 1, (5, 15)),
@@ -115,7 +115,7 @@ getWhiteDragon = getMonster (attackIfClose Cold 3 $ stupidAI)
 	 (getWing 3, (10, 20))]
 	"White dragon" (dices (4,5) 0.2) emptyInv 200
 	
-getGreenDragon = getMonster (attackIfClose Poison' 3 $ stupidAI)
+getGreenDragon = getMonster (attackIfClose Poison' 3 stupidAI)
 	[(getBody 2, (10, 40)),
 	 (getHead 2, (10, 30)),
 	 (getLeg 1, (10, 20)),
@@ -147,10 +147,10 @@ getSoldier = getMonster (humanoidAI stupidAI)
 	"Soldier" (dices (1,10) 0.2) soldierInv 100
 
 soldierInv :: InvGen
-soldierInv g = (M.fromList $ zip alphabet $ flip zip [1,1..] 
-	$ uniformFromList x1 wEAPONS :
-	uniformFromList x2 aRMOR : 
-	uniformFromList x3 aRMOR : [], g3) where
+soldierInv g = (M.fromList $ zip alphabet $ zip
+	[uniformFromList x1 wEAPONS,
+	uniformFromList x2 aRMOR,
+	uniformFromList x3 aRMOR] [1,1..], g3) where
 		(x1, g1) = randomR (0.0, 1.0) g
 		(x2, g2) = randomR (0.0, 1.0) g1
 		(x3, g3) = randomR (0.0, 1.0) g2

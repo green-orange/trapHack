@@ -25,7 +25,7 @@ alive mon = hasPart bODY mon' && hasPart hEAD mon' || hasPart mAIN mon' where
 
 hasPart :: Int -> Monster -> Bool
 hasPart knd mon = 
-	not $ null $ filter (\x -> kind x == knd) $ parts mon
+	any (\x -> kind x == knd) $ parts mon
 	
 regPart :: Part -> Part
 regPart part = heal (regVel part) part
@@ -50,14 +50,14 @@ msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (
 		else gREEN
 
 isFlying :: Monster -> Bool
-isFlying mon = hasPart wING mon
+isFlying = hasPart wING
 		
 killFirst :: World -> World
 killFirst w = changeMon mon w where
 	mon = (getFirst w) {parts = [getMain 0 0 0]}
 	
 canWalk :: Monster -> Bool
-canWalk m = notElem (name m) ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
+canWalk m = name m `notElem` ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
 
 randTemp :: Temp -> (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
 randTemp temp' bounds (mon, g) = (newMon, g') where

@@ -41,24 +41,21 @@ mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, u
 		
 healAI :: AIfunc -> AIfunc
 healAI f x y w = 
-	if (canBeHealed $ getFirst w) && (needToBeHealedM $ getFirst w)
+	if canBeHealed (getFirst w) && needToBeHealedM (getFirst w)
 	then fst $ quaffFirst (KeyChar $ healingAI w) w
 	else f x y w
 	
 zapAttackAI :: AIfunc -> AIfunc
 zapAttackAI f xPlayer yPlayer w = 
-	if (canZapToAttack $ getFirst w) && isOnLine 5 xNow yNow xPlayer yPlayer
+	if canZapToAttack (getFirst w) && isOnLine 5 xNow yNow xPlayer yPlayer
 	then zapMon (undir dx dy) (zapAI w) w
 	else f xPlayer yPlayer w where
-		xNow = xFirst w
-		yNow = yFirst w
-		dx = signum $ xPlayer - xNow
-		dy = signum $ yPlayer - yNow
+		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
 		
 pickAI :: AIfunc -> AIfunc
 pickAI f x y w =
-	if length objects > 0
-	then fromJust $ fst $ pickFirst $ foldr ($) w $ map (changeChar . KeyChar) alphabet
+	if not $ null objects
+	then fromJust $ fst $ pickFirst $ foldr (changeChar . KeyChar) w alphabet
 	else f x y w where
 		xNow = xFirst w
 		yNow = yFirst w
@@ -66,14 +63,11 @@ pickAI f x y w =
 
 fireAI :: AIfunc -> AIfunc
 fireAI f xPlayer yPlayer w =
-	if (canFire $ getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
+	if canFire (getFirst w) && isOnLine (max maxX maxY) xNow yNow xPlayer yPlayer
 	then fireMon (undir dx dy) (missileAI w) w
 	else f xPlayer yPlayer w
 	where
-		xNow = xFirst w
-		yNow = yFirst w
-		dx = signum $ xPlayer - xNow
-		dy = signum $ yPlayer - yNow
+		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
 
 bindSomethingAI :: Slot -> Int -> (World -> Maybe Char) -> AIfunc -> AIfunc
 bindSomethingAI sl knd getter f x y w = 
@@ -98,7 +92,7 @@ bindArmorByKind :: Int -> AIfunc -> AIfunc
 bindArmorByKind knd = bindSomethingAI ArmorSlot knd $ getArmorByKind knd
 
 bindArmorAI :: AIfunc -> AIfunc
-bindArmorAI = foldr (.) id $ map bindArmorByKind [bODY, hEAD, aRM, lEG]
+bindArmorAI = foldr ((.) . bindArmorByKind) id [bODY, hEAD, aRM, lEG]
 
 useItemsAI :: AIfunc -> AIfunc
 useItemsAI f x y w = case useSomeItem objs keys of
@@ -134,33 +128,24 @@ stupidConfAI = stupidFooAI (\x y -> moveFirst x y .
 stupidFooAI :: (Int -> Int -> World -> World) -> AIfunc
 stupidFooAI foo xPlayer yPlayer w = newWorld where
 	g = stdgen w
-	xNow = xFirst w
-	yNow = yFirst w
-	dx = signum $ xPlayer - xNow
-	dy = signum $ yPlayer - yNow
-	(dx1, dy1, dx2, dy2) = 
-		if dx == 0
-		then (1, dy, -1, dy)
-		else if dy == 0
-		then (dx, 1, dx, -1)
-		else (dx, 0, 0, dy)
-	(dx', dy', newStdGen) = 
-		if isValid w xNow yNow dx dy || 
-			abs (xPlayer - xNow) <= 1 && abs (yPlayer - yNow) <= 1
-		then (dx, dy, g)
-		else if isValid w xNow yNow dx1 dy1
-		then (dx1, dy1, g)
-		else if isValid w xNow yNow dx2 dy2
-		then (dx2, dy2, g)
-		else 
-			let
-				(rx, g') = randomR (-1, 1) g
-				(ry, g'') = randomR (-1, 1) g'
+	(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
+	(dx1, dy1, dx2, dy2)
+		| dx == 0 = (1, dy, -1, dy)
+		| dy == 0 = (dx, 1, dx, -1)
+		| otherwise = (dx, 0, 0, dy)
+	(dx', dy', newStdGen)
+		| isValid w xNow yNow dx dy || abs (xPlayer - xNow) <= 1 
+			&& abs (yPlayer - yNow) <= 1 = (dx, dy, g)
+		| isValid w xNow yNow dx1 dy1 = (dx1, dy1, g)
+		| isValid w xNow yNow dx2 dy2 = (dx2, dy2, g)
+		| otherwise = let
+			(rx, g') = randomR (-1, 1) g
+			(ry, g'') = randomR (-1, 1) g'
 			in (rx, ry, g'')
 	newWorld = foo dx' dy' $ changeGen newStdGen w
 				
 randomAI :: AIfunc
-randomAI _ _ w  = (moveFirst rx ry newWorld) where
+randomAI _ _ w  = moveFirst rx ry newWorld where
 	g = stdgen w
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
@@ -173,10 +158,7 @@ wormAI xPlayer yPlayer w =
 	else if name mon == "Tail" && p < 0.2
 	then killFirst
 	else moveFirst dx dy) $ changeGen g w where
-		xNow = xFirst w
-		yNow = yFirst w
-		dx = signum $ xPlayer - xNow
-		dy = signum $ yPlayer - yNow
+		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
 		xNew = xNow + dx
 		yNew = yNow + dy
 		maybeMon = M.lookup (xNew, yNew) (units w)

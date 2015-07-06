@@ -60,7 +60,7 @@ getMain = getPart mAIN
 
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon =
-	max 10 $ div (slowness mon) $ 1 + (length $ filter isLowerLimb $ parts mon)
+	max 10 $ div (slowness mon) $ 1 + length (filter isLowerLimb $ parts mon)
 
 isEmptyPart :: Slot -> Monster -> Part -> Bool
 isEmptyPart sl mon part = M.notMember (objectKeys part !! fromEnum sl) $ inv mon

@@ -8,6 +8,7 @@ import UI.HSCurses.Curses (Key (..))
 import System.Random (StdGen)
 import qualified Data.Map as M
 import Data.Array
+import Control.Arrow (first)
 
 {- Part -}
 
@@ -51,7 +52,7 @@ delAllObj c m = changeInv newInv m where
 		
 decChargeByKey :: Char -> Monster -> Monster
 decChargeByKey c m = changeInv newInv m where
-	newInv = M.adjust (\(o, n) -> (decCharge o, n)) c $ inv m
+	newInv = M.adjust (first decCharge) c $ inv m
 
 addRes :: Elem -> Int -> Monster -> Monster
 addRes elem' n m = m {res = changeElem pos new $ res m} where
@@ -133,11 +134,11 @@ addItem i w = w {items = items'} where
 
 changeMap :: Int -> Int -> Terrain -> World -> World
 changeMap x y t w = w {worldmap = worldmap'} where
-	worldmap' = (worldmap w) // [((x, y), t)]
+	worldmap' = worldmap w // [((x, y), t)]
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (changeList 
-	(M.insert (x, y) (newMon {time = (time $ getFirst w) + effectiveSlowness newMon})
+	(M.insert (x, y) (newMon {time = time (getFirst w) + effectiveSlowness newMon})
 		$ units w) $ units' w) $ changeGen g w where
 	(newMon, g) = mgen $ stdgen w
 	
@@ -149,7 +150,7 @@ paralyse dx dy w = changeMons newMons w where
 	y = yNow + dy
 	ch (x', y') mon = 
 		if x == x' && y == y'
-		then mon {time = time mon + (effectiveSlowness mon) * 3 `div` 2}
+		then mon {time = time mon + effectiveSlowness mon * 3 `div` 2}
 		else mon
 	newMons = mapU ch $ units' w
 
@@ -189,7 +190,7 @@ addItem' i@(x, y, obj, n) list' =
 			if x == x' && y == y' && obj == obj'
 			then (x', y', obj', n + n')
 			else i'
-		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') $ list'
+		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') list'
 
 fromKey :: Key -> Char
 fromKey (KeyChar c) = c

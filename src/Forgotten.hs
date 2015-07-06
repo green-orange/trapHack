@@ -10,7 +10,7 @@ import System.Random (StdGen, randomR, randoms, split)
 import Control.Monad (join)
 import Data.Map (fromList)
 
-applyIf :: (a -> a) -> Bool -> (a -> a)
+applyIf :: (a -> a) -> Bool -> a -> a
 applyIf f c = if c then f else id
 
 getForgottenBeast :: MonsterGen
@@ -52,7 +52,7 @@ forgottenParts g = (rez, g') where
 	partgens = join $ zipWith replicate counts $ map getPart [0..kINDS]
 	qs' = randoms g''
 	hps = map ((*10) . inverseSquareRandom) qs'
-	rez = zipWith3 (($).($)) partgens (cycle [3, 2, 1]) hps
+	rez = zipWith3 ($) partgens (cycle [3, 2, 1]) hps
 	
 forgottenDmg :: StdGen -> (World -> (Maybe Int, StdGen), StdGen)
 forgottenDmg g = (dices (cnt, dice) failProb, g3) where

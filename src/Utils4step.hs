@@ -50,17 +50,13 @@ updateFirst w = changeMons newUnits w where
 	((x, y), monNew) = minimumOn almostTime $ units w
 
 newWaveIf :: World -> World
-newWaveIf world =
-	if (not $ isPlayerNow world) ||
-		weigthW world * 3 > wave world
-	then newWorld
-	else
-		if stepsBeforeWave world > 0
-		then newWorld
-			{stepsBeforeWave = stepsBeforeWave world - 1}
-		else if stepsBeforeWave world == 0
-		then callUpon world
-		else newWorld {stepsBeforeWave = wait $ wave world}
+newWaveIf world
+	| not (isPlayerNow world) ||
+		weigthW world * 3 > wave world = newWorld
+	| stepsBeforeWave world > 0 = newWorld
+		{stepsBeforeWave = stepsBeforeWave world - 1}
+	| stepsBeforeWave world == 0 = callUpon world
+	| otherwise = newWorld {stepsBeforeWave = wait $ wave world}
 	where
 		newWorld = cycleWorld world
 		
@@ -116,7 +112,7 @@ addDeathDrop mon g = (changeInv (M.union (inv mon) newDrop) mon, newGen) where
 tickFirst :: World -> World
 tickFirst w = changeMon (tickFirstMon $ getFirst w) w
 
-listOfValidChars :: (Object -> Bool) -> World -> [Char]
+listOfValidChars :: (Object -> Bool) -> World -> String
 listOfValidChars f world = sort $ M.keys 
 	$ M.filter (f . fst) $ inv $ getFirst world
 	
@@ -132,24 +128,21 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 	y = yFirst w
 	mon = getFirst w
 	trap = worldmap w A.! (x,y)
-	((newMon, g), newMsg) = 
-		if trap == FireTrap
-		then (dmgRandomElem Fire (Just 8) mon $ stdgen w,
+	((newMon, g), newMsg)
+		| trap == FireTrap = (dmgRandomElem Fire (Just 8) mon $ stdgen w,
 			if name mon == "You"
 			then "You are in fire!"
 			else name mon ++ " is in fire!")
-		else if trap == PoisonTrap
-		then (randTemp Poison (5, 15) (mon, stdgen w),
+		| trap == PoisonTrap = (randTemp Poison (5, 15) (mon, stdgen w),
 			if name mon == "You"
 			then "You were poisoned!"
 			else name mon ++ " was poisoned!")
-		else if trap == MagicTrap
-		then let
+		| trap == MagicTrap = let
 			(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
 			obj = wANDS !! ind
 			(newMon', g'') = act obj (mon, g')
 			in ((newMon', g''), msgWand (title obj) (name mon))
-		else ((mon, stdgen w), "")
+		| otherwise = ((mon, stdgen w), "")
 
 callUpon :: World -> World
 callUpon w = changeAction ' ' $ addMessage ("Squad #" 

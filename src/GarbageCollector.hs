@@ -16,10 +16,10 @@ import UI.HSCurses.Curses (Key (..))
 collectorAI :: AIfunc
 collectorAI _ _ world = 
 	if isItemHere
-	then fromJust $ fst $ pickFirst $ foldr ($) world $ map (changeChar . KeyChar) alphabet
+	then fromJust $ fst $ pickFirst $ foldr (changeChar . KeyChar) world alphabet
 	else moveFirst dx dy world
 	where
-		isItemHere = not $ null $ filter (\(x, y, _, _) -> x == xNow && y == yNow) $ items world
+		isItemHere = any (\ (x, y, _, _) -> x == xNow && y == yNow) (items world)
 		xNow = xFirst world
 		yNow = yFirst world
 		(xItem, yItem, _, _) = minimumBy cmp $ items world

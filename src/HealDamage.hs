@@ -41,12 +41,12 @@ dmgAll n mon = doSmthAll (dmg mon) n mon
 
 dmgRandom :: Maybe Int -> Monster -> StdGen -> (Monster, StdGen)
 dmgRandom mbDmg mon g = (dmgPartById idNew mbDmg mon, g') where
-	(n, g') = randomR (0, (length $ parts mon) - 1) g
+	(n, g') = randomR (0, length (parts mon) - 1) g
 	idNew = idP $ parts mon !! n
 	
 dmgRandomElem :: Elem -> Maybe Int -> Monster -> StdGen -> (Monster, StdGen)
 dmgRandomElem elem' mbDmg mon g = (dmgElemPartById elem' idNew mbDmg mon, g') where
-	(n, g') = randomR (0, (length $ parts mon) - 1) g
+	(n, g') = randomR (0, length (parts mon) - 1) g
 	idNew = idP $ parts mon !! n
 
 dmgElemPartById :: Elem -> Int -> Maybe Int -> Monster -> Monster
@@ -58,7 +58,7 @@ dmg mon (Just n) part = part {hp =
 	if hp part <= n'
 	then 0
 	else hp part - n'
-} where n' = max 1 $ n - 2 * (acPart mon part)
+} where n' = max 1 $ n - 2 * acPart mon part
 
 elemDmg :: Elem -> Monster -> Maybe Int -> Part -> Part
 elemDmg _ _ Nothing part = part
