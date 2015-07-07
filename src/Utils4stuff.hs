@@ -8,6 +8,7 @@ import HealDamage
 import Parts
 import Utils4mon
 import Colors
+import Texts
 
 import System.Random (StdGen, randomR)
 import Data.Maybe (isJust, fromJust)
@@ -72,8 +73,8 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 		else mon
 	msg (_,mon) = 
 		if name mon == "You"
-		then ("You are in fire!", rED)
-		else (name mon ++ " is in fire!", gREEN)
+		then (msgFireYou, rED)
+		else (name mon ++ msgFire, gREEN)
 	newMsgs = map msg $ filter isClose $ M.toList $ units w
 	
 stupidity :: Monster -> Monster
@@ -91,7 +92,7 @@ isUntrappable = (/=) Empty
 safety :: World -> World
 safety w = w {
 	units' = (units' w) {list = M.singleton (xFirst w, yFirst w) $ getFirst w},
-	message = [("You suddenly find yourself in a new world!", bLUE)],
+	message = [(msgTeleport, bLUE)],
 	items = [],
 	action = ' ',
 	wave = wave w + 1,

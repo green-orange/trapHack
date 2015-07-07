@@ -7,8 +7,8 @@ import Utils4mon
 import Utils4stuff
 import Wave
 import HealDamage
-import Messages
 import Colors
+import Texts
 
 import System.Random (StdGen, randomR)
 import Data.List (sort)
@@ -131,12 +131,12 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 	((newMon, g), newMsg)
 		| trap == FireTrap = (dmgRandomElem Fire (Just 8) mon $ stdgen w,
 			if name mon == "You"
-			then "You are in fire!"
-			else name mon ++ " is in fire!")
+			then msgFireYou
+			else name mon ++ msgFire)
 		| trap == PoisonTrap = (randTemp Poison (5, 15) (mon, stdgen w),
 			if name mon == "You"
-			then "You were poisoned!"
-			else name mon ++ " was poisoned!")
+			then msgPoisonYou
+			else name mon ++ msgPoison)
 		| trap == MagicTrap = let
 			(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
 			obj = wANDS !! ind
@@ -145,8 +145,7 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 		| otherwise = ((mon, stdgen w), "")
 
 callUpon :: World -> World
-callUpon w = changeAction ' ' $ addMessage ("Squad #" 
-	++ show (wave w) ++ " landed around you!", rED) 
+callUpon w = changeAction ' ' $ addMessage (msgLanding (wave w) , rED) 
 	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
 
 

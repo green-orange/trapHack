@@ -11,6 +11,7 @@ import Messages
 import Utils4objects
 import Colors
 import AI (randomAI)
+import Texts
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)
@@ -28,7 +29,7 @@ step world c
 			'r' ->
 				doIfCorrect $ readFirst c world
 			'z' ->
-				Left $ addDefaultMessage "In what direction?" $ changeAction 'Z' 
+				Left $ addDefaultMessage msgAskDir $ changeAction 'Z' 
 				$ world {prevAction = fromKey c}
 			'Z' ->
 				doIfCorrect $ zapFirst c world
@@ -39,7 +40,7 @@ step world c
 				else
 					doIfCorrect $ trapFirst c world
 			'f' ->
-				Left $ addDefaultMessage "In what direction?" $ changeAction 'F' 
+				Left $ addDefaultMessage msgAskDir $ changeAction 'F' 
 				$ world {prevAction = fromKey c}
 			'F' ->
 				doIfCorrect $ fireFirst c world
@@ -85,13 +86,13 @@ step world c
 					Nothing -> Left world
 					Just (dx, dy) -> Left $ world {xInfo = xInfo world + dx, 
 						yInfo = yInfo world + dy}
-			_ -> Left $ addMessage ("You are cheater!", mAGENTA) 
+			_ -> Left $ addMessage (msgCheater, mAGENTA)
 				$ changeAction ' ' world
 		else
 			let newMWorld = aiNow x y world
 			in Left $ newWaveIf newMWorld
 	| name mon == "You" =
-		Right $ "You died on the " ++ numToStr (wave world - 1) ++ " wave."
+		Right $ msgYouDie $ wave world - 1
 	| otherwise =
 		let (deadMonster, newStdGen) = addDeathDrop mon (stdgen world)
 		in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
@@ -116,32 +117,32 @@ justStep world c = case dir c of
 	Nothing -> case c of
 		KeyChar 'Q' -> 
 			if wave world == 1
-			then Right "You quit. Do not pass go. Do not collect 200 zorkmids."
-			else Right $ "You quit on the " ++ numToStr (wave world - 1) ++ " wave."
+			then Right msgQuitOnStart
+			else Right $ msgQuit $ wave world - 1
 		KeyChar 'q' ->
-			Left $ addDefaultMessage ("What do you want to drink? ["
+			Left $ addDefaultMessage (msgAsk ++ "drink? ["
 			 ++ listOfValidChars isPotion world ++ "]") 
 			 $ changeAction 'q' world
 		KeyChar 'r' ->
-			Left $ addDefaultMessage ("What do you want to read? ["
+			Left $ addDefaultMessage (msgAsk ++ "read? ["
 			 ++ listOfValidChars isScroll world ++ "]") 
 			 $ changeAction 'r' world
 		KeyChar 'z' ->
-			Left $ addDefaultMessage ("What do you want to zap? ["
+			Left $ addDefaultMessage (msgAsk ++ "zap? ["
 			 ++ listOfValidChars isWand world ++ "]") 
 			 $ changeAction 'z' world
 		KeyChar 'd' ->
-			Left $ addDefaultMessage ("What do you want to drop? ["
+			Left $ addDefaultMessage (msgAsk ++ "drop? ["
 			 ++ listOfValidChars (const True) world ++ "]") 
 			 $ changeAction 'd' world
 		KeyChar 'D' ->
 			Left $ changeAction 'D' world
 		KeyChar 't' ->
-			Left $ addDefaultMessage ("What do you want to set? ["
+			Left $ addDefaultMessage (msgAsk ++ "set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 
 			 $ changeAction 't' world
 		KeyChar 'f' ->
-			Left $ addDefaultMessage ("What do you want to fire? ["
+			Left $ addDefaultMessage (msgAsk ++ "fire? ["
 			 ++ listOfValidChars isMissile world ++ "]") 
 			 $ changeAction 'f' world
 		KeyChar 'E' ->
@@ -151,12 +152,11 @@ justStep world c = case dir c of
 		KeyChar ',' ->
 			Left $ changeAction ',' world
 		KeyChar 'C' ->
-			Left $ changeAction 'C' $ addDefaultMessage
-				"Do you really want to call upon the next wave? (y/N)" world
+			Left $ changeAction 'C' $ addDefaultMessage	msgConfirmCall world
 		KeyChar '\n' -> Left world
 		KeyChar '?' ->
 			Left $ changeAction '?' $ addDefaultMessage
-				"Pick an object and press ." world {xInfo = xFirst world,
+				msgInfo world {xInfo = xFirst world,
 				 yInfo = yFirst world}
 		_  ->
-			Left $ addMessage ("Unknown action!", yELLOW) world
+			Left $ addMessage (msgUnkAct, yELLOW) world

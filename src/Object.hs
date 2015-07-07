@@ -10,6 +10,7 @@ import Utils4objects
 import Parts
 import Utils4mon
 import Colors
+import Texts
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, isJust, fromJust)
@@ -31,14 +32,11 @@ dir c = case c of
 
 quaffFirst :: Key -> World -> (World, Bool)
 quaffFirst c world
-	| not $ hasPart aRM oldMon
-		= (maybeAddMessage "You need arms to quaff a potion!" 
-		$ changeAction ' ' world, False)
-	| isNothing objects
-		= (maybeAddMessage "You haven't this item!" 
-		$ changeAction ' ' world, False)
-	| not $ isPotion obj
-		= (maybeAddMessage "You don't know how to quaff it!"
+	| not $ hasPart aRM oldMon = (maybeAddMessage 
+		(msgNeedArms "quaff a potion") $ changeAction ' ' world, False)
+	| isNothing objects = 
+		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)
+	| not $ isPotion obj = (maybeAddMessage (msgDontKnow "quaff")
 		$ changeAction ' ' world, False)
 	| otherwise
 		= (changeGen g $ changeMon mon' $ addNeutralMessage newMsg 
@@ -53,14 +51,11 @@ quaffFirst c world
 	
 readFirst :: Key -> World -> (World, Bool)
 readFirst c world 
-	| not $ hasPart aRM mon =
-		(maybeAddMessage "You need arms to read a scroll!" 
-		$ changeAction ' ' world, False)
+	| not $ hasPart aRM mon = (maybeAddMessage 
+		(msgNeedArms "read a scroll") $ changeAction ' ' world, False)
 	| isNothing objects =
-		(maybeAddMessage "You haven't this item!" 
-		$ changeAction ' ' world, False)
-	| not $ isScroll obj =
-		(maybeAddMessage "You don't know how to read it!"
+		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)
+	| not $ isScroll obj = (maybeAddMessage (msgDontKnow "read")
 		$ changeAction ' ' world, False)
 	| otherwise =
 		(changeMon mon' $ addNeutralMessage newMsg 
@@ -76,15 +71,15 @@ readFirst c world
 zapFirst :: Key -> World -> (World, Bool)
 zapFirst c world 
 	| not $ hasPart aRM $ getFirst world =
-		(maybeAddMessage "You need arms to zap a wand!" failWorld, False)
+		(maybeAddMessage (msgNeedArms "zap a wand") failWorld, False)
 	| isNothing objects =
-		(maybeAddMessage "You haven't this item!" failWorld, False)
+		(maybeAddMessage msgNoItem failWorld, False)
 	| not $ isWand obj =
-		(maybeAddMessage "You don't know how to zap it!" failWorld, False)
+		(maybeAddMessage (msgDontKnow "zap") failWorld, False)
 	| isNothing $ dir c =
-		(maybeAddMessage "It's not a direction!" failWorld, False)
+		(maybeAddMessage msgNotDir failWorld, False)
 	| charge obj == 0 =
-		(maybeAddMessage "This wand has no charge!" failWorld, True)
+		(maybeAddMessage msgNoCharge failWorld, True)
 	| otherwise =
 		(changeMon mon $ changeAction ' ' newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
@@ -131,16 +126,12 @@ zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 trapFirst :: Key -> World -> (World, Bool)
 trapFirst c world
 	| not $ hasPart aRM oldMon =
-		(maybeAddMessage "You need arms to set a trap!" failWorld, False)
-	| isNothing objects =
-		(maybeAddMessage "You haven't this item!" failWorld, False)
-	| not $ isTrap obj =
-		(maybeAddMessage "It's not a trap!" failWorld, False)
+		(maybeAddMessage (msgNeedArms "set a trap") failWorld, False)
+	| isNothing objects = (maybeAddMessage msgNoItem failWorld, False)
+	| not $ isTrap obj = (maybeAddMessage msgNotTrap failWorld, False)
 	| worldmap world A.! (x, y) /= Empty =
-		(maybeAddMessage "You can't set a trap over another trap!"
-		failWorld, False)
-	| otherwise =
-		(addNeutralMessage newMsg $ changeMon mon 
+		(maybeAddMessage msgTrapOverTrap failWorld, False)
+	| otherwise = (addNeutralMessage newMsg $ changeMon mon 
 		$ changeMap x y (num obj) $ changeAction ' ' world, True) where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	x = xFirst world
@@ -154,12 +145,12 @@ trapFirst c world
 untrapFirst :: World -> (World, Bool)
 untrapFirst world 
 	| not $ hasPart aRM mon =
-		(maybeAddMessage "You need arms to remove a trap!" failWorld, False)
+		(maybeAddMessage (msgNeedArms "remove a trap") failWorld, False)
 	| not $ isUntrappable $ worldmap world A.! (x, y) =
-		(maybeAddMessage "It's nothing to untrap here!" failWorld, False)
+		(maybeAddMessage msgCantUntrap failWorld, False)
 	| otherwise =
-		(addItem (x, y, trap, 1) $ addNeutralMessage newMsg $ changeMap x y Empty 
-		$ changeAction ' ' world, True) where
+		(addItem (x, y, trap, 1) $ addNeutralMessage newMsg 
+		$ changeMap x y Empty $ changeAction ' ' world, True) where
 	x = xFirst world
 	y = yFirst world
 	mon = getFirst world
@@ -170,22 +161,21 @@ untrapFirst world
 fireFirst :: Key -> World -> (World, Bool)
 fireFirst c world
 	| not $ hasPart aRM oldMon =
-		(maybeAddMessage "You need arms to fire!" failWorld, False)
+		(maybeAddMessage (msgNeedArms "fire") failWorld, False)
 	| isNothing objects =
-		(maybeAddMessage "You haven't this item!" failWorld, False)
+		(maybeAddMessage msgNoItem failWorld, False)
 	| not $ isMissile obj =
-		(maybeAddMessage "You don't know how to fire it!" failWorld, False)
+		(maybeAddMessage (msgDontKnow "fire") failWorld, False)
 	| null intended =
-		(maybeAddMessage "You have no weapon appropriate to this missile!" 
-		failWorld, False)
+		(maybeAddMessage msgNoWeapAppMiss failWorld, False)
 	| isNothing $ dir c =
-		(maybeAddMessage "It's not a direction!" failWorld, False)
+		(maybeAddMessage msgNotDir failWorld, False)
 	| otherwise = (changeAction ' ' newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv oldMon
 	intended = filter (\w -> isLauncher w && launcher obj == category w) listWield
 	listWield = map (fst . fromJust) $ filter isJust 
-		$ map (flip M.lookup (inv oldMon) . (\ p -> objectKeys p !! fromEnum WeaponSlot)) 
-		$ filter isUpperLimb $ parts oldMon
+		$ map (flip M.lookup (inv oldMon) . (\ p -> objectKeys p 
+		!! fromEnum WeaponSlot)) $ filter isUpperLimb $ parts oldMon
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst world
@@ -213,8 +203,8 @@ fire x y dx dy obj world
 	(newDmg, g) = objdmg obj world
 	(newMon, g') = dmgRandom newDmg mon g
 	msg = case newDmg of
-		Nothing -> capitalize (title obj) ++ " misses."
-		Just _ -> capitalize (title obj) ++ " hits " ++ name mon ++ "."
+		Nothing -> capitalize (title obj) ++ msgMiss
+		Just _ -> capitalize (title obj) ++ msgHitMissile ++ name mon ++ "."
 	newWorld = addMessage (msg, color) $ changeGen g' 
 		$ changeMons (insertU (x, y) newMon $ units' world) world
 	color = 

@@ -8,6 +8,7 @@ import Utils4objects
 import Parts
 import Messages
 import Colors
+import Texts
 
 import qualified Data.Map as M
 import qualified Data.Array as A
@@ -36,7 +37,7 @@ moveFirst dx dy world =
 			if isNothing rez
 			then
 				if isPlayerNow world
-				then (x, y, "Incorrect step!")
+				then (x, y, msgIncStep)
 				else (x, y, "")
 			else (xnew', ynew', "") where
 				Just (xnew', ynew') = rez
@@ -70,8 +71,8 @@ attack x y c world = changeMons unitsNew $ addMessage (newMsg, color)
 			else objdmg $ fst $ fromJust weapons
 		(newDmg, newGen) =  dmggen world
 		newMsg = case newDmg of
-			Nothing -> name attacker ++ " missed!"
-			Just _ -> name attacker ++ " attack" ++ ending world
+			Nothing -> name attacker ++ msgMiss
+			Just _ -> name attacker ++ msgAttack ++ ending world
 				++ name mon ++ "!"
 		(monNew, newGen') = dmgRandom newDmg mon newGen
 		unitsNew = changeList (M.insert (x, y) monNew $ units world) $ units' world
@@ -103,7 +104,7 @@ attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color)
 	dmggen = stddmg attacker
 	(newDmg, newGen) =  dmggen w
 	newMsg = case newDmg of
-		Nothing -> name attacker ++ " missed!"
+		Nothing -> name attacker ++ msgMiss
 		Just _ -> name attacker ++ " " ++ attackName elem'
 			++ ending w ++ name mon ++ "!"
 	(monNew, newGen') = dmgRandomElem elem' newDmg mon newGen

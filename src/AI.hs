@@ -10,6 +10,7 @@ import Parts
 import Monsters
 import Utils4mon
 import Colors
+import Texts
 
 import System.Random (randomR, StdGen)
 import Data.Maybe (fromJust, isNothing)
@@ -25,7 +26,7 @@ trollAI :: AIfunc -> AIfunc
 trollAI f x y w = 
 	if any (<= 5) $ map hp $ filter (\p -> kind p == hEAD || kind p == bODY) 
 		$ parts $ getFirst w
-	then addMessage ("Troll turned into a rock.", bLUE) 
+	then addMessage (msgTrollDeath, bLUE) 
 		$ changeMon (rock $ stdgen w) w
 	else f x y w
 

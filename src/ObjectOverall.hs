@@ -7,6 +7,7 @@ import Messages
 import Utils4objects
 import Parts
 import Colors
+import Texts
 
 import Control.Monad ((>=>))
 import qualified Data.Set as S
@@ -16,12 +17,10 @@ import Data.Maybe (isNothing, fromJust)
 
 dropFirst :: Key -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
-	| isNothing objects = (maybeAddMessage "You haven't this item!" 
-		$ changeAction ' ' world, False)
-	| isExistingBindingFirst world (fromKey c) 
-		&& alive (getFirst world) = 
-		(maybeAddMessage "You can't drop the item wich you have equipped!" 
-		$ changeAction ' ' world, False)
+	| isNothing objects = 
+		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)
+	| isExistingBindingFirst world (fromKey c) && alive (getFirst world) = 
+		(maybeAddMessage msgDropEquipped $ changeAction ' ' world, False)
 	| otherwise = 
 		(changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 		$ changeAction ' ' world, True) where
@@ -34,7 +33,7 @@ dropFirst c world ignoreMessages
 	newMsg =
 		if ignoreMessages
 		then ""
-		else name $ getFirst world ++ " drop" ++ ending world 
+		else name (getFirst world) ++ " drop" ++ ending world 
 			++ titleShow obj ++ "."
 
 dropAll :: World -> World
@@ -60,7 +59,7 @@ pickFirst world =
 		maybeInv = addInvs (inv oldMon) $ map ((\(_,_,a,b) 
 			-> (a,b)) . fst) itemsToPick
 	in case maybeInv of
-	Nothing -> (Nothing, "You knapsack is full!")
+	Nothing -> (Nothing, msgFullInv)
 	Just newInv ->
 		let
 		mon = changeInv newInv oldMon
@@ -106,7 +105,7 @@ addInv (obj, cnt) list' =
 			if M.member (head alph) list'
 			then addInvWithAlphabet (tail alph) inv' (obj', cnt')
 			else Just $ M.insert (head alph) (obj', cnt') inv' where
-		isHere = or $ M.map (\(obj',_) -> obj' == obj) list'
+		isHere = M.foldr (||) False $ M.map (\(obj',_) -> obj' == obj) list'
 		change (o, n) = (o, if o == obj then n + cnt else n)
 
 addIndices :: (a -> Bool) -> [a] -> [(a, Int)]
@@ -131,12 +130,11 @@ bindFirst c w
 	| c == KeyChar '-' =
 		(changeMon (changeParts newPartsSpace $ remEffect mon) newWorld, True)
 	| isNothing objects =
-		(maybeAddMessage "You haven't this item!" newWorld, False)
+		(maybeAddMessage msgNoItem newWorld, False)
 	| isNothing maybeNewSlot || newSlot /= slot w =
-		(maybeAddMessage "This objects doesn't intended to this part!" 
-		newWorld, False)
+		(maybeAddMessage msgWrongBind newWorld, False)
 	| isExistingBindingFirst w $ fromKey c =
-		(maybeAddMessage "This item is already bound to some part!"
+		(maybeAddMessage msgRepeatedBind
 		newWorld, False)
 	| otherwise = (addNeutralMessage msg $ changeMon 
 		(changeParts newParts newMon) newWorld, True) where

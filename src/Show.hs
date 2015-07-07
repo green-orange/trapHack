@@ -6,6 +6,7 @@ import Messages
 import ObjectOverall
 import Utils4objects
 import Colors
+import Texts
 
 import UI.HSCurses.Curses
 import qualified Data.Set as S
@@ -82,7 +83,7 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 showMessages :: Int -> [(String, Int)] -> IO ()
 showMessages width msgs = 
 	unless (sum (map ((1+) . length . fst) msgs) < shiftDown * width - 2)
-	(mvWAddStr stdScr (shiftDown - 1) 0 "--MORE--") >>
+	(mvWAddStr stdScr (shiftDown - 1) 0 msgMore) >>
 	foldl (>>=) (return (0, 0)) (map showMessage msgs) >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
@@ -135,7 +136,7 @@ showTemp world t =
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	mvWAddStr stdScr 0 0 "Your inventory: (press Enter or Space to close it)"
+	mvWAddStr stdScr 0 0 msgHeaderInv
 	foldl (>>) doNothing $ map showInv stringsToShow where
 		items' = M.toList $ inv $ getFirst world
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
@@ -147,7 +148,7 @@ drawInventory world h = do
 drawEquipMenu :: World -> Int -> IO ()
 drawEquipMenu world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	mvWAddStr stdScr 0 0 "Change an item or press - to change nothing"
+	mvWAddStr stdScr 0 0 msgHeaderEquip
 	foldl (>>) doNothing $ map showInv stringsToShow where
 		items' = filter (\(c, (obj, _)) -> (binds obj knd == Just (slot world)) 
 			&& not (isExistingBindingFirst world c)) $ M.toList $ inv $ getFirst world
@@ -160,8 +161,7 @@ drawEquipMenu world h = do
 drawPickOrDrop :: Bool -> World -> Int -> IO ()
 drawPickOrDrop isPick world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	mvWAddStr stdScr 0 0 $ "What do you want to " ++ word 
-		++ " up? (press Enter to finish)"
+	mvWAddStr stdScr 0 0 $ msgHeaderPickDrop word
 	foldl (>>) doNothing $ map (showItemsPD h $ chars world) toShow where
 		xNow = xFirst world
 		yNow = yFirst world
@@ -175,7 +175,7 @@ drawPickOrDrop isPick world h = do
 drawPartChange :: World -> Int -> IO ()
 drawPartChange world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	mvWAddStr stdScr 0 0 "Change your part to bind."
+	mvWAddStr stdScr 0 0 msgHeaderBind
 	mvWAddStr stdScr 0 shiftW "Weapon"
 	mvWAddStr stdScr 0 shiftA "Armor"
 	mvWAddStr stdScr 0 shiftJ "Jewelry"

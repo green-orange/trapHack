@@ -4,6 +4,7 @@ import Data
 import Changes
 import Parts
 import Messages
+import Texts
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
@@ -96,7 +97,7 @@ randomSpawn mgen w = newWorld where
 	emptyNeighbors = filter (uncurry $ isEmpty w) neighbors
 	newWorld = 
 		if null emptyNeighbors
-		then maybeAddMessage "There is no place for the garbage collector!" w
+		then maybeAddMessage msgCantSpawnGC w
 		else changeGen g $ spawnMon mgen xR yR w
 	(r, g) = randomR (0, length emptyNeighbors - 1) $ stdgen w
 	(xR, yR) = emptyNeighbors !! r

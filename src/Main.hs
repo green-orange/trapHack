@@ -7,6 +7,7 @@ import Changes (clearMessage)
 import Show
 import Init
 import Colors
+import Texts
 
 import UI.HSCurses.Curses
 import Control.Monad (unless)
@@ -47,12 +48,12 @@ main = do
 	(h, w) <- scrSize
 	_ <- endWin
 	if w <= 2 * xSight + 42 || h <= 2 * ySight + 5
-	then putStrLn "Your screen is too small"
+	then putStrLn msgSmallScr
 	else do gen <- getStdGen
 #if linux_HOST_OS
 		username <- getLoginName
 #else
-		print "What's your name?"
+		print msgAskName
 		username <- getLine
 #endif
 		initScr >> initCurses >> startColor >> initColors >>

@@ -4,6 +4,7 @@ import Data
 import Parts
 import Random
 import Colors
+import Texts
 --import Stuff
 
 import System.Random (StdGen)
@@ -35,7 +36,7 @@ initWorld username gen = World {
 	worldmap = listArray ((0,0), (maxX,maxY)) $ repeat Empty,
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
-	message = [("Welcome to the trapHack, " ++ username ++ ".", bLUE)],
+	message = [(msgWelcome username, bLUE)],
 	items = [],
 	action = ' ',
 	stdgen = gen,
