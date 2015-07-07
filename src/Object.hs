@@ -20,14 +20,23 @@ import qualified Data.Array as A
 dir :: Key -> Maybe (Int, Int)
 dir c = case c of
 	KeyChar 'k' -> Just ( 0, -1)
+	KeyChar '8' -> Just ( 0, -1)
 	KeyChar 'j' -> Just ( 0,  1)
+	KeyChar '2' -> Just ( 0,  1)
 	KeyChar 'h' -> Just (-1,  0)
+	KeyChar '4' -> Just (-1,  0)
 	KeyChar 'l' -> Just ( 1,  0)
+	KeyChar '6' -> Just ( 1,  0)
 	KeyChar 'y' -> Just (-1, -1)
+	KeyChar '7' -> Just (-1, -1)
 	KeyChar 'u' -> Just ( 1, -1)
+	KeyChar '9' -> Just ( 1, -1)
 	KeyChar 'b' -> Just (-1,  1)
+	KeyChar '1' -> Just (-1,  1)
 	KeyChar 'n' -> Just ( 1,  1)
+	KeyChar '3' -> Just ( 1,  1)
 	KeyChar '.' -> Just ( 0,  0)
+	KeyChar '5' -> Just ( 0,  0)
 	_           -> Nothing
 
 quaffFirst :: Key -> World -> (World, Bool)
