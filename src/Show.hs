@@ -16,13 +16,14 @@ import Data.Function (on)
 import qualified Data.Array as A
 import Control.Monad (unless)
 
-shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff :: Int
+shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem :: Int
 shiftRightHP = 2 * xSight + 5
 shiftAttrs = 2 * xSight + 30
 diff = 20
 shiftW = 30
 shiftA = shiftW + diff
 shiftJ = shiftA + diff
+shiftElem = 3
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
@@ -103,18 +104,16 @@ showMessage (msg, color') (x, y) = do
 
 showElemRes :: World -> Elem -> IO ()
 showElemRes world e =
-	if value == 0
-	then doNothing
-	else mvWAddStr stdScr (shiftDown + 2 + pos) shiftAttrs str where
+	unless (value == 0) $ mvWAddStr stdScr 
+		(shiftDown + shiftElem + pos) shiftAttrs str where
 	pos = fromEnum e
 	value = res (getFirst world) !! pos
 	str = show e ++ " res: " ++ show value
 
 showIntr :: World -> Intr -> IO ()
 showIntr world i = 
-	if value == 0
-	then doNothing
-	else mvWAddStr stdScr (shiftDown + 3 + elems + pos) shiftAttrs str where
+	unless (value == 0) $ mvWAddStr stdScr 
+		(shiftDown + shiftElem + 1 + elems + pos) shiftAttrs str where
 	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
 	pos = fromEnum i
 	value = intr (getFirst world) !! pos
@@ -124,7 +123,8 @@ showTemp :: World -> Temp -> IO ()
 showTemp world t = 
 	case value of
 	Nothing -> doNothing
-	_ -> mvWAddStr stdScr (shiftDown + 4 + elems + intrs + pos) shiftAttrs str
+	_ -> mvWAddStr stdScr (shiftDown + shiftElem + 2 + elems + intrs + pos) 
+		shiftAttrs str
 	where
 	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
 	intrs = fromEnum (maxBound :: Intr) - fromEnum (minBound :: Intr)
@@ -198,10 +198,12 @@ drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
 		show (effectiveSlowness $ getFirst world)
-	mvWAddStr stdScr (shiftDown + 1) shiftAttrs 
-			$ "Next wave: " ++ show (wave world)
-	wAttrSet stdScr (attr0, Pair rED)
+	wAttrSet stdScr (attr0, Pair yELLOW)
+	unless (encumbrance (getFirst world) <= baseEncumbrance)
+		$ mvWAddStr stdScr (shiftDown + 1) shiftAttrs $ "Burdened"
 	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr (shiftDown + 2) shiftAttrs
+			$ "Next wave: " ++ show (wave world)
 	foldl (>>) doNothing $ map (showElemRes world) [minBound :: Elem .. maxBound :: Elem]
 	foldl (>>) doNothing $ map (showIntr world) [minBound :: Intr .. maxBound :: Intr]
 	foldl (>>) doNothing $ map (showTemp world) [minBound :: Temp .. maxBound :: Temp]
@@ -272,5 +274,4 @@ symbolItem (Weapon {})   = ')'
 symbolItem (Launcher {}) = '}'
 symbolItem (Armor {})    = '['
 symbolItem (Jewelry {})  = '='
-symbolItem _             = error "unknown object"
 

@@ -172,15 +172,15 @@ shortbow, bow, longbow :: Object
 lAUNCHERS :: [Object]
 lAUNCHERS = [shortbow, bow, longbow]
 
-getLauncher :: String -> Int -> String -> Object
-getLauncher t c cat = Launcher {title = t, count' = c, category = cat, 
-	enchantment = 0}
+getLauncher :: String -> Int -> Int -> String -> Object
+getLauncher t w c cat = Launcher {title = t, count' = c, category = cat, 
+	enchantment = 0, weight' = w}
 
-shortbow = getLauncher "short bow" 1 "bow"
+shortbow = getLauncher "short bow" 20 1 "bow"
 
-bow = getLauncher "bow" 2 "bow"
+bow = getLauncher "bow" 30 2 "bow"
 
-longbow = getLauncher "longbow" 3 "bow"
+longbow = getLauncher "longbow" 40 3 "bow"
 
 dagger, shortsword, sword, crysknife :: Object
 
@@ -190,22 +190,24 @@ wEAPONS =
 	replicate 2 shortsword ++
 	replicate 1 sword
 
-getWeapon :: String -> StdDmg -> Object
-getWeapon t o = Weapon {title = t, objdmg' = o, enchantment = 0}
+getWeapon :: String -> Int -> StdDmg -> Object
+getWeapon t w o= Weapon {title = t, objdmg' = o, enchantment = 0, 
+	weight' = w}
 
-dagger = getWeapon "dagger" $ dices (1,12) 0.0 -- avg = 6.5
+dagger = getWeapon "dagger" 10 $ dices (1,12) 0.0 -- avg = 6.5
 
-shortsword = getWeapon "shortsword" $ dices (2,8) 0.1 -- avg = 8.1
+shortsword = getWeapon "shortsword" 30 $ dices (2,8) 0.1 -- avg = 8.1
 
-sword = getWeapon "sword" $ dices (2,10) 0.1 -- avg = 9.9
+sword = getWeapon "sword" 40 $ dices (2,10) 0.1 -- avg = 9.9
 
-crysknife = getWeapon "crysknife" $ dices (5,5) 0.0 -- avg = 15
+crysknife = getWeapon "crysknife" 20 $ dices (5,5) 0.0 -- avg = 15
 
 aRMOR, bODYaRMOR, hELMETS, gLOVES, bOOTS :: [Object]
 aRMOR = bODYaRMOR ++ hELMETS ++ gLOVES ++ bOOTS
 
-getArmor :: String -> Int -> Int -> Object
-getArmor t a b = Armor {title = t, ac' = a, bind = b, enchantment = 0}
+getArmor :: String -> Int -> Int -> Int -> Object
+getArmor t w a b = Armor {title = t, ac' = a, bind = b, enchantment = 0, 
+	weight' = w}
 
 leatherJacket, leatherArmor, ringMail, plateMail :: Object
 bODYaRMOR = 
@@ -214,34 +216,34 @@ bODYaRMOR =
 	replicate 2 ringMail ++
 	replicate 1 plateMail
 
-leatherJacket = getArmor "leather jacket" 1 bODY
-leatherArmor = getArmor "leather armor" 2 bODY
-ringMail = getArmor "ring mail" 3 bODY
-plateMail = getArmor "plate mail" 4 bODY
+leatherJacket = getArmor "leather jacket" 30 1 bODY
+leatherArmor = getArmor "leather armor" 150 2 bODY
+ringMail = getArmor "ring mail" 250 3 bODY
+plateMail = getArmor "plate mail" 450 4 bODY
 
 fedora, hardHat, helmet, kabuto :: Object
 hELMETS =
 	replicate 4 fedora ++
-	replicate 3 hardHat ++ 
+	replicate 3 hardHat ++
 	replicate 2 helmet ++
 	replicate 1 kabuto
 
-fedora = getArmor "fedora" 1 hEAD
-hardHat = getArmor "hard hat" 2 hEAD
-helmet = getArmor "helmet" 3 hEAD
-kabuto = getArmor "kabuto" 4 hEAD
+fedora = getArmor "fedora" 3 1 hEAD
+hardHat = getArmor "hard hat" 20 2 hEAD
+helmet = getArmor "helmet" 40 3 hEAD
+kabuto = getArmor "kabuto" 50 4 hEAD
 
 glove, gauntlet :: Object
 gLOVES = [glove, gauntlet]
 
-glove = getArmor "glove" 1 aRM
-gauntlet = getArmor "gauntlet" 2 aRM
+glove = getArmor "glove" 3 1 aRM
+gauntlet = getArmor "gauntlet" 5 2 aRM
 
 lowBoot, highBoot :: Object
 bOOTS = [lowBoot, highBoot]
 
-lowBoot = getArmor "low boot" 1 lEG
-highBoot = getArmor "high boot" 2 lEG
+lowBoot = getArmor "low boot" 10 1 lEG
+highBoot = getArmor "high boot" 20 2 lEG
 
 jEWELRY, rINGS, aMULETS :: [Object]
 jEWELRY = rINGS ++ aMULETS

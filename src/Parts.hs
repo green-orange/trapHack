@@ -16,7 +16,10 @@ pAW  = 5
 kINDS = pAW
 
 mAIN = 32
-	
+
+baseEncumbrance :: Int
+baseEncumbrance = 500
+
 partToStr :: Int -> String
 partToStr x
 	| x == bODY = "Body"
@@ -58,9 +61,13 @@ getWing = getPart wING
 getPaw  = getPart pAW
 getMain = getPart mAIN
 
+encumbrance :: Monster -> Int
+encumbrance mon = M.foldr (+) 0 $ M.map (\(o, n) -> n * weight o) $ inv mon
+
 effectiveSlowness :: Monster -> Int
-effectiveSlowness mon =
-	max 10 $ div (slowness mon) $ 1 + length (filter isLowerLimb $ parts mon)
+effectiveSlowness mon = max 10 $ (`div` baseEncumbrance) $ 
+	((*) $ max baseEncumbrance $ encumbrance mon) $ div (slowness mon) 
+	$ 1 + length (filter isLowerLimb $ parts mon)
 
 isEmptyPart :: Slot -> Monster -> Part -> Bool
 isEmptyPart sl mon part = M.notMember (objectKeys part !! fromEnum sl) $ inv mon

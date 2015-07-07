@@ -91,7 +91,6 @@ data Monster = Monster {
 }
 
 data Object =
-	Something |
 	Potion {
 		title :: String,
 		act :: (Monster, StdGen) -> (Monster, StdGen)
@@ -120,18 +119,21 @@ data Object =
 		title :: String,
 		count' :: Int,
 		category :: String,
-		enchantment :: Int
+		enchantment :: Int,
+		weight' :: Int
 	} |
 	Weapon {
 		title :: String,
 		objdmg' :: StdDmg,
-		enchantment :: Int
+		enchantment :: Int,
+		weight' :: Int
 	} |
 	Armor {
 		title :: String,
 		ac' :: Int,
 		bind :: Int,
-		enchantment :: Int
+		enchantment :: Int,
+		weight' :: Int
 	} |
 	Jewelry {
 		title :: String,
@@ -150,6 +152,15 @@ count obj = count' obj + enchantment obj
 
 ac :: Object -> Int
 ac obj = ac' obj + enchantment obj
+
+weight :: Object -> Int
+weight (Potion {})  = 20
+weight (Wand {})    = 7
+weight (Scroll {})  = 5
+weight (Trap {})    = 50
+weight (Missile {}) = 2
+weight (Jewelry {}) = 10
+weight obj = weight' obj
 
 instance Eq Object where
 	(Potion t _) == (Potion t' _) = t == t'
