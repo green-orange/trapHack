@@ -52,7 +52,7 @@ updateFirst w = changeMons newUnits w where
 newWaveIf :: World -> World
 newWaveIf world
 	| not (isPlayerNow world) ||
-		weigthW world * 3 > wave world = newWorld
+		levelW world * 3 > wave world = newWorld
 	| stepsBeforeWave world > 0 = newWorld
 		{stepsBeforeWave = stepsBeforeWave world - 1}
 	| stepsBeforeWave world == 0 = callUpon world

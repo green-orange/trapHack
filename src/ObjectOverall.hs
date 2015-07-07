@@ -15,36 +15,36 @@ import qualified Data.Map as M
 import Data.Maybe (isNothing, fromJust)
 
 dropFirst :: Key -> World -> Bool -> (World, Bool)
-dropFirst c world ignoreMessages = rez where
-	rez =
-		if (isNothing objects)
-		then (maybeAddMessage "You haven't this item!" 
-			$ changeAction ' ' world, False)
-		else if isExistingBindingFirst world (fromKey c) 
-			&& (alive $ getFirst world)
-		then (maybeAddMessage "You can't drop the item wich you have equipped!" 
-			$ changeAction ' ' world, False)
-		else (changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
-			$ changeAction ' ' world, True)
+dropFirst c world ignoreMessages
+	| isNothing objects = (maybeAddMessage "You haven't this item!" 
+		$ changeAction ' ' world, False)
+	| isExistingBindingFirst world (fromKey c) 
+		&& alive (getFirst world) = 
+		(maybeAddMessage "You can't drop the item wich you have equipped!" 
+		$ changeAction ' ' world, False)
+	| otherwise = 
+		(changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
+		$ changeAction ' ' world, True) where
 	objects = M.lookup (fromKey c) $ inv $ getFirst world
 	(obj, cnt) = fromJust objects
 	x = xFirst world
 	y = yFirst world
 	oldmon = getFirst world
-	mon = delAllObj c $ oldmon
+	mon = delAllObj c oldmon
 	newMsg =
 		if ignoreMessages
 		then ""
-		else (name $ getFirst world) ++ " drop" ++ ending world 
+		else name $ getFirst world ++ " drop" ++ ending world 
 			++ titleShow obj ++ "."
 
 dropAll :: World -> World
-dropAll world = foldr (\x y -> fst $ dropFirst x y True) world $ 
-	map (KeyChar . fst) $ M.toList $ inv $ getFirst world
+dropAll world = foldr ((\x y -> fst $ dropFirst x y True) . KeyChar . fst)
+	world $ M.toList $ inv $ getFirst world
+
 
 pickFirst :: World -> (Maybe World, String)
 pickFirst world =
-	if 0 == (S.size $ chars world)
+	if S.null $ chars world
 	then (Nothing, "")
 	else let
 		xMon = xFirst world
@@ -55,10 +55,10 @@ pickFirst world =
 			xMon == x' && yMon == y') $ items world
 		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) 
 			&& (n < length alphabet) 
-			&& (S.member (alphabet !! n) $ chars world)) itemsWithIndices
+			&& S.member (alphabet !! n) (chars world)) itemsWithIndices
 		newItems = map fst rest
-		maybeInv = addInvs (inv oldMon) $ map (\(_,_,a,b) -> (a,b)) 
-			$ map fst itemsToPick
+		maybeInv = addInvs (inv oldMon) $ map ((\(_,_,a,b) 
+			-> (a,b)) . fst) itemsToPick
 	in case maybeInv of
 	Nothing -> (Nothing, "You knapsack is full!")
 	Just newInv ->
@@ -81,14 +81,15 @@ pickFirst world =
 		
 dropManyFirst :: World -> Maybe World
 dropManyFirst world =
-	if 0 == (S.size $ chars world)
+	if S.null $ chars world
 	then Nothing
 	else Just newWorld where
 		newMsg = name (getFirst world) ++ " drop" ++ ending world 
 			++ "some objects."
 		newWorld = changeAction ' ' $ changeChars S.empty 
-			$ addNeutralMessage newMsg $ foldr (\x y -> fst $ dropFirst x y True) 
-			world $  map KeyChar $ S.toList $ chars world
+			$ addNeutralMessage newMsg $ foldr ((\ x y 
+			-> fst $ dropFirst x y True) . KeyChar) world 
+			$ S.toList $ chars world
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
 addInvs startInv items' = (foldl (>=>) return $ map addInv items') startInv
@@ -99,18 +100,15 @@ addInv (obj, cnt) list' =
 	then Just $ M.map change list'
 	else addInvWithAlphabet alphabet list' (obj,cnt)
 	where
-		addInvWithAlphabet :: [Char] -> Inv -> (Object, Int) -> Maybe Inv
+		addInvWithAlphabet :: String -> Inv -> (Object, Int) -> Maybe Inv
 		addInvWithAlphabet [] _ _ = Nothing
 		addInvWithAlphabet alph inv' (obj', cnt') = 
 			if M.member (head alph) list'
 			then addInvWithAlphabet (tail alph) inv' (obj', cnt')
 			else Just $ M.insert (head alph) (obj', cnt') inv' where
-		isHere = M.foldl (||) False $ M.map (\(obj',_) -> obj' == obj) list'
-		change (o, n) = 
-			if o == obj
-			then (o, n + cnt)
-			else (o, n)
-			
+		isHere = or $ M.map (\(obj',_) -> obj' == obj) list'
+		change (o, n) = (o, if o == obj then n + cnt else n)
+
 addIndices :: (a -> Bool) -> [a] -> [(a, Int)]
 addIndices = addIndices' 0 where
 	addIndices' :: Int -> (a -> Bool) -> [a] -> [(a, Int)]
@@ -127,22 +125,21 @@ split f (x:xs) =
 	then (x:a, b)
 	else (a, x:b)
 	where (a, b) = split f xs
-	
+
 bindFirst :: Key -> World -> (World, Bool)
-bindFirst c w = rez where
-	rez = 
-		if c == KeyChar '-'
-		then (changeMon (changeParts newPartsSpace $ remEffect mon) newWorld, True)
-		else if isNothing objects
-		then (maybeAddMessage "You haven't this item!" newWorld, False)
-		else if isNothing maybeNewSlot || newSlot /= slot w
-		then (maybeAddMessage "This objects doesn't intended to this part!" 
-			newWorld, False)
-		else if isExistingBindingFirst w $ fromKey c
-		then (maybeAddMessage "This item is already bound to some part!"
-			newWorld, False)
-		else (addNeutralMessage msg $ changeMon 
-			(changeParts newParts newMon) newWorld, True)
+bindFirst c w 
+	| c == KeyChar '-' =
+		(changeMon (changeParts newPartsSpace $ remEffect mon) newWorld, True)
+	| isNothing objects =
+		(maybeAddMessage "You haven't this item!" newWorld, False)
+	| isNothing maybeNewSlot || newSlot /= slot w =
+		(maybeAddMessage "This objects doesn't intended to this part!" 
+		newWorld, False)
+	| isExistingBindingFirst w $ fromKey c =
+		(maybeAddMessage "This item is already bound to some part!"
+		newWorld, False)
+	| otherwise = (addNeutralMessage msg $ changeMon 
+		(changeParts newParts newMon) newWorld, True) where
 	objects = M.lookup (fromKey c) $ inv mon
 	maybeNewSlot = binds obj $ kind part
 	Just newSlot = maybeNewSlot
@@ -178,12 +175,10 @@ bindMon :: Slot -> Char -> Int -> World -> World
 bindMon sl c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind, slot = sl}
 
 binds :: Object -> Int -> Maybe Slot
-binds obj knd = 
-	if isWeapon obj && knd == aRM || isLauncher obj && knd == aRM
-	then Just WeaponSlot
-	else if isArmor obj && knd == bind obj
-	then Just ArmorSlot
-	else if isJewelry obj && knd == bind obj
-	then Just JewelrySlot
-	else Nothing
+binds obj knd
+	| isWeapon obj && knd == aRM || isLauncher obj && knd == aRM = 
+		Just WeaponSlot
+	| isArmor obj && knd == bind obj = Just ArmorSlot
+	| isJewelry obj && knd == bind obj = Just JewelrySlot
+	| otherwise = Nothing
 

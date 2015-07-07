@@ -26,31 +26,31 @@ addWave, addWaveFull :: Int -> (Units, StdGen) -> (Units, StdGen)
 addWave = addWaveBy addMonsters
 addWaveFull = addWaveBy addMonstersFull
 		
-weigthW :: World -> Int
-weigthW w = M.foldr (+) 0 $ M.map (weigth . name) $ M.filter isSoldier 
+levelW :: World -> Int
+levelW w = M.foldr (+) 0 $ M.map (levelM . name) $ M.filter isSoldier 
 	$ M.filterWithKey (\(x, y) _ -> abs (x - xPlayer) <= xSight 
 	&& abs (y - yPlayer) <= ySight) $ units w where
 	[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
 		$ M.toList $ units w
 		
-weigth :: String -> Int
-weigth "Bat"             = 1
-weigth "Homunculus"      = 3
-weigth "Beetle"          = 5
-weigth "Ivy"             = 3
-weigth "Accelerator"     = 6
-weigth "Floating eye"    = 5
-weigth "Hunter"          = 7
-weigth "Troll"           = 7
-weigth "Worm"            = 5
-weigth "Red dragon"      = 10
-weigth "Green dragon"    = 10
-weigth "White dragon"    = 10
-weigth "Forgotten beast" = 15
-weigth "Spider"          = 8
-weigth "Soldier"         = 8
-weigth "Umber hulk"      = 9
-weigth _                 = 0
+levelM :: String -> Int
+levelM "Bat"             = 1
+levelM "Homunculus"      = 3
+levelM "Beetle"          = 5
+levelM "Ivy"             = 3
+levelM "Accelerator"     = 6
+levelM "Floating eye"    = 5
+levelM "Hunter"          = 7
+levelM "Troll"           = 7
+levelM "Worm"            = 5
+levelM "Red dragon"      = 10
+levelM "Green dragon"    = 10
+levelM "White dragon"    = 10
+levelM "Forgotten beast" = 15
+levelM "Spider"          = 8
+levelM "Soldier"         = 8
+levelM "Umber hulk"      = 9
+levelM _                 = 0
 		
 genWave :: Int -> StdGen -> ([MonsterGen], StdGen)
 genWave n g
@@ -77,7 +77,7 @@ genWave n g
 		14 -> getSoldier
 		15 -> getUmberHulk
 		_  -> error "value error in function genWave"
-	d = weigth $ nameFromGen genM
+	d = levelM $ nameFromGen genM
 	(oldWave, g'') = genWave (n - d) g'
 
 newWave :: World -> World
