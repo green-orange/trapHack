@@ -1,12 +1,14 @@
 module Ivy where
 
-import Data
 import Monsters
 import Utils4mon
 import Parts
 import Changes
 import Move
 import AIrepr
+import DataWorld
+import DataMonster
+import DataDef
 
 import System.Random (randomR)
 

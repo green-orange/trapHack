@@ -2,20 +2,10 @@ module Parts where
 
 import Data
 import Utils4objects
+import DataObject
+import DataDef
 
 import qualified Data.Map as M
-
-bODY, hEAD, lEG, aRM, wING, pAW, kINDS, mAIN :: Int
-
-bODY = 0
-hEAD = 1
-lEG  = 2
-aRM  = 3
-wING = 4
-pAW  = 5
-kINDS = pAW
-
-mAIN = 32
 
 baseEncumbrance :: Int
 baseEncumbrance = 500

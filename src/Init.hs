@@ -4,6 +4,7 @@ import Data
 import Parts
 import Colors
 import Texts
+import DataDef
 --import Stuff
 
 import System.Random (StdGen)

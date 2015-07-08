@@ -1,6 +1,6 @@
 module Random where
 
-import Data
+import DataDef
 
 import System.Random
 

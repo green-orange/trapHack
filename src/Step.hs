@@ -13,6 +13,8 @@ import Colors
 import AI (runAI)
 import Texts
 import AIrepr
+import DataWorld
+import DataDef
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)
@@ -154,6 +156,8 @@ justStep world c = case dir c of
 			Left $ changeAction ',' world
 		KeyChar 'C' ->
 			Left $ changeAction 'C' $ addDefaultMessage	msgConfirmCall world
+		KeyChar 'S' ->
+			Left $ changeAction 'S' world
 		KeyChar '\n' -> Left world
 		KeyChar '?' ->
 			Left $ changeAction '?' $ addDefaultMessage

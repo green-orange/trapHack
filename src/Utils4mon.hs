@@ -6,6 +6,9 @@ import HealDamage
 import Parts
 import Messages
 import Colors
+import DataWorld
+import DataMonster
+import DataDef
 
 import System.Random (StdGen, randomR)
 

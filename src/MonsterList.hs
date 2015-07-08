@@ -6,6 +6,9 @@ import Monsters
 import Stuff
 import Parts
 import AIrepr
+import DataMonster
+import DataObject
+import DataDef
 
 import qualified Data.Map as M
 import System.Random (randomR)

@@ -6,6 +6,9 @@ import Utils4objects
 import Colors
 import Parts
 import Texts
+import DataWorld
+import DataMonster
+import DataDef
 
 import qualified Data.Map as M
 import Data.Array

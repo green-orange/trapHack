@@ -1,8 +1,8 @@
 module HealDamage where
 
-import Data
 import Changes
 import Parts
+import DataDef
 
 import System.Random (StdGen, randomR)
 

@@ -1,6 +1,6 @@
 module AIrepr where
 
-import Data
+import DataDef
 
 getPureAI :: AIpure -> AIrepr
 getPureAI aip = AIrepr {

@@ -8,6 +8,9 @@ import Show
 import Init
 import Colors
 import Texts
+import DataWorld
+import DataDef
+import Read ()
 
 import UI.HSCurses.Curses
 import Control.Monad (unless)
@@ -16,8 +19,9 @@ import System.Random (getStdGen)
 import System.Posix.User
 #endif
 
-logName :: String
+logName, saveName :: String
 logName = "trapHack.log"
+saveName = "trapHack.save"
 
 loop :: World -> IO String
 loop world =
@@ -28,7 +32,12 @@ loop world =
 		maybeAppendFile logName $ filter (not . null) 
 			$ map fst $ message world
 		case step (clearMessage width world) c of
-			Left newWorld -> loop newWorld
+			Left newWorld -> 
+				if action newWorld == 'S'
+				then do
+					writeFile saveName $ show newWorld
+					return msgSaved
+				else loop newWorld
 			Right msg ->
 				appendFile logName (msg ++ "\n")
 				>> return msg
@@ -43,6 +52,8 @@ loop world =
 
 main :: IO ()
 main = do
+	print msgAskLoad
+	ans <- getLine
 	writeFile logName ""
 	_ <- initScr
 	(h, w) <- scrSize
@@ -56,7 +67,12 @@ main = do
 		print msgAskName
 		username <- getLine
 #endif
+		save <- readFile saveName
+		world <-
+			if ans == "y" || ans == "Y"
+			then return $ read save
+			else return $ initWorld username gen
 		initScr >> initCurses >> startColor >> initColors >>
 			keypad stdScr True >> echo False >>
 			cursSet CursorInvisible >> return ()
-		loop (initWorld username gen) >>= (\msg -> endWin >> putStrLn msg)
+		loop world >>= (\msg -> endWin >> putStrLn msg)

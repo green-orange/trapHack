@@ -1,6 +1,6 @@
 module Colors where
 
-import Data (Terrain (..))
+import DataDef (Terrain (..))
 
 import UI.HSCurses.Curses
 import Data.Maybe (fromJust)

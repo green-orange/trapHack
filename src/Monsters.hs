@@ -6,15 +6,13 @@ import Parts
 import Messages
 import Texts
 import AIrepr
+import DataWorld
+import DataMonster
+import DataObject
+import DataDef
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
-
-monNames :: [String]
-monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
-	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
-	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
-	"Golem", "Dummy", "Rock", "Forgotten beast"]
 	
 getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
 	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> MonsterGen

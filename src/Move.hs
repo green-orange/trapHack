@@ -10,6 +10,10 @@ import Messages
 import Colors
 import Texts
 import Random
+import DataWorld
+import DataMonster
+import DataObject
+import DataDef
 
 import qualified Data.Map as M
 import qualified Data.Array as A

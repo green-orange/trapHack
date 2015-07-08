@@ -9,6 +9,9 @@ import Wave
 import HealDamage
 import Colors
 import Texts
+import DataWorld
+import DataMonster
+import DataDef
 
 import System.Random (StdGen, randomR)
 import Data.List (sort)

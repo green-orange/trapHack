@@ -7,6 +7,9 @@ import ObjectOverall
 import Utils4objects
 import Colors
 import Texts
+import DataWorld
+import DataMonster
+import DataDef
 
 import UI.HSCurses.Curses
 import qualified Data.Set as S

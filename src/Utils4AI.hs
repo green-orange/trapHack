@@ -1,10 +1,12 @@
 module Utils4AI where
 
 import Data
-import Parts
 import Utils4objects
 import Object
 import Changes
+import DataWorld
+import DataMonster
+import DataDef
 
 import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust)

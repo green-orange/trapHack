@@ -7,6 +7,9 @@ import Changes
 import ObjectOverall
 import Parts
 import AIrepr
+import DataWorld
+import DataMonster
+import DataDef
 
 import Data.List (minimumBy)
 import Data.Function (on)

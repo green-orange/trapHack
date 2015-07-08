@@ -1,12 +1,14 @@
 module Golem where
 
-import Data
 import Parts
 import Move
 import Utils4mon
 import Monsters
 import Changes
 import AIrepr
+import DataWorld
+import DataMonster
+import DataDef
 
 import qualified Data.Map as M
 

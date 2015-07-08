@@ -6,10 +6,10 @@ import Random
 import Monsters
 import HealDamage
 import GarbageCollector
-import Parts
 import Golem
 import Utils4mon
 import Changes
+import DataDef
 
 import System.Random
 import qualified Data.Map as M
@@ -306,4 +306,3 @@ trapFromTerrain x = case x of
 	PoisonTrap -> poisonTrap
 	MagicTrap -> magicTrap
 	_ -> error "unknown trap"
- 

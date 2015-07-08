@@ -2,6 +2,9 @@ module Changes where
 
 import Data
 import Parts
+import DataWorld
+import DataMonster
+import DataDef
 
 import qualified Data.Set as S
 import UI.HSCurses.Curses (Key (..))

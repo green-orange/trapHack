@@ -11,6 +11,10 @@ import Parts
 import Utils4mon
 import Colors
 import Texts
+import DataWorld
+import DataMonster
+import DataObject
+import DataDef
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, isJust, fromJust)

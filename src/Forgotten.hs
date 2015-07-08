@@ -5,9 +5,11 @@ import AI
 import Random
 import Parts
 import Stuff
+import DataMonster
+import DataObject
+import DataDef
 
 import System.Random (StdGen, randomR, randoms, split)
-import Control.Monad (join)
 import Data.Map (fromList)
 
 applyIf :: (a -> a) -> Bool -> a -> a
@@ -54,7 +56,7 @@ forgottenParts g = (rez, g') where
 	(g', g'') = split g
 	qs = randoms g'
 	counts = map inverseSquareRandom qs
-	partgens = join $ zipWith replicate counts $ map getPart [0..kINDS]
+	partgens = concat $ zipWith replicate counts $ map getPart [0..kINDS]
 	qs' = randoms g''
 	hps = map ((*10) . inverseSquareRandom) qs'
 	rez = zipWith3 ($) partgens (cycle [3, 2, 1]) hps

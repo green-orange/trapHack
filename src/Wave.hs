@@ -6,6 +6,8 @@ import MonsterList
 import Ivy
 import Forgotten
 import Utils4mon
+import DataMonster
+import DataDef
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M

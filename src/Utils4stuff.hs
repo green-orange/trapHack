@@ -9,6 +9,9 @@ import Utils4mon
 import Colors
 import Texts
 import AIrepr
+import DataWorld
+import DataMonster
+import DataDef
 
 import System.Random (StdGen, randomR)
 import Data.Maybe (isJust, fromJust)

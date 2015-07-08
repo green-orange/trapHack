@@ -15,6 +15,9 @@ import Ivy
 import Golem
 import GarbageCollector
 import AIrepr
+import DataWorld
+import DataMonster
+import DataDef
 
 import System.Random (randomR, StdGen)
 import Data.Maybe (fromJust, isNothing)

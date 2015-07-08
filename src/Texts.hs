@@ -1,6 +1,6 @@
 module Texts where
 
-import Data
+import DataDef
 
 msgWand :: String -> String -> String
 msgWand title' name' = 
@@ -99,7 +99,7 @@ msgUnkAct = "Unknown action!"
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 
-	msgConfirmCall :: String
+	msgConfirmCall, msgSaved, msgAskLoad :: String
 msgWelcome :: String -> String
 
 msgWelcome username = "Welcome to the trapHack, " ++ username ++ "."
@@ -110,6 +110,8 @@ msgCheater = "You are cheater!"
 msgAsk = "What do you want to "
 msgInfo = "Pick an object and press ."
 msgConfirmCall = "Do you really want to call upon the next wave? (y/N)"
+msgSaved = "Game saved!"
+msgAskLoad = "Do you want to load saved game?"
 
 {-Headers-}
 msgHeaderInv, msgHeaderEquip, msgHeaderBind :: String

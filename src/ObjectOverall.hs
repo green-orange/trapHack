@@ -5,9 +5,11 @@ import Changes
 import Utils4mon
 import Messages
 import Utils4objects
-import Parts
 import Colors
 import Texts
+import DataWorld
+import DataMonster
+import DataDef
 
 import Control.Monad ((>=>))
 import qualified Data.Set as S

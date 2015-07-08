@@ -1,8 +1,7 @@
 module Utils4objects where
 
-import Data
-
-import Control.Monad (join)
+import DataWorld
+import DataDef
 
 isPotion :: Object -> Bool
 isPotion (Potion {}) = True
@@ -41,7 +40,7 @@ isJewelry (Jewelry {}) = True
 isJewelry _ = False
 
 isExistingBinding :: Monster -> Char -> Bool
-isExistingBinding mon c = elem c $ join $ map objectKeys $ parts mon
+isExistingBinding mon c = elem c $ concat $ map objectKeys $ parts mon
 
 isExistingBindingFirst :: World -> Char -> Bool
 isExistingBindingFirst = isExistingBinding . getFirst
