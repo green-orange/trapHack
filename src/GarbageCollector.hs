@@ -7,6 +7,7 @@ import Move
 import Changes
 import ObjectOverall
 import Parts
+import AIrepr
 
 import Data.List (minimumBy)
 import Data.Function (on)
@@ -32,7 +33,7 @@ collectorAI _ _ world =
 				  signum $ yItem - yNow)
 
 getGarbageCollector :: MonsterGen		  
-getGarbageCollector = getMonster collectorAI
+getGarbageCollector = getMonster (getPureAI CollectorAI)
 	[(getBody 1, (20, 40)), 
 	 (getHead 1, (10, 30)),
 	 (getLeg  1, ( 8, 12)),

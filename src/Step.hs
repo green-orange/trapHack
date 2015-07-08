@@ -10,8 +10,9 @@ import Utils4mon
 import Messages
 import Utils4objects
 import Colors
-import AI (randomAI)
+import AI (runAI)
 import Texts
+import AIrepr
 
 import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)
@@ -89,7 +90,7 @@ step world c
 			_ -> Left $ addMessage (msgCheater, mAGENTA)
 				$ changeAction ' ' world
 		else
-			let newMWorld = aiNow x y world
+			let newMWorld = runAI aiNow x y world
 			in Left $ newWaveIf newMWorld
 	| name mon == "You" =
 		Right $ msgYouDie $ wave world - 1
@@ -104,7 +105,7 @@ step world c
 		p::Float
 		(p, g) = randomR (0.0, 1.0) $ stdgen world
 		mon = getFirst world
-		AI aiNow = if stun then AI randomAI else ai mon
+		AI aiNow = if stun then AI $ getPureAI RandomAI else ai mon
 		(xR, g1) = randomR (0, maxX) g
 		(yR, _) = randomR (0, maxY) g1 
 		(x, y) = case closestPlayerChar (xFirst world) (yFirst world) world of

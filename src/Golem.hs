@@ -7,6 +7,7 @@ import Utils4mon
 import Monsters
 import Changes
 import Random
+import AIrepr
 
 import qualified Data.Map as M
 
@@ -25,7 +26,7 @@ golemAI _ _ world =
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
 
 getGolem :: MonsterGen
-getGolem = getMonster golemAI
+getGolem = getMonster (getPureAI GolemAI)
 	[(getBody 1, (10, 30)), 
 	 (getHead 1, ( 8, 12)),
 	 (getLeg  1, ( 3,  7)),

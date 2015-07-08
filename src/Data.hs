@@ -52,6 +52,18 @@ doNothing = return ()
 shiftDown :: Int
 shiftDown = 5
 
+data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
+	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 
+	UseItemsAI
+data AIpure = NothingAI | StupidestAI | StupidAI | StupidParalysisAI | 
+	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | CollectorAI |
+	GolemAI
+data AIrepr = AIrepr {
+	mods :: [AImod],
+	attackIfCloseMode :: Maybe (Elem, Int),
+	aipure :: AIpure
+}
+
 type AIfunc = Int -> Int -> World -> World
 type Inv = M.Map Char (Object, Int)
 type InvGen = StdGen -> (Inv, StdGen)
@@ -76,7 +88,7 @@ data Part = Part {
 	regVel :: Int,
 	objectKeys :: String
 }
-data AI = You | AI AIfunc
+data AI = You | AI AIrepr
 data Monster = Monster {
 	ai :: AI,
 	parts :: [Part],

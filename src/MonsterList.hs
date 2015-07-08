@@ -4,9 +4,8 @@ import Data
 import Random
 import Monsters
 import Stuff
-import Move
-import AI
 import Parts
+import AIrepr
 
 import qualified Data.Map as M
 import System.Random (randomR)
@@ -15,7 +14,7 @@ getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
 	getWorm, getFloatingEye, getRedDragon, getWhiteDragon, getGreenDragon,
 	getSpider, getSoldier, getUmberHulk :: MonsterGen
 
-getHomunculus = getMonster (humanoidAI stupidestAI)
+getHomunculus = getMonster (getHumanoidAI StupidestAI)
 	[(getBody 1, (10, 30)), 
 	 (getHead 1, (8, 12)),
 	 (getLeg 1, (3, 7)),
@@ -35,7 +34,7 @@ wandForHom :: Float -> Int -> Object
 wandForHom = flip uniformFromList [wandOfPoison, wandOfSlowing, 
 	wandOfSpeed, wandOfStriking, wandOfStun]
 
-getBeetle = getMonster stupidAI
+getBeetle = getMonster (getPureAI StupidAI)
 	[(getBody 1, (10, 20)),
 	 (getHead 1, ( 5, 15)),
 	 (getPaw  1, ( 5,  9)),
@@ -46,14 +45,14 @@ getBeetle = getMonster stupidAI
 	 (getLeg 1, (2, 8))]
 	2 (dices (1,5) 0.1) emptyInv 100
 
-getBat = getMonster randomAI
+getBat = getMonster (getPureAI RandomAI)
 	[(getBody 1, (10, 50)), 
 	 (getHead 1, (5, 35)),
 	 (getWing 2, (5, 15)),
 	 (getWing 2, (5, 15))]
 	3 (dices (3,5) 0.2) emptyInv 50
 	
-getHunter = getMonster (hunterAI $ humanoidAI stupidAI) 
+getHunter = getMonster (getHunterAI StupidAI)
 	[(getBody 1, (10, 30)),
 	 (getHead 1, (10, 30)),
 	 (getLeg 1, (5, 10)),
@@ -69,7 +68,7 @@ getHunter = getMonster (hunterAI $ humanoidAI stupidAI)
 		$ M.singleton 'b' (lAUNCHERS !! uniform q 0 (length lAUNCHERS - 1), 1)
 		, g'')) 60
 		
-getAccelerator = getMonster (acceleratorAI stupidAI)
+getAccelerator = getMonster (AIrepr [AcceleratorAI] Nothing StupidAI)
 	[(getBody 1, (10, 20)), 
 	 (getHead 1, (8, 12)),
 	 (getLeg 1, (3, 7)),
@@ -78,7 +77,7 @@ getAccelerator = getMonster (acceleratorAI stupidAI)
 	 (getArm 1, (2, 6))]
 	5 (dices (1,6) 0.2) emptyInv 150
 	
-getTroll = getMonster (trollAI stupidAI)
+getTroll = getMonster (AIrepr [TrollAI] Nothing StupidAI)
 	[(getBody 2, (10, 30)),
 	 (getHead 2, (10, 20)),
 	 (getLeg 3, (8, 12)),
@@ -87,17 +86,17 @@ getTroll = getMonster (trollAI stupidAI)
 	 (getArm 3, (8, 12))]
 	6 (dices (2,5) 0.4) emptyInv 100
 	 
-getWorm = getMonster wormAI
+getWorm = getMonster (getPureAI WormAI)
 	[(getMain 1, (200, 500))]
 	7 (dices (5,8) 0.4) emptyInv 100
 	
-getFloatingEye = getMonster stupidParalysisAI
+getFloatingEye = getMonster (getPureAI StupidParalysisAI)
 	[(getMain 2, (10, 40)),
 	 (getWing 1, (5, 10)),
 	 (getWing 1, (5, 10))]
 	8 (dices (1,5) 0.2) emptyInv 200
 	
-getRedDragon = getMonster (attackIfClose Fire 3 stupidAI)
+getRedDragon = getMonster (getDragonAI Fire 3)
 	[(getBody 2, (10, 40)),
 	 (getHead 2, (10, 30)),
 	 (getLeg 1, (5, 15)),
@@ -106,7 +105,7 @@ getRedDragon = getMonster (attackIfClose Fire 3 stupidAI)
 	 (getWing 3, (5, 15))]
 	9 (dices (3,4) 0.2) emptyInv 120
 
-getWhiteDragon = getMonster (attackIfClose Cold 3 stupidAI)
+getWhiteDragon = getMonster (getDragonAI Cold 3)
 	[(getBody 2, (10, 40)),
 	 (getHead 2, (10, 30)),
 	 (getLeg 1, (5, 15)),
@@ -115,7 +114,7 @@ getWhiteDragon = getMonster (attackIfClose Cold 3 stupidAI)
 	 (getWing 3, (10, 20))]
 	10 (dices (4,5) 0.2) emptyInv 200
 	
-getGreenDragon = getMonster (attackIfClose Poison' 3 stupidAI)
+getGreenDragon = getMonster (getDragonAI Poison' 3)
 	[(getBody 2, (10, 40)),
 	 (getHead 2, (10, 30)),
 	 (getLeg 1, (10, 20)),
@@ -124,7 +123,7 @@ getGreenDragon = getMonster (attackIfClose Poison' 3 stupidAI)
 	 (getWing 3, (10, 30))]
 	11 (dices (2,5) 0.2) emptyInv 80
 
-getSpider = getMonster stupidPoisonAI
+getSpider = getMonster (getPureAI StupidPoisonAI)
 	[(getBody 1, (10, 20)),
 	 (getHead 1, (5, 15)),
 	 (getPaw 1, (5, 8)),
@@ -137,7 +136,7 @@ getSpider = getMonster stupidPoisonAI
 	 (getLeg 1, (2, 5))]
 	12 (dices (2,3) 0.1) emptyInv 250
 	
-getSoldier = getMonster (humanoidAI stupidAI)
+getSoldier = getMonster (getHumanoidAI StupidAI)
 	[(getBody 2, (10, 30)),
 	 (getHead 2, (10, 20)),
 	 (getLeg 3, (8, 12)),
@@ -155,7 +154,7 @@ soldierInv g = (M.fromList $ zip alphabet $ zip
 		(x2, g2) = randomR (0.0, 1.0) g1
 		(x3, g3) = randomR (0.0, 1.0) g2
 
-getUmberHulk = getMonster (humanoidAI stupidConfAI)
+getUmberHulk = getMonster (getHumanoidAI StupidConfAI)
 	[(getBody 2, (10, 20)),
 	 (getHead 2, (10, 15)),
 	 (getLeg 3, (5, 10)),

@@ -5,6 +5,7 @@ import Changes
 import Parts
 import Messages
 import Texts
+import AIrepr
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
@@ -15,7 +16,7 @@ monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Trol
 	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
 	"Golem", "Dummy", "Rock", "Forgotten beast"]
 	
-getMonster :: AIfunc -> [(Int -> Int -> Part, (Int, Int))]
+getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
 	-> Int -> StdDmg -> InvGen -> Int -> MonsterGen
 getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	ai = AI ai',
@@ -41,7 +42,7 @@ getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	(newInv, g'') = inv' g'
 
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (\_ _ w -> w) [(getMain 1, (n, n))] 19 lol 
+getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] 19 lol 
 	emptyInv 100
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)

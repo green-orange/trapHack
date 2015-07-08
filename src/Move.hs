@@ -76,16 +76,6 @@ attack x y c world = changeMons unitsNew $ addMessage (newMsg, color)
 				++ name mon ++ "!"
 		(monNew, newGen') = dmgRandom newDmg mon newGen
 		unitsNew = changeList (M.insert (x, y) monNew $ units world) $ units' world
-		
-stupidestAI :: AIfunc
-stupidestAI xPlayer yPlayer world = 
-	newWorld
-	where
-		xNow = xFirst world
-		yNow = yFirst world
-		dx = signum $ xPlayer - xNow
-		dy = signum $ yPlayer - yNow
-		newWorld = moveFirst dx dy world
 
 attackElem :: Elem -> Int -> Int -> World -> World
 attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color) 

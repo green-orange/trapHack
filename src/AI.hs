@@ -11,11 +11,50 @@ import Monsters
 import Utils4mon
 import Colors
 import Texts
+import Ivy
+import Golem
+import GarbageCollector
+import AIrepr
 
 import System.Random (randomR, StdGen)
 import Data.Maybe (fromJust, isNothing)
 import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
+
+runAImod :: AImod -> AIfunc -> AIfunc
+runAImod aimod = case aimod of
+	AcceleratorAI -> acceleratorAI
+	TrollAI -> trollAI
+	HealAI -> healAI
+	ZapAttackAI -> zapAttackAI
+	PickAI -> pickAI
+	FireAI -> fireAI
+	WieldLauncherAI -> wieldLauncherAI
+	WieldWeaponAI -> wieldWeaponAI
+	BindArmorAI -> bindArmorAI
+	UseItemsAI -> useItemsAI
+
+runAIattackIfClose :: Maybe (Elem, Int) -> AIfunc -> AIfunc
+runAIattackIfClose Nothing = id
+runAIattackIfClose (Just (e, d)) = attackIfClose e d
+
+runAIpure :: AIpure -> AIfunc
+runAIpure aip = case aip of
+	NothingAI -> \_ _ w -> w
+	StupidestAI -> stupidestAI
+	StupidAI -> stupidAI
+	StupidParalysisAI -> stupidParalysisAI
+	StupidPoisonAI -> stupidPoisonAI
+	StupidConfAI -> stupidConfAI
+	RandomAI -> randomAI
+	WormAI -> wormAI
+	IvyAI -> ivyAI
+	CollectorAI -> collectorAI
+	GolemAI -> golemAI
+
+runAI :: AIrepr -> AIfunc
+runAI repr =  foldr ((.) . runAImod) id (mods repr) $ 
+	runAIattackIfClose (attackIfCloseMode repr) $ runAIpure $ aipure repr
 
 acceleratorAI :: AIfunc -> AIfunc
 acceleratorAI f x y w = f x y $ changeMon newMon w where
@@ -31,14 +70,12 @@ trollAI f x y w =
 	else f x y w
 
 rock :: StdGen -> Monster
-rock g = fst $ getMonster (\_ _ w -> w) [(getMain 0, (100, 5000))] 
+rock g = fst $ getMonster (getPureAI NothingAI) [(getMain 0, (100, 5000))] 
 	20 lol emptyInv 10000 g
 
-humanoidAI :: AIfunc -> AIfunc
-humanoidAI = healAI . zapAttackAI . bindArmorAI . wieldWeaponAI . useItemsAI . pickAI
-
-mODSAI :: [AIfunc -> AIfunc]
-mODSAI = [healAI, zapAttackAI, pickAI, fireAI, wieldLauncherAI, wieldWeaponAI, useItemsAI]
+mODSAI :: [AImod]
+mODSAI = [HealAI, ZapAttackAI, PickAI, FireAI, WieldLauncherAI, WieldWeaponAI, 
+	BindArmorAI, UseItemsAI]
 		
 healAI :: AIfunc -> AIfunc
 healAI f x y w = 
@@ -104,9 +141,6 @@ useItemsAI f x y w = case useSomeItem objs keys of
 		objs = map (fst . snd) invList
 		keys = map (KeyChar . fst) invList
 
-hunterAI :: AIfunc -> AIfunc
-hunterAI = wieldLauncherAI . fireAI
-
 attackIfClose :: Elem -> Int -> AIfunc -> AIfunc
 attackIfClose elem' dist f x y w =
 	if abs dx <= dist && abs dy <= dist && 
@@ -145,6 +179,16 @@ stupidFooAI foo xPlayer yPlayer w = newWorld where
 			(ry, g'') = randomR (-1, 1) g'
 			in (rx, ry, g'')
 	newWorld = foo dx' dy' $ changeGen newStdGen w
+
+stupidestAI :: AIfunc
+stupidestAI xPlayer yPlayer world = 
+	newWorld
+	where
+		xNow = xFirst world
+		yNow = yFirst world
+		dx = signum $ xPlayer - xNow
+		dy = signum $ yPlayer - yNow
+		newWorld = moveFirst dx dy world
 				
 randomAI :: AIfunc
 randomAI _ _ w  = moveFirst rx ry newWorld where
@@ -169,6 +213,6 @@ wormAI xPlayer yPlayer w =
 		(p, g) = randomR (0.0, 1.0) $ stdgen w
 
 tailWorm :: MonsterGen
-tailWorm = getMonster (\_ _ w -> w) [(getMain 0, (100, 200))] 
+tailWorm = getMonster  (getPureAI NothingAI) [(getMain 0, (100, 200))] 
 	16 lol emptyInv 10000
 

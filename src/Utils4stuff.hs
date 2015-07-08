@@ -3,12 +3,12 @@ module Utils4stuff where
 import Data
 import Changes
 import Random
-import Move (stupidestAI)
 import HealDamage
 import Parts
 import Utils4mon
 import Colors
 import Texts
+import AIrepr
 
 import System.Random (StdGen, randomR)
 import Data.Maybe (isJust, fromJust)
@@ -76,14 +76,14 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 		then (msgFireYou, rED)
 		else (name mon ++ msgFire, gREEN)
 	newMsgs = map msg $ filter isClose $ M.toList $ units w
-	
+
 stupidity :: Monster -> Monster
 stupidity mon = mon {ai = newAI} where
 	newAI = case ai mon of
 		You -> You
 		old@(AI _) -> 
 			if canWalk mon
-			then AI stupidestAI
+			then AI $ getPureAI StupidestAI
 			else old
 	
 isUntrappable :: Terrain -> Bool
