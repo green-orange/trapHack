@@ -106,54 +106,63 @@ data Monster = Monster {
 data Object =
 	Potion {
 		title :: String,
-		act :: (Monster, StdGen) -> (Monster, StdGen)
+		act :: (Monster, StdGen) -> (Monster, StdGen),
+		idO :: Int
 	} | 
 	Wand {
 		title :: String,
 		act :: (Monster, StdGen) -> (Monster, StdGen),
 		range :: Int,
-		charge :: Int
+		charge :: Int,
+		idO :: Int
 	} |
 	Scroll {
 		title :: String,
-		actw :: World -> World
+		actw :: World -> World,
+		idO :: Int
 	} | 
 	Trap {
 		title :: String,
-		num :: Terrain
+		num :: Terrain,
+		idO :: Int
 	} |
 	Missile {
 		title :: String,
 		objdmg' :: StdDmg,
 		launcher :: String,
-		enchantment :: Int
+		enchantment :: Int,
+		idO :: Int
 	} |
 	Launcher {
 		title :: String,
 		count' :: Int,
 		category :: String,
 		enchantment :: Int,
-		weight' :: Int
+		weight' :: Int,
+		idO :: Int
 	} |
 	Weapon {
 		title :: String,
 		objdmg' :: StdDmg,
 		enchantment :: Int,
-		weight' :: Int
+		weight' :: Int,
+		idO :: Int
 	} |
 	Armor {
 		title :: String,
 		ac' :: Int,
 		bind :: Int,
 		enchantment :: Int,
-		weight' :: Int
+		weight' :: Int,
+		idO :: Int
 	} |
 	Jewelry {
 		title :: String,
 		enchantment :: Int,
 		bind :: Int,
 		effectOn :: Int -> Monster -> Monster,
-		effectOff :: Int -> Monster -> Monster
+		effectOff :: Int -> Monster -> Monster,
+		idO :: Int
 	}
 	
 objdmg :: Object -> StdDmg
@@ -176,10 +185,10 @@ weight (Jewelry {}) = 10
 weight obj = weight' obj
 
 instance Eq Object where
-	(Potion t _) == (Potion t' _) = t == t'
-	(Trap t _) == (Trap t' _) = t == t'
-	(Missile t _ _ _) == (Missile t' _ _ _) = t == t'
-	(Scroll t _) == (Scroll t' _) = t == t'
+	(Potion t _ _) == (Potion t' _ _) = t == t'
+	(Trap t _ _) == (Trap t' _ _) = t == t'
+	(Missile t _ _ _ _) == (Missile t' _ _ _ _) = t == t'
+	(Scroll t _ _) == (Scroll t' _ _) = t == t'
 	_ == _ = False
 
 isStackable :: Object -> Bool
