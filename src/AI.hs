@@ -159,7 +159,7 @@ stupidParalysisAI = stupidFooAI (\x y -> moveFirst x y . paralyse x y)
 stupidPoisonAI = stupidFooAI (\x y -> moveFirst x y . 
 	addTempByCoords Poison (5, 15) x y)
 stupidConfAI = stupidFooAI (\x y -> moveFirst x y . 
-	addTempByCoords Conf (5, 15) x y)
+	addTempByCoords Conf (0, 6) x y)
 
 stupidFooAI :: (Int -> Int -> World -> World) -> AIfunc
 stupidFooAI foo xPlayer yPlayer w = newWorld where
