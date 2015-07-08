@@ -9,6 +9,7 @@ import Parts
 import Messages
 import Colors
 import Texts
+import Random
 
 import qualified Data.Map as M
 import qualified Data.Array as A
@@ -67,7 +68,7 @@ attack x y c world = changeMons unitsNew $ addMessage (newMsg, color)
 		weapons = M.lookup c (inv attacker)
 		dmggen = 
 			if isNothing weapons || not (isWeapon $ fst $ fromJust weapons)
-			then stddmg attacker
+			then uncurry dices $ stddmg attacker
 			else objdmg $ fst $ fromJust weapons
 		(newDmg, newGen) =  dmggen world
 		newMsg = case newDmg of
@@ -91,7 +92,7 @@ attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color)
 			Nothing -> yELLOW
 			_		-> rED
 		_ -> bLUE
-	dmggen = stddmg attacker
+	dmggen = uncurry dices $ stddmg attacker
 	(newDmg, newGen) =  dmggen w
 	newMsg = case newDmg of
 		Nothing -> name attacker ++ msgMiss

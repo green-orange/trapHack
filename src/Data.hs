@@ -93,7 +93,7 @@ data Monster = Monster {
 	ai :: AI,
 	parts :: [Part],
 	name :: String,
-	stddmg :: StdDmg,
+	stddmg :: ((Int, Int), Float),
 	inv :: Inv,
 	slowness :: Int,
 	time :: Int,

@@ -2,7 +2,6 @@ module Init where
 
 import Data
 import Parts
-import Random
 import Colors
 import Texts
 --import Stuff
@@ -62,7 +61,7 @@ getPlayer = Monster {
 		 getArm  2 20]
 		 [0..],
 	name = "You",
-	stddmg = dices (1,10) 0.2,
+	stddmg = ((1,10), 0.2),
 	inv = M.empty,
 	slowness = 100,
 	time = 100,

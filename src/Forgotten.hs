@@ -59,8 +59,8 @@ forgottenParts g = (rez, g') where
 	hps = map ((*10) . inverseSquareRandom) qs'
 	rez = zipWith3 ($) partgens (cycle [3, 2, 1]) hps
 	
-forgottenDmg :: StdGen -> (World -> (Maybe Int, StdGen), StdGen)
-forgottenDmg g = (dices (cnt, dice) failProb, g3) where
+forgottenDmg :: StdGen -> (((Int, Int), Float), StdGen)
+forgottenDmg g = (((cnt, dice), failProb), g3) where
 	p, q, r :: Float
 	(p, g1) = randomR (0.0, 1.0) g
 	(q, g2) = randomR (0.0, 1.0) g1

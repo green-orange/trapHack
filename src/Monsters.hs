@@ -17,7 +17,7 @@ monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Trol
 	"Golem", "Dummy", "Rock", "Forgotten beast"]
 	
 getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
-	-> Int -> StdDmg -> InvGen -> Int -> MonsterGen
+	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> MonsterGen
 getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	ai = AI ai',
 	parts = zipWith ($) partGens [0..],

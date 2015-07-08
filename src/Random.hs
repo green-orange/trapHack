@@ -7,12 +7,12 @@ import System.Random
 intToFloat :: Int -> Float
 intToFloat = fromIntegral
 
-dicesWithoutFail :: (Int, Int) -> World -> (Int,StdGen)
+dicesWithoutFail :: (Int, Int) -> World -> (Int, StdGen)
 dicesWithoutFail (cnt, dice) world = (dmgNew, stdGenNew) where
 	(diceNew, stdGenNew) = randomR (1, dice) $ stdgen world
 	dmgNew = diceNew * cnt
 
-dices :: (Int,Int) -> Float -> World -> (Maybe Int, StdGen)
+dices :: (Int, Int) -> Float -> StdDmg
 dices xs p world = (rez, stdGenNew) where
 	(dmg, stdGenOld) = dicesWithoutFail xs world
 	(rnd, stdGenNew) = randomR (0.0, 1.0) stdGenOld
