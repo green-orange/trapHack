@@ -87,7 +87,8 @@ data Monster = Monster {
 	time :: Int,
 	res :: [Int],
 	intr :: [Int],
-	temp :: [Maybe Int]
+	temp :: [Maybe Int],
+	idM :: Int
 }
 
 data Object =

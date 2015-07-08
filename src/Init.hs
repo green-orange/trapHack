@@ -68,5 +68,6 @@ getPlayer = Monster {
 	time = 100,
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = map (const Nothing) (getAll :: [Temp])
+	temp = map (const Nothing) (getAll :: [Temp]),
+	idM = 0
 }

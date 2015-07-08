@@ -8,13 +8,20 @@ import Texts
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
+
+monNames :: [String]
+monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
+	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
+	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
+	"Golem", "Dummy", "Rock", "Forgotten beast"]
 	
 getMonster :: AIfunc -> [(Int -> Int -> Part, (Int, Int))]
-	-> String -> StdDmg -> InvGen -> Int -> MonsterGen
-getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
+	-> Int -> StdDmg -> InvGen -> Int -> MonsterGen
+getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	ai = AI ai',
 	parts = zipWith ($) partGens [0..],
-	name = name',
+	idM = id',
+	name = monNames !! id',
 	stddmg = stddmg',
 	inv = newInv,
 	slowness = slow',
@@ -34,7 +41,7 @@ getMonster ai' ps name' stddmg' inv' slow' g = (Monster {
 	(newInv, g'') = inv' g'
 
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (\_ _ w -> w) [(getMain 1, (n, n))] "Dummy" lol 
+getDummy n _ = getMonster (\_ _ w -> w) [(getMain 1, (n, n))] 19 lol 
 	emptyInv 100
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)

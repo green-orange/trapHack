@@ -11,7 +11,7 @@ import Move
 import System.Random (randomR)
 
 getIvy :: MonsterGen
-getIvy = getMonster ivyAI [(getMain 2, (5, 15))] "Ivy"
+getIvy = getMonster ivyAI [(getMain 2, (5, 15))] 15
 	(dices (2,10) 0) emptyInv 400
 
 ivyAI :: AIfunc

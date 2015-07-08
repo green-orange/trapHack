@@ -32,7 +32,7 @@ trollAI f x y w =
 
 rock :: StdGen -> Monster
 rock g = fst $ getMonster (\_ _ w -> w) [(getMain 0, (100, 5000))] 
-	"Rock" lol emptyInv 10000 g
+	20 lol emptyInv 10000 g
 
 humanoidAI :: AIfunc -> AIfunc
 humanoidAI = healAI . zapAttackAI . bindArmorAI . wieldWeaponAI . useItemsAI . pickAI
@@ -170,5 +170,5 @@ wormAI xPlayer yPlayer w =
 
 tailWorm :: MonsterGen
 tailWorm = getMonster (\_ _ w -> w) [(getMain 0, (100, 200))] 
-	"Tail" lol emptyInv 10000
+	16 lol emptyInv 10000
 
