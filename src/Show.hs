@@ -200,7 +200,7 @@ drawJustWorld world _ = do
 		show (effectiveSlowness $ getFirst world)
 	wAttrSet stdScr (attr0, Pair yELLOW)
 	unless (encumbrance (getFirst world) <= baseEncumbrance)
-		$ mvWAddStr stdScr (shiftDown + 1) shiftAttrs $ "Burdened"
+		$ mvWAddStr stdScr (shiftDown + 1) shiftAttrs "Burdened"
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr (shiftDown + 2) shiftAttrs
 			$ "Next wave: " ++ show (wave world)

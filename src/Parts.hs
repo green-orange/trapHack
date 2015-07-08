@@ -66,7 +66,7 @@ encumbrance mon = M.foldr (+) 0 $ M.map (\(o, n) -> n * weight o) $ inv mon
 
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon = max 10 $ (`div` baseEncumbrance) $ 
-	((*) $ max baseEncumbrance $ encumbrance mon) $ div (slowness mon) 
+	(*) (max baseEncumbrance $ encumbrance mon) $ div (slowness mon) 
 	$ 1 + length (filter isLowerLimb $ parts mon)
 
 isEmptyPart :: Slot -> Monster -> Part -> Bool
