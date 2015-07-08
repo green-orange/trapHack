@@ -109,7 +109,8 @@ hunterAI = wieldLauncherAI . fireAI
 
 attackIfClose :: Elem -> Int -> AIfunc -> AIfunc
 attackIfClose elem' dist f x y w =
-	if abs dx <= dist && abs dy <= dist
+	if abs dx <= dist && abs dy <= dist && 
+		(abs dx > 1 || abs dy > 1 || not (hasPart aRM $ getFirst w))
 	then attackElem elem' dx dy w
 	else f x y w
 	where
