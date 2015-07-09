@@ -1,5 +1,5 @@
 # trapHack
-trapHack is a roguelike-survival based on NetHack, IVAN and HyperRogue. trapHack is in early development now. All versions are unstable.
+trapHack is a roguelike-survival based on NetHack, Dwarf Fortress and HyperRogue. trapHack is in early development now. All versions are unstable.
 ### How to install
 trapHack is written in Haskell. You can use [GHC](https://www.haskell.org/ghc/) (Glasgow Haskell Compiler) to compile it. Also you must install [HSCurses](https://hackage.haskell.org/package/hscurses) module.
 ### About game
@@ -22,3 +22,4 @@ D - **d**rop many items
 Q - **q**uit  
 C - **c**all upon the new wave  
 ? - get info about monster or item  
+S - **s**ave the game  

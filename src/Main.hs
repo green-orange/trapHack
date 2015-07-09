@@ -15,6 +15,7 @@ import Read ()
 import UI.HSCurses.Curses
 import Control.Monad (unless)
 import System.Random (getStdGen)
+import Control.Exception (catch, SomeException)
 #if linux_HOST_OS
 import System.Posix.User
 #endif
@@ -22,6 +23,9 @@ import System.Posix.User
 logName, saveName :: String
 logName = "trapHack.log"
 saveName = "trapHack.save"
+
+catchAll :: IO a -> (SomeException -> IO a) -> IO a
+catchAll = catch
 
 loop :: World -> IO String
 loop world =
@@ -39,7 +43,7 @@ loop world =
 					return msgSaved
 				else loop newWorld
 			Right msg ->
-				appendFile logName (msg ++ "\n")
+				writeFile saveName "" >> appendFile logName (msg ++ "\n")
 				>> return msg
 	else
 		case step world $ KeyChar ' ' of
@@ -52,9 +56,9 @@ loop world =
 
 main :: IO ()
 main = do
-	print msgAskLoad
-	ans <- getLine
-	writeFile logName ""
+	save <- catchAll (readFile saveName) $ const $ return ""
+	unless (null save) $ print msgAskLoad
+	ans <- if null save then return 'n' else getChar
 	_ <- initScr
 	(h, w) <- scrSize
 	_ <- endWin
@@ -67,12 +71,17 @@ main = do
 		print msgAskName
 		username <- getLine
 #endif
-		save <- readFile saveName
-		world <-
-			if ans == "y" || ans == "Y"
-			then return $ read save
-			else return $ initWorld username gen
-		initScr >> initCurses >> startColor >> initColors >>
-			keypad stdScr True >> echo False >>
-			cursSet CursorInvisible >> return ()
-		loop world >>= (\msg -> endWin >> putStrLn msg)
+		maybeWorld <-
+			if ans == 'y' || ans == 'Y'
+			then catchAll (return $ Just $ read save) $ const $ return Nothing
+			else do	
+				writeFile logName ""
+				return $ Just $ initWorld username gen
+		case maybeWorld of
+			Nothing -> endWin >> putStrLn msgLoadErr
+			Just world ->
+				initScr >> initCurses >> startColor >> initColors >>
+				keypad stdScr True >> echo False >>
+				cursSet CursorInvisible >> 
+				(catchAll (loop world >>= (\msg -> endWin >> putStrLn msg)) 
+				$ \e -> endWin >> putStrLn (msgGameErr ++ show e) )

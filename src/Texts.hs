@@ -99,7 +99,7 @@ msgUnkAct = "Unknown action!"
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 
-	msgConfirmCall, msgSaved, msgAskLoad :: String
+	msgConfirmCall, msgSaved, msgAskLoad, msgLoadErr, msgGameErr :: String
 msgWelcome :: String -> String
 
 msgWelcome username = "Welcome to the trapHack, " ++ username ++ "."
@@ -112,6 +112,9 @@ msgInfo = "Pick an object and press ."
 msgConfirmCall = "Do you really want to call upon the next wave? (y/N)"
 msgSaved = "Game saved!"
 msgAskLoad = "Do you want to load saved game? (y/N)"
+msgLoadErr = "Loading error! File is corrupted."
+msgGameErr = "Game error! If you've recently loaded the game, " ++
+	"maybe the file was damaged. Otherwise, report the bug to the developer. "
 
 {-Headers-}
 msgHeaderInv, msgHeaderEquip, msgHeaderBind :: String
