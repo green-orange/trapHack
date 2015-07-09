@@ -40,7 +40,7 @@ isJewelry (Jewelry {}) = True
 isJewelry _ = False
 
 isExistingBinding :: Monster -> Char -> Bool
-isExistingBinding mon c = elem c $ concat $ map objectKeys $ parts mon
+isExistingBinding mon c = elem c $ concatMap objectKeys $ parts mon
 
 isExistingBindingFirst :: World -> Char -> Bool
 isExistingBindingFirst = isExistingBinding . getFirst

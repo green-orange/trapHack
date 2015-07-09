@@ -83,5 +83,5 @@ main = do
 				initScr >> initCurses >> startColor >> initColors >>
 				keypad stdScr True >> echo False >>
 				cursSet CursorInvisible >> 
-				(catchAll (loop world >>= (\msg -> endWin >> putStrLn msg)) 
-				$ \e -> endWin >> putStrLn (msgGameErr ++ show e) )
+				catchAll (loop world >>= (\msg -> endWin >> putStrLn msg)) 
+				(\e -> endWin >> putStrLn (msgGameErr ++ show e))

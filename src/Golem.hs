@@ -34,7 +34,7 @@ getGolem = getMonster (getPureAI GolemAI)
 	 (getLeg  1, ( 3,  7)),
 	 (getArm  1, ( 2,  6)),
 	 (getArm  1, ( 2,  6))]
-	18 (((2,4), 0.3)) emptyInv 100
+	18 ((2,4), 0.3) emptyInv 100
 		
 spawnGolem :: Int -> Int -> World -> World
 spawnGolem x y w = 

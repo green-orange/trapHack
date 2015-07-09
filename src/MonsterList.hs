@@ -164,4 +164,4 @@ getUmberHulk = getMonster (getHumanoidAI StupidConfAI)
 	 (getLeg 3, (5, 10)),
 	 (getArm 3, (5, 10)),
 	 (getArm 3, (5, 10))]
-	14 (((2,4), 0.2)) emptyInv 100
+	14 ((2,4), 0.2) emptyInv 100
