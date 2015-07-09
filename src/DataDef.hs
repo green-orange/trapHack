@@ -11,6 +11,16 @@ monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Trol
 	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
 	"Golem", "Dummy", "Rock", "Forgotten beast"]
 
+listSepMon, listSepW, listSepUn :: Char
+listSepMon = '&'
+listSepW = '*'
+listSepUn = '%'
+
+myShowList :: Show a => Char -> [a] -> String
+myShowList _ [] = ""
+myShowList _ [x] = show x
+myShowList c (x:xs) = show x ++ [c] ++ myShowList c xs
+
 data Units = Units {
 	xF :: Int,
 	yF :: Int,
@@ -22,7 +32,7 @@ unitsSep :: Char
 unitsSep = '^'
 instance Show Units where
 	show uns = show (xF uns) ++ [unitsSep] ++ show (yF uns) ++ [unitsSep]
-		++ show (list uns)
+		++ myShowList listSepUn (M.toList $ list uns)
 
 data Part = Part {
 	hp :: Int,
@@ -190,14 +200,14 @@ monSep = '\n'
 instance Show Monster where 
 	show mon = 
 		show (ai mon) ++ [monSep] ++
-		show (parts mon) ++ [monSep] ++
+		myShowList listSepMon (parts mon) ++ [monSep] ++
 		show (stddmg mon) ++ [monSep] ++
-		show (inv mon) ++ [monSep] ++
+		myShowList listSepMon (M.toList $ inv mon) ++ [monSep] ++
 		show (slowness mon) ++ [monSep] ++
 		show (time mon) ++ [monSep] ++
-		show (res mon) ++ [monSep] ++
-		show (intr mon) ++ [monSep] ++
-		show (temp mon) ++ [monSep] ++
+		myShowList listSepMon (res mon) ++ [monSep] ++
+		myShowList listSepMon (intr mon) ++ [monSep] ++
+		myShowList listSepMon (temp mon) ++ [monSep] ++
 		show (idM mon)
 
 objSep :: Char
@@ -226,8 +236,8 @@ worldSep = '#'
 instance Show World where
 	show w = 
 		show (units' w) ++ [worldSep] ++
-		show (items w) ++ [worldSep] ++
+		myShowList listSepW (items w) ++ [worldSep] ++
 		show (stdgen w) ++ [worldSep] ++
 		show (wave w) ++ [worldSep] ++
-		show (A.elems $ worldmap w) ++ [worldSep] ++
+		myShowList listSepW (A.elems $ worldmap w) ++ [worldSep] ++
 		show (stepsBeforeWave w)

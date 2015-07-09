@@ -10,13 +10,13 @@ xSight = 20
 ySight = 10
 
 separate :: Char -> String -> [String]
-separate _ [] = []
-separate c s@(x:xs) = 
-	if c == x
-	then separate c xs
-	else first : rest where
+separate _ [] = [""]
+separate c s = first : 
+	if null rest
+	then []
+	else separate c $ tail rest where
 		first = takeWhile (c /=) s
-		rest = separate c $ dropWhile (c /=) s
+		rest = dropWhile (c /=) s
 
 getAll :: (Bounded a, Enum a) => [a]
 getAll = [minBound..maxBound]
