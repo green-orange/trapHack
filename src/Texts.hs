@@ -111,7 +111,7 @@ msgAsk = "What do you want to "
 msgInfo = "Pick an object and press ."
 msgConfirmCall = "Do you really want to call upon the next wave? (y/N)"
 msgSaved = "Game saved!"
-msgAskLoad = "Do you want to load saved game?"
+msgAskLoad = "Do you want to load saved game? (y/N)"
 
 {-Headers-}
 msgHeaderInv, msgHeaderEquip, msgHeaderBind :: String

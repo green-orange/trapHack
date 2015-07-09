@@ -74,7 +74,7 @@ trollAI f x y w =
 
 rock :: StdGen -> Monster
 rock g = fst $ getMonster (getPureAI NothingAI) [(getMain 0, (100, 5000))] 
-	20 lol emptyInv 10000 g
+	20 ((0,0),0.0) emptyInv 10000 g
 
 mODSAI :: [AImod]
 mODSAI = [HealAI, ZapAttackAI, PickAI, FireAI, WieldLauncherAI, WieldWeaponAI, 
@@ -217,5 +217,5 @@ wormAI xPlayer yPlayer w =
 
 tailWorm :: MonsterGen
 tailWorm = getMonster  (getPureAI NothingAI) [(getMain 0, (100, 200))] 
-	16 lol emptyInv 10000
+	16 ((0,0),0.0) emptyInv 10000
 

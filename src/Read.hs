@@ -31,8 +31,8 @@ myReadListCoords c str = map myReadByCoords $ separate c str
 
 myReadInvElem :: Read a => String -> (Char, (a, Int))
 myReadInvElem str = (c, (read obj, read n)) where
-	c = str !! 1
-	cont = drop 4 $ init $ init str
+	c = str !! 2
+	cont = drop 6 $ init $ init str
 	n = reverse $ takeDigits $ reverse cont
 	obj = reverse $ tail $ dropDigits $ reverse cont
 

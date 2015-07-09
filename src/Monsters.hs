@@ -40,8 +40,8 @@ getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	(newInv, g'') = inv' g'
 
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] 19 lol 
-	emptyInv 100
+getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] 19 
+	((0, 0), 0.0) emptyInv 100
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens
