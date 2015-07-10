@@ -7,7 +7,6 @@ import DataMonster
 import DataDef
 
 import qualified Data.Set as S
-import UI.HSCurses.Curses (Key (..))
 import System.Random (StdGen)
 import qualified Data.Map as M
 import Data.Array
@@ -43,15 +42,15 @@ tickFirstMon m = changeTime (effectiveSlowness m + time m) m
 changeInv :: Inv -> Monster -> Monster
 changeInv inv' mon = mon {inv = inv'}
 
-delObj :: Key -> Monster -> Monster
+delObj :: Char -> Monster -> Monster
 delObj c m = changeInv newInv m where
-	newInv = M.update maybeUpd (fromKey c) $ inv m
+	newInv = M.update maybeUpd c $ inv m
 	maybeUpd (_, 1) = Nothing
 	maybeUpd (o, n) = Just (o, n - 1)
 
-delAllObj :: Key -> Monster -> Monster
+delAllObj :: Char -> Monster -> Monster
 delAllObj c m = changeInv newInv m where
-	newInv = M.delete (fromKey c) $ inv m
+	newInv = M.delete c $ inv m
 		
 decChargeByKey :: Char -> Monster -> Monster
 decChargeByKey c m = changeInv newInv m where
@@ -123,9 +122,9 @@ changeGen g w = w {stdgen = g}
 changeChars :: S.Set Char -> World -> World
 changeChars cs w = w {chars = cs}
 
-changeChar :: Key -> World -> World
+changeChar :: Char -> World -> World
 changeChar c w = w {chars = newPick} where
-	KeyChar sym = c
+	sym = c
 	newPick =
 		if S.member sym $ chars w
 		then S.delete sym $ chars w
@@ -161,12 +160,6 @@ changeShiftOn, changeSlotOn :: Int -> World -> World
 changeShiftOn n w = w {shift = mod (shift w + n) $ length $ parts $ getFirst w}
 changeSlotOn n w = w {slot = toEnum $ flip mod sLOTS $ (+n) $ fromEnum $ slot w}
 
-downshift, upshift, decslot, incslot :: World -> World
-downshift = changeShiftOn 1
-upshift = changeShiftOn (-1)
-incslot = changeSlotOn 1
-decslot = changeSlotOn (-1)
-
 {- Object -}
 
 decCharge :: Object -> Object
@@ -194,7 +187,3 @@ addItem' i@(x, y, obj, n) list' =
 			then (x', y', obj', n + n')
 			else i'
 		this = filter (\(x', y', obj', _) -> x == x' && y == y' && obj == obj') list'
-
-fromKey :: Key -> Char
-fromKey (KeyChar c) = c
-fromKey _ = ' '

@@ -13,20 +13,19 @@ import DataDef
 
 import Control.Monad ((>=>))
 import qualified Data.Set as S
-import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
 import Data.Maybe (isNothing, fromJust)
 
-dropFirst :: Key -> World -> Bool -> (World, Bool)
+dropFirst :: Char -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
 	| isNothing objects = 
 		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)
-	| isExistingBindingFirst world (fromKey c) && alive (getFirst world) = 
+	| isExistingBindingFirst world c && alive (getFirst world) = 
 		(maybeAddMessage msgDropEquipped $ changeAction ' ' world, False)
 	| otherwise = 
 		(changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
 		$ changeAction ' ' world, True) where
-	objects = M.lookup (fromKey c) $ inv $ getFirst world
+	objects = M.lookup c $ inv $ getFirst world
 	(obj, cnt) = fromJust objects
 	x = xFirst world
 	y = yFirst world
@@ -39,7 +38,7 @@ dropFirst c world ignoreMessages
 			++ titleShow obj ++ "."
 
 dropAll :: World -> World
-dropAll world = foldr ((\x y -> fst $ dropFirst x y True) . KeyChar . fst)
+dropAll world = foldr ((\x y -> fst $ dropFirst x y True) . fst)
 	world $ M.toList $ inv $ getFirst world
 
 
@@ -88,8 +87,8 @@ dropManyFirst world =
 		newMsg = name (getFirst world) ++ " drop" ++ ending world 
 			++ "some objects."
 		newWorld = changeAction ' ' $ changeChars S.empty 
-			$ addNeutralMessage newMsg $ foldr ((\ x y 
-			-> fst $ dropFirst x y True) . KeyChar) world 
+			$ addNeutralMessage newMsg $ foldr (\ x y 
+			-> fst $ dropFirst x y True) world 
 			$ S.toList $ chars world
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
@@ -127,20 +126,20 @@ split f (x:xs) =
 	else (a, x:b)
 	where (a, b) = split f xs
 
-bindFirst :: Key -> World -> (World, Bool)
+bindFirst :: Char -> World -> (World, Bool)
 bindFirst c w 
-	| c == KeyChar '-' =
+	| c == '-' =
 		(changeMon (changeParts newPartsSpace $ remEffect mon) newWorld, True)
 	| isNothing objects =
 		(maybeAddMessage msgNoItem newWorld, False)
 	| isNothing maybeNewSlot || newSlot /= slot w =
 		(maybeAddMessage msgWrongBind newWorld, False)
-	| isExistingBindingFirst w $ fromKey c =
+	| isExistingBindingFirst w c =
 		(maybeAddMessage msgRepeatedBind
 		newWorld, False)
 	| otherwise = (addNeutralMessage msg $ changeMon 
 		(changeParts newParts newMon) newWorld, True) where
-	objects = M.lookup (fromKey c) $ inv mon
+	objects = M.lookup c $ inv mon
 	maybeNewSlot = binds obj $ kind part
 	Just newSlot = maybeNewSlot
 	(obj, _) = fromJust objects
@@ -150,7 +149,7 @@ bindFirst c w
 	change part' = 
 		if idP part == idP part'
 		then part' {objectKeys = changeElem (fromEnum newSlot) 
-			(fromKey c) $ objectKeys part}
+			c $ objectKeys part}
 		else part'
 	changeSpace part' =
 		if idP part == idP part'
@@ -172,7 +171,7 @@ bindFirst c w
 		++ "to use " ++ title obj ++ "!"
 	
 bindMon :: Slot -> Char -> Int -> World -> World
-bindMon sl c ind w = fst $ bindFirst (KeyChar c) $ w {shift = ind, slot = sl}
+bindMon sl c ind w = fst $ bindFirst (c) $ w {shift = ind, slot = sl}
 
 binds :: Object -> Int -> Maybe Slot
 binds obj knd

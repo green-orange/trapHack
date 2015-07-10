@@ -16,12 +16,12 @@ import AIrepr
 import DataWorld
 import DataDef
 
-import UI.HSCurses.Curses (Key(..))
 import Data.Set (empty)
 import Data.Maybe (isJust)
 import System.Random (randomR)
+import Data.Char (isSpace)
 
-step :: World -> Key -> Either World String
+step :: World -> Char -> Either World String
 step world c
 	| alive mon = 
 		if isPlayerNow world && not stun
@@ -33,57 +33,56 @@ step world c
 				doIfCorrect $ readFirst c world
 			'z' ->
 				Left $ addDefaultMessage msgAskDir $ changeAction 'Z' 
-				$ world {prevAction = fromKey c}
+				$ world {prevAction = c}
 			'Z' ->
 				doIfCorrect $ zapFirst c world
 			't' ->
-				if c == KeyChar '-'
+				if c == '-'
 				then
 					doIfCorrect $ untrapFirst world 
 				else
 					doIfCorrect $ trapFirst c world
 			'f' ->
 				Left $ addDefaultMessage msgAskDir $ changeAction 'F' 
-				$ world {prevAction = fromKey c}
+				$ world {prevAction = c}
 			'F' ->
 				doIfCorrect $ fireFirst c world
 			'd' ->
 				doIfCorrect $ dropFirst c world False
 			'i' ->
-				if c == KeyChar '\n' || c == KeyChar ' '
+				if isSpace c
 				then Left $ changeAction ' ' world
 				else Left world
 			'D' ->
-				if c == KeyChar '\n' || c == KeyChar ' '
+				if isSpace c
 				then case dropManyFirst world of
 					Nothing ->
 						Left $ changeChars empty $ changeAction ' ' world
 					Just w -> Left $ newWaveIf w
 				else Left $ changeChar c world
 			',' ->
-				if c == KeyChar '\n' || c == KeyChar ' '
+				if isSpace c
 				then case pickFirst world of
 					(Nothing, s) ->
 						Left $ changeChars empty $ addDefaultMessage s 
 						$ changeAction ' ' world
 					(Just pick, _) -> Left $ newWaveIf pick
 				else Left $ changeChar c world
-			'E' -> case c of
-				KeyDown -> Left $ downshift world
-				KeyUp -> Left $ upshift world
-				KeyLeft -> Left $ decslot world
-				KeyRight -> Left $ incslot world
-				KeyChar '\n' -> Left $ changeAction 'e' world
-				KeyChar '\ESC' -> Left $ changeAction ' ' world
-				_ -> Left world
+			'E'
+				| isSpace c -> Left $ changeAction 'e' world
+				| c == '\ESC' -> Left $ changeAction ' ' world
+				| otherwise -> case dir c of
+					Nothing -> Left world
+					Just (dx, dy) -> Left $ changeSlotOn dx 
+						$ changeShiftOn dy world
 			'e' ->
 				doIfCorrect $ bindFirst c world
 			'C' ->
-				if c == KeyChar 'y' || c == KeyChar 'Y'
+				if c == 'y' || c == 'Y'
 				then Left $ callUpon world
 				else Left $ changeAction ' ' world
 			'?' ->
-				if c == KeyChar '.'
+				if c == '.'
 				then Left $ getInfo world
 				else case dir c of
 					Nothing -> Left world
@@ -114,54 +113,53 @@ step world c
 			Just (xP, yP) -> (xP, yP)
 			Nothing -> (xR, yR)
 		
-justStep :: World -> Key -> Either World String
+justStep :: World -> Char -> Either World String
 justStep world c = case dir c of
 	Just (dx, dy) -> Left $ newWaveIf $ moveFirst dx dy world
-	Nothing -> case c of
-		KeyChar 'Q' -> 
+	Nothing -> if isSpace c then Left world else case c of
+		'Q' -> 
 			if wave world == 1
 			then Right msgQuitOnStart
 			else Right $ msgQuit $ wave world - 1
-		KeyChar 'q' ->
+		'q' ->
 			Left $ addDefaultMessage (msgAsk ++ "drink? ["
 			 ++ listOfValidChars isPotion world ++ "]") 
 			 $ changeAction 'q' world
-		KeyChar 'r' ->
+		'r' ->
 			Left $ addDefaultMessage (msgAsk ++ "read? ["
 			 ++ listOfValidChars isScroll world ++ "]") 
 			 $ changeAction 'r' world
-		KeyChar 'z' ->
+		'z' ->
 			Left $ addDefaultMessage (msgAsk ++ "zap? ["
 			 ++ listOfValidChars isWand world ++ "]") 
 			 $ changeAction 'z' world
-		KeyChar 'd' ->
+		'd' ->
 			Left $ addDefaultMessage (msgAsk ++ "drop? ["
 			 ++ listOfValidChars (const True) world ++ "]") 
 			 $ changeAction 'd' world
-		KeyChar 'D' ->
+		'D' ->
 			Left $ changeAction 'D' world
-		KeyChar 't' ->
+		't' ->
 			Left $ addDefaultMessage (msgAsk ++ "set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 
 			 $ changeAction 't' world
-		KeyChar 'f' ->
+		'f' ->
 			Left $ addDefaultMessage (msgAsk ++ "fire? ["
 			 ++ listOfValidChars isMissile world ++ "]") 
 			 $ changeAction 'f' world
-		KeyChar 'E' ->
+		'E' ->
 			Left $ changeAction 'E' world {shift = 0}
-		KeyChar 'i' ->
+		'i' ->
 			Left $ changeAction 'i' world
-		KeyChar ',' ->
+		',' ->
 			Left $ changeAction ',' world
-		KeyChar 'C' ->
+		'C' ->
 			Left $ changeAction 'C' $ addDefaultMessage	msgConfirmCall world
-		KeyChar 'S' ->
+		'S' ->
 			Left $ changeAction 'S' world
-		KeyChar '\n' -> Left world
-		KeyChar '?' ->
+		'?' ->
 			Left $ changeAction '?' $ addDefaultMessage
 				msgInfo world {xInfo = xFirst world,
 				 yInfo = yFirst world}
 		_  ->
-			Left $ addMessage (msgUnkAct, yELLOW) world
+			Left $ addMessage (msgUnkAct ++ show (fromEnum c), yELLOW) world

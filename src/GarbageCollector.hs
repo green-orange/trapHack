@@ -14,12 +14,11 @@ import DataDef
 import Data.List (minimumBy)
 import Data.Function (on)
 import Data.Maybe (fromJust)
-import UI.HSCurses.Curses (Key (..))
 
 collectorAI :: AIfunc
 collectorAI _ _ world = 
 	if isItemHere
-	then fromJust $ fst $ pickFirst $ foldr (changeChar . KeyChar) world alphabet
+	then fromJust $ fst $ pickFirst $ foldr changeChar world alphabet
 	else moveFirst dx dy world
 	where
 		isItemHere = any (\ (x, y, _, _) -> x == xNow && y == yNow) (items world)

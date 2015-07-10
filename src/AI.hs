@@ -21,7 +21,6 @@ import DataDef
 
 import System.Random (randomR, StdGen)
 import Data.Maybe (fromJust, isNothing)
-import UI.HSCurses.Curses (Key (..))
 import qualified Data.Map as M
 
 runAImod :: AImod -> AIfunc -> AIfunc
@@ -83,7 +82,7 @@ mODSAI = [HealAI, ZapAttackAI, PickAI, FireAI, WieldLauncherAI, WieldWeaponAI,
 healAI :: AIfunc -> AIfunc
 healAI f x y w = 
 	if canBeHealed (getFirst w) && needToBeHealedM (getFirst w)
-	then fst $ quaffFirst (KeyChar $ healingAI w) w
+	then fst $ quaffFirst (healingAI w) w
 	else f x y w
 	
 zapAttackAI :: AIfunc -> AIfunc
@@ -96,7 +95,7 @@ zapAttackAI f xPlayer yPlayer w =
 pickAI :: AIfunc -> AIfunc
 pickAI f x y w =
 	if not $ null objects
-	then fromJust $ fst $ pickFirst $ foldr (changeChar . KeyChar) w alphabet
+	then fromJust $ fst $ pickFirst $ foldr changeChar w alphabet
 	else f x y w where
 		xNow = xFirst w
 		yNow = yFirst w
@@ -142,7 +141,7 @@ useItemsAI f x y w = case useSomeItem objs keys of
 	where
 		invList = M.toList $ inv $ getFirst w
 		objs = map (fst . snd) invList
-		keys = map (KeyChar . fst) invList
+		keys = map fst invList
 
 attackIfClose :: Elem -> Int -> AIfunc -> AIfunc
 attackIfClose elem' dist f x y w =

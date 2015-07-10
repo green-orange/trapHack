@@ -223,9 +223,9 @@ draw world = do
 		_   -> drawJustWorld) world h
 		
 				
-redraw :: World -> IO Key
+redraw :: World -> IO Char
 redraw world = 
-	erase >> draw world >> refresh >> getCh
+	erase >> draw world >> refresh >> getChar
 
 drawPart :: Bool -> Int -> Monster -> Part -> IO ()
 drawPart isFull y = drawPartFull isFull shiftRightHP $ shiftDown + y

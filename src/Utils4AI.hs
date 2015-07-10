@@ -10,7 +10,6 @@ import DataDef
 
 import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust)
-import UI.HSCurses.Curses (Key (..))
 import System.Random (randomR)
 
 needToBeHealedM :: Monster -> Bool
@@ -84,28 +83,28 @@ isOnLine :: Int -> Int -> Int -> Int -> Int -> Bool
 isOnLine d x1 y1 x2 y2 = abs (x1 - x2) <= d && abs (y1 - y2) <= d &&
 	(x1 == x2 || y1 == y2 || x1 - y1 == x2 - y1 || x1 + y1 == x2 + y2)
 
-undir :: Int -> Int -> Key
-undir   0  (-1) = KeyChar 'k'
-undir   0    1  = KeyChar 'j'
-undir (-1)   0  = KeyChar 'h'
-undir   1    0  = KeyChar 'l'
-undir (-1) (-1) = KeyChar 'y'
-undir   1  (-1) = KeyChar 'u'
-undir (-1)   1  = KeyChar 'b'
-undir   1    1  = KeyChar 'n'
-undir   0    0  = KeyChar '.'
+undir :: Int -> Int -> Char
+undir   0  (-1) = 'k'
+undir   0    1  = 'j'
+undir (-1)   0  = 'h'
+undir   1    0  = 'l'
+undir (-1) (-1) = 'y'
+undir   1  (-1) = 'u'
+undir (-1)   1  = 'b'
+undir   1    1  = 'n'
+undir   0    0  = '.'
 undir   _    _  = error "wrong direction (in function undir)"
 
-usefulItem :: Object -> Key -> Maybe (World -> World)
+usefulItem :: Object -> Char -> Maybe (World -> World)
 usefulItem obj c
 	| title obj == "potion of intellect" ||
 		title obj == "potion of mutation" =
 		Just $ fst . quaffFirst c
 	| title obj == "wand of speed" && charge obj > 0 =
-		Just $ zapMon (KeyChar '.') (fromKey c)
+		Just $ zapMon '.' c
 	| otherwise = Nothing
-	
-useSomeItem :: [Object] -> [Key] -> Maybe (World -> World)
+
+useSomeItem :: [Object] -> String -> Maybe (World -> World)
 useSomeItem [] _ = Nothing
 useSomeItem _ [] = Nothing
 useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of

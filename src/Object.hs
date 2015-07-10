@@ -16,34 +16,33 @@ import DataMonster
 import DataObject
 import DataDef
 
-import UI.HSCurses.Curses (Key(..))
 import Data.Maybe (isNothing, isJust, fromJust)
 import qualified Data.Map as M
 import qualified Data.Array as A
 
-dir :: Key -> Maybe (Int, Int)
+dir :: Char -> Maybe (Int, Int)
 dir c = case c of
-	KeyChar 'k' -> Just ( 0, -1)
-	KeyChar '8' -> Just ( 0, -1)
-	KeyChar 'j' -> Just ( 0,  1)
-	KeyChar '2' -> Just ( 0,  1)
-	KeyChar 'h' -> Just (-1,  0)
-	KeyChar '4' -> Just (-1,  0)
-	KeyChar 'l' -> Just ( 1,  0)
-	KeyChar '6' -> Just ( 1,  0)
-	KeyChar 'y' -> Just (-1, -1)
-	KeyChar '7' -> Just (-1, -1)
-	KeyChar 'u' -> Just ( 1, -1)
-	KeyChar '9' -> Just ( 1, -1)
-	KeyChar 'b' -> Just (-1,  1)
-	KeyChar '1' -> Just (-1,  1)
-	KeyChar 'n' -> Just ( 1,  1)
-	KeyChar '3' -> Just ( 1,  1)
-	KeyChar '.' -> Just ( 0,  0)
-	KeyChar '5' -> Just ( 0,  0)
+	'k' -> Just ( 0, -1)
+	'8' -> Just ( 0, -1)
+	'j' -> Just ( 0,  1)
+	'2' -> Just ( 0,  1)
+	'h' -> Just (-1,  0)
+	'4' -> Just (-1,  0)
+	'l' -> Just ( 1,  0)
+	'6' -> Just ( 1,  0)
+	'y' -> Just (-1, -1)
+	'7' -> Just (-1, -1)
+	'u' -> Just ( 1, -1)
+	'9' -> Just ( 1, -1)
+	'b' -> Just (-1,  1)
+	'1' -> Just (-1,  1)
+	'n' -> Just ( 1,  1)
+	'3' -> Just ( 1,  1)
+	'.' -> Just ( 0,  0)
+	'5' -> Just ( 0,  0)
 	_           -> Nothing
 
-quaffFirst :: Key -> World -> (World, Bool)
+quaffFirst :: Char -> World -> (World, Bool)
 quaffFirst c world
 	| not $ hasPart aRM oldMon = (maybeAddMessage 
 		(msgNeedArms "quaff a potion") $ changeAction ' ' world, False)
@@ -54,7 +53,7 @@ quaffFirst c world
 	| otherwise
 		= (changeGen g $ changeMon mon' $ addNeutralMessage newMsg 
 		$ changeAction ' ' world, True) where
-	objects = M.lookup (fromKey c) $ inv $ getFirst world
+	objects = M.lookup c $ inv $ getFirst world
 	newMsg = name (getFirst world) ++ " quaff" ++ ending world 
 		++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
@@ -62,7 +61,7 @@ quaffFirst c world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
 	
-readFirst :: Key -> World -> (World, Bool)
+readFirst :: Char -> World -> (World, Bool)
 readFirst c world 
 	| not $ hasPart aRM mon = (maybeAddMessage 
 		(msgNeedArms "read a scroll") $ changeAction ' ' world, False)
@@ -73,7 +72,7 @@ readFirst c world
 	| otherwise =
 		(changeMon mon' $ addNeutralMessage newMsg 
 		$ changeAction ' ' newWorld, True) where
-	objects = M.lookup (fromKey c) $ inv $ getFirst world
+	objects = M.lookup c $ inv $ getFirst world
 	newMsg = name (getFirst world) ++ " read" ++ ending world 
 		++ titleShow obj ++ "."
 	(obj, _) = fromJust objects
@@ -81,7 +80,7 @@ readFirst c world
 	mon = getFirst world
 	mon' = delObj c mon
 
-zapFirst :: Key -> World -> (World, Bool)
+zapFirst :: Char -> World -> (World, Bool)
 zapFirst c world 
 	| not $ hasPart aRM $ getFirst world =
 		(maybeAddMessage (msgNeedArms "zap a wand") failWorld, False)
@@ -133,10 +132,10 @@ zap world x y dx dy obj
 		Just False -> bLUE
 		Just True  -> rED
 
-zapMon :: Key -> Char -> World -> World
+zapMon :: Char -> Char -> World -> World
 zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 		
-trapFirst :: Key -> World -> (World, Bool)
+trapFirst :: Char -> World -> (World, Bool)
 trapFirst c world
 	| not $ hasPart aRM oldMon =
 		(maybeAddMessage (msgNeedArms "set a trap") failWorld, False)
@@ -146,7 +145,7 @@ trapFirst c world
 		(maybeAddMessage msgTrapOverTrap failWorld, False)
 	| otherwise = (addNeutralMessage newMsg $ changeMon mon 
 		$ changeMap x y (num obj) $ changeAction ' ' world, True) where
-	objects = M.lookup (fromKey c) $ inv $ getFirst world
+	objects = M.lookup c $ inv $ getFirst world
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst world
@@ -171,7 +170,7 @@ untrapFirst world
 	trap = trapFromTerrain $ worldmap world A.! (x,y)
 	newMsg = name mon ++ " untrap" ++ ending world ++ title trap ++ "."
 	
-fireFirst :: Key -> World -> (World, Bool)
+fireFirst :: Char -> World -> (World, Bool)
 fireFirst c world
 	| not $ hasPart aRM oldMon =
 		(maybeAddMessage (msgNeedArms "fire") failWorld, False)
@@ -200,7 +199,7 @@ fireFirst c world
 		Nothing -> failWorld
 	Just (dx, dy) = dir c
 	(obj, n) = fromJust objects
-	fulldel = foldr (.) id $ replicate cnt $ delObj $ KeyChar $ prevAction world
+	fulldel = foldr (.) id $ replicate cnt $ delObj $ prevAction world
 	failWorld = changeAction ' ' world
 	
 fire :: Int -> Int -> Int -> Int -> Object -> World -> World
@@ -228,5 +227,5 @@ fire x y dx dy obj world
 		Just False -> bLUE
 		Just True  -> rED
 		
-fireMon :: Key -> Char -> World -> World
+fireMon :: Char -> Char -> World -> World
 fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}

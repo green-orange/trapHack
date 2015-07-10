@@ -95,7 +95,7 @@ msgDropEquipped = "You can't drop the item which you have equipped!"
 msgFullInv = "You knapsack is full!"
 msgWrongBind = "This objects doesn't intended to this part!"
 msgRepeatedBind = "This item is already bound to some part!"
-msgUnkAct = "Unknown action!"
+msgUnkAct = "Unknown action: "
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 

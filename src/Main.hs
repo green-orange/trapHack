@@ -46,7 +46,7 @@ loop world =
 				writeFile saveName "" >> appendFile logName (msg ++ "\n")
 				>> return msg
 	else
-		case step world $ KeyChar ' ' of
+		case step world ' ' of
 			Left newWorld -> loop newWorld
 			Right msg -> redraw world >> 
 				appendFile logName (msg ++ "\n") >> return msg
