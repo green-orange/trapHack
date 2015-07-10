@@ -18,6 +18,9 @@ separate c s = first :
 		first = takeWhile (c /=) s
 		rest = dropWhile (c /=) s
 
+intLog :: Int -> Int
+intLog = floor . (flip (/) $ log 2) . log . (fromIntegral :: Int -> Float)
+
 getAll :: (Bounded a, Enum a) => [a]
 getAll = [minBound..maxBound]
 

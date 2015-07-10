@@ -35,25 +35,6 @@ levelW w = M.foldr (+) 0 $ M.map (levelM . name) $ M.filter isSoldier
 	[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
 		$ M.toList $ units w
 		
-levelM :: String -> Int
-levelM "Bat"             = 1
-levelM "Homunculus"      = 3
-levelM "Beetle"          = 5
-levelM "Ivy"             = 3
-levelM "Accelerator"     = 6
-levelM "Floating eye"    = 5
-levelM "Hunter"          = 7
-levelM "Troll"           = 7
-levelM "Worm"            = 5
-levelM "Red dragon"      = 10
-levelM "Green dragon"    = 10
-levelM "White dragon"    = 10
-levelM "Forgotten beast" = 15
-levelM "Spider"          = 8
-levelM "Soldier"         = 8
-levelM "Umber hulk"      = 9
-levelM _                 = 0
-		
 genWave :: Int -> StdGen -> ([MonsterGen], StdGen)
 genWave n g
 	| n <= 0 = ([], g)

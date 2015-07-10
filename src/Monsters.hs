@@ -27,7 +27,8 @@ getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	time = slow',
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = map (const Nothing) (getAll :: [Temp])
+	temp = map (const Nothing) (getAll :: [Temp]),
+	xp = 1
 }, g'') where
 	addHPs :: [(Int -> Int -> Part, (Int, Int))] 
 		-> StdGen -> ([Int -> Part], StdGen)

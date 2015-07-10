@@ -26,7 +26,7 @@ diff = 20
 shiftW = 30
 shiftA = shiftW + diff
 shiftJ = shiftA + diff
-shiftElem = 3
+shiftElem = 4
 
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
@@ -196,20 +196,22 @@ drawJustWorld world _ = do
 	foldl (>>) doNothing $ map (drawItem world) $ items world
 	foldl (>>) doNothing $ map (drawUnit world) $ M.toList $ units world
 	foldl (>>) doNothing $ zipWith3 ($) (map (drawPart False) [0..])
-		(repeat $ getFirst world) $ sortBy (on compare kind) 
-		$ parts $ getFirst world
+		(repeat mon) $ sortBy (on compare kind) $ parts mon
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
-		show (effectiveSlowness $ getFirst world)
+		show (effectiveSlowness mon)
+	mvWAddStr stdScr (shiftDown + 1) shiftAttrs $ "XP: " ++ 
+		show (xp mon) ++ "; Level: " ++ show (intLog $ xp mon)
 	wAttrSet stdScr (attr0, Pair yELLOW)
 	unless (encumbrance (getFirst world) <= baseEncumbrance)
-		$ mvWAddStr stdScr (shiftDown + 1) shiftAttrs "Burdened"
+		$ mvWAddStr stdScr (shiftDown + 2) shiftAttrs "Burdened"
 	wAttrSet stdScr (attr0, Pair dEFAULT)
-	mvWAddStr stdScr (shiftDown + 2) shiftAttrs
+	mvWAddStr stdScr (shiftDown + 3) shiftAttrs
 			$ "Next wave: " ++ show (wave world)
-	foldl (>>) doNothing $ map (showElemRes world) [minBound :: Elem .. maxBound :: Elem]
-	foldl (>>) doNothing $ map (showIntr world) [minBound :: Intr .. maxBound :: Intr]
-	foldl (>>) doNothing $ map (showTemp world) [minBound :: Temp .. maxBound :: Temp]
+	foldl (>>) doNothing $ map (showElemRes world) (getAll :: [Elem])
+	foldl (>>) doNothing $ map (showIntr world) (getAll :: [Intr])
+	foldl (>>) doNothing $ map (showTemp world) (getAll :: [Temp]) where
+		mon = getFirst world
 
 draw :: World -> IO ()
 draw world = do

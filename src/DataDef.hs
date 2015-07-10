@@ -54,7 +54,8 @@ data Monster = Monster {
 	res :: [Int],
 	intr :: [Int],
 	temp :: [Maybe Int],
-	idM :: Int
+	idM :: Int,
+	xp :: Int
 }
 
 data Object =
@@ -208,7 +209,7 @@ instance Show Monster where
 		myShowList listSepMon (res mon) ++ [monSep] ++
 		myShowList listSepMon (intr mon) ++ [monSep] ++
 		myShowList listSepMon (temp mon) ++ [monSep] ++
-		show (idM mon)
+		show (idM mon) ++ [monSep] ++ show (xp mon)
 
 objSep :: Char
 objSep = '/'

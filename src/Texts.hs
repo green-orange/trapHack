@@ -152,7 +152,12 @@ msgPoisonYou = "You were poisoned!"
 {-Other-}
 msgTeleport, msgTrollDeath :: String
 msgLanding :: Int -> String
+msgLevelUp :: String -> String
 
 msgLanding n = "Squad #" ++ show n ++ " landed around you!"
 msgTeleport = "You suddenly find yourself in a new world!"
 msgTrollDeath = "Troll turned into a rock."
+msgLevelUp t = 
+	if t == "You"
+	then "You become more experienced!"
+	else t ++ " seems to become more experienced!"

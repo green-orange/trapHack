@@ -12,6 +12,25 @@ import DataDef
 
 import System.Random (StdGen, randomR)
 
+levelM :: String -> Int
+levelM "Bat"             = 1
+levelM "Homunculus"      = 3
+levelM "Beetle"          = 5
+levelM "Ivy"             = 3
+levelM "Accelerator"     = 6
+levelM "Floating eye"    = 5
+levelM "Hunter"          = 7
+levelM "Troll"           = 7
+levelM "Worm"            = 5
+levelM "Red dragon"      = 10
+levelM "Green dragon"    = 10
+levelM "White dragon"    = 10
+levelM "Forgotten beast" = 15
+levelM "Spider"          = 8
+levelM "Soldier"         = 8
+levelM "Umber hulk"      = 9
+levelM _                 = 0
+
 nOTsOLDIERS, nOTeNEMIES :: [String]
 
 nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy", "Worm"]
@@ -66,3 +85,23 @@ randTemp :: Temp -> (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
 randTemp temp' bounds (mon, g) = (newMon, g') where
 	(duration, g') = randomR bounds g
 	newMon = setMaxTemp temp' (Just duration) mon
+
+xpUp :: StdGen -> Monster -> Monster -> (Monster, Int, StdGen)
+xpUp g mon killed = (newMon, lvls, newGen) where
+	newXp = xp mon + xp killed + levelM (name killed)
+	lvls = intLog newXp - intLog (xp mon)
+	(newMon, newGen) = foldr ($) (mon {xp = newXp}, g)
+		$ replicate lvls levelUp
+
+levelUp :: (Monster, StdGen) -> (Monster, StdGen)
+levelUp (mon, g) = (changeParts newParts mon, g') where
+	(newParts, g') = levelUpParts g $ parts mon
+
+levelUpParts :: StdGen -> [Part] -> ([Part], StdGen)
+levelUpParts g [] = ([], g)
+levelUpParts g (p:ps) = (headPart : tailParts, g'') where
+	(tailParts, g') = levelUpParts g ps
+	n :: Int
+	(n, g'') = randomR (0, 5) g'
+	headPart = p {hp = hp p + n, maxhp = maxhp p + n}
+

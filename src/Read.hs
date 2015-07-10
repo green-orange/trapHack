@@ -96,11 +96,12 @@ instance Read Monster where
 		res = myReadList listSepMon res',
 		intr = myReadList listSepMon intr',
 		temp = myReadList listSepMon temp',
-		idM = read id'
+		idM = read id',
+		xp = read xp'
 	}, "")] where
 		parse = separate monSep str
 		[ai', parts', stddmg', inv', slowness', time', res', intr', temp', 
-			id'] = parse
+			id', xp'] = parse
 
 instance Read Units where
 	readsPrec _ str = [(Units {
