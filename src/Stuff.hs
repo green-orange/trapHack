@@ -276,7 +276,7 @@ ringOfSpeed ench = Jewelry {title = "ring of speed", enchantment = ench,
 	effectOff = \ench' -> speed (-5 * ench'), idO = 0}
 
 getRingRes :: String -> Elem -> Int -> Int -> Object
-getRingRes title' elem' ench id' = Jewelry {title = title', enchantment = ench,
+getRingRes title' elem' id' ench = Jewelry {title = title', enchantment = ench,
 	bind = aRM, effectOn = \ench' -> addRes elem' (2 * ench'), 
 	effectOff = \ench' -> addRes elem' (-2 * ench'), idO = id'}
 
@@ -293,7 +293,7 @@ aMULETS =
 	map amuletOfTeleportation [1..6]
 
 getIntrAmulet :: Int -> String -> Intr -> Int -> Int -> Object
-getIntrAmulet mult title' intr' ench id' = Jewelry {title = title', enchantment = ench,
+getIntrAmulet mult title' intr' id' ench = Jewelry {title = title', enchantment = ench,
 	bind = hEAD, effectOn = \ench' -> addIntr intr' (mult * ench'), 
 	effectOff = \ench' -> addIntr intr' (-mult * ench'), idO = id'}
 
