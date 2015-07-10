@@ -297,7 +297,7 @@ getIntrAmulet mult title' intr' id' ench = Jewelry {title = title', enchantment 
 	bind = hEAD, effectOn = \ench' -> addIntr intr' (mult * ench'), 
 	effectOff = \ench' -> addIntr intr' (-mult * ench'), idO = id'}
 
-amuletOfTeleportation = getIntrAmulet 5 "amulet of teleportation" Teleport 0
+amuletOfTeleportation = getIntrAmulet 2 "amulet of teleportation" Teleport 0
 
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain x = case x of
