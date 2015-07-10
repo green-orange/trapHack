@@ -11,6 +11,7 @@ import DataMonster
 import DataDef
 
 import qualified Data.Map as M
+import Data.Maybe (isJust)
 
 golemAI :: AIfunc
 golemAI _ _ world = 
@@ -19,10 +20,9 @@ golemAI _ _ world =
 	else (uncurry moveFirst $ head nears) world where
 		xNow = xFirst world
 		yNow = yFirst world
-		needToAttack (dx, dy) = not (M.null mons) && isEnemy mon where
-			mons = M.filterWithKey (\(x,y) _ -> x == xNow + dx && y == yNow + dy)
-				$ units world
-			mon = getFirst world
+		needToAttack (dx, dy) = isJust mons && isEnemy mon where
+			mons = M.lookup (xNow + dx, yNow + dy) $ units world
+			Just mon = mons
 		d = [-1, 0, 1]
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
 
