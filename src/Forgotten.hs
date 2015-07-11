@@ -8,6 +8,7 @@ import Stuff
 import DataMonster
 import DataObject
 import DataDef
+import Utils4mon
 
 import System.Random (StdGen, randomR, randoms, split)
 import Data.Map (fromList)
@@ -26,7 +27,7 @@ getForgottenBeast g = (Monster {
 	time = newSlow,
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = map (const Nothing) (getAll :: [Temp]),
+	temp = startTemps,
 	idM = 21,
 	xp = 1
 	}, g5) where

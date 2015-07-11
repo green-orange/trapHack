@@ -27,15 +27,16 @@ step world c
 		if isPlayerNow world && not stun
 		then case action world of
 			' ' -> justStep world c
-			'q' ->
-				doIfCorrect $ quaffFirst c world
-			'r' ->
-				doIfCorrect $ readFirst c world
+			'q' -> doIfCorrect $ quaffFirst c world
+			'r' -> doIfCorrect $ readFirst c world
+			'Z' -> doIfCorrect $ zapFirst c world
+			'F' -> doIfCorrect $ fireFirst c world
+			'd' -> doIfCorrect $ dropFirst c world False
+			'#' -> doIfCorrect $ bindFirst c world
+			'e' -> doIfCorrect $ eatFirst c world
 			'z' ->
 				Left $ addDefaultMessage msgAskDir $ changeAction 'Z' 
 				$ world {prevAction = c}
-			'Z' ->
-				doIfCorrect $ zapFirst c world
 			't' ->
 				if c == '-'
 				then
@@ -45,10 +46,6 @@ step world c
 			'f' ->
 				Left $ addDefaultMessage msgAskDir $ changeAction 'F' 
 				$ world {prevAction = c}
-			'F' ->
-				doIfCorrect $ fireFirst c world
-			'd' ->
-				doIfCorrect $ dropFirst c world False
 			'i' ->
 				if isSpace c
 				then Left $ changeAction ' ' world
@@ -69,14 +66,12 @@ step world c
 					(Just pick, _) -> Left $ newWaveIf pick
 				else Left $ changeChar c world
 			'E'
-				| isSpace c -> Left $ changeAction 'e' world
+				| isSpace c -> Left $ changeAction '#' world
 				| c == '\ESC' -> Left $ changeAction ' ' world
 				| otherwise -> case dir c of
 					Nothing -> Left world
 					Just (dx, dy) -> Left $ changeSlotOn dx 
 						$ changeShiftOn dy world
-			'e' ->
-				doIfCorrect $ bindFirst c world
 			'C' ->
 				if c == 'y' || c == 'Y'
 				then Left $ callUpon world
@@ -117,50 +112,36 @@ step world c
 justStep :: World -> Char -> Either World String
 justStep world c = case dir c of
 	Just (dx, dy) -> Left $ newWaveIf $ moveFirst dx dy world
-	Nothing -> if isSpace c then Left world else case c of
+	Nothing
+		| isSpace c -> Left world 
+		| c `elem` ['D', 'i', ',', 'S'] -> Left $ changeAction c world
+		| otherwise -> case c of
 		'Q' -> 
 			if wave world == 1
 			then Right msgQuitOnStart
 			else Right $ msgQuit $ wave world - 1
-		'q' ->
-			Left $ addDefaultMessage (msgAsk ++ "drink? ["
-			 ++ listOfValidChars isPotion world ++ "]") 
-			 $ changeAction 'q' world
-		'r' ->
-			Left $ addDefaultMessage (msgAsk ++ "read? ["
-			 ++ listOfValidChars isScroll world ++ "]") 
-			 $ changeAction 'r' world
-		'z' ->
-			Left $ addDefaultMessage (msgAsk ++ "zap? ["
-			 ++ listOfValidChars isWand world ++ "]") 
-			 $ changeAction 'z' world
-		'd' ->
-			Left $ addDefaultMessage (msgAsk ++ "drop? ["
-			 ++ listOfValidChars (const True) world ++ "]") 
-			 $ changeAction 'd' world
-		'D' ->
-			Left $ changeAction 'D' world
+		'q' -> actionByKey "quaff" isPotion 'q' world
+		'r' -> actionByKey "read" isScroll 'r' world
+		'z' -> actionByKey "zap" isWand 'z' world
+		'd' -> actionByKey "drop" (const True) 'c' world
+		'f' -> actionByKey "fire" isMissile 'f' world
+		'e' -> actionByKey "eat" isFood 'e' world
 		't' ->
 			Left $ addDefaultMessage (msgAsk ++ "set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 
 			 $ changeAction 't' world
-		'f' ->
-			Left $ addDefaultMessage (msgAsk ++ "fire? ["
-			 ++ listOfValidChars isMissile world ++ "]") 
-			 $ changeAction 'f' world
 		'E' ->
-			Left $ changeAction 'E' world {shift = 0}
-		'i' ->
-			Left $ changeAction 'i' world
-		',' ->
-			Left $ changeAction ',' world
+			Left $ changeAction 'E' world {shift = 0, slot = minBound :: Slot}
 		'C' ->
 			Left $ changeAction 'C' $ addDefaultMessage	msgConfirmCall world
-		'S' ->
-			Left $ changeAction 'S' world
 		'?' ->
 			Left $ changeAction '?' $ addDefaultMessage
 				msgInfo world {xInfo = xFirst world,
 				 yInfo = yFirst world}
 		_  ->
 			Left $ addMessage (msgUnkAct ++ show (fromEnum c), yELLOW) world
+
+actionByKey :: String -> (Object -> Bool) -> Char -> World -> Either World a
+actionByKey word isType char world = Left $ addDefaultMessage (msgAsk 
+	++ word ++ "? [" ++ listOfValidChars isType world ++ "]") 
+	$ changeAction char world

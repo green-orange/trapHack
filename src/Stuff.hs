@@ -44,7 +44,7 @@ bound list' p = bound' list' p 0 where
 		else bound' xs p' (n + 1)
 
 genDeathDrop :: [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
-genDeathDrop = genDeathDropByAlph notAlphabet
+genDeathDrop = genDeathDropByAlph $ tail notAlphabet
 
 genDeathDropByAlph :: String -> [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
 genDeathDropByAlph _ [] g = (M.empty, g)

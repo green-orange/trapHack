@@ -39,6 +39,10 @@ isJewelry :: Object -> Bool
 isJewelry (Jewelry {}) = True
 isJewelry _ = False
 
+isFood :: Object -> Bool
+isFood (Food {}) = True
+isFood _ = False
+
 isExistingBinding :: Monster -> Char -> Bool
 isExistingBinding mon c = elem c $ concatMap objectKeys $ parts mon
 

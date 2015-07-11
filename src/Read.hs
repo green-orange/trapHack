@@ -75,6 +75,8 @@ instance Read Object where
 			| bind' == hEAD -> (uNIQUEaMULETS !! id') ench'
 			| bind' == aRM -> (uNIQUErINGS !! id') ench'
 			| otherwise -> error $ "parse error: part: " ++ show bind'
+		"Food" -> Food {title = read idStr, nutrition = read enchStr, 
+			weight' = read bindStr}
 		_ -> error $ "parse error: object: " ++ objClass, "")]
 		where
 		parse = separate objSep str

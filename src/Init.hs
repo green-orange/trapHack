@@ -5,6 +5,7 @@ import Parts
 import Colors
 import Texts
 import DataDef
+import Utils4mon
 --import Stuff
 
 import System.Random (StdGen)
@@ -68,7 +69,7 @@ getPlayer = Monster {
 	time = 100,
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = map (const Nothing) (getAll :: [Temp]),
+	temp = startTemps,
 	idM = 0,
 	xp = 1
 }

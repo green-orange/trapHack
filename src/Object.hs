@@ -56,7 +56,7 @@ quaffFirst c world
 	objects = M.lookup c $ inv $ getFirst world
 	newMsg = name (getFirst world) ++ " quaff" ++ ending world 
 		++ titleShow obj ++ "."
-	(obj, _) = fromJust objects
+	Just (obj, _) = objects
 	oldMon = getFirst world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
@@ -75,7 +75,7 @@ readFirst c world
 	objects = M.lookup c $ inv $ getFirst world
 	newMsg = name (getFirst world) ++ " read" ++ ending world 
 		++ titleShow obj ++ "."
-	(obj, _) = fromJust objects
+	Just (obj, _) = objects
 	newWorld = actw obj world
 	mon = getFirst world
 	mon' = delObj c mon
@@ -95,7 +95,7 @@ zapFirst c world
 	| otherwise =
 		(changeMon mon $ changeAction ' ' newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
-	(dx, dy) = fromJust $ dir c
+	Just (dx, dy) = dir c
 	maybeCoords = dirs world (x, y, dx, dy)
 	newWorld = case maybeCoords of
 		Just (xNew, yNew) -> zap world xNew yNew dx dy obj
@@ -103,7 +103,7 @@ zapFirst c world
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst newWorld
-	(obj, _) = fromJust objects
+	Just (obj, _) = objects
 	mon = decChargeByKey (prevAction newWorld) oldMon
 	failWorld = changeAction ' ' world
 
@@ -149,7 +149,7 @@ trapFirst c world
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst world
-	(obj, _) = fromJust objects
+	Just (obj, _) = objects
 	mon = delObj c oldMon
 	failWorld = changeAction ' ' world
 	newMsg = name oldMon ++ " set" ++ ending world ++ title obj ++ "."
@@ -198,7 +198,7 @@ fireFirst c world
 			fire xNew yNew dx dy obj) $ changeMon (fulldel oldMon) world
 		Nothing -> failWorld
 	Just (dx, dy) = dir c
-	(obj, n) = fromJust objects
+	Just (obj, n) = objects
 	fulldel = foldr (.) id $ replicate cnt $ delObj $ prevAction world
 	failWorld = changeAction ' ' world
 	
@@ -229,3 +229,22 @@ fire x y dx dy obj world
 		
 fireMon :: Char -> Char -> World -> World
 fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}
+
+eatFirst :: Char -> World -> (World, Bool)
+eatFirst c world 
+	| not $ hasPart aRM mon = (maybeAddMessage 
+		(msgNeedArms "eat") $ changeAction ' ' world, False)
+	| isNothing objects =
+		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)
+	| not $ isFood obj = (maybeAddMessage (msgDontKnow "eat")
+		$ changeAction ' ' world, False)
+	| otherwise =
+		(changeMon mon' $ addNeutralMessage newMsg 
+		$ changeAction ' ' world, True) where
+	objects = M.lookup c $ inv $ getFirst world
+	newMsg = name (getFirst world) ++ " eat" ++ ending world 
+		++ titleShow obj ++ "."
+	Just (obj, _) = objects
+	mon = getFirst world
+	mon' = delObj c $ changeTemp Nutrition (Just $ nutr + nutrition obj) mon
+	Just nutr = temp mon !! fromEnum Nutrition

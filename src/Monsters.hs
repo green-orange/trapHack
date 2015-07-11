@@ -10,6 +10,7 @@ import DataWorld
 import DataMonster
 import DataObject
 import DataDef
+import Utils4mon
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
@@ -27,7 +28,7 @@ getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	time = slow',
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = map (const Nothing) (getAll :: [Temp]),
+	temp = startTemps,
 	xp = 1
 }, g'') where
 	addHPs :: [(Int -> Int -> Part, (Int, Int))] 

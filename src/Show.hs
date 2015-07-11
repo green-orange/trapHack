@@ -218,7 +218,7 @@ draw world = do
 	(h, _) <- scrSize
 	(case action world of 
 		'i' -> drawInventory
-		'e' -> drawEquipMenu
+		'#' -> drawEquipMenu
 		',' -> drawPickOrDrop True
 		'D' -> drawPickOrDrop False
 		'E' -> drawPartChange
@@ -279,4 +279,5 @@ symbolItem (Weapon {})   = ')'
 symbolItem (Launcher {}) = '}'
 symbolItem (Armor {})    = '['
 symbolItem (Jewelry {})  = '='
+symbolItem (Food {})     = '%'  
 

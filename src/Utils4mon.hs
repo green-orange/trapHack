@@ -11,6 +11,7 @@ import DataMonster
 import DataDef
 
 import System.Random (StdGen, randomR)
+import Data.Maybe (isJust)
 
 levelM :: String -> Int
 levelM "Bat"             = 1
@@ -42,7 +43,8 @@ isEnemy :: Monster -> Bool
 isEnemy mon = not $ isPlayer mon || elem (name mon) nOTeNEMIES
 
 alive :: Monster -> Bool
-alive mon = hasPart bODY mon' && hasPart hEAD mon' || hasPart mAIN mon' where
+alive mon = isJust (temp mon' !! fromEnum Nutrition) && hasPart bODY mon' 
+	&& hasPart hEAD mon' || hasPart mAIN mon' where
 	mon' = mon {parts = filter ((>0) . hp) $ parts mon}
 
 hasPart :: Int -> Monster -> Bool
@@ -108,4 +110,16 @@ levelUpParts g (p:ps) = (headPart : tailParts, g'') where
 	n :: Int
 	(n, g'') = randomR (0, 5) g'
 	headPart = p {hp = hp p + n, maxhp = maxhp p + n}
+
+corpseFromMon :: Monster -> Object
+corpseFromMon mon = Food {title = title', nutrition = nutr, weight' = wei} where
+	title' = "corpse of the " ++ name mon
+	wei = div (sum $ map maxhp $ parts mon) 3
+	nutr = sum $ map ((+10) . hp) $ parts mon
+
+startNutr :: Maybe Int
+startNutr = Just 50
+
+startTemps :: [Maybe Int]
+startTemps = startNutr : tail (map (const Nothing) (getAll :: [Temp]))
 

@@ -118,6 +118,11 @@ data Object =
 		effectOn :: Int -> Monster -> Monster,
 		effectOff :: Int -> Monster -> Monster,
 		idO :: Int
+	} |
+	Food {
+		title :: String,
+		nutrition :: Int,
+		weight' :: Int
 	}
 
 data World = World {
@@ -154,7 +159,7 @@ data AI = You | AI AIrepr deriving (Show, Read)
 	
 data Intr = Teleport deriving (Enum, Show, Bounded)
 
-data Temp = Poison | Stun | Conf deriving (Enum, Show, Bounded)
+data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 
 data Terrain = Empty | BearTrap | FireTrap | PoisonTrap | MagicTrap 
 	deriving (Eq)
@@ -230,6 +235,8 @@ instance Show Object where
 		++ show (enchantment o) ++ [objSep] ++ show (bind o) 
 	show o@(Jewelry {}) = "Jewelry" ++ [objSep] ++ show (idO o) ++ [objSep] 
 		++ show (enchantment o) ++ [objSep] ++ show (bind o)
+	show o@(Food {}) = "Food" ++ [objSep] ++ show (title o) ++ [objSep] 
+		++ show (nutrition o) ++ [objSep] ++ show (weight' o)
 
 worldSep :: Char
 worldSep = '#'

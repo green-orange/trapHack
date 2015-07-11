@@ -109,8 +109,13 @@ decMaybe (Just 0) = Nothing
 decMaybe (Just n) = Just $ n - 1
 
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
-addDeathDrop mon g = (changeInv (M.union (inv mon) newDrop) mon, newGen) where
+addDeathDrop mon g = (changeInv (addCorpse 
+	$ M.union (inv mon) newDrop) mon, newGen) where
 	(newDrop, newGen) = deathDrop (name mon) g
+	corpse = corpseFromMon mon
+	addCorpse = case nutrition corpse of
+		0 -> id
+		_ -> M.insert (head notAlphabet) (corpse, 1)
 
 tickFirst :: World -> World
 tickFirst w = changeMon (tickFirstMon $ getFirst w) w
