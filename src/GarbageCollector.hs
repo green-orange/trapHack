@@ -16,7 +16,7 @@ import Data.Function (on)
 import Data.Maybe (fromJust)
 
 collectorAI :: AIfunc
-collectorAI _ _ world = 
+collectorAI _ _ _ world = 
 	if isItemHere
 	then fromJust $ fst $ pickFirst $ foldr changeChar world alphabet
 	else moveFirst dx dy world

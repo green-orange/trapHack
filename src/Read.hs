@@ -5,6 +5,7 @@ import Data
 import Stuff
 import Colors
 import Init
+import Texts
 
 import qualified Data.Set as S
 import qualified Data.Array as A
@@ -107,7 +108,9 @@ instance Read Units where
 	readsPrec _ str = [(Units {
 		xF = xNew,
 		yF = yNew,
-		getFirst' = listNew M.! (xNew, yNew),
+		getFirst' = case M.lookup (xNew, yNew) listNew of
+			Nothing -> error $ msgWE "Read Units"
+			Just m -> m,
 		list = listNew
 	}, "")] where
 		parse = separate unitsSep str

@@ -5,6 +5,7 @@ import Parts
 import DataWorld
 import DataMonster
 import DataDef
+import Texts
 
 import qualified Data.Set as S
 import System.Random (StdGen)
@@ -22,7 +23,9 @@ changeHP n part = part {hp = n}
 update :: Int -> Int -> Units -> Units
 update x' y' uns = 
 	if x' == xF uns && y' == yF uns
-	then uns {getFirst' = list uns M.! (x', y')}
+	then case M.lookup (x', y') $ list uns of
+		Nothing -> error $ msgWE "update" 
+		Just mon -> uns {getFirst' = mon}
 	else uns
 
 changeList :: M.Map (Int, Int) Monster -> Units -> Units
@@ -96,7 +99,7 @@ changeMoveFirst x y w = changeMons newMons w where
 		yF = y,
 		list = M.insert (x, y) mon $ M.delete (xFirst w, yFirst w) $ units w
 	}
-	mon = units w M.! (xFirst w, yFirst w)
+	mon = getFirst w
 
 addMessages :: [(String, Int)] -> World -> World
 addMessages s w = w {message = message w ++ s}

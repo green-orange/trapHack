@@ -91,7 +91,7 @@ step world c
 			_ -> Left $ addMessage (msgCheater, mAGENTA)
 				$ changeAction ' ' world
 		else
-			let newMWorld = runAI aiNow x y world
+			let newMWorld = runAI aiNow x y peace world
 			in Left $ newWaveIf newMWorld
 	| name mon == "You" =
 		Right $ msgYouDie $ wave world - 1
@@ -103,15 +103,16 @@ step world c
 		stun = (isJust (temp mon !! fromEnum Stun) ||
 			isJust (temp mon !! fromEnum Conf) && 5*p > 1) &&
 			canWalk mon
-		p::Float
+		p :: Float
 		(p, g) = randomR (0.0, 1.0) $ stdgen world
 		mon = getFirst world
 		AI aiNow = if stun then AI $ getPureAI RandomAI else ai mon
 		(xR, g1) = randomR (0, maxX) g
 		(yR, _) = randomR (0, maxY) g1 
-		(x, y) = case closestPlayerChar (xFirst world) (yFirst world) world of
-			Just (xP, yP) -> (xP, yP)
-			Nothing -> (xR, yR)
+		(x, y, peace ) = case closestPlayerChar (xFirst world) 
+			(yFirst world) world of
+			Just (xP, yP) -> (xP, yP, False)
+			Nothing -> (xR, yR, True)
 		
 justStep :: World -> Char -> Either World String
 justStep world c = case dir c of

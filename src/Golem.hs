@@ -14,7 +14,7 @@ import qualified Data.Map as M
 import Data.Maybe (isJust)
 
 golemAI :: AIfunc
-golemAI _ _ world = 
+golemAI _ _ _ world = 
 	if null nears
 	then world
 	else (uncurry moveFirst $ head nears) world where

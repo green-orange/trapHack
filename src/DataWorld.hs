@@ -6,7 +6,7 @@ import DataMonster
 
 import qualified Data.Map as M
 
-type AIfunc = Int -> Int -> World -> World
+type AIfunc = Int -> Int -> Bool -> World -> World
 
 xFirst :: World -> Int
 xFirst = xF . units'
