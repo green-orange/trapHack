@@ -2,4 +2,3 @@
 rm src/*.hi
 rm src/*.o
 rm *~
-rm Main
