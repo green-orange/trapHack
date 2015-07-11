@@ -16,7 +16,7 @@ import UI.HSCurses.Curses
 import Control.Monad (unless)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
-#if linux_HOST_OS
+#ifndef mingw32_HOST_OS
 import System.Posix.User
 #endif
 
@@ -65,7 +65,7 @@ main = do
 	if w <= 2 * xSight + 42 || h <= 2 * ySight + 5
 	then putStrLn msgSmallScr
 	else do gen <- getStdGen
-#if linux_HOST_OS
+#ifndef mingw32_HOST_OS
 		username <- getLoginName
 #else
 		print msgAskName
