@@ -10,6 +10,7 @@ import Texts
 import qualified Data.Set as S
 import qualified Data.Array as A
 import qualified Data.Map as M
+import Data.Maybe (fromMaybe)
 
 takeDigits, dropDigits :: String -> String
 takeDigits = takeWhile (`elem` ['0'..'9'])
@@ -108,9 +109,8 @@ instance Read Units where
 	readsPrec _ str = [(Units {
 		xF = xNew,
 		yF = yNew,
-		getFirst' = case M.lookup (xNew, yNew) listNew of
-			Nothing -> error $ msgWE "Read Units"
-			Just m -> m,
+		getFirst' = fromMaybe (error $ msgWE "Read Units") 
+			$ M.lookup (xNew, yNew) listNew,
 		list = listNew
 	}, "")] where
 		parse = separate unitsSep str

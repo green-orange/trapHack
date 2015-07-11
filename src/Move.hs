@@ -17,7 +17,7 @@ import DataDef
 
 import qualified Data.Map as M
 import qualified Data.Array as A
-import Data.Maybe (fromJust, isNothing)
+import Data.Maybe (fromJust, isNothing, fromMaybe)
 import System.Random (randomR)
 
 moveFirst :: Int -> Int -> World -> World
@@ -57,9 +57,7 @@ attack :: Int -> Int -> Char -> World -> World
 attack x y c world = changeMons unitsNew $ addMessage (newMsg, color) 
 	$ changeAction ' ' $ changeGen newGen' world where
 	attacker = getFirst world
-	mon = case M.lookup (x, y) $ units world of
-		Nothing -> error $ msgWE "attack"
-		Just m -> m
+	mon = fromMaybe (error $ msgWE "attack") $ M.lookup (x, y) $ units world
 	color = 
 		if isPlayerNow world
 		then case newDmg of
@@ -87,9 +85,7 @@ attack x y c world = changeMons unitsNew $ addMessage (newMsg, color)
 maybeUpgrade :: Int -> Int -> World -> World
 maybeUpgrade x y w = changeGen gen $ changeMon monFirst $ addLevelUpMessages w where
 	attacker = getFirst w
-	mon = case M.lookup (x, y) $ units w of
-		Nothing -> error $ msgWE "maybeUpgrade"
-		Just m -> m
+	mon = fromMaybe (error $ msgWE "maybeUpgrade") $ M.lookup (x, y) $ units w
 	(monFirst, lvls, gen) = if alive mon then (attacker, 0, stdgen w) else
 		xpUp (stdgen w) attacker mon
 	addLevelUpMessages = foldr (.) id $ replicate lvls 
@@ -103,9 +99,8 @@ attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color)
 	yNow = yFirst w
 	xNew = xNow + dx
 	yNew = yNow + dy
-	mon = case M.lookup (xNew, yNew) $ units w of
-		Nothing -> error $ msgWE "attackElem"
-		Just m -> m
+	mon = fromMaybe (error $ msgWE "attackElem") 
+		$ M.lookup (xNew, yNew) $ units w
 	color = case ai mon of
 		You -> case newDmg of
 			Nothing -> yELLOW
