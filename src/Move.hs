@@ -28,17 +28,17 @@ moveFirst dx dy world =
 			&& worldmap world A.! (x,y) == BearTrap
 		then world
 		else changeGen g'' $ changeMoveFirst xnew ynew 
-			$ addMessage (newMessage, yELLOW) world
+			$ addNeutralMessage teleMsg $ addMessage (newMessage, yELLOW) world
 	else maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
 		world $ filter isUpperLimb $ parts $ getFirst world
 	where
 		x = xFirst world
 		y = yFirst world
-		rez = 
+		(rez, teleMsg) = 
 			if q <= tele
-			then Just (xR, yR)
-			else dirs world (x, y, dx, dy)
+			then (Just (xR, yR), msgTeleport $ name mon)
+			else (dirs world (x, y, dx, dy), "")
 		(xnew, ynew, newMessage) =
 			if isNothing rez
 			then

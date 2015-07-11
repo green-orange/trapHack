@@ -95,7 +95,7 @@ isUntrappable = (/=) Empty
 safety :: World -> World
 safety w = w {
 	units' = (units' w) {list = M.singleton (xFirst w, yFirst w) $ getFirst w},
-	message = [(msgTeleport, bLUE)],
+	message = [(msgSafety, bLUE)],
 	items = [],
 	action = ' ',
 	wave = wave w + 1,
