@@ -86,9 +86,13 @@ randTemp temp' bounds (mon, g) = (newMon, g') where
 	(duration, g') = randomR bounds g
 	newMon = setMaxTemp temp' (Just duration) mon
 
+level4XP :: String -> Int
+level4XP "Ivy" = 0
+level4XP str = levelM str
+
 xpUp :: StdGen -> Monster -> Monster -> (Monster, Int, StdGen)
 xpUp g mon killed = (newMon, lvls, newGen) where
-	newXp = xp mon + xp killed + levelM (name killed)
+	newXp = xp mon + xp killed + level4XP (name killed)
 	lvls = intLog newXp - intLog (xp mon)
 	(newMon, newGen) = foldr ($) (mon {xp = newXp}, g)
 		$ replicate lvls levelUp
