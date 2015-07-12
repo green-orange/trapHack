@@ -69,22 +69,22 @@ pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation,
 	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantJewelry]
 
 potionOfHealing = Potion {title = "potion of healing",
-	act = unrandom $ healParts bODY 10, idO = 0}
+	act = addRandom (5, 15) $ healParts bODY, idO = 0}
 
 potionOfIntellect = Potion {title = "potion of intellect",
-	act = unrandom $ upgradeParts hEAD 5, idO = 1}
+	act = addRandom (1, 10) $ upgradeParts hEAD, idO = 1}
 
 potionOfMutation = Potion {title = "potion of mutation",
 	act = addRandomPart, idO = 2}
 
 potionOfEnchantWeapon = Potion {title = "potion of enchant weapon",
-	act = unrandom $ enchantAll WeaponSlot 1, idO = 3}
+	act = addRandom (0, 3) $ enchantAll WeaponSlot, idO = 3}
 
 potionOfEnchantArmor = Potion {title = "potion of enchant armor",
-	act = unrandom $ enchantAll ArmorSlot 1, idO = 4}
+	act = addRandom (0, 3) $ enchantAll ArmorSlot, idO = 4}
 
 potionOfEnchantJewelry = Potion {title = "potion of enchant jewelry",
-	act = unrandom $ enchantAll JewelrySlot 1, idO = 5}
+	act = addRandom (0, 3) $ enchantAll JewelrySlot, idO = 5}
 
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
 	kabbalisticScroll, scrollOfBandaging :: Object
@@ -129,17 +129,25 @@ wANDS =
 	map wandOfSlowing      [1..5] ++
 	map wandOfStun         [1..4]
 
+instance Random a => Random (Maybe a) where
+	random g = (Just x, g')
+		where (x, g') = random g
+	randomR (_, Nothing) g = (Nothing, g)
+	randomR (Nothing, _) g = (Nothing, g)
+	randomR (Just l, Just r) g = (Just x, g') 
+		where (x, g') = randomR (l, r) g
+
 wandOfStriking ch = Wand {title = "wand of striking",
-	act = unrandom $ dmgAll $ Just 10, range = 5, charge = ch, idO = 0}
+	act = addRandom (Just 1, Just 20) dmgAll, range = 5, charge = ch, idO = 0}
 
 wandOfStupidity ch = Wand {title = "wand of stupidity",
 	act = unrandom stupidity, range = 3, charge = ch, idO = 1}
 
 wandOfSpeed ch = Wand {title = "wand of speed",
-	act = unrandom $ speed 10, range = 3, charge = ch, idO = 2}
+	act = addRandom (1, 20) speed, range = 3, charge = ch, idO = 2}
 
 wandOfRadiation ch = Wand {title = "wand of radiation",
-	act = unrandom $ radiation 1, range = 5, charge = ch, idO = 3}
+	act = addRandom (0, 2) radiation, range = 5, charge = ch, idO = 3}
 
 wandOfPsionicBlast ch = Wand {title = "wand of psionic blast",
 	act = unrandom capture, range = 2, charge = ch, idO = 4}
@@ -148,7 +156,7 @@ wandOfPoison ch = Wand {title = "wand of poison",
 	act = randTemp Poison (1, 20), range = 5, charge = ch, idO = 5}
 
 wandOfSlowing ch = Wand {title = "wand of slowing",
-	act = unrandom $ speed (-10), range = 5, charge = ch, idO = 6}
+	act = addRandom (-20, -1) speed, range = 5, charge = ch, idO = 6}
 
 wandOfStun ch = Wand {title = "wand of stun", act = randTemp Stun (1, 10),
 	range = 3, charge = ch, idO = 7}

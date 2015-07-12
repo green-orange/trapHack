@@ -29,7 +29,6 @@ cleanParts mon = delEffects $ changeParts (filter aliveP $ parts mon) mon
 		$ map (flip M.lookup (inv mon) . (\ p -> objectKeys p 
 		!! fromEnum JewelrySlot)) $ filter (not . aliveP) $ parts mon
 
-
 upgrade :: Int -> Part -> Part
 upgrade n part = part {
 	hp = hp part + n,
