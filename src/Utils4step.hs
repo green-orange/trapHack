@@ -80,7 +80,7 @@ cleanFirst w = changeMon (cleanParts $ getFirst w) w
 remFirst :: World -> World
 remFirst world = updateFirst $ changeMons 
 	(deleteU (xFirst world, yFirst world) $ units' world) 
-	$ changeAction ' ' world
+	$ changeAction Move world
 
 closestPlayerChar :: Int -> Int -> World -> Maybe (Int, Int)
 closestPlayerChar x y w = 
@@ -153,7 +153,7 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 		| otherwise = ((mon, stdgen w), "")
 
 callUpon :: World -> World
-callUpon w = changeAction ' ' $ addMessage (msgLanding (wave w) , rED) 
+callUpon w = changeAction Move $ addMessage (msgLanding (wave w) , rED) 
 	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
 
 

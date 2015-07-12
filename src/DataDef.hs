@@ -129,7 +129,7 @@ data World = World {
 	units' :: Units,
 	message :: [(String, Int)],
 	items :: [(Int, Int, Object, Int)],
-	action :: Char,
+	action :: Action,
 	stdgen :: StdGen,
 	wave :: Int,
 	chars :: Set Char,
@@ -142,6 +142,10 @@ data World = World {
 	xInfo :: Int,
 	yInfo :: Int
 }
+
+data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
+	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
+	Info | Save deriving (Eq)
 
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 

@@ -37,7 +37,7 @@ loop world =
 			$ map fst $ message world
 		case step (clearMessage width world) c of
 			Left newWorld -> 
-				if action newWorld == 'S'
+				if action newWorld == Save
 				then do
 					writeFile saveName $ show newWorld
 					return msgSaved

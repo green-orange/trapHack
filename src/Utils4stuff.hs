@@ -97,7 +97,7 @@ safety w = w {
 	units' = (units' w) {list = M.singleton (xFirst w, yFirst w) $ getFirst w},
 	message = [(msgSafety, bLUE)],
 	items = [],
-	action = ' ',
+	action = Move,
 	wave = wave w + 1,
 	chars = S.empty,
 	worldmap = A.listArray ((0,0), (maxX,maxY)) $ repeat Empty,

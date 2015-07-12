@@ -80,7 +80,7 @@ setMaxTemp temp' n m = changeTemp temp' (max n old) m where
 
 {- World -}
 
-changeAction :: Char -> World -> World
+changeAction :: Action -> World -> World
 changeAction c w = w {action = c}
 
 changeMon :: Monster -> World -> World

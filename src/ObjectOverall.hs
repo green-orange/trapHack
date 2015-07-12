@@ -19,12 +19,12 @@ import Data.Maybe (isNothing, fromJust)
 dropFirst :: Char -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
 	| isNothing objects = 
-		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)
+		(maybeAddMessage msgNoItem $ changeAction Move world, False)
 	| isExistingBindingFirst world c && alive (getFirst world) = 
-		(maybeAddMessage msgDropEquipped $ changeAction ' ' world, False)
+		(maybeAddMessage msgDropEquipped $ changeAction Move world, False)
 	| otherwise = 
 		(changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
-		$ changeAction ' ' world, True) where
+		$ changeAction Move world, True) where
 	objects = M.lookup c $ inv $ getFirst world
 	(obj, cnt) = fromJust objects
 	x = xFirst world
@@ -75,7 +75,7 @@ pickFirst world =
 				{getFirst' = mon, list = M.insert (xMon, yMon) mon $ units world},
 			message = newMessage,
 			items = newItems,
-			action = ' ',
+			action = Move,
 			chars = S.empty
 		}, "")
 		
@@ -86,7 +86,7 @@ dropManyFirst world =
 	else Just newWorld where
 		newMsg = name (getFirst world) ++ " drop" ++ ending world 
 			++ "some objects."
-		newWorld = changeAction ' ' $ changeChars S.empty 
+		newWorld = changeAction Move $ changeChars S.empty 
 			$ addNeutralMessage newMsg $ foldr (\ x y 
 			-> fst $ dropFirst x y True) world 
 			$ S.toList $ chars world
@@ -143,7 +143,7 @@ bindFirst c w
 	maybeNewSlot = binds obj $ kind part
 	Just newSlot = maybeNewSlot
 	(obj, _) = fromJust objects
-	newWorld = changeAction ' ' w
+	newWorld = changeAction Move w
 	mon = getFirst w
 	part = parts mon !! shift w
 	change part' = 

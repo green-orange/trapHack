@@ -55,7 +55,7 @@ moveFirst dx dy world =
 
 attack :: Int -> Int -> Char -> World -> World
 attack x y c world = changeMons unitsNew $ addMessage (newMsg, color) 
-	$ changeAction ' ' $ changeGen newGen' world where
+	$ changeAction Move $ changeGen newGen' world where
 	attacker = getFirst world
 	mon = fromMaybe (error $ msgWE "attack") $ M.lookup (x, y) $ units world
 	color = 
@@ -93,7 +93,7 @@ maybeUpgrade x y w = changeGen gen $ changeMon monFirst $ addLevelUpMessages w w
 
 attackElem :: Elem -> Int -> Int -> World -> World
 attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color) 
-	$ changeAction ' ' $ changeGen newGen' w where
+	$ changeAction Move $ changeGen newGen' w where
 	attacker = getFirst w
 	xNow = xFirst w
 	yNow = yFirst w

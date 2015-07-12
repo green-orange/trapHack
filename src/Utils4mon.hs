@@ -117,7 +117,7 @@ levelUpParts g (p:ps) = (headPart : tailParts, g'') where
 corpseFromMon :: Monster -> Object
 corpseFromMon mon = Food {title = title', nutrition = nutr, weight' = wei} where
 	title' = "corpse of the " ++ name mon
-	wei = 2 * (sum $ map maxhp $ parts mon)
+	wei = 2 * sum (map maxhp $ parts mon)
 	nutr = sum $ map hp $ parts mon
 
 startTemps :: Int -> [Maybe Int]

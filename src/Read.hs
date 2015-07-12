@@ -126,7 +126,7 @@ instance Read World where
 		units' = read units'',
 		message = [("Welcome again!", dEFAULT)],
 		items = myReadItems listSepW items',
-		action = ' ',
+		action = Move,
 		stdgen = read stdgen',
 		wave = read wave',
 		chars = S.empty,

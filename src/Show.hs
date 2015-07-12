@@ -42,7 +42,7 @@ drawUnit world ((x, y), mon) =
 		placeChar dx dy sym where
 		attr = 
 			if x == xFirst world && y == yFirst world ||
-				action world == '?' && x == xInfo world && y == yInfo world
+				action world == Info && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
 			else attr0
 		(sym, color') = symbolMon $ name mon
@@ -56,7 +56,7 @@ drawCell world ((x, y), _) =
 		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
 		placeChar dx dy sym where
 		attr = 
-			if action world == '?' && x == xInfo world && y == yInfo world
+			if action world == Info && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
 			else attr0
 		dx = x - xFirst world
@@ -71,7 +71,7 @@ drawItem world(x, y, item, _) =
 		dx = x - xFirst world
 		dy = y - yFirst world
 		attr = 
-			if action world == '?' && x == xInfo world && y == yInfo world
+			if action world == Info && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
 			else attr0
 
@@ -169,7 +169,7 @@ drawPickOrDrop isPick world h = do
 		xNow = xFirst world
 		yNow = yFirst world
 		toShow =
-			if action world == ','
+			if action world == Pick
 			then zip3 [0..] alphabet $ map (\(_,_,a,b) -> (a,b)) $
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
 			else zipWith (\n (c,x) -> (n,c,x)) [0..] $ M.toList $ inv $ getFirst world 
@@ -217,12 +217,12 @@ draw :: World -> IO ()
 draw world = do
 	(h, _) <- scrSize
 	(case action world of 
-		'i' -> drawInventory
-		'#' -> drawEquipMenu
-		',' -> drawPickOrDrop True
-		'D' -> drawPickOrDrop False
-		'E' -> drawPartChange
-		_   -> drawJustWorld) world h
+		Inventory -> drawInventory
+		Bind -> drawEquipMenu
+		Pick -> drawPickOrDrop True
+		DropMany -> drawPickOrDrop False
+		Equip -> drawPartChange
+		_ -> drawJustWorld) world h
 		
 				
 redraw :: World -> IO Char
