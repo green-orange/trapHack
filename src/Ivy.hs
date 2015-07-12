@@ -14,7 +14,7 @@ import System.Random (randomR)
 
 getIvy :: MonsterGen
 getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] 15
-	((2,10), 0.0) emptyInv 400
+	((2,10), 0.0) emptyInv 400 100
 
 ivyAI :: AIfunc
 ivyAI xPlayer yPlayer peace world

@@ -34,11 +34,11 @@ collectorAI _ _ _ world =
 				  signum $ yItem - yNow)
 
 getGarbageCollector :: MonsterGen		  
-getGarbageCollector = getMonster (getPureAI CollectorAI)
+getGarbageCollector = getMonster (getEatAI CollectorAI)
 	[(getBody 1, (20, 40)), 
 	 (getHead 1, (10, 30)),
 	 (getLeg  1, ( 8, 12)),
 	 (getLeg  1, ( 8, 12)),
 	 (getArm  1, ( 8, 12)),
 	 (getArm  1, ( 8, 12))]
-	 17 ((2,4), 0.4) emptyInv 100
+	 17 ((2,4), 0.4) emptyInv 100 100

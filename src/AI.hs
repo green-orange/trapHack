@@ -35,6 +35,7 @@ runAImod aimod = case aimod of
 	WieldWeaponAI -> wieldWeaponAI
 	BindArmorAI -> bindArmorAI
 	UseItemsAI -> useItemsAI
+	EatAI -> eatAI
 
 runAIattackIfClose :: Maybe (Elem, Int) -> AIfunc -> AIfunc
 runAIattackIfClose Nothing = id
@@ -73,11 +74,10 @@ trollAI f x y p w =
 
 rock :: StdGen -> Monster
 rock g = fst $ getMonster (getPureAI NothingAI) [(getMain 0, (100, 5000))] 
-	20 ((0,0),0.0) emptyInv 10000 g
+	20 ((0,0),0.0) emptyInv 10000 1 g
 
 mODSAI :: [AImod]
-mODSAI = [HealAI, ZapAttackAI, PickAI, FireAI, WieldLauncherAI, WieldWeaponAI, 
-	BindArmorAI, UseItemsAI]
+mODSAI = [HealAI ..]
 		
 healAI :: AIfunc -> AIfunc
 healAI f x y p w = 
@@ -144,6 +144,12 @@ useItemsAI f x y p w = case useSomeItem objs keys of
 		invList = M.toList $ inv $ getFirst w
 		objs = map (fst . snd) invList
 		keys = map fst invList
+
+eatAI :: AIfunc -> AIfunc
+eatAI f x y p w = 
+	if canEat (getFirst w) && needEat (getFirst w)
+	then fst $ eatFirst (foodAI w) w
+	else f x y p w
 
 attackIfClose :: Elem -> Int -> AIfunc -> AIfunc
 attackIfClose elem' dist f x y peace w =
@@ -222,5 +228,5 @@ wormAI xPlayer yPlayer _ w =
 
 tailWorm :: MonsterGen
 tailWorm = getMonster (getPureAI NothingAI) [(getMain 0, (100, 200))] 
-	16 ((0,0),0.0) emptyInv 10000
+	16 ((0,0),0.0) emptyInv 10000 1
 

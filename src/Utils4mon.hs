@@ -50,6 +50,9 @@ alive mon = isJust (temp mon' !! fromEnum Nutrition) && hasPart bODY mon'
 hasPart :: Int -> Monster -> Bool
 hasPart knd mon = 
 	any (\x -> kind x == knd) $ parts mon
+
+hasUpperLimb :: Monster -> Bool
+hasUpperLimb mon = any isUpperLimb $ parts mon
 	
 regPart :: Part -> Part
 regPart part = heal (regVel part) part
@@ -114,12 +117,9 @@ levelUpParts g (p:ps) = (headPart : tailParts, g'') where
 corpseFromMon :: Monster -> Object
 corpseFromMon mon = Food {title = title', nutrition = nutr, weight' = wei} where
 	title' = "corpse of the " ++ name mon
-	wei = div (sum $ map maxhp $ parts mon) 3
-	nutr = sum $ map ((+10) . hp) $ parts mon
+	wei = 2 * (sum $ map maxhp $ parts mon)
+	nutr = sum $ map hp $ parts mon
 
-startNutr :: Maybe Int
-startNutr = Just 50
-
-startTemps :: [Maybe Int]
-startTemps = startNutr : tail (map (const Nothing) (getAll :: [Temp]))
+startTemps :: Int -> [Maybe Int]
+startTemps n = Just n : tail (map (const Nothing) (getAll :: [Temp]))
 

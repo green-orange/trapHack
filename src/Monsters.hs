@@ -16,8 +16,8 @@ import System.Random (StdGen, randomR)
 import qualified Data.Map as M
 	
 getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
-	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> MonsterGen
-getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
+	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> Int -> MonsterGen
+getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 	ai = AI ai',
 	parts = zipWith ($) partGens [0..],
 	idM = id',
@@ -28,7 +28,7 @@ getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 	time = slow',
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = startTemps,
+	temp = startTemps nutr,
 	xp = 1
 }, g'') where
 	addHPs :: [(Int -> Int -> Part, (Int, Int))] 
@@ -43,7 +43,7 @@ getMonster ai' ps id' stddmg' inv' slow' g = (Monster {
 
 getDummy :: Int -> Float -> MonsterGen
 getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] 19 
-	((0, 0), 0.0) emptyInv 100
+	((0, 0), 0.0) emptyInv 10000 1
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 addMonsters gens pair = foldr addMonster pair gens

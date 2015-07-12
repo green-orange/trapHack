@@ -123,7 +123,7 @@ justStep world c = case dir c of
 		'q' -> actionByKey "quaff" isPotion 'q' world
 		'r' -> actionByKey "read" isScroll 'r' world
 		'z' -> actionByKey "zap" isWand 'z' world
-		'd' -> actionByKey "drop" (const True) 'c' world
+		'd' -> actionByKey "drop" (const True) 'd' world
 		'f' -> actionByKey "fire" isMissile 'f' world
 		'e' -> actionByKey "eat" isFood 'e' world
 		't' ->

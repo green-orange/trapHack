@@ -145,7 +145,7 @@ data World = World {
 
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 
-	UseItemsAI deriving (Show, Read)
+	UseItemsAI | EatAI deriving (Show, Read, Enum)
 data AIpure = NothingAI | StupidestAI | StupidAI | StupidParalysisAI | 
 	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | CollectorAI |
 	GolemAI deriving (Show, Read)

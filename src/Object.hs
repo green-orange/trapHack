@@ -232,7 +232,7 @@ fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}
 
 eatFirst :: Char -> World -> (World, Bool)
 eatFirst c world 
-	| not $ hasPart aRM mon = (maybeAddMessage 
+	| not $ hasUpperLimb mon = (maybeAddMessage 
 		(msgNeedArms "eat") $ changeAction ' ' world, False)
 	| isNothing objects =
 		(maybeAddMessage msgNoItem $ changeAction ' ' world, False)

@@ -27,7 +27,7 @@ getForgottenBeast g = (Monster {
 	time = newSlow,
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = startTemps,
+	temp = startTemps 1000,
 	idM = 21,
 	xp = 1
 	}, g5) where

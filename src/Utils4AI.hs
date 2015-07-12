@@ -26,13 +26,22 @@ isHealing :: Object -> Bool
 isHealing obj = title obj == "potion of healing"
 
 healingAI :: World -> Char
-healingAI world = fst $ M.findMin $ M.filter (isHealing . fst) $ inv $ getFirst world
+healingAI w = fst $ M.findMin $ M.filter (isHealing . fst) $ inv $ getFirst w
 
 canZapToAttack :: Monster -> Bool
 canZapToAttack mon = M.foldl (||) False $ M.map (isAttackWand . fst) $ inv mon
 
 canFire :: Monster -> Bool
 canFire mon = any (isValidMissile mon) alphabet
+
+canEat :: Monster -> Bool
+canEat mon = M.foldl (||) False $ M.map (isFood . fst) $ inv mon
+
+needEat :: Monster -> Bool
+needEat mon = temp mon !! fromEnum Nutrition <= Just 5
+
+foodAI :: World -> Char
+foodAI w = fst $ M.findMin $ M.filter (isFood . fst) $ inv $ getFirst w
 	
 isValidMissile :: Monster -> Char -> Bool
 isValidMissile mon c = 

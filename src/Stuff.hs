@@ -306,3 +306,10 @@ trapFromTerrain x = case x of
 	PoisonTrap -> poisonTrap
 	MagicTrap -> magicTrap
 	_ -> error "unknown trap"
+
+foodRation :: Object
+foodRation = Food {
+	title = "food ration",
+	nutrition = 200,
+	weight' = 20
+}

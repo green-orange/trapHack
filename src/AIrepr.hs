@@ -2,15 +2,9 @@ module AIrepr where
 
 import DataDef
 
-getPureAI :: AIpure -> AIrepr
-getPureAI aip = AIrepr {
-	mods = [],
-	attackIfCloseMode = Nothing,
-	aipure = aip
-}
-
 humanMods, hunterMods :: [AImod]
-humanMods = [HealAI, ZapAttackAI, BindArmorAI, WieldWeaponAI, UseItemsAI, PickAI]
+humanMods = [HealAI, ZapAttackAI, BindArmorAI, WieldWeaponAI, UseItemsAI, 
+	PickAI, EatAI]
 hunterMods = [WieldLauncherAI, FireAI] ++ humanMods
 
 getAIByList :: [AImod] -> AIpure -> AIrepr
@@ -20,13 +14,15 @@ getAIByList ms aip = AIrepr {
 	aipure = aip
 }
 
-getHumanoidAI, getHunterAI :: AIpure -> AIrepr
+getPureAI, getEatAI, getHumanoidAI, getHunterAI :: AIpure -> AIrepr
+getPureAI = getAIByList []
+getEatAI = getAIByList [PickAI, EatAI]
 getHumanoidAI = getAIByList humanMods
 getHunterAI =  getAIByList hunterMods
 
 getDragonAI :: Elem -> Int -> AIrepr
 getDragonAI e d = AIrepr {
-	mods = [],
+	mods = [EatAI],
 	attackIfCloseMode = Just (e, d),
 	aipure = StupidAI
 }
