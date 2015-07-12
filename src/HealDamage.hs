@@ -26,8 +26,10 @@ heal :: Int -> Part -> Part
 heal n part = changeHP (min (maxhp part) $ hp part + n) part
 
 healParts, healPartById :: Int -> Int -> Monster -> Monster
+healLimbs :: Int -> Monster -> Monster
 healParts = doSmthParts heal
 healPartById = doSmthPartById heal
+healLimbs = doSmthByFunc heal (\p -> isLowerLimb p || isUpperLimb p)
 
 healAll :: Int -> Monster -> Monster
 healAll = doSmthAll heal

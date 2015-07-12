@@ -13,7 +13,7 @@ import DataWorld
 import DataMonster
 import DataDef
 
-import System.Random (StdGen, randomR)
+import System.Random (StdGen, randomR, Random)
 import Data.Maybe (isJust, fromJust)
 import qualified Data.Set as S
 import qualified Data.Map as M
@@ -119,3 +119,11 @@ enchantAll sl n mon = foldr (enchantByLetter .
 	enchantByLetter c mon' = case M.lookup c $ inv mon' of
 		Nothing -> mon'
 		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}
+
+actWithFirst :: ((Monster, StdGen) -> (Monster, StdGen)) -> World -> World
+actWithFirst f w = changeGen newGen $ changeMon newMon w where
+	(newMon, newGen) = f (getFirst w, stdgen w)
+
+addRandom :: Random a => (a, a) -> (a -> b -> c) -> (b, StdGen) -> (c, StdGen)
+addRandom pair f (o, g) = (f value o, g') where
+	(value, g') = randomR pair g

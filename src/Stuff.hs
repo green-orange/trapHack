@@ -87,11 +87,11 @@ potionOfEnchantJewelry = Potion {title = "potion of enchant jewelry",
 	act = unrandom $ enchantAll JewelrySlot 1, idO = 5}
 
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
-	kabbalisticScroll :: Object
+	kabbalisticScroll, scrollOfBandaging :: Object
 
 sCROLLS :: [Object]
 sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, 
-	scrollOfSafety, kabbalisticScroll]
+	scrollOfSafety, kabbalisticScroll, scrollOfBandaging]
 
 scrollOfFire = Scroll {title = "scroll of fire",
 	actw = fireAround 1 (5, 10), idO = 0}
@@ -107,6 +107,9 @@ scrollOfSafety = Scroll {title = "scroll of safety",
 
 kabbalisticScroll = Scroll {title = "Kabbalistic scroll",
 	actw = spawnGolemsAround, idO = 4}
+
+scrollOfBandaging = Scroll {title = "scroll of bandaging",
+	actw = actWithFirst $ addRandom (1, 10) healLimbs, idO = 5}
 
 wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation, 
 	wandOfPsionicBlast, wandOfPoison, wandOfSlowing, wandOfStun

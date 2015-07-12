@@ -72,13 +72,13 @@ readFirst c world
 	| otherwise =
 		(changeMon mon' $ addNeutralMessage newMsg 
 		$ changeAction Move newWorld, True) where
-	objects = M.lookup c $ inv $ getFirst world
-	newMsg = name (getFirst world) ++ " read" ++ ending world 
+	objects = M.lookup c $ inv mon
+	newMsg = name mon ++ " read" ++ ending world 
 		++ titleShow obj ++ "."
 	Just (obj, _) = objects
 	newWorld = actw obj world
 	mon = getFirst world
-	mon' = delObj c mon
+	mon' = delObj c $ getFirst newWorld
 
 zapFirst :: Char -> World -> (World, Bool)
 zapFirst c world 
