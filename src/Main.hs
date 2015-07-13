@@ -29,7 +29,7 @@ catchAll = catch
 
 getReverseLog :: IO [(String, Int)]
 getReverseLog = readFile logName >>=
-	return . map (flip (,) dEFAULT) . reverse . separate '\n'
+	return . map (flip (,) dEFAULT) . tail . reverse . separate '\n'
 
 loop :: World -> IO String
 loop world =
