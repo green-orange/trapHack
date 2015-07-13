@@ -132,7 +132,7 @@ instance Read Units where
 instance Read World where
 	readsPrec _ str = [(World {
 		units' = read units'',
-		message = [("Welcome again!", dEFAULT)],
+		message = [("", dEFAULT)],
 		items = myReadItems listSepW items',
 		action = Move,
 		stdgen = read stdgen',

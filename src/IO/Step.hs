@@ -26,6 +26,7 @@ step world c
 	| alive mon = 
 		if isPlayerNow world && not stun
 		then case action world of
+			AfterSpace -> justStep world c
 			Move -> justStep world c
 			Quaff -> doIfCorrect $ quaffFirst c world
 			Read -> doIfCorrect $ readFirst c world
@@ -113,11 +114,12 @@ justStep :: World -> Char -> Either World String
 justStep world c = case dir c of
 	Just (dx, dy) -> Left $ newWaveIf $ moveFirst dx dy world
 	Nothing ->
-		if isSpace c then Left world else case c of
+		if isSpace c then Left $ changeAction AfterSpace world else case c of
 		'D' -> Left $ changeAction DropMany world
 		'i' -> Left $ changeAction Inventory world
 		',' -> Left $ changeAction Pick world
 		'S' -> Left $ changeAction Save world
+		'P' -> Left $ changeAction Previous world
 		'Q' -> 
 			if wave world == 1
 			then Right msgQuitOnStart

@@ -9,7 +9,7 @@ import IO.Step
 import IO.Show
 import IO.Colors
 import IO.Texts
-import IO.Read ()
+import IO.Read (separate)
 import Init
 
 import UI.HSCurses.Curses
@@ -27,21 +27,29 @@ saveName = "trapHack.save"
 catchAll :: IO a -> (SomeException -> IO a) -> IO a
 catchAll = catch
 
+getReverseLog :: IO [(String, Int)]
+getReverseLog = readFile logName >>=
+	return . map (flip (,) dEFAULT) . reverse . separate '\n'
+
 loop :: World -> IO String
 loop world =
 	if isPlayerNow world
 	then do
 		c <- redraw world
 		(_, width) <- scrSize
-		maybeAppendFile logName $ filter (not . null) 
-			$ map fst $ message world
 		case step (clearMessage width world) c of
-			Left newWorld -> 
-				if action newWorld == Save
-				then do
+			Left newWorld -> case action newWorld of
+				Save -> do
 					writeFile saveName $ show newWorld
 					return msgSaved
-				else loop newWorld
+				Previous -> do
+					msgs <- getReverseLog
+					loop newWorld {action = Move, message = msgs}
+				AfterSpace -> loop newWorld
+				_ -> do
+					maybeAppendFile logName $ filter (not . null) 
+						$ map fst $ message world
+					loop newWorld
 			Right msg ->
 				writeFile saveName "" >> appendFile logName (msg ++ "\n")
 				>> return msg
