@@ -127,7 +127,8 @@ showTemp :: World -> Temp -> IO ()
 showTemp world t = 
 	case value of
 	Nothing -> return ()
-	_ -> mvWAddStr stdScr (shiftDown + shiftElem + 2 + elems + intrs + pos) 
+	_ -> wAttrSet stdScr (attr0, Pair clr) >>
+		mvWAddStr stdScr (shiftDown + shiftElem + 2 + elems + intrs + pos) 
 		shiftAttrs str
 	where
 	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
@@ -136,6 +137,7 @@ showTemp world t =
 	value = temp (getFirst world) !! pos
 	Just rez = value
 	str = show t ++ " (" ++ show rez ++ ")"
+	clr = colorFromTemp t rez
 
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do

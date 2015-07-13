@@ -1,6 +1,6 @@
 module IO.Colors where
 
-import Data.Define (Terrain (..))
+import Data.Define
 
 import UI.HSCurses.Curses
 import Data.Maybe (fromJust)
@@ -16,11 +16,21 @@ cYAN       = 7
 rEDiNVERSE = 58
 
 colorFromTerr :: Terrain -> Int
-colorFromTerr Empty      = 8
-colorFromTerr BearTrap   = 32
-colorFromTerr FireTrap   = 16
-colorFromTerr PoisonTrap = 56
-colorFromTerr MagicTrap  = 48
+colorFromTerr Empty      = 8  -- default
+colorFromTerr BearTrap   = 32 -- yellow
+colorFromTerr FireTrap   = 16 -- red
+colorFromTerr PoisonTrap = 56 -- green
+colorFromTerr MagicTrap  = 48 -- magenta
+
+colorFromTemp :: Temp -> Int -> Int
+colorFromTemp Nutrition n
+	| n <= 5  = rEDiNVERSE
+	| n <= 20 = rED
+	| n <= 50 = yELLOW
+	| otherwise = dEFAULT
+colorFromTemp Poison _ = rED
+colorFromTemp Conf _ = yELLOW
+colorFromTemp Stun _ = rED
 
 initColors :: IO ()
 initColors = sequence_ actions where
