@@ -1,4 +1,6 @@
 #~/bin/bash
-rm src/*.hi
-rm src/*.o
-rm *~
+rm -f src/*.hi
+rm -f src/*.o
+rm -f src/*/*.hi
+rm -f src/*/*.o
+rm -f *~

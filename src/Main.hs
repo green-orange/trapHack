@@ -1,16 +1,16 @@
 {-# LANGUAGE CPP #-}
 module Main where
 
-import Data
-import Step
-import Changes (clearMessage)
-import Show
+import Data.Const
+import Data.World
+import Data.Define
+import Utils.Changes (clearMessage)
+import IO.Step
+import IO.Show
+import IO.Colors
+import IO.Texts
+import IO.Read ()
 import Init
-import Colors
-import Texts
-import DataWorld
-import DataDef
-import Read ()
 
 import UI.HSCurses.Curses
 import Control.Monad (unless)

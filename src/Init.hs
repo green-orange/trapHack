@@ -1,12 +1,12 @@
 module Init where
 
-import Data
-import Parts
-import Colors
-import Texts
-import DataDef
-import Utils4mon
---import Stuff
+import Data.Const
+import Data.Define
+import Utils.Monsters
+import Monsters.Parts
+import IO.Colors
+import IO.Texts
+--import Items.Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S
