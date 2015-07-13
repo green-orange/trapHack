@@ -33,10 +33,10 @@ ending world =
 	else "s "
 
 addArticle :: String -> String
-addArticle str
-	| str == "" = ""
-	| head str `elem` "aeiouAEIOU" = "an " ++ str
-	| otherwise = "a " ++ str
+addArticle "" = ""
+addArticle str@(x:_) =
+	if x `elem` "aeiouAEIOU" then "an " ++ str
+	else "a " ++ str
 
 lostMsg :: String -> String -> String
 lostMsg monName partName =

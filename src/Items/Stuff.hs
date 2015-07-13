@@ -10,6 +10,7 @@ import Utils.Changes
 import Monsters.Monsters
 import Monsters.GarbageCollector
 import Monsters.Golem
+import IO.Texts
 
 import System.Random
 import qualified Data.Map as M
@@ -48,15 +49,16 @@ genDeathDrop = genDeathDropByAlph $ tail notAlphabet
 
 genDeathDropByAlph :: String -> [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
 genDeathDropByAlph _ [] g = (M.empty, g)
-genDeathDropByAlph alph ((objs, f):xs) g =
+genDeathDropByAlph [] _ _ = error $ msgWE "genDeathDropByAlph"
+genDeathDropByAlph alph@(a:as) ((objs, f):xs) g =
 	case f p of
 		0 -> genDeathDropByAlph alph xs g'
-		_ -> (M.insert (head alph) newObj rest, newG)
+		_ -> (M.insert a newObj rest, newG)
 	where
 		(p, g') = randomR (0.0, 1.0) g
 		(ind, g'') = randomR (0, length objs - 1) g'
 		newObj = (objs !! ind, f p)
-		(rest, newG) = genDeathDropByAlph (tail alph) xs g''
+		(rest, newG) = genDeathDropByAlph as xs g''
 
 sTACKABLE :: [Object]
 sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES

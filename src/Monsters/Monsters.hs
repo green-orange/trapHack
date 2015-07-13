@@ -20,7 +20,8 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 	ai = AI ai',
 	parts = zipWith ($) partGens [0..],
 	idM = id',
-	name = monNames !! id',
+	name = if id' >= 0 && id' < length monNames then monNames !! id'
+		else error $ msgWE "getMonster",
 	stddmg = stddmg',
 	inv = newInv,
 	slowness = slow',

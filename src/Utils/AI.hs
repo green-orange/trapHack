@@ -7,9 +7,10 @@ import Data.Define
 import Utils.Changes
 import Utils.Items
 import Items.Items
+import IO.Texts
 
 import qualified Data.Map as M
-import Data.Maybe (isJust, fromJust)
+import Data.Maybe
 import System.Random (randomR)
 
 needToBeHealedM :: Monster -> Bool
@@ -65,7 +66,8 @@ zapAI :: World -> Char
 zapAI world = fst $ M.findMin $ M.filter (isAttackWand . fst) $ inv $ getFirst world
 
 missileAI :: World -> Char
-missileAI world = head $ filter (isValidMissile mon) alphabet where
+missileAI world = fromMaybe (error $ msgWE "missileAI") 
+	$ listToMaybe $ filter (isValidMissile mon) alphabet where
 	mon = getFirst world
 
 safeMinFst :: (Ord k) => M.Map k a -> Maybe k

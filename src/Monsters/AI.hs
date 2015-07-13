@@ -113,11 +113,11 @@ fireAI f xPlayer yPlayer p w =
 
 bindSomethingAI :: Slot -> Int -> (World -> Maybe Char) -> AIfunc -> AIfunc
 bindSomethingAI sl knd getter f x y p w = 
-	if null emptyParts
-	then f x y p w
-	else case getter w of
-		Nothing -> f x y p w
-		Just c -> bindMon sl c (fst $ head emptyParts) w
+	case emptyParts of
+		[] -> f x y p w
+		(part, _):_ -> case getter w of
+			Nothing -> f x y p w
+			Just c -> bindMon sl c part w
 	where
 		mon = getFirst w
 		emptyParts = filter ((\o -> kind o == knd) . snd) 

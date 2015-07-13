@@ -19,9 +19,10 @@ dropDigits = dropWhile (`elem` ['0'..'9'])
 separate :: Char -> String -> [String]
 separate _ [] = [""]
 separate c s = first : 
-	if null rest
-	then []
-	else separate c $ tail rest where
+	case rest of
+		[] -> []
+		_:rs -> separate c rs
+	where
 		first = takeWhile (c /=) s
 		rest = dropWhile (c /=) s
 
@@ -32,17 +33,16 @@ myReadByCoords :: Read a => String -> ((Int, Int), a)
 myReadByCoords str = ((read x, read y), read obj) where
 	cont = init $ tail $ tail str
 	x = takeDigits cont
-	rest = tail $ dropDigits cont
+	_:rest = dropDigits cont
 	y = takeDigits rest
-	obj = tail $ tail $ dropDigits rest
+	_:_:obj = dropDigits rest
 
 myReadListCoords :: Read a => Char -> String -> [((Int, Int), a)]
 myReadListCoords c str = map myReadByCoords $ separate c str
 
 myReadInvElem :: Read a => String -> (Char, (a, Int))
 myReadInvElem str = (c, (read obj, read n)) where
-	c = str !! 2
-	cont = drop 6 $ init $ init str
+	_:_:c:_:_:_:cont = init $ init str
 	n = reverse $ takeDigits $ reverse cont
 	obj = reverse $ tail $ dropDigits $ reverse cont
 
@@ -52,11 +52,11 @@ myReadInv c str = map myReadInvElem $ separate c str
 
 myReadItem :: Read a => String -> (Int, Int, a, Int)
 myReadItem str = (read x, read y, read obj, read z) where
-	cont = tail $ init str
+	_:cont = init str
 	x = takeDigits cont
-	rest = tail $ dropDigits cont
+	_:rest = dropDigits cont
 	y = takeDigits rest
-	rest' = tail $ dropDigits rest
+	_:rest' = dropDigits rest
 	z = reverse $ takeDigits $ reverse rest'
 	obj = reverse $ tail $ dropDigits $ reverse rest'
 

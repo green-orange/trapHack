@@ -174,10 +174,11 @@ enchant n obj = obj {enchantment = enchantment obj + n}
 {- Other -}
 
 changeElem :: Int -> a -> [a] -> [a]
-changeElem x t ts
-	| x == 0 = t : tail ts
-	| x > 0 = head ts : changeElem (x - 1) t (tail ts)
-	| otherwise = error "negative index in changeElem function"
+changeElem _ _ [] = error $ msgWE "changeElem"
+changeElem x t (a:as)
+	| x == 0 = t : as
+	| x > 0 = a : changeElem (x - 1) t as
+	| otherwise = error $ msgWE "changeElem"
 
 addItem' :: (Int, Int, Object, Int) -> [(Int, Int, Object, Int)] -> [(Int, Int, Object, Int)]
 addItem' i@(x, y, obj, n) list' = 

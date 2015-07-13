@@ -101,10 +101,10 @@ addInv (obj, cnt) list' =
 	where
 		addInvWithAlphabet :: String -> Inv -> (Object, Int) -> Maybe Inv
 		addInvWithAlphabet [] _ _ = Nothing
-		addInvWithAlphabet alph inv' (obj', cnt') = 
-			if M.member (head alph) list'
-			then addInvWithAlphabet (tail alph) inv' (obj', cnt')
-			else Just $ M.insert (head alph) (obj', cnt') inv' where
+		addInvWithAlphabet (a:as) inv' (obj', cnt') = 
+			if M.member a list'
+			then addInvWithAlphabet as inv' (obj', cnt')
+			else Just $ M.insert a (obj', cnt') inv' where
 		isHere = M.foldr (||) False $ M.map (\(obj',_) -> obj' == obj) list'
 		change (o, n) = (o, if o == obj then n + cnt else n)
 
