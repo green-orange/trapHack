@@ -10,6 +10,7 @@ import Utils.Stuff
 import Utils.HealDamage
 import Items.Stuff
 import Monsters.Wave
+import Monsters.Parts
 import IO.Colors
 import IO.Texts
 
@@ -75,7 +76,7 @@ cycleWorld w = tempFirst $ actTrapFirst $ regFirst $ cleanFirst
 		newWorld = tickFirst w
 
 cleanFirst :: World -> World
-cleanFirst w = changeMon (cleanParts $ getFirst w) w
+cleanFirst w = changeMon (cleanParts $ getFirst w) $ dropPartialCorpse w
 
 remFirst :: World -> World
 remFirst world = updateFirst $ changeMons 
@@ -155,4 +156,19 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 callUpon :: World -> World
 callUpon w = changeAction Move $ addMessage (msgLanding (wave w) , rED) 
 	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
+
+dropPartialCorpse :: World -> World
+dropPartialCorpse w = changeGen g' $ (foldr (.) id 
+	$ map (addItem . wrap . corpseFromPart mon) $ filter (not . aliveP) 
+	$ parts mon) w where
+		mindx = if xFirst w == 0 then 0 else -1
+		maxdx = if xFirst w == maxX then 0 else 1
+		mindy = if yFirst w == 0 then 0 else -1
+		maxdy = if yFirst w == maxY then 0 else 1
+		(dx, g ) = randomR (mindx, maxdx) $ stdgen w
+		(dy, g') = randomR (mindy, maxdy) g
+		wrap obj = (xFirst w + dx, yFirst w + dy, obj, 1)
+		mon = getFirst w
+		
+	
 
