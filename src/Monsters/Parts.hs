@@ -28,12 +28,12 @@ isUpperLimb p = (kind p == aRM) || (kind p == wING) ||
 	(kind p == pAW) || (kind p == mAIN)
 
 getPart :: Int -> Int -> Int -> Int -> Part
-getPart knd regVel' hp' id' = Part {
+getPart knd regRate' hp' id' = Part {
 	hp = hp',
 	maxhp = hp',
 	kind = knd,
 	idP = id',
-	regVel = regVel',
+	regRate = regRate',
 	objectKeys = replicate sLOTS ' '
 }
 

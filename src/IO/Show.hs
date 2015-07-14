@@ -251,7 +251,7 @@ drawPartFull isFull x y mon part = do
 	where
 		str1 = partToStr (kind part) ++ ":"
 		str2 = show (hp part) ++ "/" ++ show (maxhp part) ++
-			" rv: " ++ show (regVel part)
+			" rr: " ++ show (regRate part)
 		(strW, strA, strJ) =
 			if isFull
 			then (case objsW of

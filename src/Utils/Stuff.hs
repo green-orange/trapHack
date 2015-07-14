@@ -33,7 +33,7 @@ upgrade :: Int -> Part -> Part
 upgrade n part = part {
 	hp = hp part + n,
 	maxhp = maxhp part + n,
-	regVel = regVel part + 1
+	regRate = regRate part + 1
 }
 
 upgradeParts, upgradePartById :: Int -> Int -> Monster -> Monster
@@ -44,20 +44,20 @@ upgradePartById = doSmthPartById upgrade
 upgradeAll = doSmthAll upgrade
 
 addRandomPart :: (Monster, StdGen) -> (Monster, StdGen)
-addRandomPart (m, g) = (addPart m knd hp' regVel', g3) where
+addRandomPart (m, g) = (addPart m knd hp' regRate', g3) where
 	(knd, g1) = randomR (0, kINDS) g
 	(p, g2) = randomR (0.0, 1.0) g1
 	hp' = 5 * inverseSquareRandom p
-	(regVel', g3) = randomR (1, 4) g2
+	(regRate', g3) = randomR (1, 4) g2
 
 addPart :: Monster -> Int -> Int -> Int -> Monster
-addPart mon knd hp' regVel' = changeParts (newPart : parts mon) mon where
+addPart mon knd hp' regRate' = changeParts (newPart : parts mon) mon where
 	newPart = Part {
 		hp = hp',
 		maxhp = hp',
 		kind = knd,
 		idP = newID,
-		regVel = regVel',
+		regRate = regRate',
 		objectKeys = replicate sLOTS ' '
 	}
 	newID = (+) 1 $ maximum $ map idP $ parts mon
@@ -107,7 +107,7 @@ speed :: Int -> Monster -> Monster
 speed x m = m {slowness = slowness m - x}
 
 radiation :: Int -> Monster -> Monster
-radiation sp m = m {parts = map (\p -> p {regVel = regVel p - sp}) $ parts m}
+radiation sp m = m {parts = map (\p -> p {regRate = regRate p - sp}) $ parts m}
 
 capture :: Monster -> Monster
 capture mon = if canWalk mon then mon {ai = You} else mon

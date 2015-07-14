@@ -55,7 +55,7 @@ hasUpperLimb :: Monster -> Bool
 hasUpperLimb mon = any isUpperLimb $ parts mon
 	
 regPart :: Part -> Part
-regPart part = heal (regVel part) part
+regPart part = heal (regRate part) part
 
 regMonster :: Monster -> Monster
 regMonster mon = changeParts (map regPart $ parts mon) mon

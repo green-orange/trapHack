@@ -39,7 +39,7 @@ data Part = Part {
 	maxhp :: Int,
 	kind :: Int,
 	idP :: Int,
-	regVel :: Int,
+	regRate :: Int,
 	objectKeys :: String
 } deriving (Show, Read)
 
