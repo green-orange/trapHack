@@ -123,7 +123,8 @@ corpseFromMon mon = Food {title = title', nutrition = nutr,
 	
 corpseFromPart :: Monster -> Part -> Object
 corpseFromPart mon part = Food {title = title', nutrition = nutr, 
-	weight' = wei, rotRate = 1, rotTime = 500} where
+	weight' = wei, rotRate = 1, 
+	rotTime = if kind part == mAIN then 0 else 500} where
 	title' = partToStr (kind part) ++ " of the " ++ name mon
 	wei = 5 * maxhp part
 	nutr = maxhp part `div` 2

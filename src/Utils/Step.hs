@@ -160,9 +160,8 @@ callUpon w = changeAction Move $ addMessage (msgLanding (wave w) , rED)
 	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
 
 dropPartialCorpse :: World -> World
-dropPartialCorpse w = changeGen g' $ (foldr (.) id 
-	$ map (addItem . wrap . corpseFromPart mon) $ filter (not . aliveP) 
-	$ parts mon) w where
+dropPartialCorpse w = changeGen g' $ (foldr ((.) . addItem . wrap . 
+	corpseFromPart mon) id $ filter (not . aliveP) $ parts mon) w where
 		mindx = if xFirst w == 0 then 0 else -1
 		maxdx = if xFirst w == maxX then 0 else 1
 		mindy = if yFirst w == 0 then 0 else -1

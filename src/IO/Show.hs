@@ -89,7 +89,7 @@ showMessages :: Int -> [(String, Int)] -> IO ()
 showMessages width msgs = 
 	unless (sum (map ((1+) . length . fst) msgs) < shiftDown * width - 2)
 	(mvWAddStr stdScr (shiftDown - 1) 0 msgMore) >>
-	foldl (>>=) (return (0, 0)) (map showMessage msgs) >> return ()
+	foldr ((=<<) . showMessage) (return (0, 0)) msgs >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
 showMessage (msg, color') (x, y) = do
@@ -143,7 +143,7 @@ drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr 0 0 msgHeaderInv
-	foldl (>>) (return ()) $ map showInv stringsToShow where
+	mapM_ showInv stringsToShow where
 		items' = M.toList $ inv $ getFirst world
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
 			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj ++
@@ -155,7 +155,7 @@ drawEquipMenu :: World -> Int -> IO ()
 drawEquipMenu world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr 0 0 msgHeaderEquip
-	foldl (>>) (return ()) $ map showInv stringsToShow where
+	mapM_ showInv stringsToShow where
 		items' = filter (\(c, (obj, _)) -> (binds obj knd == Just (slot world)) 
 			&& not (isExistingBindingFirst world c)) $ M.toList $ inv $ getFirst world
 		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
@@ -168,7 +168,7 @@ drawPickOrDrop :: Bool -> World -> Int -> IO ()
 drawPickOrDrop isPick world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr 0 0 $ msgHeaderPickDrop word
-	foldl (>>) (return ()) $ map (showItemsPD h $ chars world) toShow where
+	mapM_ (showItemsPD h $ chars world) toShow where
 		xNow = xFirst world
 		yNow = yFirst world
 		toShow =
@@ -185,7 +185,7 @@ drawPartChange world _ = do
 	mvWAddStr stdScr 0 shiftW "Weapon"
 	mvWAddStr stdScr 0 shiftA "Armor"
 	mvWAddStr stdScr 0 shiftJ "Jewelry"
-	foldl (>>) (return ()) $ zipWith3 ($) (map (drawPartFull True 1) [1..])
+	sequence_ $ zipWith3 ($) (map (drawPartFull True 1) [1..])
 		(repeat $ getFirst world) $ parts $ getFirst world
 	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
 	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
@@ -195,10 +195,10 @@ drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	(_, w) <- scrSize
 	showMessages w $ message world
-	foldl (>>) (return ()) $ map (drawCell world) $ A.assocs $ worldmap world
-	foldl (>>) (return ()) $ map (drawItem world) $ items world
-	foldl (>>) (return ()) $ map (drawUnit world) $ M.toList $ units world
-	foldl (>>) (return ()) $ zipWith3 ($) (map (drawPart False) [0..])
+	mapM_ (drawCell world) $ A.assocs $ worldmap world
+	mapM_ (drawItem world) $ items world
+	mapM_ (drawUnit world) $ M.toList $ units world
+	sequence_ $ zipWith3 ($) (map (drawPart False) [0..])
 		(repeat mon) $ sortBy (on compare kind) $ parts mon
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
@@ -211,9 +211,9 @@ drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr (shiftDown + 3) shiftAttrs
 			$ "Next wave: " ++ show (wave world)
-	foldl (>>) (return ()) $ map (showElemRes world) (getAll :: [Elem])
-	foldl (>>) (return ()) $ map (showIntr world) (getAll :: [Intr])
-	foldl (>>) (return ()) $ map (showTemp world) (getAll :: [Temp]) where
+	mapM_ (showElemRes world) (getAll :: [Elem])
+	mapM_ (showIntr world) (getAll :: [Intr])
+	mapM_ (showTemp world) (getAll :: [Temp]) where
 		mon = getFirst world
 
 draw :: World -> IO ()

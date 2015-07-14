@@ -13,7 +13,7 @@ import IO.Read (separate)
 import Init
 
 import UI.HSCurses.Curses
-import Control.Monad (unless)
+import Control.Monad (unless, liftM)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
 #ifndef mingw32_HOST_OS
@@ -28,8 +28,8 @@ catchAll :: IO a -> (SomeException -> IO a) -> IO a
 catchAll = catch
 
 getReverseLog :: IO [(String, Int)]
-getReverseLog = readFile logName >>=
-	return . map (flip (,) dEFAULT) . tail . reverse . separate '\n'
+getReverseLog = liftM (map (flip (,) dEFAULT) . tail . reverse 
+	. separate '\n') $ readFile logName 
 
 loop :: World -> IO String
 loop world =

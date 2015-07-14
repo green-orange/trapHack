@@ -91,7 +91,7 @@ dropManyFirst world =
 			$ S.toList $ chars world
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
-addInvs startInv items' = (foldl (>=>) return $ map addInv items') startInv
+addInvs startInv items' = (foldr (>=>) return $ map addInv items') startInv
 
 addInv :: (Object, Int) -> Inv -> Maybe Inv
 addInv (obj, cnt) list' =

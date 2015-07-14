@@ -21,7 +21,7 @@ needToBeHealed :: Part -> Bool
 needToBeHealed part = 2 * hp part < maxhp part
 
 canBeHealed :: Monster -> Bool
-canBeHealed mon = M.foldl (||) False $ M.map (isHealing . fst) $ inv mon
+canBeHealed mon = M.foldr (||) False $ M.map (isHealing . fst) $ inv mon
 
 isHealing :: Object -> Bool
 isHealing obj = title obj == "potion of healing"
@@ -30,13 +30,13 @@ healingAI :: World -> Char
 healingAI w = fst $ M.findMin $ M.filter (isHealing . fst) $ inv $ getFirst w
 
 canZapToAttack :: Monster -> Bool
-canZapToAttack mon = M.foldl (||) False $ M.map (isAttackWand . fst) $ inv mon
+canZapToAttack mon = M.foldr (||) False $ M.map (isAttackWand . fst) $ inv mon
 
 canFire :: Monster -> Bool
 canFire mon = any (isValidMissile mon) alphabet
 
 canEat :: Monster -> Bool
-canEat mon = M.foldl (||) False $ M.map (isFood . fst) $ inv mon
+canEat mon = M.foldr (||) False $ M.map (isFood . fst) $ inv mon
 
 needEat :: Monster -> Bool
 needEat mon = temp mon !! fromEnum Nutrition <= Just 5
@@ -55,7 +55,7 @@ isValidMissile mon c =
 		intended = filter (\w -> launcher obj == category w) launchers
 
 haveLauncher :: Monster -> Bool
-haveLauncher mon = M.foldl (||) False $ M.map (isLauncher . fst) $ inv mon
+haveLauncher mon = M.foldr (||) False $ M.map (isLauncher . fst) $ inv mon
 
 isAttackWand :: Object -> Bool
 isAttackWand obj = isWand obj && charge obj > 0 && 
