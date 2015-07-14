@@ -324,5 +324,7 @@ foodRation :: Object
 foodRation = Food {
 	title = "food ration",
 	nutrition = 200,
-	weight' = 20
+	weight' = 20,
+	rotRate = 0,
+	rotTime = 1
 }

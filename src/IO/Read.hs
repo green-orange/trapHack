@@ -65,7 +65,7 @@ myReadItems _ "" = []
 myReadItems c str = map myReadItem $ separate c str
 
 instance Read Object where
-	readsPrec _ str = [(case objClass of
+	readsPrec _ str = [(case arg1 of
 		"Potion" -> pOTIONS !! id'
 		"Wand" -> (uNIQUEwANDS !! id') ench'
 		"Scroll" -> sCROLLS !! id'
@@ -83,18 +83,19 @@ instance Read Object where
 			| bind' == hEAD -> (uNIQUEaMULETS !! id') ench'
 			| bind' == aRM -> (uNIQUErINGS !! id') ench'
 			| otherwise -> error $ "parse error: part: " ++ show bind'
-		"Food" -> Food {title = read idStr, nutrition = read enchStr, 
-			weight' = read bindStr}
-		_ -> error $ "parse error: object: " ++ objClass, "")]
+		"Food" -> Food {title = read arg2, nutrition = read arg3, 
+			weight' = read arg4, rotRate = read arg5, rotTime = read arg6}
+		_ -> error $ "parse error: " ++ str, "")]
 		where
 		parse = separate objSep str
-		objClass : idStr : rest = parse
-		enchStr : rest' = rest
-		bindStr : _ = rest'
+		arg1 : arg2 : rest = parse
+		arg3 : rest' = rest
+		arg4 : rest'' = rest'
+		arg5 : arg6 : _ = rest''
 		id', bind', ench' :: Int
-		id' = read idStr
-		bind' = read bindStr
-		ench' = read enchStr
+		id' = read arg2
+		ench' = read arg3
+		bind' = read arg4
 
 instance Read Monster where
 	readsPrec _ str = [(Monster {

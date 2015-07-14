@@ -122,7 +122,9 @@ data Object =
 	Food {
 		title :: String,
 		nutrition :: Int,
-		weight' :: Int
+		weight' :: Int,
+		rotRate :: Int,
+		rotTime :: Int
 	}
 
 data World = World {
@@ -248,7 +250,8 @@ instance Show Object where
 	show o@(Jewelry {}) = "Jewelry" ++ [objSep] ++ show (idO o) ++ [objSep] 
 		++ show (enchantment o) ++ [objSep] ++ show (bind o)
 	show o@(Food {}) = "Food" ++ [objSep] ++ show (title o) ++ [objSep] 
-		++ show (nutrition o) ++ [objSep] ++ show (weight' o)
+		++ show (nutrition o) ++ [objSep] ++ show (weight' o) ++ [objSep]
+		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) 
 
 worldSep :: Char
 worldSep = '#'

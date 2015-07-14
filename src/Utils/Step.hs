@@ -8,6 +8,7 @@ import Utils.Changes
 import Utils.Monsters
 import Utils.Stuff
 import Utils.HealDamage
+import Utils.Items
 import Items.Stuff
 import Monsters.Wave
 import Monsters.Parts
@@ -16,6 +17,7 @@ import IO.Texts
 
 import System.Random (StdGen, randomR)
 import Data.List (sort)
+import Data.Maybe (mapMaybe)
 import qualified Data.Map as M
 import qualified Data.Array as A
 
@@ -65,7 +67,7 @@ newWaveIf world
 		newWorld = cycleWorld world
 		
 cycleWorld :: World -> World
-cycleWorld w = tempFirst $ actTrapFirst $ regFirst $ cleanFirst 
+cycleWorld w = rotAll $ tempFirst $ actTrapFirst $ regFirst $ cleanFirst 
 	$ changeMons newUnits $ addMessages (msgCleanParts monNew) newWorld where
 		newUnits = (units' newWorld) {
 			xF = x,
@@ -169,6 +171,19 @@ dropPartialCorpse w = changeGen g' $ (foldr (.) id
 		(dy, g') = randomR (mindy, maxdy) g
 		wrap obj = (xFirst w + dx, yFirst w + dy, obj, 1)
 		mon = getFirst w
-		
-	
 
+rotAll :: World -> World
+rotAll w = w {items = newItems, units' = (units' w) {list = newMons}} where
+	newMons = M.map rotInv $ units w
+	newItems = mapMaybe rotItemOnGround $ items w
+	rotItemOnGround arg@(x, y, obj, n)
+		| not $ isFood obj = Just arg
+		| rotRate obj >= rotTime obj = Nothing
+		| otherwise = Just (x, y, obj {rotTime = rotTime obj - rotRate obj}, n)
+
+rotInv :: Monster -> Monster
+rotInv mon = mon {inv = M.mapMaybe rotItem $ inv mon} where
+	rotItem arg@(obj, n)
+		| not $ isFood obj = Just arg
+		| rotRate obj >= rotTime obj = Nothing
+		| otherwise = Just (obj {rotTime = rotTime obj - rotRate obj}, n)
