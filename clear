@@ -1,6 +1,2 @@
 #~/bin/bash
-rm -f src/*.hi
-rm -f src/*.o
-rm -f src/*/*.hi
-rm -f src/*/*.o
-rm -f *~
+rm -rf dist/build/trapHack/trapHack-tmp/*
