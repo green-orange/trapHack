@@ -35,18 +35,14 @@ step world c
 			Drop -> doIfCorrect $ dropFirst c world False
 			Bind -> doIfCorrect $ bindFirst c world
 			Eat -> doIfCorrect $ eatFirst c world
-			Zap1 ->
-				Left $ addDefaultMessage msgAskDir $ changeAction Zap2 
-				$ world {prevAction = c}
+			Zap1 -> Left $ addDefaultMessage msgAskDir 
+				$ changeAction Zap2 $ world {prevAction = c}
 			SetTrap ->
 				if c == '-'
-				then
-					doIfCorrect $ untrapFirst world 
-				else
-					doIfCorrect $ trapFirst c world
-			Fire1 ->
-				Left $ addDefaultMessage msgAskDir $ changeAction Fire2
-				$ world {prevAction = c}
+				then doIfCorrect $ untrapFirst world 
+				else doIfCorrect $ trapFirst c world
+			Fire1 -> Left $ addDefaultMessage msgAskDir 
+				$ changeAction Fire2 $ world {prevAction = c}
 			Inventory ->
 				if isSpace c
 				then Left $ changeAction Move world
@@ -77,6 +73,12 @@ step world c
 				if c == 'y' || c == 'Y'
 				then Left $ callUpon world
 				else Left $ changeAction Move world
+			Split1 -> Left $ addDefaultMessage msgPutSize 
+				$ changeAction Split2 $ world {prevAction = c, numToSplit = 0}
+			Split2 -> 
+				if isSpace c
+				then Left $ splitFirst world {action = Move}
+				else Left $ addNumber c world
 			Info ->
 				if c == '.'
 				then Left $ getInfo world
@@ -130,6 +132,7 @@ justStep world c = case dir c of
 		'd' -> actionByKey "drop" (const True) Drop world
 		'f' -> actionByKey "fire" isMissile Fire1 world
 		'e' -> actionByKey "eat" isFood Eat world
+		's' -> actionByKey "split" (const True) Split1 world
 		't' ->
 			Left $ addDefaultMessage (msgAsk ++ "set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 

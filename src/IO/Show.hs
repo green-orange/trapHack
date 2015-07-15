@@ -216,6 +216,11 @@ drawJustWorld world _ = do
 	mapM_ (showTemp world) (getAll :: [Temp]) where
 		mon = getFirst world
 
+drawSplit :: World -> Int -> IO ()
+drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
+	mvWAddStr stdScr 0 0 (show $ numToSplit w) >>
+	drawJustWorld w lol
+
 draw :: World -> IO ()
 draw world = do
 	(h, _) <- scrSize
@@ -225,6 +230,7 @@ draw world = do
 		Pick -> drawPickOrDrop True
 		DropMany -> drawPickOrDrop False
 		Equip -> drawPartChange
+		Split2 -> drawSplit
 		_ -> drawJustWorld) world h
 
 redraw :: World -> IO Char

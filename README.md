@@ -24,4 +24,4 @@ C - **c**all upon the new wave
 ? - get info about monster or item  
 S - **s**ave the game  
 P - show **p**revious messages  
-
+s - **s**plit pile of items   

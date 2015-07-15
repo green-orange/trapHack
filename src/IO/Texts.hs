@@ -74,7 +74,7 @@ attackName Cold = "freeze"
 msgSmallScr, msgNECell, msgUnseenCell, msgCantSpawnGC, msgIncStep,
 	msgNoItem, msgNotDir, msgNoCharge, msgNotTrap, msgTrapOverTrap, 
 	msgCantUntrap, msgNoWeapAppMiss, msgDropEquipped, msgFullInv, 
-	msgWrongBind, msgRepeatedBind, msgUnkAct :: String
+	msgWrongBind, msgRepeatedBind, msgUnkAct, msgNaN, msgNotEnough :: String
 msgNeedArms, msgDontKnow :: String -> String
 
 msgSmallScr = "Your screen is too small."
@@ -96,10 +96,13 @@ msgFullInv = "You knapsack is full!"
 msgWrongBind = "This objects doesn't intended to this part!"
 msgRepeatedBind = "This item is already bound to some part!"
 msgUnkAct = "Unknown action: "
+msgNaN = "This is not a number!"
+msgNotEnough = "You don't have enough items!"
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 
-	msgConfirmCall, msgSaved, msgAskLoad, msgLoadErr, msgGameErr :: String
+	msgConfirmCall, msgSaved, msgAskLoad, msgLoadErr, msgGameErr, 
+	msgPutSize :: String
 msgWelcome :: String -> String
 
 msgWelcome username = "Welcome to the trapHack, " ++ username ++ "."
@@ -115,6 +118,7 @@ msgAskLoad = "Do you want to load saved game? (y/N)"
 msgLoadErr = "Loading error! File is corrupted."
 msgGameErr = "Game error! If you've recently loaded the game, " ++
 	"maybe the file was damaged. Otherwise, report the bug to the developer. "
+msgPutSize = "Enter the size of one pile."
 
 {-Headers-}
 msgHeaderInv, msgHeaderEquip, msgHeaderBind :: String

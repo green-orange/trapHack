@@ -15,6 +15,7 @@ import Control.Monad ((>=>))
 import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Maybe (isNothing, fromJust)
+import Data.Char (isDigit)
 
 dropFirst :: Char -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
@@ -91,7 +92,7 @@ dropManyFirst world =
 			$ S.toList $ chars world
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
-addInvs startInv items' = (foldr (>=>) return $ map addInv items') startInv
+addInvs startInv items' = foldr ((>=>) . addInv) return items' startInv
 
 addInv :: (Object, Int) -> Inv -> Maybe Inv
 addInv (obj, cnt) list' =
@@ -99,14 +100,15 @@ addInv (obj, cnt) list' =
 	then Just $ M.map change list'
 	else addInvWithAlphabet alphabet list' (obj,cnt)
 	where
-		addInvWithAlphabet :: String -> Inv -> (Object, Int) -> Maybe Inv
-		addInvWithAlphabet [] _ _ = Nothing
-		addInvWithAlphabet (a:as) inv' (obj', cnt') = 
-			if M.member a list'
-			then addInvWithAlphabet as inv' (obj', cnt')
-			else Just $ M.insert a (obj', cnt') inv' where
 		isHere = M.foldr (||) False $ M.map (\(obj',_) -> obj' == obj) list'
 		change (o, n) = (o, if o == obj then n + cnt else n)
+
+addInvWithAlphabet :: String -> Inv -> (Object, Int) -> Maybe Inv
+addInvWithAlphabet [] _ _ = Nothing
+addInvWithAlphabet (a:as) inv' (obj', cnt') = 
+	if M.member a inv'
+	then addInvWithAlphabet as inv' (obj', cnt')
+	else Just $ M.insert a (obj', cnt') inv'
 
 addIndices :: (a -> Bool) -> [a] -> [(a, Int)]
 addIndices = addIndices' 0 where
@@ -170,7 +172,7 @@ bindFirst c w
 		++ "to use " ++ title obj ++ "!"
 	
 bindMon :: Slot -> Char -> Int -> World -> World
-bindMon sl c ind w = fst $ bindFirst (c) $ w {shift = ind, slot = sl}
+bindMon sl c ind w = fst $ bindFirst c $ w {shift = ind, slot = sl}
 
 binds :: Object -> Int -> Maybe Slot
 binds obj knd
@@ -180,3 +182,24 @@ binds obj knd
 	| isJewelry obj && knd == bind obj = Just JewelrySlot
 	| otherwise = Nothing
 
+addNumber :: Char -> World -> World
+addNumber c w = 
+	if isDigit c
+	then w {numToSplit = numToSplit w * 10 + fromEnum c - fromEnum '0'}
+	else addDefaultMessage msgNaN w
+
+splitFirst :: World -> World
+splitFirst w
+	| isNothing maybeObj = maybeAddMessage msgNoItem w
+	| M.size (inv mon) == length alphabet = maybeAddMessage msgFullInv w
+	| pile > n = maybeAddMessage msgNotEnough w
+	| pile == n || pile == 0 = w
+	| otherwise = changeMon (mon {inv = newInv}) w
+	where
+	mon = getFirst w
+	pile = numToSplit w
+	maybeObj = M.lookup (prevAction w) $ inv mon
+	Just (obj, n) = maybeObj
+	Just newInv = addInvWithAlphabet alphabet (M.insert (prevAction w) 
+		(obj, n - pile) $ inv mon) (obj, pile)
+	

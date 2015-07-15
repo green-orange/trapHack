@@ -48,7 +48,8 @@ initWorld username gen = World {
 	shift = 0,
 	slot = toEnum 0,
 	xInfo = 0,
-	yInfo = 0
+	yInfo = 0,
+	numToSplit = 0
 }
 
 getPlayer :: Monster

@@ -147,7 +147,8 @@ instance Read World where
 		shift = 0,
 		slot = toEnum 0,
 		xInfo = 0,
-		yInfo = 0
+		yInfo = 0,
+		numToSplit = 0
 	}, "")] where
 		parse = separate worldSep str
 		[units'', items', stdgen', wave', worldmap', stepsBeforeWave'] = parse

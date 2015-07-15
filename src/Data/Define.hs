@@ -142,12 +142,13 @@ data World = World {
 	shift :: Int,
 	slot :: Slot,
 	xInfo :: Int,
-	yInfo :: Int
+	yInfo :: Int,
+	numToSplit :: Int
 }
 
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
-	Info | Save | Previous | AfterSpace deriving (Eq)
+	Info | Save | Previous | AfterSpace | Split1 | Split2 deriving (Eq)
 
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 
