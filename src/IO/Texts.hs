@@ -74,7 +74,8 @@ attackName Cold = "freeze"
 msgSmallScr, msgNECell, msgUnseenCell, msgCantSpawnGC, msgIncStep,
 	msgNoItem, msgNotDir, msgNoCharge, msgNotTrap, msgTrapOverTrap, 
 	msgCantUntrap, msgNoWeapAppMiss, msgDropEquipped, msgFullInv, 
-	msgWrongBind, msgRepeatedBind, msgUnkAct, msgNaN, msgNotEnough :: String
+	msgWrongBind, msgRepeatedBind, msgUnkAct, msgNaN, msgNotEnough,
+	msgUnkRep :: String
 msgNeedArms, msgDontKnow :: String -> String
 
 msgSmallScr = "Your screen is too small."
@@ -98,6 +99,7 @@ msgRepeatedBind = "This item is already bound to some part!"
 msgUnkAct = "Unknown action: "
 msgNaN = "This is not a number!"
 msgNotEnough = "You don't have enough items!"
+msgUnkRep = "Unknown recipe!"
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 
@@ -121,7 +123,7 @@ msgGameErr = "Game error! If you've recently loaded the game, " ++
 msgPutSize = "Enter the size of one pile."
 
 {-Headers-}
-msgHeaderInv, msgHeaderEquip, msgHeaderBind :: String
+msgHeaderInv, msgHeaderEquip, msgHeaderBind, msgHeaderCraft :: String
 msgHeaderPickDrop :: String -> String
 
 msgHeaderInv = "Your inventory: (press Enter or Space to close it)"
@@ -129,6 +131,7 @@ msgHeaderEquip = "Change an item or press - to change nothing"
 msgHeaderPickDrop word = "What do you want to " ++ word 
 	++ " up? (press Enter to finish)"
 msgHeaderBind = "Change your part to bind."
+msgHeaderCraft = "Change a recipe."
 
 {-Exit messages-}
 msgQuitOnStart :: String
@@ -158,6 +161,7 @@ msgSafety, msgTrollDeath :: String
 msgLanding :: Int -> String
 msgLevelUp, msgWE :: String -> String
 msgTeleport :: String -> String
+msgCraft :: String -> String -> String
 
 msgLanding n = "Squad #" ++ show n ++ " landed around you!"
 msgSafety = "You suddenly find yourself in a new world!"
@@ -169,3 +173,7 @@ msgLevelUp t =
 msgWE fun = "weird error in function '" ++ fun ++ "'"
 msgTeleport "You" = "You teleported to another location!"
 msgTeleport str = str ++ " was teleported!"
+msgCraft n t = 
+	if n == "You"
+	then "You successfully craft " ++ t ++ "!"
+	else n ++ " successfully crafts " ++ t ++ "!"

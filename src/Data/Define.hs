@@ -154,7 +154,7 @@ data ResourceType = Tree deriving (Eq, Show, Read)
 
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
-	Info | Save | Previous | AfterSpace | Split1 | Split2 deriving (Eq)
+	Info | Save | Previous | AfterSpace | Split1 | Split2 | Craft deriving (Eq)
 
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 
@@ -186,6 +186,7 @@ data Elem = Fire | Poison' | Cold deriving (Enum, Bounded)
 type Inv = M.Map Char (Object, Int)
 type StdDmg = World -> (Maybe Int, StdGen)
 type InvGen = StdGen -> (Inv, StdGen)
+type Recipe = ([(ResourceType, Int)], Object)
 
 instance Eq Object where
 	(Potion t _ _) == (Potion t' _ _) = t == t'

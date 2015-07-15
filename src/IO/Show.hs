@@ -7,6 +7,7 @@ import Data.Define
 import Utils.Items
 import Utils.Monsters
 import Items.ItemsOverall
+import Items.Craft
 import Monsters.Parts
 import IO.Messages
 import IO.Colors
@@ -18,7 +19,7 @@ import qualified Data.Map as M
 import Data.List (sortBy)
 import Data.Function (on)
 import qualified Data.Array as A
-import Control.Monad (unless, when)
+import Control.Monad (unless, when, zipWithM_)
 
 shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem :: Int
 shiftRightHP = 2 * xSight + 5
@@ -139,6 +140,12 @@ showTemp world t =
 	str = show t ++ " (" ++ show rez ++ ")"
 	clr = colorFromTemp t rez
 
+showRecipe :: Recipe -> Int -> IO ()
+showRecipe (ress, rez) y = mvWAddStr stdScr y 0 str where
+	str = toEnum (fromEnum 'a' + y - 1) : " - " 
+		++ concatMap resToStr ress ++ "=> " ++ title rez
+	resToStr (r, cnt) = show cnt ++ " * " ++ show r ++ " "
+
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -216,6 +223,11 @@ drawJustWorld world _ = do
 	mapM_ (showTemp world) (getAll :: [Temp]) where
 		mon = getFirst world
 
+drawCraft :: World -> Int -> IO ()
+drawCraft _ _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
+	mvWAddStr stdScr 0 0 msgHeaderCraft >>
+	zipWithM_ showRecipe recipes [1..]
+
 drawSplit :: World -> Int -> IO ()
 drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 	mvWAddStr stdScr 0 0 (show $ numToSplit w) >>
@@ -231,6 +243,7 @@ draw world = do
 		DropMany -> drawPickOrDrop False
 		Equip -> drawPartChange
 		Split2 -> drawSplit
+		Craft -> drawCraft
 		_ -> drawJustWorld) world h
 
 redraw :: World -> IO Char

@@ -42,6 +42,10 @@ isJewelry _ = False
 isFood :: Object -> Bool
 isFood (Food {}) = True
 isFood _ = False
+
+isResource :: Object -> Bool
+isResource (Resource {}) = True
+isResource _ = False
 	
 objdmg :: Object -> StdDmg
 objdmg obj w = (fmap (+ enchantment obj) n, g) where

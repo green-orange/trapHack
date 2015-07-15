@@ -3,10 +3,11 @@ module Init where
 import Data.Const
 import Data.Define
 import Utils.Monsters
+--import Utils.Items
+--import Items.Stuff
 import Monsters.Parts
 import IO.Colors
 import IO.Texts
---import Items.Stuff
 
 import System.Random (StdGen)
 import qualified Data.Set as S
@@ -64,13 +65,13 @@ getPlayer = Monster {
 		 getArm  2 20]
 		 [0..],
 	name = "You",
-	stddmg = ((1,10), 0.2),
+	stddmg = ((1,10), 0.2), -- avg 4.4
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
 	res = map (const 0) (getAll :: [Elem]),
 	intr = map (const 0) (getAll :: [Intr]),
-	temp = startTemps 500,
+	temp = startTemps 50,
 	idM = 0,
 	xp = 1
 }

@@ -201,10 +201,10 @@ bow = getLauncher "bow" 30 2 "bow" 1
 
 longbow = getLauncher "longbow" 40 3 "bow" 2
 
-dagger, shortsword, sword, crysknife :: Object
+dagger, shortsword, sword, crysknife, woodenSword :: Object
 
 uNIQUEwEAPONS :: [Object]
-uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife]
+uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife, woodenSword]
 wEAPONS :: [Object]
 wEAPONS = 
 	replicate 4 dagger ++
@@ -215,13 +215,15 @@ getWeapon :: String -> Int -> Int -> StdDmg -> Object
 getWeapon t w id' o = Weapon {title = t, objdmg' = o, enchantment = 0, 
 	weight' = w, idO = id'}
 
-dagger = getWeapon "dagger" 10 0 $ dices (1,12) 0.0 -- avg = 6.5
+dagger = getWeapon "dagger" 10 0 $ dices (1,12) 0.0           -- avg = 6.5
 
-shortsword = getWeapon "shortsword" 30 1 $ dices (2,8) 0.1 -- avg = 8.1
+shortsword = getWeapon "shortsword" 30 1 $ dices (2,8) 0.1    -- avg = 8.1
 
-sword = getWeapon "sword" 40 2 $ dices (2,10) 0.1 -- avg = 9.9
+sword = getWeapon "sword" 40 2 $ dices (2,10) 0.1             -- avg = 9.9
 
-crysknife = getWeapon "crysknife" 20 3 $ dices (5,5) 0.0-- avg = 15
+crysknife = getWeapon "crysknife" 20 3 $ dices (5,5) 0.0      -- avg = 15
+
+woodenSword = getWeapon "wooden sword" 20 4 $ dices (2,7) 0.3 -- avg = 5.6
 
 uNIQUEaRMOR, uNIQUEhELMS, uNIQUEgLOVES, uNIQUEbOOTS :: [Object]
 aRMOR, bODYaRMOR, hELMETS, gLOVES, bOOTS :: [Object]

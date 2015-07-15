@@ -9,6 +9,7 @@ import Utils.Step
 import Utils.Items
 import Items.Items
 import Items.ItemsOverall
+import Items.Craft
 import Monsters.Move
 import Monsters.AI (runAI)
 import Monsters.AIrepr
@@ -35,6 +36,7 @@ step world c
 			Drop -> doIfCorrect $ dropFirst c world False
 			Bind -> doIfCorrect $ bindFirst c world
 			Eat -> doIfCorrect $ eatFirst c world
+			Craft -> doIfCorrect $ craftByChar c world
 			Zap1 -> Left $ addDefaultMessage msgAskDir 
 				$ changeAction Zap2 $ world {prevAction = c}
 			SetTrap ->
@@ -122,6 +124,7 @@ justStep world c = case dir c of
 		',' -> Left $ changeAction Pick world
 		'S' -> Left $ changeAction Save world
 		'P' -> Left $ changeAction Previous world
+		'&' -> Left $ changeAction Craft world
 		'Q' -> 
 			if wave world == 1
 			then Right msgQuitOnStart
