@@ -9,7 +9,7 @@ monNames :: [String]
 monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
 	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
 	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
-	"Golem", "Dummy", "Rock", "Forgotten beast"]
+	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree"]
 
 listSepMon, listSepW, listSepUn :: Char
 listSepMon = '&'
@@ -125,6 +125,10 @@ data Object =
 		weight' :: Int,
 		rotRate :: Int,
 		rotTime :: Int
+	} |
+	Resource {
+		title :: String,
+		restype :: ResourceType
 	}
 
 data World = World {
@@ -145,6 +149,8 @@ data World = World {
 	yInfo :: Int,
 	numToSplit :: Int
 }
+
+data ResourceType = Tree deriving (Eq, Show, Read)
 
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
@@ -186,6 +192,7 @@ instance Eq Object where
 	(Trap t _ _) == (Trap t' _ _) = t == t'
 	(Missile t _ _ _ _) == (Missile t' _ _ _ _) = t == t'
 	(Scroll t _ _) == (Scroll t' _ _) = t == t'
+	(Resource _ r) == (Resource _ r') = r == r'
 	_ == _ = False
 
 {-Read & Show-}
@@ -253,6 +260,7 @@ instance Show Object where
 	show o@(Food {}) = "Food" ++ [objSep] ++ show (title o) ++ [objSep] 
 		++ show (nutrition o) ++ [objSep] ++ show (weight' o) ++ [objSep]
 		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) 
+	show o@(Resource {}) = "Resource" ++ [objSep] ++ show (restype o)
 
 worldSep :: Char
 worldSep = '#'

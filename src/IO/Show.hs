@@ -284,5 +284,6 @@ symbolItem (Weapon {})   = ')'
 symbolItem (Launcher {}) = '}'
 symbolItem (Armor {})    = '['
 symbolItem (Jewelry {})  = '='
-symbolItem (Food {})     = '%'  
+symbolItem (Food {})     = '%'
+symbolItem (Resource {}) = '0'
 

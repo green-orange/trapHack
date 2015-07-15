@@ -41,25 +41,12 @@ genWave n g
 	| d > n = (oldWave, g'')
 	| otherwise = (genM : oldWave, g'') where
 	ind :: Int
-	(ind, g') = randomR (0, 15) g
-	genM = case ind of
-		0  -> getHomunculus
-		1  -> getBeetle
-		2  -> getBat
-		3  -> getHunter
-		4  -> getIvy
-		5  -> getAccelerator
-		6  -> getTroll
-		7  -> getWorm
-		8  -> getFloatingEye
-		9  -> getRedDragon
-		10 -> getWhiteDragon
-		11 -> getGreenDragon
-		12 -> getForgottenBeast
-		13 -> getSpider
-		14 -> getSoldier
-		15 -> getUmberHulk
-		_  -> error "value error in function genWave"
+	(ind, g') = randomR (0, length gens - 1) g
+	gens = [getHomunculus, getBeetle, getBat, getHunter, getIvy,
+		getAccelerator, getTroll, getWorm, getFloatingEye, getRedDragon, 
+		getWhiteDragon, getGreenDragon, getForgottenBeast, getSpider, 
+		getSoldier, getUmberHulk, getTree]
+	genM = gens !! ind
 	d = levelM $ nameFromGen genM
 	(oldWave, g'') = genWave (n - d) g'
 

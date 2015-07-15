@@ -30,6 +30,7 @@ levelM "Forgotten beast" = 15
 levelM "Spider"          = 8
 levelM "Soldier"         = 8
 levelM "Umber hulk"      = 9
+levelM "Tree"            = 4
 levelM _                 = 0
 
 nOTsOLDIERS, nOTeNEMIES :: [String]
@@ -38,7 +39,8 @@ nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy", "Worm"]
 isSoldier :: Monster -> Bool
 isSoldier mon = not $ isPlayer mon || elem (name mon) nOTsOLDIERS
 
-nOTeNEMIES = ["You", "Dummy", "Garbage collector", "Rock", "Tail", "Golem"]
+nOTeNEMIES = ["You", "Dummy", "Garbage collector", "Rock", "Tail", "Golem",
+	"Tree"]
 isEnemy :: Monster -> Bool
 isEnemy mon = not $ isPlayer mon || elem (name mon) nOTeNEMIES
 
@@ -84,7 +86,8 @@ killFirst w = changeMon mon w where
 	mon = (getFirst w) {parts = [getMain 0 0 0]}
 	
 canWalk :: Monster -> Bool
-canWalk m = name m `notElem` ["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem"]
+canWalk m = name m `notElem` 
+	["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem", "Tree"]
 
 randTemp :: Temp -> (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
 randTemp temp' bounds (mon, g) = (newMon, g') where
@@ -92,7 +95,8 @@ randTemp temp' bounds (mon, g) = (newMon, g') where
 	newMon = setMaxTemp temp' (Just duration) mon
 
 level4XP :: String -> Int
-level4XP "Ivy" = 0
+level4XP "Ivy"  = 0
+level4XP "Tree" = 0
 level4XP str = levelM str
 
 xpUp :: StdGen -> Monster -> Monster -> (Monster, Int, StdGen)

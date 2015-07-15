@@ -60,10 +60,14 @@ isExistingBindingFirst :: World -> Char -> Bool
 isExistingBindingFirst = isExistingBinding . getFirst
 
 weight :: Object -> Int
-weight (Potion {})  = 20
-weight (Wand {})    = 7
-weight (Scroll {})  = 5
-weight (Trap {})    = 50
-weight (Missile {}) = 2
-weight (Jewelry {}) = 10
+weight (Potion {})   = 20
+weight (Wand {})     = 7
+weight (Scroll {})   = 5
+weight (Trap {})     = 50
+weight (Missile {})  = 2
+weight (Jewelry {})  = 10
+weight (Resource {}) = 3
 weight obj = weight' obj
+
+itemFromRes :: ResourceType -> Object
+itemFromRes rt = Resource {title = show rt, restype = rt}

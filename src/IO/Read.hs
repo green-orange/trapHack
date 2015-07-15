@@ -85,6 +85,7 @@ instance Read Object where
 			| otherwise -> error $ "parse error: part: " ++ show bind'
 		"Food" -> Food {title = read arg2, nutrition = read arg3, 
 			weight' = read arg4, rotRate = read arg5, rotTime = read arg6}
+		"Resource" -> Resource {title = arg2, restype = read arg2}
 		_ -> error $ "parse error: " ++ str, "")]
 		where
 		parse = separate objSep str
