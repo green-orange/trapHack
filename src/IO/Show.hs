@@ -63,7 +63,8 @@ drawCell world ((x, y), _) =
 			else attr0
 		dx = x - xFirst world
 		dy = y - yFirst world
-		sym = if x == div maxX 2 && y == div maxY 2 then '*' else '.'
+		sym = if x == div maxX 2 && y == div maxY 2 then '*' else
+			head $ show $ height $ worldmap world A.! (x,y)
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = 
@@ -75,7 +76,7 @@ drawItem world(x, y, item, _) =
 		attr = 
 			if action world == Info && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
-			else attr0
+			else setBold attr0 True
 
 showItemsPD :: Int -> S.Set Char -> (Int, Char, (Object, Int)) -> IO ()
 showItemsPD h toPick' (n, c, (obj,cnt)) =

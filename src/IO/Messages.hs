@@ -73,10 +73,10 @@ infoMessage w
 	| otherwise = str where
 	x = xInfo w
 	y = yInfo w
-	terr = worldmap w ! (x, y)
+	Cell terr hei = worldmap w ! (x, y)
 	un = M.lookup (x, y) $ units w
 	objs = filter (\(x',y',_,_) -> x' == x && y' == y) $ items w
-	terrInfo = "Terrain: " ++ show terr ++ ". "
+	terrInfo = "Terrain: " ++ show terr ++ ". Height: " ++ show hei ++ ". "
 	monInfo = case un of
 		Nothing -> ""
 		Just mon -> "Monster: " ++ name mon ++ ". Parts: " ++ 
