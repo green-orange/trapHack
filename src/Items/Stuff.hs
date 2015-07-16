@@ -324,6 +324,9 @@ trapFromTerrain x = case x of
 	MagicTrap -> magicTrap
 	_ -> error "unknown trap"
 
+trapFromCell :: Cell -> Object
+trapFromCell = trapFromTerrain . terrain
+
 foodRation :: Object
 foodRation = Food {
 	title = "food ration",

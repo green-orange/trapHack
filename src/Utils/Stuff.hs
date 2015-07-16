@@ -88,8 +88,8 @@ stupidity mon = mon {ai = newAI} where
 			then AI $ getPureAI StupidestAI
 			else old
 	
-isUntrappable :: Terrain -> Bool
-isUntrappable = (/=) Empty
+isUntrappable :: Cell -> Bool
+isUntrappable = (Empty /=) . terrain
 	
 safety :: World -> World
 safety w = w {
@@ -99,7 +99,7 @@ safety w = w {
 	action = Move,
 	wave = wave w + 1,
 	chars = S.empty,
-	worldmap = A.listArray ((0,0), (maxX,maxY)) $ repeat Empty,
+	worldmap = A.listArray ((0,0), (maxX,maxY)) $ repeat $ Cell Empty 0, -- FIXME
 	stepsBeforeWave = 2
 } 
 

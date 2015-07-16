@@ -138,7 +138,7 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 	x = xFirst w
 	y = yFirst w
 	mon = getFirst w
-	trap = worldmap w A.! (x,y)
+	trap = terrain $ worldmap w A.! (x,y)
 	((newMon, g), newMsg)
 		| trap == FireTrap = (dmgRandomElem Fire (Just 8) mon $ stdgen w,
 			if name mon == "You"

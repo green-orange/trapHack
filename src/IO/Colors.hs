@@ -22,6 +22,9 @@ colorFromTerr FireTrap   = 16 -- red
 colorFromTerr PoisonTrap = 56 -- green
 colorFromTerr MagicTrap  = 48 -- magenta
 
+colorFromCell :: Cell -> Int
+colorFromCell = colorFromTerr . terrain
+
 colorFromTemp :: Temp -> Int -> Int
 colorFromTemp Nutrition n
 	| n <= 5  = rEDiNVERSE

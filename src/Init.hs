@@ -35,7 +35,7 @@ initUnits = Units {
 
 initWorld :: String -> StdGen -> World
 initWorld username gen = World {
-	worldmap = listArray ((0,0), (maxX,maxY)) $ repeat Empty,
+	worldmap = listArray ((0,0), (maxX,maxY)) $ repeat $ Cell Empty 0, -- FIXME 
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
 	message = [(msgWelcome username, bLUE)],

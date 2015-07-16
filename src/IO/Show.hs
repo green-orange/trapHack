@@ -48,14 +48,14 @@ drawUnit world ((x, y), mon) =
 			then setStandout attr0 True
 			else attr0
 		(sym, color') = symbolMon $ name mon
-		back = colorFromTerr $ worldmap world A.! (x,y)
+		back = colorFromCell $ worldmap world A.! (x,y)
 		dx = x - xFirst world
 		dy = y - yFirst world
 
-drawCell :: World -> ((Int, Int), Terrain) -> IO ()
+drawCell :: World -> ((Int, Int), Cell) -> IO ()
 drawCell world ((x, y), _) = 
 	unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
+		wAttrSet stdScr (attr, Pair $ colorFromCell $ worldmap world A.! (x,y))
 		placeChar dx dy sym where
 		attr = 
 			if action world == Info && x == xInfo world && y == yInfo world
@@ -68,7 +68,7 @@ drawCell world ((x, y), _) =
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = 
 	unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, Pair $ colorFromTerr $ worldmap world A.! (x,y))
+		wAttrSet stdScr (attr, Pair $ colorFromCell $ worldmap world A.! (x,y))
 		placeChar dx dy $ symbolItem item where
 		dx = x - xFirst world
 		dy = y - yFirst world

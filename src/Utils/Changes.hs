@@ -137,9 +137,13 @@ addItem :: (Int, Int, Object, Int) -> World -> World
 addItem i w = w {items = items'} where
 	items' = addItem' i $ items w
 
-changeMap :: Int -> Int -> Terrain -> World -> World
-changeMap x y t w = w {worldmap = worldmap'} where
-	worldmap' = worldmap w // [((x, y), t)]
+changeMap :: Int -> Int -> Cell -> World -> World
+changeMap x y cell w = w {worldmap = worldmap'} where
+	worldmap' = worldmap w // [((x, y), cell)]
+
+changeTerr :: Int -> Int -> Terrain -> World -> World
+changeTerr x y terr w = changeMap x y Cell {terrain = terr,
+	height = height $ worldmap w ! (x, y)} w
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
 spawnMon mgen x y w = changeMons (changeList 

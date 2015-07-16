@@ -24,7 +24,7 @@ moveFirst dx dy world =
 	if isEmpty world xnew ynew || (dx == 0 && dy == 0) || isNothing rez
 	then
 		if name mon /= "You" && not (isFlying mon) 
-			&& worldmap world A.! (x,y) == BearTrap
+			&& terrain (worldmap world A.! (x,y)) == BearTrap
 		then world
 		else changeGen g'' $ changeMoveFirst xnew ynew 
 			$ addNeutralMessage teleMsg $ addMessage (newMessage, yELLOW) world

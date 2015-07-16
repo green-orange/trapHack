@@ -140,10 +140,10 @@ trapFirst c world
 		(maybeAddMessage (msgNeedArms "set a trap") failWorld, False)
 	| isNothing objects = (maybeAddMessage msgNoItem failWorld, False)
 	| not $ isTrap obj = (maybeAddMessage msgNotTrap failWorld, False)
-	| worldmap world A.! (x, y) /= Empty =
+	| terrain (worldmap world A.! (x, y)) /= Empty =
 		(maybeAddMessage msgTrapOverTrap failWorld, False)
 	| otherwise = (addNeutralMessage newMsg $ changeMon mon 
-		$ changeMap x y (num obj) $ changeAction Move world, True) where
+		$ changeTerr x y (num obj) $ changeAction Move world, True) where
 	objects = M.lookup c $ inv $ getFirst world
 	x = xFirst world
 	y = yFirst world
@@ -161,12 +161,12 @@ untrapFirst world
 		(maybeAddMessage msgCantUntrap failWorld, False)
 	| otherwise =
 		(addItem (x, y, trap, 1) $ addNeutralMessage newMsg 
-		$ changeMap x y Empty $ changeAction Move world, True) where
+		$ changeTerr x y Empty $ changeAction Move world, True) where
 	x = xFirst world
 	y = yFirst world
 	mon = getFirst world
 	failWorld = changeAction Move world
-	trap = trapFromTerrain $ worldmap world A.! (x,y)
+	trap = trapFromCell $ worldmap world A.! (x,y)
 	newMsg = name mon ++ " untrap" ++ ending world ++ title trap ++ "."
 	
 fireFirst :: Char -> World -> (World, Bool)

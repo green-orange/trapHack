@@ -139,7 +139,7 @@ data World = World {
 	stdgen :: StdGen,
 	wave :: Int,
 	chars :: Set Char,
-	worldmap :: A.Array (Int, Int) Terrain,
+	worldmap :: A.Array (Int, Int) Cell,
 	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
 	stepsBeforeWave :: Int,
 	prevAction :: Char,
@@ -148,6 +148,11 @@ data World = World {
 	xInfo :: Int,
 	yInfo :: Int,
 	numToSplit :: Int
+}
+
+data Cell = Cell {
+	terrain :: Terrain,
+	height :: Int
 }
 
 data ResourceType = Tree deriving (Eq, Show, Read)
@@ -207,6 +212,12 @@ instance Read Elem where
 	readsPrec _ "Poison" = [(Poison', "")]
 	readsPrec _ "Cold" = [(Cold, "")]
 	readsPrec _ e = error $ "parse error: Elem " ++ e
+
+cellSep :: Char
+cellSep = '$'
+
+instance Show Cell where
+	show (Cell terr hei) = show terr ++ [cellSep] ++ show hei 
 
 instance Show Terrain where
 	show Empty = ""

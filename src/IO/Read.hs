@@ -131,6 +131,14 @@ instance Read Units where
 		yNew = read yF'
 		listNew = M.fromList $ myReadListCoords listSepUn list'
 
+instance Read Cell where
+	readsPrec _ str = [(Cell {
+		terrain = read arg1,
+		height = read arg2
+	}, "")] where
+		parse = separate cellSep str
+		[arg1, arg2] = parse
+
 instance Read World where
 	readsPrec _ str = [(World {
 		units' = read units'',
