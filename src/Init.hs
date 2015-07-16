@@ -3,17 +3,16 @@ module Init where
 import Data.Const
 import Data.Define
 import Utils.Monsters
-import Utils.Random
+import Utils.Stuff
 --import Utils.Items
 --import Items.Stuff
 import Monsters.Parts
 import IO.Colors
 import IO.Texts
 
-import System.Random (StdGen, randomR)
+import System.Random (StdGen)
 import qualified Data.Set as S
 import qualified Data.Map as M
-import Data.Array
 
 rectdirs :: (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Maybe (Int, Int)
 rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
@@ -76,31 +75,3 @@ getPlayer = Monster {
 	idM = 0,
 	xp = 1
 }
-
-getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
-getSinFunc maxA maxB g = (sinf, g3) where
-	(a, g1) = randomR (0.0, maxA) g
-	(b, g2) = randomR (0.0, maxB) g1
-	(c, g3) = randomR (0.0, 2 * pi) g2
-	sinf x y = sin $ a * fromIntegral x + b * fromIntegral y + c
-
-getMap :: StdGen -> (Array (Int, Int) Cell, StdGen)
-getMap gen = (rez, g3) where
-	maxX' = 25 * pi / fromIntegral maxX
-	maxY' = 25 * pi / fromIntegral maxY
-	getSinFunc' = getSinFunc maxX' maxY'
-	(sinf1, g1) = getSinFunc' gen
-	(sinf2, g2) = getSinFunc' g1
-	(sinf3, g3) = getSinFunc' g2
-	rez = array ((0, 0), (maxX, maxY)) [((x, y), cellFromCoords 
-		(fromIntegral x) (fromIntegral y)) 
-		| x <- [0 .. maxX], y <- [0 .. maxY]]
-	normalize (l, r) (l', r') x = l' + (x - l) * (r' - l') / (r - l)
-	f <+> g = \x y -> f x y + g x y
-	cellFromCoords x y = Cell {
-		terrain = Empty,
-		height = uniformFromList (normalize (-3.0, 3.0) (0.05, 0.95) $
-			(sinf1 <+> sinf2 <+> sinf3) x y) [0..9]
-	}
-
-

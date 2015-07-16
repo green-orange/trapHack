@@ -16,7 +16,7 @@ import Data.Maybe (isJust)
 golemAI :: AIfunc
 golemAI _ _ _ world = case nears of
 	[] -> world
-	x:_ -> uncurry moveFirst x world
+	x:_ -> fst $ uncurry moveFirst x world
 	where
 		xNow = xFirst world
 		yNow = yFirst world

@@ -164,11 +164,11 @@ attackIfClose elem' dist f x y peace w =
 		dy = y - yNow
 	
 stupidAI, stupidParalysisAI, stupidPoisonAI, stupidConfAI :: AIfunc
-stupidAI = stupidFooAI (\x y _ -> moveFirst x y)
-stupidParalysisAI = stupidFooAI (\x y _ -> moveFirst x y . paralyse x y)
-stupidPoisonAI = stupidFooAI (\x y _ -> moveFirst x y . 
+stupidAI = stupidFooAI (\x y _ -> fst . moveFirst x y)
+stupidParalysisAI = stupidFooAI (\x y _ -> fst . moveFirst x y . paralyse x y)
+stupidPoisonAI = stupidFooAI (\x y _ -> fst . moveFirst x y . 
 	addTempByCoords Poison (5, 15) x y)
-stupidConfAI = stupidFooAI (\x y _ -> moveFirst x y . 
+stupidConfAI = stupidFooAI (\x y _ -> fst . moveFirst x y . 
 	addTempByCoords Conf (0, 6) x y)
 
 stupidFooAI :: AIfunc -> AIfunc
@@ -202,10 +202,10 @@ stupidestAI xPlayer yPlayer peace w =
 			if not peace || isValid w xNow yNow dx dy
 			then (dx, dy)
 			else (0, 0)
-		newWorld = moveFirst dx' dy' w
+		newWorld = fst $ moveFirst dx' dy' w
 				
 randomAI :: AIfunc
-randomAI _ _ _ w  = moveFirst rx ry newWorld where
+randomAI _ _ _ w  = fst $ moveFirst rx ry newWorld where
 	g = stdgen w
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
@@ -214,10 +214,10 @@ randomAI _ _ _ w  = moveFirst rx ry newWorld where
 wormAI :: AIfunc
 wormAI xPlayer yPlayer _ w = 
 	(if isNothing maybeMon
-	then spawnMon tailWorm xNow yNow . moveFirst dx dy
+	then spawnMon tailWorm xNow yNow . fst . moveFirst dx dy
 	else if name mon == "Tail" && p < 0.2
 	then killFirst
-	else moveFirst dx dy) $ changeGen g w where
+	else fst . moveFirst dx dy) $ changeGen g w where
 		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
 		xNew = xNow + dx
 		yNew = yNow + dy

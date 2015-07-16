@@ -19,18 +19,19 @@ import qualified Data.Array as A
 import Data.Maybe (fromJust, isNothing, fromMaybe)
 import System.Random (randomR)
 
-moveFirst :: Int -> Int -> World -> World
+moveFirst :: Int -> Int -> World -> (World, Bool)
 moveFirst dx dy world
 	| not $ isEmpty world xnew ynew || (dx == 0 && dy == 0) || isNothing rez
-		= maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
+		= (maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
-		world $ filter isUpperLimb $ parts $ getFirst world
+		world $ filter isUpperLimb $ parts $ getFirst world, True)
 	| name mon /= "You" && not (isFlying mon) 
-		&& terrain (worldmap world A.! (x,y)) == BearTrap = world
-	| heiNew > heiOld + 1 = changeGen g'' $ maybeAddMessage msgTooHigh world
-	| otherwise = changeGen g'' $ dmgFallFirst (heiOld - heiNew) 
+		&& terrain (worldmap world A.! (x,y)) == BearTrap = (world, True)
+	| heiNew > heiOld + 1 = (changeGen g'' 
+		$ maybeAddMessage msgTooHigh world, False)
+	| otherwise = (changeGen g'' $ dmgFallFirst (heiOld - heiNew) 
 		$ changeMoveFirst xnew ynew $ addNeutralMessage teleMsg 
-		$ addMessage (newMessage, yELLOW) world
+		$ addMessage (newMessage, yELLOW) world, True)
 	where
 		x = xFirst world
 		y = yFirst world

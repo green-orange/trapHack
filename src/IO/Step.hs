@@ -116,7 +116,7 @@ step world c
 		
 justStep :: World -> Char -> Either World String
 justStep world c = case dir c of
-	Just (dx, dy) -> Left $ newWaveIf $ moveFirst dx dy world
+	Just (dx, dy) -> doIfCorrect $ moveFirst dx dy world
 	Nothing ->
 		if isSpace c then Left $ changeAction AfterSpace world else case c of
 		'D' -> Left $ changeAction DropMany world

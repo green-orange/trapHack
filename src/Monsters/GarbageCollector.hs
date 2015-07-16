@@ -19,7 +19,7 @@ collectorAI :: AIfunc
 collectorAI _ _ _ world = 
 	if isItemHere
 	then fromJust $ fst $ pickFirst $ foldr changeChar world alphabet
-	else moveFirst dx dy world
+	else fst $ moveFirst dx dy world
 	where
 		isItemHere = any (\ (x, y, _, _) -> x == xNow && y == yNow) (items world)
 		xNow = xFirst world

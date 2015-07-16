@@ -90,6 +90,32 @@ stupidity mon = mon {ai = newAI} where
 	
 isUntrappable :: Cell -> Bool
 isUntrappable = (Empty /=) . terrain
+
+getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
+getSinFunc maxA maxB g = (sinf, g3) where
+	(a, g1) = randomR (0.0, maxA) g
+	(b, g2) = randomR (0.0, maxB) g1
+	(c, g3) = randomR (0.0, 2 * pi) g2
+	sinf x y = sin $ a * fromIntegral x + b * fromIntegral y + c
+
+getMap :: StdGen -> (A.Array (Int, Int) Cell, StdGen)
+getMap gen = (rez, g3) where
+	maxX' = 25 * pi / fromIntegral maxX
+	maxY' = 25 * pi / fromIntegral maxY
+	getSinFunc' = getSinFunc maxX' maxY'
+	(sinf1, g1) = getSinFunc' gen
+	(sinf2, g2) = getSinFunc' g1
+	(sinf3, g3) = getSinFunc' g2
+	rez = A.array ((0, 0), (maxX, maxY)) [((x, y), cellFromCoords 
+		(fromIntegral x) (fromIntegral y)) 
+		| x <- [0 .. maxX], y <- [0 .. maxY]]
+	normalize (l, r) (l', r') x = l' + (x - l) * (r' - l') / (r - l)
+	f <+> g = \x y -> f x y + g x y
+	cellFromCoords x y = Cell {
+		terrain = Empty,
+		height = uniformFromList (normalize (-3.0, 3.0) (0.05, 0.95) $
+			(sinf1 <+> sinf2 <+> sinf3) x y) [0..9]
+	}
 	
 safety :: World -> World
 safety w = w {
@@ -99,9 +125,10 @@ safety w = w {
 	action = Move,
 	wave = wave w + 1,
 	chars = S.empty,
-	worldmap = A.listArray ((0,0), (maxX,maxY)) $ repeat $ Cell Empty 0, -- FIXME
+	stdgen = newGen,
+	worldmap = newMap,
 	stepsBeforeWave = 2
-} 
+} where (newMap, newGen) = getMap $ stdgen w
 
 speed :: Int -> Monster -> Monster
 speed x m = m {slowness = slowness m - x}
