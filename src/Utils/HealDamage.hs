@@ -1,6 +1,7 @@
 module Utils.HealDamage where
 
 import Data.Define
+import Data.World
 import Utils.Changes
 import Monsters.Parts
 
@@ -70,3 +71,8 @@ elemDmg elem' mon (Just n) part = part {hp =
 	else hp part - n'
 } where n' = max 1 $ n - res mon !! fromEnum elem'
 
+dmgFallFirst :: Int -> World -> World
+dmgFallFirst hei w =
+	if hei <= 0 then w
+	else changeMon newMon w where
+		newMon = dmgAll (Just $ 2 * hei) $ getFirst w

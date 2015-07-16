@@ -20,17 +20,17 @@ import Data.Maybe (fromJust, isNothing, fromMaybe)
 import System.Random (randomR)
 
 moveFirst :: Int -> Int -> World -> World
-moveFirst dx dy world =
-	if isEmpty world xnew ynew || (dx == 0 && dy == 0) || isNothing rez
-	then
-		if name mon /= "You" && not (isFlying mon) 
-			&& terrain (worldmap world A.! (x,y)) == BearTrap
-		then world
-		else changeGen g'' $ changeMoveFirst xnew ynew 
-			$ addNeutralMessage teleMsg $ addMessage (newMessage, yELLOW) world
-	else maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
+moveFirst dx dy world
+	| not $ isEmpty world xnew ynew || (dx == 0 && dy == 0) || isNothing rez
+		= maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
 		world $ filter isUpperLimb $ parts $ getFirst world
+	| name mon /= "You" && not (isFlying mon) 
+		&& terrain (worldmap world A.! (x,y)) == BearTrap = world
+	| heiNew > heiOld + 1 = changeGen g'' $ maybeAddMessage msgTooHigh world
+	| otherwise = changeGen g'' $ dmgFallFirst (heiOld - heiNew) 
+		$ changeMoveFirst xnew ynew $ addNeutralMessage teleMsg 
+		$ addMessage (newMessage, yELLOW) world
 	where
 		x = xFirst world
 		y = yFirst world
@@ -51,6 +51,8 @@ moveFirst dx dy world =
 		(q, g) = randomR (1, 100) $ stdgen world
 		(xR, g') = randomR (0, maxX) g
 		(yR, g'') = randomR (0, maxY) g'
+		heiOld = height $ worldmap world A.! (x,y)
+		heiNew = height $ worldmap world A.! (xnew, ynew)
 
 attack :: Int -> Int -> Char -> World -> World
 attack x y c world = changeMons unitsNew $ addMessage (newMsg, color) 
