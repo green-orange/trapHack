@@ -25,6 +25,16 @@ colorFromTerr MagicTrap  = 48 -- magenta
 colorFromCell :: Cell -> Int
 colorFromCell = colorFromTerr . terrain
 
+colorFromHei :: Int -> Int
+colorFromHei hei
+	| hei  < -3 = dEFAULT
+	| hei  < -1 = rED
+	| hei == -1 = yELLOW
+	| hei ==  0 = gREEN
+	| hei ==  1 = cYAN
+	| hei  <  4 = bLUE
+	| otherwise = mAGENTA
+
 colorFromTemp :: Temp -> Int -> Int
 colorFromTemp Nutrition n
 	| n <= 5  = rEDiNVERSE

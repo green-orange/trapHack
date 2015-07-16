@@ -157,7 +157,8 @@ instance Read World where
 		slot = toEnum 0,
 		xInfo = 0,
 		yInfo = 0,
-		numToSplit = 0
+		numToSplit = 0,
+		showMode = ColorMonsters
 	}, "")] where
 		parse = separate worldSep str
 		[units'', items', stdgen', wave', worldmap', stepsBeforeWave'] = parse

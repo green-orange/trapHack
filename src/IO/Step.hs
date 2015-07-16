@@ -88,6 +88,11 @@ step world c
 					Nothing -> Left world
 					Just (dx, dy) -> Left $ world {xInfo = xInfo world + dx, 
 						yInfo = yInfo world + dy}
+			Options -> case c of
+				'a' -> Left $ world {action = Move, showMode = ColorHeight}
+				'b' -> Left $ world {action = Move, showMode = ColorMonsters}
+				'c' -> Left $ world {action = Move, showMode = NoHeight}
+				_   -> Left $ world {action = Move, message = [(msgUnkOpt, dEFAULT)]}
 			_ -> Left $ addMessage (msgCheater, mAGENTA)
 				$ changeAction Move world
 		else
@@ -125,6 +130,7 @@ justStep world c = case dir c of
 		'S' -> Left $ changeAction Save world
 		'P' -> Left $ changeAction Previous world
 		'&' -> Left $ changeAction Craft world
+		'O' -> Left $ changeAction Options world
 		'Q' -> 
 			if wave world == 1
 			then Right msgQuitOnStart

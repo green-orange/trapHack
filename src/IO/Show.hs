@@ -40,14 +40,17 @@ placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight)
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
 drawUnit world ((x, y), mon) =
 	unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, Pair $ back + color' - 8)
+		wAttrSet stdScr (attr, color2)
 		placeChar dx dy sym where
 		attr = 
 			if x == xFirst world && y == yFirst world ||
 				action world == Info && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
 			else attr0
-		(sym, color') = symbolMon $ name mon
+		(sym, color1) = symbolMon $ name mon
+		color2 = Pair $ case showMode world of
+			ColorHeight -> dEFAULT
+			_ -> back + color1 - 8
 		back = colorFromCell $ worldmap world A.! (x,y)
 		dx = x - xFirst world
 		dy = y - yFirst world
@@ -55,7 +58,7 @@ drawUnit world ((x, y), mon) =
 drawCell :: World -> ((Int, Int), Cell) -> IO ()
 drawCell world ((x, y), _) = 
 	unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, Pair $ colorFromCell $ worldmap world A.! (x,y))
+		wAttrSet stdScr (attr, color')
 		placeChar dx dy sym where
 		attr = 
 			if action world == Info && x == xInfo world && y == yInfo world
@@ -63,8 +66,15 @@ drawCell world ((x, y), _) =
 			else attr0
 		dx = x - xFirst world
 		dy = y - yFirst world
-		sym = if x == div maxX 2 && y == div maxY 2 then '*' else
-			head $ show $ height $ worldmap world A.! (x,y)
+		color' = Pair $ case showMode world of
+			ColorHeight -> colorFromHei $
+				height (worldmap world A.! (x,y)) - 
+				height (worldmap world A.! (xFirst world, yFirst world))
+			_ -> colorFromCell $ worldmap world A.! (x,y)
+		sym
+			| x == div maxX 2 && y == div maxY 2 = '*'
+			| showMode world == NoHeight = '.'
+			| otherwise = head $ show $ height $ worldmap world A.! (x,y)
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = 
@@ -234,6 +244,13 @@ drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 	mvWAddStr stdScr 0 0 (show $ numToSplit w) >>
 	drawJustWorld w lol
 
+drawOptions :: World -> Int -> IO ()
+drawOptions _ _ = do
+	wAttrSet stdScr (attr0, Pair dEFAULT)
+	mvWAddStr stdScr 0 0 msgOptColorHei
+	mvWAddStr stdScr 1 0 msgOptColorMon
+	mvWAddStr stdScr 2 0 msgOptNoHei
+
 draw :: World -> IO ()
 draw world = do
 	(h, _) <- scrSize
@@ -245,6 +262,7 @@ draw world = do
 		Equip -> drawPartChange
 		Split2 -> drawSplit
 		Craft -> drawCraft
+		Options -> drawOptions
 		_ -> drawJustWorld) world h
 
 redraw :: World -> IO Char

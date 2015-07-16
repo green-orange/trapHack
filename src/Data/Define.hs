@@ -147,7 +147,8 @@ data World = World {
 	slot :: Slot,
 	xInfo :: Int,
 	yInfo :: Int,
-	numToSplit :: Int
+	numToSplit :: Int,
+	showMode :: ShowMode
 }
 
 data Cell = Cell {
@@ -155,11 +156,14 @@ data Cell = Cell {
 	height :: Int
 }
 
+data ShowMode = ColorHeight | ColorMonsters | NoHeight deriving (Eq)
+
 data ResourceType = Tree deriving (Eq, Show, Read)
 
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
-	Info | Save | Previous | AfterSpace | Split1 | Split2 | Craft deriving (Eq)
+	Info | Save | Previous | AfterSpace | Split1 | Split2 | Craft | 
+	Options deriving (Eq)
 
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 

@@ -50,7 +50,8 @@ initWorld username gen = World {
 	slot = toEnum 0,
 	xInfo = 0,
 	yInfo = 0,
-	numToSplit = 0
+	numToSplit = 0,
+	showMode = ColorMonsters
 } where (worldmap', newStdGen) = getMap gen
 
 getPlayer :: Monster

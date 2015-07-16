@@ -75,7 +75,7 @@ msgSmallScr, msgNECell, msgUnseenCell, msgCantSpawnGC, msgIncStep,
 	msgNoItem, msgNotDir, msgNoCharge, msgNotTrap, msgTrapOverTrap, 
 	msgCantUntrap, msgNoWeapAppMiss, msgDropEquipped, msgFullInv, 
 	msgWrongBind, msgRepeatedBind, msgUnkAct, msgNaN, msgNotEnough,
-	msgUnkRep, msgTooHigh :: String
+	msgUnkRep, msgTooHigh, msgUnkOpt :: String
 msgNeedArms, msgDontKnow :: String -> String
 
 msgSmallScr = "Your screen is too small."
@@ -101,6 +101,7 @@ msgNaN = "This is not a number!"
 msgNotEnough = "You don't have enough items!"
 msgUnkRep = "Unknown recipe!"
 msgTooHigh = "You can not rise so high!"
+msgUnkOpt = "Unknown option!"
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 
@@ -156,6 +157,13 @@ msgFire = " is in fire!"
 msgFireYou = "You are in fire!"
 msgPoison = " was poisoned!"
 msgPoisonYou = "You were poisoned!"
+
+{- Options -}
+msgOptColorHei, msgOptColorMon, msgOptNoHei :: String
+
+msgOptColorHei = "a - map is colored by height, monsters are white."
+msgOptColorMon = "b - monsters are colored, height shown by while numbers."
+msgOptNoHei = "c - height doesn't shown"
 
 {-Other-}
 msgSafety, msgTrollDeath :: String
