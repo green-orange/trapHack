@@ -9,8 +9,6 @@ import Utils.Monsters
 import Utils.Changes
 import Utils.Items
 import Monsters.Monsters
-import Monsters.GarbageCollector
-import Monsters.Golem
 import IO.Texts
 
 import System.Random

@@ -12,16 +12,15 @@ import Items.ItemsOverall
 import Monsters.Move
 import Monsters.Parts
 import Monsters.Monsters
-import Monsters.Ivy
-import Monsters.Golem
-import Monsters.GarbageCollector
 import Monsters.AIrepr
 import IO.Colors
 import IO.Texts
 
 import System.Random (randomR, StdGen)
-import Data.Maybe (fromJust, isNothing)
+import Data.Maybe (fromJust, isNothing, isJust)
 import qualified Data.Map as M
+import Data.List (minimumBy)
+import Data.Function (on)
 
 runAImod :: AImod -> AIfunc -> AIfunc
 runAImod aimod = case aimod of
@@ -180,10 +179,10 @@ stupidFooAI foo xPlayer yPlayer peace w = newWorld where
 		| dy == 0 = (dx, 1, dx, -1)
 		| otherwise = (dx, 0, 0, dy)
 	(dx', dy', newStdGen)
-		| isValid w xNow yNow dx dy || abs (xPlayer - xNow) <= 1 
+		| isValidAndSafe w xNow yNow dx dy || abs (xPlayer - xNow) <= 1 
 			&& abs (yPlayer - yNow) <= 1 && not peace = (dx, dy, g)
-		| isValid w xNow yNow dx1 dy1 = (dx1, dy1, g)
-		| isValid w xNow yNow dx2 dy2 = (dx2, dy2, g)
+		| isValidAndSafe w xNow yNow dx1 dy1 = (dx1, dy1, g)
+		| isValidAndSafe w xNow yNow dx2 dy2 = (dx2, dy2, g)
 		| otherwise = let
 			(rx, g') = randomR (-1, 1) g
 			(ry, g'') = randomR (-1, 1) g'
@@ -199,7 +198,8 @@ stupidestAI xPlayer yPlayer peace w =
 		dx = signum $ xPlayer - xNow
 		dy = signum $ yPlayer - yNow
 		(dx', dy') = 
-			if not peace || isValid w xNow yNow dx dy
+			if isValidAndSafe w xNow yNow dx dy
+				|| not (isValid w xNow yNow dx dy) && not peace
 			then (dx, dy)
 			else (0, 0)
 		newWorld = fst $ moveFirst dx' dy' w
@@ -213,9 +213,9 @@ randomAI _ _ _ w  = fst $ moveFirst rx ry newWorld where
 	
 wormAI :: AIfunc
 wormAI xPlayer yPlayer _ w = 
-	(if isNothing maybeMon
+	(if isNothing maybeMon && isSafe w xNow yNow dx dy
 	then spawnMon tailWorm xNow yNow . fst . moveFirst dx dy
-	else if name mon == "Tail" && p < 0.2
+	else if isJust maybeMon && name mon == "Tail" && p < 0.2
 	then killFirst
 	else fst . moveFirst dx dy) $ changeGen g w where
 		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
@@ -229,4 +229,51 @@ wormAI xPlayer yPlayer _ w =
 tailWorm :: MonsterGen
 tailWorm = getMonster (getPureAI NothingAI) [(getMain 0, (100, 200))] 
 	16 ((0,0),0.0) emptyInv 10000 1
+
+collectorAI :: AIfunc
+collectorAI _ _ _ world = 
+	if isItemHere
+	then fromJust $ fst $ pickFirst $ foldr changeChar world alphabet
+	else stupidAI xItem yItem False world
+	where
+		isItemHere = any (\ (x, y, _, _) -> x == xNow && y == yNow) (items world)
+		xNow = xFirst world
+		yNow = yFirst world
+		(xItem, yItem, _, _) = 
+			if null (items world)
+			then (0, 0, lol, lol)
+			else minimumBy cmp $ items world
+		dist x y = max (x - xNow) (y - yNow)
+		cmp = on compare (\(x, y, _, _) -> dist x y)
+
+golemAI :: AIfunc
+golemAI _ _ _ world = case nears of
+	[] -> world
+	x:_ -> fst $ uncurry moveFirst x world
+	where
+		xNow = xFirst world
+		yNow = yFirst world
+		needToAttack (dx, dy) = isJust mons && isEnemy mon where
+			mons = M.lookup (xNow + dx, yNow + dy) $ units world
+			Just mon = mons
+		d = [-1, 0, 1]
+		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
+
+ivyAI :: AIfunc
+ivyAI xPlayer yPlayer peace world
+	| abs dx <= 1 && abs dy <= 1 && not peace = fst $ moveFirst dx dy world
+	| isEmpty world (xNow + dx') (yNow + dy')
+		= spawnMon getIvy (xNow + dx') (yNow + dy') $ changeGen g'' world
+	| otherwise = changeGen g'' $ killFirst world where
+		xNow = xFirst world
+		yNow = yFirst world
+		dx = xPlayer - xNow
+		dy = yPlayer - yNow
+		g = stdgen world
+		(dx', g')  = randomR (-1, 1) g
+		(dy', g'') = randomR (-1, 1) g'
+
+getIvy :: MonsterGen
+getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] 15
+	((2,10), 0.0) emptyInv 400 100
 

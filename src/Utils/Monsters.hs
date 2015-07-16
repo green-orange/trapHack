@@ -48,13 +48,6 @@ alive :: Monster -> Bool
 alive mon = isJust (temp mon' !! fromEnum Nutrition) && hasPart bODY mon' 
 	&& hasPart hEAD mon' || hasPart mAIN mon' where
 	mon' = mon {parts = filter ((>0) . hp) $ parts mon}
-
-hasPart :: Int -> Monster -> Bool
-hasPart knd mon = 
-	any (\x -> kind x == knd) $ parts mon
-
-hasUpperLimb :: Monster -> Bool
-hasUpperLimb mon = any isUpperLimb $ parts mon
 	
 regPart :: Part -> Part
 regPart part = heal (regRate part) part
@@ -77,9 +70,6 @@ msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (
 		if name mon == "You"
 		then rEDiNVERSE
 		else gREEN
-
-isFlying :: Monster -> Bool
-isFlying = hasPart wING
 		
 killFirst :: World -> World
 killFirst w = changeMon mon w where

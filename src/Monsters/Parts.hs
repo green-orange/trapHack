@@ -73,3 +73,13 @@ acPart mon part = (case armor of
 		armor = M.lookup (objectKeys part !! fromEnum ArmorSlot) (inv mon)
 		jewelry = M.lookup (objectKeys part !! fromEnum JewelrySlot) (inv mon)
 
+hasPart :: Int -> Monster -> Bool
+hasPart knd mon = 
+	any (\x -> kind x == knd) $ parts mon
+
+hasUpperLimb :: Monster -> Bool
+hasUpperLimb mon = any isUpperLimb $ parts mon
+
+isFlying :: Monster -> Bool
+isFlying = hasPart wING
+

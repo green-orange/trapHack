@@ -10,6 +10,7 @@ import Utils.HealDamage
 import Utils.Monsters
 import Monsters.Parts
 import Monsters.AIrepr
+import Monsters.Monsters
 import IO.Colors
 import IO.Texts
 
@@ -153,3 +154,35 @@ actWithFirst f w = changeGen newGen $ changeMon newMon w where
 addRandom :: Random a => (a, a) -> (a -> b -> c) -> (b, StdGen) -> (c, StdGen)
 addRandom pair f (o, g) = (f value o, g') where
 	(value, g') = randomR pair g
+
+getGarbageCollector :: MonsterGen		  
+getGarbageCollector = getMonster (getEatAI CollectorAI)
+	[(getBody 1, (20, 40)), 
+	 (getHead 1, (10, 30)),
+	 (getLeg  1, ( 8, 12)),
+	 (getLeg  1, ( 8, 12)),
+	 (getArm  1, ( 8, 12)),
+	 (getArm  1, ( 8, 12))]
+	 17 ((2,4), 0.4) emptyInv 100 100
+
+getGolem :: MonsterGen
+getGolem = getMonster (getPureAI GolemAI)
+	[(getBody 1, (10, 30)), 
+	 (getHead 1, ( 8, 12)),
+	 (getLeg  1, ( 3,  7)),
+	 (getLeg  1, ( 3,  7)),
+	 (getArm  1, ( 2,  6)),
+	 (getArm  1, ( 2,  6))]
+	18 ((2,4), 0.3) emptyInv 100 10000
+		
+spawnGolem :: Int -> Int -> World -> World
+spawnGolem x y w = 
+	if isEmpty w x y && correct
+	then spawnMon getGolem x y $ w {items = newItems}
+	else w where
+		filterfun (x', y', _, _) = x == x' && y == y'
+		correct = any filterfun $ items w
+		newItems = filter (not . filterfun) $ items w
+
+spawnGolemsAround :: World -> World
+spawnGolemsAround = fooAround spawnGolem

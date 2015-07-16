@@ -73,6 +73,6 @@ elemDmg elem' mon (Just n) part = part {hp =
 
 dmgFallFirst :: Int -> World -> World
 dmgFallFirst hei w =
-	if hei <= 0 then w
+	if isFlying (getFirst w) || hei <= 1 then w
 	else changeMon newMon w where
-		newMon = dmgAll (Just $ 5 * hei) $ getFirst w
+		newMon = dmgAll (Just $ 3 * hei) $ getFirst w

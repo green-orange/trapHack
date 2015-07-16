@@ -6,8 +6,8 @@ import Data.Define
 import Utils.Monsters
 import Monsters.Monsters
 import Monsters.MonsterList
-import Monsters.Ivy
 import Monsters.Forgotten
+import Monsters.AI
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M

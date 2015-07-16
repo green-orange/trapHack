@@ -27,8 +27,8 @@ moveFirst dx dy world
 		world $ filter isUpperLimb $ parts $ getFirst world, True)
 	| name mon /= "You" && not (isFlying mon) 
 		&& terrain (worldmap world A.! (x,y)) == BearTrap = (world, True)
-	| heiNew > heiOld + 1 = (changeGen g'' 
-		$ maybeAddMessage msgTooHigh world, False)
+	| heiNew > heiOld + 1 && not (isFlying mon) = (changeGen g'' 
+		$ maybeAddMessage msgTooHigh world, False) 
 	| otherwise = (changeGen g'' $ dmgFallFirst (heiOld - heiNew) 
 		$ changeMoveFirst xnew ynew $ addNeutralMessage teleMsg 
 		$ addMessage (newMessage, yELLOW) world, True)
