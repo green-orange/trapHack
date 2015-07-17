@@ -44,7 +44,7 @@ loop world =
 					return msgSaved
 				Previous -> do
 					msgs <- getReverseLog
-					loop newWorld {action = Move, message = msgs}
+					loop newWorld {action = AfterSpace, message = msgs}
 				AfterSpace -> loop newWorld
 				_ -> do
 					maybeAppendFile logName $ filter (not . null) 

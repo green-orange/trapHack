@@ -19,7 +19,7 @@ import qualified Data.Map as M
 import Data.List (sortBy)
 import Data.Function (on)
 import qualified Data.Array as A
-import Control.Monad (unless, when, zipWithM_)
+import Control.Monad (unless, when, zipWithM_, (>=>))
 
 shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem :: Int
 shiftRightHP = 2 * xSight + 5
@@ -99,9 +99,9 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 		
 showMessages :: Int -> [(String, Int)] -> IO ()
 showMessages width msgs = 
-	unless (sum (map ((1+) . length . fst) msgs) < shiftDown * width - 2)
+	unless (sum (map ((1+) . length . fst) msgs) < (shiftDown - 1) * width)
 	(mvWAddStr stdScr (shiftDown - 1) 0 msgMore) >>
-	foldr ((=<<) . showMessage) (return (0, 0)) msgs >> return ()
+	foldr ((>=>) . showMessage) return msgs (0, 0) >> return ()
 
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
 showMessage (msg, color') (x, y) = do
