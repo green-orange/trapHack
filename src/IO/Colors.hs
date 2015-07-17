@@ -35,6 +35,15 @@ colorFromHei hei
 	| hei  <  4 = bLUE
 	| otherwise = mAGENTA
 
+colorFromHeiAbs :: Int -> Int
+colorFromHeiAbs hei
+	| hei  <  2 = rED
+	| hei  <  4 = yELLOW
+	| hei ==  4 = gREEN
+	| hei ==  5 = cYAN
+	| hei  <  7 = bLUE
+	| otherwise = mAGENTA
+
 colorFromTemp :: Temp -> Int -> Int
 colorFromTemp Nutrition n
 	| n <= 5  = rEDiNVERSE

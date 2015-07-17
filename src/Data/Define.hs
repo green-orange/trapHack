@@ -156,7 +156,8 @@ data Cell = Cell {
 	height :: Int
 }
 
-data ShowMode = ColorHeight | ColorMonsters | NoHeight deriving (Eq)
+data ShowMode = ColorHeight | ColorHeightAbs | ColorMonsters | NoHeight
+	deriving (Eq)
 
 data ResourceType = Tree deriving (Eq, Show, Read)
 

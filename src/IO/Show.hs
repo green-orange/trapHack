@@ -42,14 +42,17 @@ drawUnit world ((x, y), mon) =
 	unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, color2)
 		placeChar dx dy sym where
-		attr = 
-			if x == xFirst world && y == yFirst world ||
+		attr
+			| x == xFirst world && y == yFirst world ||
 				action world == Info && x == xInfo world && y == yInfo world
-			then setStandout attr0 True
-			else attr0
+				= setStandout attr0 True
+			| showMode world == ColorHeight || 
+				showMode world == ColorHeightAbs= setBold attr0 True
+			| otherwise = attr0
 		(sym, color1) = symbolMon $ name mon
 		color2 = Pair $ case showMode world of
 			ColorHeight -> dEFAULT
+			ColorHeightAbs -> dEFAULT
 			_ -> back + color1 - 8
 		back = colorFromCell $ worldmap world A.! (x,y)
 		dx = x - xFirst world
@@ -70,6 +73,8 @@ drawCell world ((x, y), _) =
 			ColorHeight -> colorFromHei $
 				height (worldmap world A.! (x,y)) - 
 				height (worldmap world A.! (xFirst world, yFirst world))
+			ColorHeightAbs -> colorFromHeiAbs 
+				$ height (worldmap world A.! (x,y))
 			_ -> colorFromCell $ worldmap world A.! (x,y)
 		sym
 			| x == div maxX 2 && y == div maxY 2 = '*'
@@ -250,6 +255,7 @@ drawOptions _ _ = do
 	mvWAddStr stdScr 0 0 msgOptColorHei
 	mvWAddStr stdScr 1 0 msgOptColorMon
 	mvWAddStr stdScr 2 0 msgOptNoHei
+	mvWAddStr stdScr 3 0 msgOptColorHeiAbs
 
 draw :: World -> IO ()
 draw world = do

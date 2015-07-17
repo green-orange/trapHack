@@ -92,6 +92,7 @@ step world c
 				'a' -> Left $ world {action = Move, showMode = ColorHeight}
 				'b' -> Left $ world {action = Move, showMode = ColorMonsters}
 				'c' -> Left $ world {action = Move, showMode = NoHeight}
+				'd' -> Left $ world {action = Move, showMode = ColorHeightAbs}
 				_   -> Left $ world {action = Move, message = [(msgUnkOpt, dEFAULT)]}
 			_ -> Left $ addMessage (msgCheater, mAGENTA)
 				$ changeAction Move world
