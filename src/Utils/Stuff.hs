@@ -16,6 +16,7 @@ import IO.Texts
 
 import System.Random (StdGen, randomR, Random)
 import Data.Maybe (isJust, fromJust)
+import Control.Applicative ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
 import qualified Data.Array as A
@@ -186,3 +187,7 @@ spawnGolem x y w =
 
 spawnGolemsAround :: World -> World
 spawnGolemsAround = fooAround spawnGolem
+
+addNutr :: Int -> Monster -> Monster
+addNutr n mon = changeTemp Nutrition 
+	((+n) <$> temp mon !! fromEnum Nutrition) mon

@@ -15,6 +15,7 @@ import IO.Colors
 import IO.Texts
 
 import Data.Maybe (isNothing, isJust, fromJust)
+import Control.Applicative ((<$>))
 import qualified Data.Map as M
 import qualified Data.Array as A
 
@@ -125,10 +126,10 @@ zap world x y dx dy obj
 	color = 
 		if isPlayerNow world
 		then gREEN
-		else case fmap isPlayer $ M.lookup (x, y) $ units world of
-		Nothing    -> lol
-		Just False -> bLUE
-		Just True  -> rED
+		else case isPlayer <$> M.lookup (x, y) (units world) of
+			Nothing    -> lol
+			Just False -> bLUE
+			Just True  -> rED
 
 zapMon :: Char -> Char -> World -> World
 zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
@@ -220,10 +221,10 @@ fire x y dx dy obj world
 	color = 
 		if isPlayerNow world
 		then gREEN
-		else case fmap isPlayer $ M.lookup (x, y) $ units world of
-		Nothing    -> lol
-		Just False -> bLUE
-		Just True  -> rED
+		else case isPlayer <$> M.lookup (x, y) (units world) of
+			Nothing    -> lol
+			Just False -> bLUE
+			Just True  -> rED
 		
 fireMon :: Char -> Char -> World -> World
 fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}

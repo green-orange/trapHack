@@ -64,11 +64,12 @@ sTACKABLE :: [Object]
 sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
 	
 potionOfHealing, potionOfIntellect, potionOfMutation, potionOfEnchantWeapon,
-	potionOfEnchantArmor, potionOfEnchantJewelry :: Object
+	potionOfEnchantArmor, potionOfEnchantJewelry, soup :: Object
 
 pOTIONS :: [Object]
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation, 
-	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantJewelry]
+	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantJewelry,
+	soup]
 
 potionOfHealing = Potion {title = "potion of healing",
 	act = addRandom (5, 15) $ healParts bODY, idO = 0}
@@ -87,6 +88,8 @@ potionOfEnchantArmor = Potion {title = "potion of enchant armor",
 
 potionOfEnchantJewelry = Potion {title = "potion of enchant jewelry",
 	act = addRandom (0, 3) $ enchantAll JewelrySlot, idO = 5}
+
+soup = Potion {title = "soup", act = addRandom (20, 100) addNutr, idO = 6}
 
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
 	kabbalisticScroll, scrollOfBandaging :: Object

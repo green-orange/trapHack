@@ -3,6 +3,8 @@ module Utils.Items where
 import Data.World
 import Data.Define
 
+import Control.Applicative ((<$>))
+
 isPotion :: Object -> Bool
 isPotion (Potion {}) = True
 isPotion _ = False
@@ -48,7 +50,7 @@ isResource (Resource {}) = True
 isResource _ = False
 	
 objdmg :: Object -> StdDmg
-objdmg obj w = (fmap (+ enchantment obj) n, g) where
+objdmg obj w = ((+ enchantment obj) <$> n, g) where
 	(n, g) = objdmg' obj w
 
 count :: Object -> Int
