@@ -16,6 +16,7 @@ import UI.HSCurses.Curses
 import Control.Monad (unless, liftM)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
+import Data.Time.Clock
 #ifndef mingw32_HOST_OS
 import System.Posix.User
 #endif
@@ -79,6 +80,7 @@ main = do
 		print msgAskName
 		username <- getLine
 #endif
+		timeBegin <- getCurrentTime
 		maybeWorld <-
 			if ans == 'y' || ans == 'Y'
 			then catchAll (return $ Just $ read save) $ const $ return Nothing
@@ -91,5 +93,11 @@ main = do
 				initScr >> initCurses >> startColor >> initColors >>
 				keypad stdScr True >> echo False >>
 				cursSet CursorInvisible >> 
-				catchAll (loop world >>= (\msg -> endWin >> putStrLn msg)) 
+				catchAll (do
+					msg <- loop world 
+					endWin
+					putStrLn msg
+					timeEnd <- getCurrentTime
+					putStr "Time in game: "
+					print $ diffUTCTime timeEnd timeBegin)
 				(\e -> endWin >> putStrLn (msgGameErr ++ show e))
