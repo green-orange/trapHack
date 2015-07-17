@@ -138,3 +138,9 @@ coordsFromWorld xP yP w =
 	(xNow, yNow, signum $ xP - xNow, signum $ yP - yNow) where
 		xNow = xFirst w
 		yNow = yFirst w
+
+isItem :: Int -> Int -> World -> Bool
+isItem x y w = any (\(x', y', _, _) -> x == x' && y == y') (items w)
+
+isItemHere :: World -> Bool		
+isItemHere w = isItem (xFirst w) (yFirst w) w

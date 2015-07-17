@@ -94,12 +94,9 @@ zapAttackAI f xPlayer yPlayer p w =
 		
 pickAI :: AIfunc -> AIfunc
 pickAI f x y p w =
-	if not $ null objects
+	if isItemHere w
 	then fromJust $ fst $ pickFirst $ foldr changeChar w alphabet
-	else f x y p w where
-		xNow = xFirst w
-		yNow = yFirst w
-		objects = filter (\(x', y', _, _) -> x' == xNow && y' == yNow) $ items w
+	else f x y p w
 
 fireAI :: AIfunc -> AIfunc
 fireAI f xPlayer yPlayer p w =
@@ -232,18 +229,15 @@ tailWorm = getMonster (getPureAI NothingAI) [(getMain 0, (100, 200))]
 
 collectorAI :: AIfunc
 collectorAI _ _ _ world = 
-	if isItemHere
+	if isItemHere world
 	then fromJust $ fst $ pickFirst $ foldr changeChar world alphabet
 	else stupidAI xItem yItem False world
 	where
-		isItemHere = any (\ (x, y, _, _) -> x == xNow && y == yNow) (items world)
-		xNow = xFirst world
-		yNow = yFirst world
 		(xItem, yItem, _, _) = 
 			if null (items world)
 			then (0, 0, lol, lol)
 			else minimumBy cmp $ items world
-		dist x y = max (x - xNow) (y - yNow)
+		dist x y = max (x - xFirst world) (y - yFirst world)
 		cmp = on compare (\(x, y, _, _) -> dist x y)
 
 golemAI :: AIfunc
@@ -262,8 +256,8 @@ golemAI _ _ _ world = case nears of
 ivyAI :: AIfunc
 ivyAI xPlayer yPlayer peace world
 	| abs dx <= 1 && abs dy <= 1 && not peace = fst $ moveFirst dx dy world
-	| isEmpty world (xNow + dx') (yNow + dy')
-		= spawnMon getIvy (xNow + dx') (yNow + dy') $ changeGen g'' world
+	| isEmpty world xNew yNew && not (isItem xNew yNew world)
+		= spawnMon getIvy xNew yNew $ changeGen g'' world
 	| otherwise = changeGen g'' $ killFirst world where
 		xNow = xFirst world
 		yNow = yFirst world
@@ -272,6 +266,8 @@ ivyAI xPlayer yPlayer peace world
 		g = stdgen world
 		(dx', g')  = randomR (-1, 1) g
 		(dy', g'') = randomR (-1, 1) g'
+		xNew = xNow + dx'
+		yNew = yNow + dy'
 
 getIvy :: MonsterGen
 getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] 15
