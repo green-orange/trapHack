@@ -15,21 +15,21 @@ import Data.Maybe (isJust)
 
 levelM :: String -> Int
 levelM "Bat"             = 1
-levelM "Homunculus"      = 3
-levelM "Beetle"          = 5
+levelM "Homunculus"      = 1
+levelM "Beetle"          = 3
 levelM "Ivy"             = 3
-levelM "Accelerator"     = 6
-levelM "Floating eye"    = 5
+levelM "Accelerator"     = 5
+levelM "Floating eye"    = 6
 levelM "Hunter"          = 7
-levelM "Troll"           = 7
+levelM "Troll"           = 6
 levelM "Worm"            = 5
 levelM "Red dragon"      = 10
 levelM "Green dragon"    = 10
 levelM "White dragon"    = 10
 levelM "Forgotten beast" = 15
-levelM "Spider"          = 8
-levelM "Soldier"         = 8
-levelM "Umber hulk"      = 9
+levelM "Spider"          = 6
+levelM "Soldier"         = 9
+levelM "Umber hulk"      = 7
 levelM "Tree"            = 4
 levelM "Bot"             = 2
 levelM _                 = 0
