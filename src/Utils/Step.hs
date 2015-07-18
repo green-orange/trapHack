@@ -129,7 +129,7 @@ listOfValidChars :: (Object -> Bool) -> World -> String
 listOfValidChars f world = sort $ M.keys 
 	$ M.filter (f . fst) $ inv $ getFirst world
 	
-doIfCorrect :: (World, Bool) -> Either World String
+doIfCorrect :: (World, Bool) -> Either World a
 doIfCorrect (rez, correct) = 
 	if correct
 	then Left $ newWaveIf rez

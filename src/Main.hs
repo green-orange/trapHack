@@ -4,7 +4,9 @@ module Main where
 import Data.Const
 import Data.World
 import Data.Define
+import Data.Monster (units)
 import Utils.Changes (clearMessage)
+import Utils.Monsters (intLog)
 import IO.Step
 import IO.Show
 import IO.Colors
@@ -17,6 +19,7 @@ import Control.Monad (unless, liftM)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
 import Data.Time.Clock
+import qualified Data.Map as M
 #ifndef mingw32_HOST_OS
 import System.Posix.User
 #endif
@@ -30,9 +33,13 @@ catchAll = catch
 
 getReverseLog :: IO [(String, Int)]
 getReverseLog = liftM (map (flip (,) dEFAULT) . tail . reverse 
-	. separate '\n') $ readFile logName 
+	. separate '\n') $ readFile logName
 
-loop :: World -> IO String
+playerLevel :: World -> Int
+playerLevel w = intLog $ xp player where
+	player = snd . head $ M.toList $ M.filter (("You" ==) . name) $ units w
+
+loop :: World -> IO (String, Int)
 loop world =
 	if isPlayerNow world
 	then do
@@ -42,7 +49,7 @@ loop world =
 			Left newWorld -> case action newWorld of
 				Save -> do
 					writeFile saveName $ show newWorld
-					return msgSaved
+					return (msgSaved, playerLevel world)
 				Previous -> do
 					msgs <- getReverseLog
 					loop newWorld {action = AfterSpace, message = msgs}
@@ -53,12 +60,13 @@ loop world =
 					loop newWorld
 			Right msg ->
 				writeFile saveName "" >> appendFile logName (msg ++ "\n")
-				>> return msg
+				>> return (msg, playerLevel world)
 	else
 		case step world ' ' of
 			Left newWorld -> loop newWorld
 			Right msg -> redraw world >> 
-				appendFile logName (msg ++ "\n") >> return msg
+				appendFile logName (msg ++ "\n") >>
+				return (msg, playerLevel world)
 	where
 	maybeAppendFile fileName strings = 
 		unless (null strings) $ appendFile fileName $ unwords strings ++ "\n"
@@ -94,10 +102,12 @@ main = do
 				keypad stdScr True >> echo False >>
 				cursSet CursorInvisible >> 
 				catchAll (do
-					msg <- loop world 
+					(msg, lvl) <- loop world 
 					endWin
 					putStrLn msg
 					timeEnd <- getCurrentTime
 					putStr "Time in game: "
-					print $ diffUTCTime timeEnd timeBegin)
+					print $ diffUTCTime timeEnd timeBegin
+					putStr "Level: " 
+					print lvl)
 				(\e -> endWin >> putStrLn (msgGameErr ++ show e))
