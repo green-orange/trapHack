@@ -9,7 +9,7 @@ monNames :: [String]
 monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
 	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
 	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
-	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree"]
+	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot"]
 
 listSepMon, listSepW, listSepUn :: Char
 listSepMon = '&'
@@ -171,7 +171,7 @@ data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI |
 	UseItemsAI | EatAI deriving (Show, Read, Enum)
 data AIpure = NothingAI | StupidestAI | StupidAI | StupidParalysisAI | 
 	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | CollectorAI |
-	GolemAI deriving (Show, Read)
+	GolemAI | CleverSAI | CleverVSAI | CleverUAI deriving (Show, Read)
 data AIrepr = AIrepr {
 	mods :: [AImod],
 	attackIfCloseMode :: Maybe (Elem, Int),

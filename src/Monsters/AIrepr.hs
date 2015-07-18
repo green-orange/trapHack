@@ -24,5 +24,5 @@ getDragonAI :: Elem -> Int -> AIrepr
 getDragonAI e d = AIrepr {
 	mods = [EatAI],
 	attackIfCloseMode = Just (e, d),
-	aipure = StupidAI
+	aipure = CleverUAI
 }

@@ -14,7 +14,7 @@ import System.Random (randomR)
 
 getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
 	getWorm, getFloatingEye, getRedDragon, getWhiteDragon, getGreenDragon,
-	getSpider, getSoldier, getUmberHulk, getTree :: MonsterGen
+	getSpider, getSoldier, getUmberHulk, getTree, getBot :: MonsterGen
 
 getHomunculus = getMonster (getHumanoidAI StupidestAI)
 	[(getBody 1, (10, 30)), 
@@ -54,7 +54,7 @@ getBat = getMonster (getPureAI RandomAI)
 	 (getWing 2, (5, 15))]
 	3 ((3,5), 0.2) emptyInv 50 1000
 	
-getHunter = getMonster (getHunterAI StupidAI)
+getHunter = getMonster (getHunterAI CleverVSAI)
 	[(getBody 1, (10, 30)),
 	 (getHead 1, (10, 30)),
 	 (getLeg 1, (5, 10)),
@@ -141,7 +141,7 @@ getSpider = getMonster (getEatAI StupidPoisonAI)
 	 (getLeg 1, (2, 5))]
 	12 ((2,3), 0.1) emptyInv 250 200
 	
-getSoldier = getMonster (getHumanoidAI StupidAI)
+getSoldier = getMonster (getHumanoidAI CleverSAI)
 	[(getBody 2, (10, 30)),
 	 (getHead 2, (10, 20)),
 	 (getLeg 3, (8, 12)),
@@ -172,3 +172,12 @@ getUmberHulk = getMonster (getHumanoidAI StupidConfAI)
 
 getTree = getMonster (getPureAI NothingAI) [(getMain 1, (100, 200))] 22
 	((0, 0), 0) emptyInv 10000 10000
+
+getBot = getMonster (getPureAI CleverVSAI)
+	[(getBody 1, (10, 15)),
+	 (getHead 1, (8, 12)),
+	 (getLeg 1, (1, 6)),
+	 (getLeg 1, (1, 6)),
+	 (getArm 1, (1, 6)),
+	 (getArm 1, (1, 6))]
+	23 ((1, 4), 0.1) emptyInv 100 10000

@@ -31,6 +31,7 @@ levelM "Spider"          = 8
 levelM "Soldier"         = 8
 levelM "Umber hulk"      = 9
 levelM "Tree"            = 4
+levelM "Bot"             = 2
 levelM _                 = 0
 
 nOTsOLDIERS, nOTeNEMIES :: [String]

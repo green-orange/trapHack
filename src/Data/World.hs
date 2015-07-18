@@ -6,6 +6,7 @@ import Data.Monster
 
 import qualified Data.Map as M
 import qualified Data.Array as A
+import Data.Functor ((<$>))
 
 type AIfunc = Int -> Int -> Bool -> World -> World
 
@@ -22,6 +23,13 @@ isEmpty :: World -> Int -> Int -> Bool
 isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
 	M.notMember (x, y) (units world)
 
+isEmptyOrPlayer :: World -> Int -> Int -> Bool
+isEmptyOrPlayer world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY
+	&& (case (ai <$> M.lookup (x, y) (units world)) of
+		Nothing -> True
+		Just You -> True
+		_ -> False)
+
 isValid :: World -> Int -> Int -> Int -> Int -> Bool
 isValid world x y dx dy = case rez of
 	Nothing -> False
@@ -29,19 +37,43 @@ isValid world x y dx dy = case rez of
 	where
 		rez = dirs world (x, y, dx, dy)
 
-isSafe :: World -> Int -> Int -> Int -> Int -> Bool
-isSafe world x y dx dy = case rez of
+isValidOrPlayer :: World -> Int -> Int -> Int -> Int -> Bool
+isValidOrPlayer world x y dx dy = case rez of
+	Nothing -> False
+	Just (x', y') -> isEmptyOrPlayer world x' y'
+	where
+		rez = dirs world (x, y, dx, dy)
+
+isSafe, isVerySafe :: World -> Int -> Int -> Int -> Int -> Bool
+isSafe = isSafeByBounds (-2) 1
+isVerySafe = isSafeByBounds (-3) 1
+
+isSafeByBounds :: Int -> Int -> World -> Int -> Int -> Int -> Int -> Bool
+isSafeByBounds mindh maxdh world x y dx dy = 
+	if x < 0 || y < 0 || x > maxX || y > maxY then False else
+	case rez of
 	Nothing -> False
 	Just (x', y') -> let
 		dh = height (worldmap world A.! (x', y')) - 
 			height (worldmap world A.! (x, y)) in
-		dh <= 1 && dh >= -2
+		dh <= maxdh && dh >= mindh
 	where
 		rez = dirs world (x, y, dx, dy)
 
+class Boolean a where
+	(&&&) :: a -> a -> a
+	(|||) :: a -> a -> a
+
+instance Boolean Bool where
+	(&&&) = (&&)
+	(|||) = (||)
+
+instance Boolean b => Boolean (a -> b) where
+	(f &&& g) x = f x &&& g x
+	(f ||| g) x = f x ||| g x
+
 isValidAndSafe :: World -> Int -> Int -> Int -> Int -> Bool
-isValidAndSafe world x y dx dy = isValid world x y dx dy
-	&& isSafe world x y dx dy
+isValidAndSafe = isValid &&& isSafe
 
 isPlayerNow :: World -> Bool
 isPlayerNow world = isPlayer $ getFirst world

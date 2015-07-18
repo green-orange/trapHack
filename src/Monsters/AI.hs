@@ -53,6 +53,9 @@ runAIpure aip = case aip of
 	IvyAI -> ivyAI
 	CollectorAI -> collectorAI
 	GolemAI -> golemAI
+	CleverSAI -> cleverSafeAI
+	CleverVSAI -> cleverVerySafeAI
+	CleverUAI -> cleverUnsafeAI
 
 runAI :: AIrepr -> AIfunc
 runAI repr =  foldr ((.) . runAImod) id (mods repr) $ 
@@ -272,4 +275,15 @@ ivyAI xPlayer yPlayer peace world
 getIvy :: MonsterGen
 getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] 15
 	((2,10), 0.0) emptyInv 400 100
+
+cleverSafeAI, cleverVerySafeAI, cleverUnsafeAI :: AIfunc
+cleverSafeAI = cleverAI $ isSafe &&& isValidOrPlayer
+cleverVerySafeAI = cleverAI $ isVerySafe &&& isValidOrPlayer
+cleverUnsafeAI = cleverAI isValidOrPlayer
+
+cleverAI :: (World -> Int -> Int -> Int -> Int -> Bool) -> AIfunc
+cleverAI safetyFun xPlayer yPlayer _ w = case maybeDir of
+	Nothing -> w
+	Just (dx, dy) -> fst $ moveFirst dx dy w
+	where maybeDir = runAStar safetyFun (xPlayer, yPlayer) (xFirst w, yFirst w) w
 

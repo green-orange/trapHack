@@ -10,6 +10,8 @@ import Items.Items
 import IO.Texts
 
 import qualified Data.Map as M
+import qualified Data.Set as S
+import Data.Function (on)
 import Data.Maybe
 import System.Random (randomR)
 
@@ -144,3 +146,61 @@ isItem x y w = any (\(x', y', _, _) -> x == x' && y == y') (items w)
 
 isItemHere :: World -> Bool		
 isItemHere w = isItem (xFirst w) (yFirst w) w
+
+data Path = Path {
+	xBegin, yBegin, xMid, yMid, xEnd, yEnd :: Int
+} deriving (Eq, Show)
+
+instance Ord Path where
+	compare p1 p2 = 
+		if p1 == p2
+		then EQ
+		else case (compare `on` pathLen) p1 p2 of
+			GT -> GT
+			LT -> LT
+			EQ -> LT
+		where
+		rho x y = (fromIntegral x ** 5 + fromIntegral y ** 5) ** 0.2
+		pathLen :: Path -> Float
+		pathLen p = rho (abs (xMid p - xBegin p)) (abs (yMid p - yBegin p)) +
+			rho (abs (xMid p - xEnd p)) (abs (yMid p - yEnd p))
+
+runAStar :: (World -> Int -> Int -> Int -> Int -> Bool) ->
+	(Int, Int) -> (Int, Int) -> World -> Maybe (Int, Int)
+runAStar safetyFun begin end world = 
+	if begin == end then Nothing
+	else aStar safetyFun begin end (S.empty) (S.singleton Path {
+		xBegin = fst begin,
+		yBegin = snd begin,
+		xEnd = fst end,
+		yEnd = snd end,
+		xMid = fst begin,
+		yMid = snd begin
+	}) world
+
+aStar :: (World -> Int -> Int -> Int -> Int -> Bool) 
+	-> (Int, Int) -> (Int, Int) -> S.Set (Int, Int) -> S.Set Path 
+	-> World -> Maybe (Int, Int)
+aStar safetyFun begin end@(xEnd', yEnd') closed paths w
+	| S.null paths = Nothing
+	| (xBest, yBest) `S.member` closed = aStar safetyFun begin end closed
+		(S.delete best paths) w
+	| end `elem` nears = Just (xBest - xEnd', yBest - yEnd')
+	| otherwise = aStar safetyFun begin end newClosed newPaths w where
+		best = S.findMin paths
+		(xBest, yBest) = (xMid best, yMid best)
+		d = [-1, 0, 1]
+		nears = filter (`S.notMember` newClosed)
+			[(xBest + dx, yBest + dy) | dx <- d, dy <- d, 
+			safetyFun w (xBest + dx) (yBest + dy) (-dx) (-dy)]
+		getPath (x, y) = Path {
+			xBegin = fst begin,
+			yBegin = snd begin,
+			xEnd = fst end,
+			yEnd = snd end,
+			xMid = x,
+			yMid = y
+		}
+		newClosed = S.insert (xBest, yBest) closed
+		add = S.fromList $ map getPath nears
+		newPaths = S.delete best $ S.union paths add
