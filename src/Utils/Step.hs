@@ -116,7 +116,9 @@ addDeathDrop mon g = (changeInv (addCorpse
 	$ M.union (inv mon) newDrop) mon, newGen) where
 	(newDrop, newGen) = deathDrop (name mon) g
 	corpse = corpseFromMon mon
-	addCorpse = case nutrition corpse of
+	addCorpse = if name mon `elem` nOcORPSES
+		then id
+		else case nutrition corpse of
 		0 -> id
 		_ -> M.insert (head notAlphabet) (corpse, 1)
 
@@ -160,7 +162,9 @@ callUpon w = changeAction Move $ addMessage (msgLanding (wave w) , rED)
 	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
 
 dropPartialCorpse :: World -> World
-dropPartialCorpse w = changeGen g' $ (foldr ((.) . addItem . wrap . 
+dropPartialCorpse w = 
+	if name mon `elem` nOcORPSES then w
+	else changeGen g' $ (foldr ((.) . addItem . wrap . 
 	corpseFromPart mon) id $ filter (not . aliveP) $ parts mon) w where
 		mindx = if xFirst w == 0 then 0 else -1
 		maxdx = if xFirst w == maxX then 0 else 1

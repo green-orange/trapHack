@@ -45,6 +45,9 @@ nOTeNEMIES = ["You", "Dummy", "Garbage collector", "Rock", "Tail", "Golem",
 isEnemy :: Monster -> Bool
 isEnemy mon = not $ isPlayer mon || elem (name mon) nOTeNEMIES
 
+nOcORPSES :: [String]
+nOcORPSES = ["Ivy", "Bot", "Tree", "Tail", "Dummy", "Rock"]
+
 alive :: Monster -> Bool
 alive mon = isJust (temp mon' !! fromEnum Nutrition) && hasPart bODY mon' 
 	&& hasPart hEAD mon' || hasPart mAIN mon' where
