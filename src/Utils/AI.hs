@@ -169,7 +169,7 @@ runAStar :: (World -> Int -> Int -> Int -> Int -> Bool) ->
 	(Int, Int) -> (Int, Int) -> World -> Maybe (Int, Int)
 runAStar safetyFun begin end world = 
 	if begin == end then Nothing
-	else aStar safetyFun begin end (S.empty) (S.singleton Path {
+	else aStar safetyFun begin end S.empty (S.singleton Path {
 		xBegin = fst begin,
 		yBegin = snd begin,
 		xEnd = fst end,

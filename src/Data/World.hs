@@ -25,7 +25,7 @@ isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
 
 isEmptyOrPlayer :: World -> Int -> Int -> Bool
 isEmptyOrPlayer world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY
-	&& (case (ai <$> M.lookup (x, y) (units world)) of
+	&& (case ai <$> M.lookup (x, y) (units world) of
 		Nothing -> True
 		Just You -> True
 		_ -> False)
@@ -50,13 +50,13 @@ isVerySafe = isSafeByBounds (-1) 1
 
 isSafeByBounds :: Int -> Int -> World -> Int -> Int -> Int -> Int -> Bool
 isSafeByBounds mindh maxdh world x y dx dy = 
-	if x < 0 || y < 0 || x > maxX || y > maxY then False else
-	case rez of
+	not (x < 0 || y < 0 || x > maxX || y > maxY) &&
+	(case rez of
 	Nothing -> False
 	Just (x', y') -> let
 		dh = height (worldmap world A.! (x', y')) - 
 			height (worldmap world A.! (x, y)) in
-		dh <= maxdh && dh >= mindh
+		dh <= maxdh && dh >= mindh)
 	where
 		rez = dirs world (x, y, dx, dy)
 
