@@ -192,7 +192,9 @@ aStar safetyFun begin end@(xEnd', yEnd') closed paths w
 		d = [-1, 0, 1]
 		nears = filter (`S.notMember` newClosed)
 			[(xBest + dx, yBest + dy) | dx <- d, dy <- d, 
-			safetyFun w (xBest + dx) (yBest + dy) (-dx) (-dy)]
+			safetyFun w (xBest + dx) (yBest + dy) (-dx) (-dy),
+			abs (xBest + dx - xEnd') <= xSight, 
+			abs (yBest + dy - yEnd') <= ySight]
 		getPath (x, y) = Path {
 			xBegin = fst begin,
 			yBegin = snd begin,
