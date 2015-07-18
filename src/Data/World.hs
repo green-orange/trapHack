@@ -46,7 +46,7 @@ isValidOrPlayer world x y dx dy = case rez of
 
 isSafe, isVerySafe :: World -> Int -> Int -> Int -> Int -> Bool
 isSafe = isSafeByBounds (-2) 1
-isVerySafe = isSafeByBounds (-3) 1
+isVerySafe = isSafeByBounds (-1) 1
 
 isSafeByBounds :: Int -> Int -> World -> Int -> Int -> Int -> Int -> Bool
 isSafeByBounds mindh maxdh world x y dx dy = 
