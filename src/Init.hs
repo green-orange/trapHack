@@ -45,7 +45,6 @@ initWorld username gen = World {
 	wave = 1,
 	chars = S.empty,
 	prevAction = ' ',
-	stepsBeforeWave = 1,
 	shift = 0,
 	slot = toEnum 0,
 	xInfo = 0,

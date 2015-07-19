@@ -135,8 +135,7 @@ safety w = w {
 	wave = wave w + 1,
 	chars = S.empty,
 	stdgen = newGen,
-	worldmap = newMap,
-	stepsBeforeWave = 2
+	worldmap = newMap
 } where (newMap, newGen) = getMap $ stdgen w
 
 speed :: Int -> Monster -> Monster

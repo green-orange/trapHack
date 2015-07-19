@@ -141,7 +141,6 @@ data World = World {
 	chars :: Set Char,
 	worldmap :: A.Array (Int, Int) Cell,
 	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
-	stepsBeforeWave :: Int,
 	prevAction :: Char,
 	shift :: Int,
 	slot :: Slot,
@@ -288,5 +287,4 @@ instance Show World where
 		myShowList listSepW (items w) ++ [worldSep] ++
 		show (stdgen w) ++ [worldSep] ++
 		show (wave w) ++ [worldSep] ++
-		myShowList listSepW (A.elems $ worldmap w) ++ [worldSep] ++
-		show (stepsBeforeWave w)
+		myShowList listSepW (A.elems $ worldmap w)

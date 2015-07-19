@@ -151,7 +151,6 @@ instance Read World where
 		worldmap = A.listArray ((0,0), (maxX, maxY)) 
 			$ myReadList listSepW worldmap',
 		dirs = rectdirs (0, 0, maxX, maxY),
-		stepsBeforeWave = read stepsBeforeWave',
 		prevAction = ' ',
 		shift = 0,
 		slot = toEnum 0,
@@ -161,4 +160,4 @@ instance Read World where
 		showMode = ColorMonsters
 	}, "")] where
 		parse = separate worldSep str
-		[units'', items', stdgen', wave', worldmap', stepsBeforeWave'] = parse
+		[units'', items', stdgen', wave', worldmap'] = parse

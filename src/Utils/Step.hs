@@ -21,10 +21,6 @@ import Data.Maybe (mapMaybe)
 import qualified Data.Map as M
 import qualified Data.Array as A
 
-bIGpAUSE, pAUSE :: Int
-bIGpAUSE = 100
-pAUSE    = 3
-
 minSnd :: (Ord b) => (a,b) -> (a,b) -> (a,b)
 minSnd x y = if snd x > snd y then y else x
 
@@ -34,11 +30,6 @@ minValue m = foldr1 minSnd $ M.toList m
 minimumOn :: (Ord b, Ord k) => (a -> b) -> M.Map k a -> (k, a)
 minimumOn f m = (k, m M.! k) where
 	k = fst $ minValue $ M.map f m
-
-wait :: Int -> Int
-wait n = case mod n 10 of
-	0 -> bIGpAUSE
-	_ -> pAUSE
 	
 almostTime :: Monster -> Int
 almostTime mon = 
@@ -56,15 +47,11 @@ updateFirst w = changeMons newUnits w where
 	((x, y), monNew) = minimumOn almostTime $ units w
 
 newWaveIf :: World -> World
-newWaveIf world
-	| not (isPlayerNow world) ||
-		levelW world * 3 > wave world = newWorld
-	| stepsBeforeWave world > 0 = newWorld
-		{stepsBeforeWave = stepsBeforeWave world - 1}
-	| stepsBeforeWave world == 0 = callUpon world
-	| otherwise = newWorld {stepsBeforeWave = wait $ wave world}
-	where
-		newWorld = cycleWorld world
+newWaveIf world =
+	if not (isPlayerNow world) ||
+		levelW world * 3 > wave world then newWorld
+	else callUpon world
+	where newWorld = cycleWorld world
 		
 cycleWorld :: World -> World
 cycleWorld w = rotAll $ tempFirst $ actTrapFirst $ regFirst $ cleanFirst 
@@ -159,7 +146,7 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 
 callUpon :: World -> World
 callUpon w = changeAction Move $ addMessage (msgLanding (wave w) , rED) 
-	$ newWave $ cycleWorld w {stepsBeforeWave = -1}
+	$ newWave $ cycleWorld w
 
 dropPartialCorpse :: World -> World
 dropPartialCorpse w = 
