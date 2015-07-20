@@ -72,11 +72,11 @@ attackName Cold = "freeze"
 
 {-Illegal actions-}
 msgSmallScr, msgNECell, msgUnseenCell, msgCantSpawnGC, msgIncStep,
-	msgNoItem, msgNotDir, msgNoCharge, msgNotTrap, msgTrapOverTrap, 
+	msgNoItem, msgNotDir, msgNotTrap, msgTrapOverTrap, 
 	msgCantUntrap, msgNoWeapAppMiss, msgDropEquipped, msgFullInv, 
 	msgWrongBind, msgRepeatedBind, msgUnkAct, msgNaN, msgNotEnough,
 	msgUnkRep, msgTooHigh, msgUnkOpt, msgCantDig :: String
-msgNeedArms, msgDontKnow :: String -> String
+msgNeedArms, msgDontKnow, msgNoCharge :: String -> String
 
 msgSmallScr = "Your screen is too small."
 msgNeedArms s = "You need arms to " ++ s ++ "!"
@@ -87,7 +87,7 @@ msgCantSpawnGC = "There is no place for the garbage collector!"
 msgIncStep = "Incorrect step!"
 msgNoItem = "You haven't this item!"
 msgNotDir = "It's not a direction!"
-msgNoCharge = "This wand has no charge!"
+msgNoCharge str = "This " ++ str ++ " has no charge!"
 msgNotTrap = "It's not a trap!"
 msgTrapOverTrap = "You can't set a trap over another trap!"
 msgCantUntrap = "It's nothing to untrap here!"

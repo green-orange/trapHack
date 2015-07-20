@@ -86,7 +86,7 @@ instance Read Object where
 		"Food" -> Food {title = read arg2, nutrition = read arg3, 
 			weight' = read arg4, rotRate = read arg5, rotTime = read arg6}
 		"Resource" -> Resource {title = arg2, restype = read arg2}
-		"Tool" -> tOOLS !! id'
+		"Tool" -> (tOOLS !! id') {charge = ench'}
 		_ -> error $ "parse error: " ++ str, "")]
 		where
 		parse = separate objSep str

@@ -93,7 +93,7 @@ zapFirst c world
 	| isNothing $ dir c =
 		(maybeAddMessage msgNotDir failWorld, False)
 	| charge obj == 0 =
-		(maybeAddMessage msgNoCharge failWorld, True)
+		(maybeAddMessage (msgNoCharge "wand") failWorld, True)
 	| otherwise =
 		(changeMon mon $ changeAction Move newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
@@ -278,10 +278,12 @@ use world x y dx dy obj = case tooltype obj of
 	PickAxe -> usePickAxe world x y dx dy obj
 
 usePickAxe :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
-usePickAxe world x y dx dy _
+usePickAxe world x y dx dy obj
 	| not (isSafeByBounds (-1) 2 world x y dx dy)
 		|| height cell == 0
 		= (maybeAddMessage msgCantDig world, False)
+	| charge obj == 0 =
+		(maybeAddMessage (msgNoCharge "pick axe") world, True)
 	| not ok = (maybeAddMessage msgFullInv world, False)
 	| otherwise = (addNeutralMessage (msgGetStones cnt) 
 		$ changeGen g $ changeMon newMon 
@@ -296,5 +298,5 @@ usePickAxe world x y dx dy _
 		(invNew, ok) = case addInv (itemFromRes Stone, cnt) invOld of
 			Nothing -> (lol, False)
 			Just i -> (i, True)
-		newMon = mon {inv = invNew}
+		newMon = decChargeByKey (prevAction world) mon {inv = invNew}
 	

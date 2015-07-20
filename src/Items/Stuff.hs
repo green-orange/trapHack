@@ -349,5 +349,6 @@ pickAxe = Tool {
 	title = "pick axe",
 	tooltype = PickAxe,
 	weight' = 50,
+	charge = 20,
 	idO = 0
 }

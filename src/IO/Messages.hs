@@ -15,7 +15,7 @@ import Data.Array
 
 titleShow :: Object -> String
 titleShow x = title x ++ 
-	if isWand x
+	if isWand x || isTool x
 	then " (" ++ show (charge x) ++ ")"
 	else if isWeapon x || isArmor x || isLauncher x || isJewelry x
 	then " (" ++ (if enchantment x >= 0 then "+" else "") 
