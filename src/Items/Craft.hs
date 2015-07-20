@@ -12,7 +12,7 @@ import IO.Texts
 import qualified Data.Map as M
 
 recipes :: [Recipe]
-recipes = [recWoodenSword]
+recipes = [recWoodenSword, recStoneSword]
 
 remRes :: ResourceType -> Inv -> Maybe Inv
 remRes rt inv'
@@ -46,3 +46,6 @@ maybeRunRecipe (ress, rez) w =
 
 recWoodenSword :: Recipe
 recWoodenSword = ([(Tree, 3)], woodenSword)
+
+recStoneSword :: Recipe
+recStoneSword = ([(Stone, 2), (Tree, 1)], stoneSword)

@@ -203,10 +203,10 @@ bow = getLauncher "bow" 30 2 "bow" 1
 
 longbow = getLauncher "longbow" 40 3 "bow" 2
 
-dagger, shortsword, sword, crysknife, woodenSword :: Object
+dagger, shortsword, sword, crysknife, woodenSword, stoneSword :: Object
 
 uNIQUEwEAPONS :: [Object]
-uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife, woodenSword]
+uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife, woodenSword, stoneSword]
 wEAPONS :: [Object]
 wEAPONS = 
 	replicate 4 dagger ++
@@ -226,6 +226,8 @@ sword = getWeapon "sword" 40 2 $ dices (2,10) 0.1             -- avg = 9.9
 crysknife = getWeapon "crysknife" 20 3 $ dices (5,5) 0.0      -- avg = 15
 
 woodenSword = getWeapon "wooden sword" 20 4 $ dices (2,7) 0.3 -- avg = 5.6
+
+stoneSword = getWeapon "stone sword" 50 5 $ dices (2,9) 0.2   -- avg = 8
 
 uNIQUEaRMOR, uNIQUEhELMS, uNIQUEgLOVES, uNIQUEbOOTS :: [Object]
 aRMOR, bODYaRMOR, hELMETS, gLOVES, bOOTS :: [Object]
