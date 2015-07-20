@@ -26,3 +26,4 @@ S - **s**ave the game
 P - show **p**revious messages  
 s - **s**plit pile of items  
 O - change **o**ptions  
+U - **u**se item  
