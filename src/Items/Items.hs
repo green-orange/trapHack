@@ -4,11 +4,13 @@ import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
+import Utils.Random
 import Utils.Items
 import Utils.Changes
 import Utils.Stuff
 import Utils.HealDamage
 import Items.Stuff
+import Items.ItemsOverall
 import Monsters.Parts
 import IO.Messages
 import IO.Colors
@@ -16,6 +18,7 @@ import IO.Texts
 
 import Data.Maybe (isNothing, isJust, fromJust)
 import Control.Applicative ((<$>))
+import System.Random (randomR)
 import qualified Data.Map as M
 import qualified Data.Array as A
 
@@ -275,12 +278,23 @@ use world x y dx dy obj = case tooltype obj of
 	PickAxe -> usePickAxe world x y dx dy obj
 
 usePickAxe :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
-usePickAxe world x y dx dy _ =
-	if not (isSafeByBounds (-1) 2 world x y dx dy)
+usePickAxe world x y dx dy _
+	| not (isSafeByBounds (-1) 2 world x y dx dy)
 		|| height cell == 0
-	then (maybeAddMessage msgCantDig world, False)
-	else (world {worldmap = worldmap world A.// [((x + dx, y + dy), 
+		= (maybeAddMessage msgCantDig world, False)
+	| not ok = (maybeAddMessage msgFullInv world, False)
+	| otherwise = (addNeutralMessage (msgGetStones cnt) 
+		$ changeGen g $ changeMon newMon 
+		world {worldmap = worldmap world A.// [((x + dx, y + dy), 
 		cell {height = height cell - 1})]}, True)
 	where
+		(q, g) = randomR (0.0, 1.0) $ stdgen world
+		cnt = inverseSquareRandom q
 		cell = worldmap world A.! (x + dx, y + dy)
+		mon = getFirst world
+		invOld = inv mon
+		(invNew, ok) = case addInv (itemFromRes Stone, cnt) invOld of
+			Nothing -> (lol, False)
+			Just i -> (i, True)
+		newMon = mon {inv = invNew}
 	

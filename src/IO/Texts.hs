@@ -173,6 +173,7 @@ msgLanding :: Int -> String
 msgLevelUp, msgWE :: String -> String
 msgTeleport :: String -> String
 msgCraft :: String -> String -> String
+msgGetStones :: Int -> String
 
 msgLanding n = "Squad #" ++ show n ++ " landed around you!"
 msgSafety = "You suddenly find yourself in a new world!"
@@ -188,3 +189,5 @@ msgCraft n t =
 	if n == "You"
 	then "You successfully craft " ++ t ++ "!"
 	else n ++ " successfully crafts " ++ t ++ "!"
+msgGetStones 1 = "You get a stone!"
+msgGetStones n = "You get " ++ show n ++ " stones!"
