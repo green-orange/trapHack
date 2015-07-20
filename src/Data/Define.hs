@@ -154,7 +154,8 @@ data World = World {
 	xInfo :: Int,
 	yInfo :: Int,
 	numToSplit :: Int,
-	showMode :: ShowMode
+	showMode :: ShowMode,
+	mapType :: MapGenType
 }
 
 data Cell = Cell {
@@ -195,6 +196,9 @@ data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 data Terrain = Empty | BearTrap | FireTrap | PoisonTrap | MagicTrap 
 	deriving (Eq)
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
+
+data MapGenType = Sin30 | Sin3 | FlatLow | FlatHigh | AvgRandom | Avg2Random
+	deriving (Show, Read)
 
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
@@ -297,4 +301,5 @@ instance Show World where
 		myShowList listSepW (items w) ++ [worldSep] ++
 		show (stdgen w) ++ [worldSep] ++
 		show (wave w) ++ [worldSep] ++
-		myShowList listSepW (A.elems $ worldmap w)
+		myShowList listSepW (A.elems $ worldmap w) ++ [worldSep] ++
+		show (mapType w)

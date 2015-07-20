@@ -13,13 +13,13 @@ import Monsters.AIrepr
 import Monsters.Monsters
 import IO.Colors
 import IO.Texts
+import MapGen
 
 import System.Random (StdGen, randomR, Random)
 import Data.Maybe (isJust, fromJust)
 import Control.Applicative ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
-import qualified Data.Array as A
 
 unrandom :: (a -> a) -> (a, x) -> (a, x)
 unrandom f (a, x) = (f a, x)
@@ -92,39 +92,6 @@ stupidity mon = mon {ai = newAI} where
 	
 isUntrappable :: Cell -> Bool
 isUntrappable = (Empty /=) . terrain
-
-getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
-getSinFunc maxA maxB g = (sinf, g3) where
-	(a, g1) = randomR (0.0, maxA) g
-	(b, g2) = randomR (0.0, maxB) g1
-	(c, g3) = randomR (0.0, 2 * pi) g2
-	sinf x y = sin $ a * fromIntegral x + b * fromIntegral y + c
-
-addSinFunc :: Float -> Float -> (Int -> Int -> Float, StdGen) 
-	-> (Int -> Int -> Float, StdGen)
-addSinFunc maxA maxB (f, gen) = (\x y -> f x y + f' x y, gen') where
-	(f', gen') = getSinFunc maxA maxB gen
-
-cntSin :: Int
-cntSin = 30
-
-getMap :: StdGen -> (A.Array (Int, Int) Cell, StdGen)
-getMap gen = (rez, newGen) where
-	cntSinF :: Float
-	cntSinF = fromIntegral cntSin
-	maxX' = 40 * pi / fromIntegral maxX
-	maxY' = 40 * pi / fromIntegral maxY
-	(sinf, newGen) = (foldr (.) id $ replicate cntSin $ addSinFunc maxX' maxY')
-		(const $ const 0, gen)
-	rez = A.array ((0, 0), (maxX, maxY)) [((x, y), cellFromCoords 
-		(fromIntegral x) (fromIntegral y)) 
-		| x <- [0 .. maxX], y <- [0 .. maxY]]
-	normalize (l, r) (l', r') x = l' + (x - l) * (r' - l') / (r - l)
-	cellFromCoords x y = Cell {
-		terrain = Empty,
-		height = uniformFromList (max 0 $ min 0.99 
-			$ normalize (-cntSinF, cntSinF) (-1, 2) $ sinf x y) [0..9]
-	}
 	
 safety :: World -> World
 safety w = w {
@@ -136,7 +103,7 @@ safety w = w {
 	chars = S.empty,
 	stdgen = newGen,
 	worldmap = newMap
-} where (newMap, newGen) = getMap $ stdgen w
+} where (newMap, newGen) = runMap (mapType w) $ stdgen w
 
 speed :: Int -> Monster -> Monster
 speed x m = m {slowness = slowness m - x}

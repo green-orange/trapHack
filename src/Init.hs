@@ -3,12 +3,12 @@ module Init where
 import Data.Const
 import Data.Define
 import Utils.Monsters
-import Utils.Stuff
 --import Utils.Items
 import Items.Stuff
 import Monsters.Parts
 import IO.Colors
 import IO.Texts
+import MapGen
 
 import System.Random (StdGen)
 import qualified Data.Set as S
@@ -33,8 +33,8 @@ initUnits = Units {
 	x' = div maxX 2
 	y' = div maxY 2
 
-initWorld :: String -> StdGen -> World
-initWorld username gen = World {
+initWorld :: MapGenType -> String -> StdGen -> World
+initWorld mapgen username gen = World {
 	worldmap = worldmap',
 	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
@@ -50,8 +50,9 @@ initWorld username gen = World {
 	xInfo = 0,
 	yInfo = 0,
 	numToSplit = 0,
-	showMode = ColorMonsters
-} where (worldmap', newStdGen) = getMap gen
+	showMode = ColorMonsters,
+	mapType = mapgen
+} where (worldmap', newStdGen) = runMap mapgen gen
 
 getPlayer :: Monster
 getPlayer = Monster {
@@ -75,3 +76,24 @@ getPlayer = Monster {
 	idM = 0,
 	xp = 1
 }
+
+showMapChoice :: IO MapGenType
+showMapChoice = do
+	putStrLn "Choose a map:"
+	putStrLn "a - sum of 30 sinuses (looks like aperiodic)"
+	putStrLn "b - sum of 3 sinuses"
+	putStrLn "c - flat map with height = 9"
+	putStrLn "d - flat map with height = 0"
+	putStrLn "e - averaged random map"
+	putStrLn "f - double averaged random map"
+	c <- getLine
+	case c of
+		"a" -> return Sin30
+		"b" -> return Sin3
+		"c" -> return FlatHigh
+		"d" -> return FlatLow
+		"e" -> return AvgRandom
+		"f" -> return Avg2Random
+		_ ->  do
+			putStrLn "Unknown map!"
+			showMapChoice

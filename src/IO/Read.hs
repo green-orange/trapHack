@@ -158,7 +158,8 @@ instance Read World where
 		xInfo = 0,
 		yInfo = 0,
 		numToSplit = 0,
-		showMode = ColorMonsters
+		showMode = ColorMonsters,
+		mapType = read mapType'
 	}, "")] where
 		parse = separate worldSep str
-		[units'', items', stdgen', wave', worldmap'] = parse
+		[units'', items', stdgen', wave', worldmap', mapType'] = parse

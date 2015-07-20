@@ -88,13 +88,14 @@ main = do
 		print msgAskName
 		username <- getLine
 #endif
-		timeBegin <- getCurrentTime
 		maybeWorld <-
 			if ans == 'y' || ans == 'Y'
 			then catchAll (return $ Just $ read save) $ const $ return Nothing
-			else do	
+			else do
+				mapgen <- showMapChoice
 				writeFile logName ""
-				return $ Just $ initWorld username gen
+				return $ Just $ initWorld mapgen username gen
+		timeBegin <- getCurrentTime
 		case maybeWorld of
 			Nothing -> endWin >> putStrLn msgLoadErr
 			Just world ->
