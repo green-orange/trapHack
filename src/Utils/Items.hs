@@ -48,6 +48,10 @@ isFood _ = False
 isResource :: Object -> Bool
 isResource (Resource {}) = True
 isResource _ = False
+
+isTool :: Object -> Bool
+isTool (Tool {}) = True
+isTool _ = False
 	
 objdmg :: Object -> StdDmg
 objdmg obj w = ((+ enchantment obj) <$> n, g) where

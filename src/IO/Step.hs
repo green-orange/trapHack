@@ -33,6 +33,7 @@ step world c
 			Read -> doIfCorrect $ readFirst c world
 			Zap2 -> doIfCorrect $ zapFirst c world
 			Fire2 -> doIfCorrect $ fireFirst c world
+			Use2 -> doIfCorrect $ useFirst c world
 			Drop -> doIfCorrect $ dropFirst c world False
 			Bind -> doIfCorrect $ bindFirst c world
 			Eat -> doIfCorrect $ eatFirst c world
@@ -45,6 +46,8 @@ step world c
 				else doIfCorrect $ trapFirst c world
 			Fire1 -> Left $ addDefaultMessage msgAskDir 
 				$ changeAction Fire2 $ world {prevAction = c}
+			Use1 -> Left $ addDefaultMessage msgAskDir 
+				$ changeAction Use2 $ world {prevAction = c}
 			Inventory ->
 				if isSpace c
 				then Left $ changeAction Move world
@@ -143,6 +146,7 @@ justStep world c = case dir c of
 		'f' -> actionByKey "fire" isMissile Fire1 world
 		'e' -> actionByKey "eat" isFood Eat world
 		's' -> actionByKey "split" (const True) Split1 world
+		'U' -> actionByKey "use" isTool Use1 world
 		't' ->
 			Left $ addDefaultMessage (msgAsk ++ "set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 

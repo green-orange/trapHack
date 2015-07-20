@@ -75,7 +75,7 @@ msgSmallScr, msgNECell, msgUnseenCell, msgCantSpawnGC, msgIncStep,
 	msgNoItem, msgNotDir, msgNoCharge, msgNotTrap, msgTrapOverTrap, 
 	msgCantUntrap, msgNoWeapAppMiss, msgDropEquipped, msgFullInv, 
 	msgWrongBind, msgRepeatedBind, msgUnkAct, msgNaN, msgNotEnough,
-	msgUnkRep, msgTooHigh, msgUnkOpt :: String
+	msgUnkRep, msgTooHigh, msgUnkOpt, msgCantDig :: String
 msgNeedArms, msgDontKnow :: String -> String
 
 msgSmallScr = "Your screen is too small."
@@ -102,6 +102,7 @@ msgNotEnough = "You don't have enough items!"
 msgUnkRep = "Unknown recipe!"
 msgTooHigh = "You can not rise so high!"
 msgUnkOpt = "Unknown option!"
+msgCantDig = "You can't dig here!"
 
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 

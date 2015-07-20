@@ -176,7 +176,7 @@ bindMon sl c ind w = fst $ bindFirst c $ w {shift = ind, slot = sl}
 
 binds :: Object -> Int -> Maybe Slot
 binds obj knd
-	| isWeapon obj && knd == aRM || isLauncher obj && knd == aRM = 
+	| (isWeapon obj || isLauncher obj) && knd == aRM = 
 		Just WeaponSlot
 	| isArmor obj && knd == bind obj = Just ArmorSlot
 	| isJewelry obj && knd == bind obj = Just JewelrySlot

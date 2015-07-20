@@ -337,3 +337,15 @@ foodRation = Food {
 	rotRate = 0,
 	rotTime = 1
 }
+
+pickAxe :: Object
+
+tOOLS :: [Object]
+tOOLS = [pickAxe]
+
+pickAxe = Tool {
+	title = "pick axe",
+	tooltype = PickAxe,
+	weight' = 50,
+	idO = 0
+}

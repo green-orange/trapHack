@@ -129,6 +129,12 @@ data Object =
 	Resource {
 		title :: String,
 		restype :: ResourceType
+	} |
+	Tool {
+		title :: String,
+		tooltype :: ToolType,
+		weight' :: Int,
+		idO :: Int
 	}
 
 data World = World {
@@ -158,12 +164,14 @@ data Cell = Cell {
 data ShowMode = ColorHeight | ColorHeightAbs | ColorMonsters | NoHeight
 	deriving (Eq)
 
-data ResourceType = Tree deriving (Eq, Show, Read)
+data ResourceType = Tree | Stone deriving (Eq, Show, Read)
+
+data ToolType = PickAxe deriving (Eq)
 
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
 	Info | Save | Previous | AfterSpace | Split1 | Split2 | Craft | 
-	Options deriving (Eq)
+	Options | Use1 | Use2 deriving (Eq)
 
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 
@@ -277,7 +285,7 @@ instance Show Object where
 		++ show (nutrition o) ++ [objSep] ++ show (weight' o) ++ [objSep]
 		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) 
 	show o@(Resource {}) = "Resource" ++ [objSep] ++ show (restype o)
-
+	show o@(Tool {}) = "Tool" ++ [objSep] ++ show (idO o)
 worldSep :: Char
 worldSep = '#'
 

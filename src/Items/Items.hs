@@ -247,3 +247,40 @@ eatFirst c world
 	mon = getFirst world
 	mon' = delObj c $ changeTemp Nutrition (Just $ nutr + nutrition obj) mon
 	Just nutr = temp mon !! fromEnum Nutrition
+
+useFirst :: Char -> World -> (World, Bool)
+useFirst c world
+	| not $ hasPart aRM $ getFirst world =
+		(maybeAddMessage (msgNeedArms "use a tool") failWorld, False)
+	| isNothing objects =
+		(maybeAddMessage msgNoItem failWorld, False)
+	| not $ isTool obj =
+		(maybeAddMessage (msgDontKnow "use") failWorld, False)
+	| isNothing $ dir c =
+		(maybeAddMessage msgNotDir failWorld, False)
+	| isNothing $ dirs world (x, y, dx, dy) = 
+		(maybeAddMessage msgNECell failWorld, False)
+	| otherwise =
+		(changeAction Move newWorld, correct) where
+	objects = M.lookup (prevAction world) $ inv $ getFirst world
+	Just (dx, dy) = dir c
+	(newWorld, correct) = use world x y dx dy obj
+	x = xFirst world
+	y = yFirst world
+	Just (obj, _) = objects
+	failWorld = changeAction Move world
+
+use :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
+use world x y dx dy obj = case tooltype obj of
+	PickAxe -> usePickAxe world x y dx dy obj
+
+usePickAxe :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
+usePickAxe world x y dx dy _ =
+	if not (isSafeByBounds (-1) 2 world x y dx dy)
+		|| height cell == 0
+	then (maybeAddMessage msgCantDig world, False)
+	else (world {worldmap = worldmap world A.// [((x + dx, y + dy), 
+		cell {height = height cell - 1})]}, True)
+	where
+		cell = worldmap world A.! (x + dx, y + dy)
+	

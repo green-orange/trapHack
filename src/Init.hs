@@ -5,7 +5,7 @@ import Data.Define
 import Utils.Monsters
 import Utils.Stuff
 --import Utils.Items
---import Items.Stuff
+import Items.Stuff
 import Monsters.Parts
 import IO.Colors
 import IO.Texts
@@ -66,7 +66,7 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = ((1,10), 0.2), -- avg 4.4
-	inv = M.empty,
+	inv = M.singleton 'a' (pickAxe, 1),
 	slowness = 100,
 	time = 100,
 	res = map (const 0) (getAll :: [Elem]),

@@ -324,4 +324,4 @@ symbolItem (Armor {})    = '['
 symbolItem (Jewelry {})  = '='
 symbolItem (Food {})     = '%'
 symbolItem (Resource {}) = '0'
-
+symbolItem (Tool {})     = '\\'
