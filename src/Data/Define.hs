@@ -193,12 +193,12 @@ data Intr = Teleport deriving (Enum, Show, Bounded)
 
 data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 
-data Terrain = Empty | BearTrap | FireTrap | PoisonTrap | MagicTrap 
+data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap 
 	deriving (Eq)
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
 
 data MapGenType = Sin30 | Sin3 | FlatLow | FlatHigh | AvgRandom | Avg2Random |
-	Mountains deriving (Show, Read)
+	Mountains | MountainsWater deriving (Show, Read)
 
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
@@ -238,6 +238,7 @@ instance Show Cell where
 
 instance Show Terrain where
 	show Empty = ""
+	show Water = "water"
 	show BearTrap = "bear trap"
 	show FireTrap = "fire trap"
 	show PoisonTrap = "poison trap"

@@ -2,6 +2,7 @@ module MapGen where
 
 import Data.Define
 import Data.Const
+import Data.World
 import Utils.Random
 
 import System.Random
@@ -23,6 +24,7 @@ runMap FlatHigh = getFlatHighMap
 runMap AvgRandom = getAvgRandomMap
 runMap Avg2Random = getAvg2RandomMap
 runMap Mountains = getMountainMap
+runMap MountainsWater = addRivers 50 getMountainMap
 
 getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
 getSinFunc maxA maxB g = (sinf, g3) where
@@ -118,3 +120,27 @@ getMountains density gen = (A.array ((0, 0), (maxX, maxY))
 	sumMnts x y = floor $ sum $ map (\f -> f x y) mnts
 	sumVlls x y = floor $ sum $ map (\f -> f x y) vlls
 	sumLand = sumMnts + sumVlls
+
+addRiver :: Int -> Int -> A.Array (Int, Int) Cell -> A.Array (Int, Int) Cell
+addRiver x y wmap =
+	if null nears
+	then newWMap
+	else uncurry addRiver (head nears) newWMap
+	where
+	newWMap = wmap A.// [((x, y), Cell {terrain = Water, 
+		height = height $ wmap A.! (x, y)})]
+	nears =
+		filter ((\(x', y') -> x' >= 0 && y' >= 0 && x' <= maxX && y' <= maxY) &&&
+		((Empty ==) . terrain . (wmap A.!)) &&&
+		((height (wmap A.! (x, y)) >=) . height . (wmap A.!)))
+		[(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y)]
+
+addRivers :: Int -> MapGen -> MapGen
+addRivers cnt mgen g = (foldr ($) wmap $ zipWith addRiver xs ys, g1) where
+	(g', g'') = split g
+	(wmap, g1) = mgen g'
+	(gx, gy) = split g''
+	xs = take cnt $ randomRs (0, maxX) gx
+	ys = take cnt $ randomRs (0, maxY) gy
+	
+

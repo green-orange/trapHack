@@ -47,7 +47,7 @@ drawUnit world ((x, y), mon) =
 				action world == Info && x == xInfo world && y == yInfo world
 				= setStandout attr0 True
 			| showMode world == ColorHeight || 
-				showMode world == ColorHeightAbs= setBold attr0 True
+				showMode world == ColorHeightAbs = setBold attr0 True
 			| otherwise = attr0
 		(sym, color1) = symbolMon $ name mon
 		color2 = Pair $ case showMode world of
@@ -63,19 +63,22 @@ drawCell world ((x, y), _) =
 	unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, color')
 		placeChar dx dy sym where
-		attr = 
-			if action world == Info && x == xInfo world && y == yInfo world
-			then setStandout attr0 True
-			else attr0
+		attr
+			| action world == Info && x == xInfo world && y == yInfo world
+				= setStandout attr0 True
+			| terrain cell /= Empty = setBold attr0 True
+			| otherwise = attr0
 		dx = x - xFirst world
 		dy = y - yFirst world
-		color' = Pair $ case showMode world of
-			ColorHeight -> colorFromHei $
-				height (worldmap world A.! (x,y)) - 
-				height (worldmap world A.! (xFirst world, yFirst world))
-			ColorHeightAbs -> colorFromHeiAbs 
-				$ height (worldmap world A.! (x,y))
-			_ -> colorFromCell $ worldmap world A.! (x,y)
+		cell = worldmap world A.! (x,y)
+		color' = Pair $ 
+			if terrain cell /= Empty
+			then colorFromCell cell
+			else case showMode world of
+				ColorHeight -> colorFromHei $ height cell - 
+					height (worldmap world A.! (xFirst world, yFirst world))
+				ColorHeightAbs -> colorFromHeiAbs $ height cell
+				_ -> colorFromCell cell
 		sym
 			| x == div maxX 2 && y == div maxY 2 = '*'
 			| showMode world == NoHeight = '.'

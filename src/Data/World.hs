@@ -61,6 +61,8 @@ isSafeByBounds mindh maxdh world x y dx dy =
 		rez = dirs world (x, y, dx, dy)
 
 class Boolean a where
+	infixr 3 &&&
+	infixr 3 |||
 	(&&&) :: a -> a -> a
 	(|||) :: a -> a -> a
 

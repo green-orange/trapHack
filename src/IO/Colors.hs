@@ -21,6 +21,7 @@ colorFromTerr BearTrap   = 32 -- yellow
 colorFromTerr FireTrap   = 16 -- red
 colorFromTerr PoisonTrap = 56 -- green
 colorFromTerr MagicTrap  = 48 -- magenta
+colorFromTerr Water      = 40 -- blue
 
 colorFromCell :: Cell -> Int
 colorFromCell = colorFromTerr . terrain
