@@ -250,6 +250,7 @@ instance Read Terrain where
 	readsPrec _ "fire trap" = [(FireTrap, "")]
 	readsPrec _ "poison trap" = [(PoisonTrap, "")]
 	readsPrec _ "magic trap" = [(MagicTrap, "")]
+	readsPrec _ "water" = [(Water, "")]
 	readsPrec _ t = error $ "parse error: Terrain " ++ t
 
 monSep :: Char
