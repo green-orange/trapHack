@@ -102,14 +102,19 @@ getRandomHeis g = (A.listArray ((0, 0), (maxX, maxY))
 	
 getMountains :: Float -> HeiGen
 getMountains density gen = (A.array ((0, 0), (maxX, maxY))
-	[((x, y), sumMnts x y) | x <- [0..maxX], y <- [0..maxY]], g') where
+	[((x, y), sumLand x y) | x <- [0..maxX], y <- [0..maxY]], g') where
 	(g, g') = split gen
 	(gx, gy)= split g
 	xs = randomRs (0, maxX) gx
 	ys = randomRs (0, maxY) gy
 	cnt = round $ (* density) $ fromIntegral $ (1 + maxX) * (1 + maxY)
 	mnts = take cnt $ zipWith getMnt xs ys
-	getMnt :: Int -> Int -> Int -> Int -> Float
-	getMnt xMnt yMnt x y = (* 4) $ exp $ negate $ sqrt $ fromIntegral
-		$ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
+	vlls = take cnt $ drop cnt $ zipWith getVll xs ys 
+	getMnt, getVll :: Int -> Int -> Int -> Int -> Float
+	getMnt xMnt yMnt x y = (* 2) $ exp $ negate $ sqrt 
+		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
+	getVll xMnt yMnt x y = (* 2) $ (0.004 -) $ exp $ negate $ sqrt 
+		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
 	sumMnts x y = floor $ sum $ map (\f -> f x y) mnts
+	sumVlls x y = floor $ sum $ map (\f -> f x y) vlls
+	sumLand = sumMnts + sumVlls
