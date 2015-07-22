@@ -47,3 +47,5 @@ uniformFromList q xs = xs !! n where n = uniform q 0 $ length xs - 1
 frac :: Float -> Float
 frac q = (-) q ((intToFloat $ floor q) :: Float)
 
+splitList :: StdGen -> [StdGen]
+splitList g = g' : splitList g'' where (g', g'') = split g

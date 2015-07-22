@@ -121,11 +121,12 @@ getMountains density gen = (A.array ((0, 0), (maxX, maxY))
 	sumVlls x y = floor $ sum $ map (\f -> f x y) vlls
 	sumLand = sumMnts + sumVlls
 
-addRiver :: Int -> Int -> A.Array (Int, Int) Cell -> A.Array (Int, Int) Cell
-addRiver x y wmap =
+addRiver :: Int -> Int -> (A.Array (Int, Int) Cell, StdGen)
+	-> (A.Array (Int, Int) Cell, StdGen)
+addRiver x y (wmap, g) =
 	if null nears
-	then newWMap
-	else uncurry addRiver (head nears) newWMap
+	then (newWMap, g')
+	else uncurry addRiver (uniformFromList q nears) (newWMap, g')
 	where
 	newWMap = wmap A.// [((x, y), Cell {terrain = Water, 
 		height = height $ wmap A.! (x, y)})]
@@ -134,12 +135,13 @@ addRiver x y wmap =
 		((Empty ==) . terrain . (wmap A.!)) &&&
 		((height (wmap A.! (x, y)) >=) . height . (wmap A.!)))
 		[(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y)]
+	(q, g')= randomR (0.0, 1.0) g
 
 addRivers :: Int -> MapGen -> MapGen
-addRivers cnt mgen g = (foldr ($) wmap $ zipWith addRiver xs ys, g1) where
-	(g', g'') = split g
-	(wmap, g1) = mgen g'
-	(gx, gy) = split g''
+addRivers cnt mgen g = foldr ($) (wmap, g3) $ zipWith addRiver xs ys where
+	(wmap, g1) = mgen g
+	(gx, g2) = split g1
+	(gy, g3) = split g2
 	xs = take cnt $ randomRs (0, maxX) gx
 	ys = take cnt $ randomRs (0, maxY) gy
 	
