@@ -25,8 +25,8 @@ moveFirst dx dy world
 		= (maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
 		world $ filter isUpperLimb $ parts $ getFirst world, True)
-	| terrain (worldmap world A.! (x + dx, y + dy)) == Water =
-		(maybeAddMessage msgWater world, False)
+	| terrain (worldmap world A.! (x + dx, y + dy)) == Water 
+		&& not (isFlying mon) = (maybeAddMessage msgWater world, False)
 	| name mon /= "You" && not (isFlying mon) 
 		&& terrain (worldmap world A.! (x,y)) == BearTrap = (world, True)
 	| heiNew > heiOld + 1 && not (isFlying mon) && q > tele = (changeGen g'' 
