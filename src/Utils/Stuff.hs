@@ -28,8 +28,8 @@ cleanParts :: Monster -> Monster
 cleanParts mon = delEffects $ changeParts (filter aliveP $ parts mon) mon
 	where delEffects = foldr (((.) . (\ (obj, _) -> effectOff obj 
 		$ enchantment obj)) . fromJust) id $ filter isJust 
-		$ map (flip M.lookup (inv mon) . (\ p -> objectKeys p 
-		!! fromEnum JewelrySlot)) $ filter (not . aliveP) $ parts mon
+		$ (flip M.lookup (inv mon) . (\ p -> objectKeys p 
+		!! fromEnum JewelrySlot)) <$> filter (not . aliveP) (parts mon)
 
 upgrade :: Int -> Part -> Part
 upgrade n part = part {
@@ -62,7 +62,7 @@ addPart mon knd hp' regRate' = changeParts (newPart : parts mon) mon where
 		regRate = regRate',
 		objectKeys = replicate sLOTS ' '
 	}
-	newID = (+) 1 $ maximum $ map idP $ parts mon
+	newID = (+) 1 $ maximum $ idP <$> parts mon
 
 fireAround :: Int -> (Int, Int) -> World -> World
 fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w where
@@ -79,7 +79,7 @@ fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w w
 		if name mon == "You"
 		then (msgFireYou, rED)
 		else (name mon ++ msgFire, gREEN)
-	newMsgs = map msg $ filter isClose $ M.toList $ units w
+	newMsgs = msg <$> filter isClose (M.toList $ units w)
 
 stupidity :: Monster -> Monster
 stupidity mon = mon {ai = newAI} where
@@ -109,7 +109,7 @@ speed :: Int -> Monster -> Monster
 speed x m = m {slowness = slowness m - x}
 
 radiation :: Int -> Monster -> Monster
-radiation sp m = m {parts = map (\p -> p {regRate = regRate p - sp}) $ parts m}
+radiation sp m = m {parts = (\p -> p {regRate = regRate p - sp}) <$> parts m}
 
 capture :: Monster -> Monster
 capture mon = if canWalk mon then mon {ai = You} else mon

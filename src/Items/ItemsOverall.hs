@@ -16,6 +16,7 @@ import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Maybe (isNothing, fromJust)
 import Data.Char (isDigit)
+import Data.Functor ((<$>))
 
 dropFirst :: Char -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
@@ -56,9 +57,9 @@ pickFirst world =
 		(itemsToPick, rest) = split (\(_, n) -> (n >= 0) 
 			&& (n < length alphabet) 
 			&& S.member (alphabet !! n) (chars world)) itemsWithIndices
-		newItems = map fst rest
-		maybeInv = addInvs (inv oldMon) $ map ((\(_,_,a,b) 
-			-> (a,b)) . fst) itemsToPick
+		newItems = fst <$> rest
+		maybeInv = addInvs (inv oldMon) $ ((\(_,_,a,b) 
+			-> (a,b)) . fst) <$> itemsToPick
 	in case maybeInv of
 	Nothing -> (Nothing, msgFullInv)
 	Just newInv ->
@@ -97,10 +98,10 @@ addInvs startInv items' = foldr ((>=>) . addInv) return items' startInv
 addInv :: (Object, Int) -> Inv -> Maybe Inv
 addInv (obj, cnt) list' =
 	if isHere
-	then Just $ M.map change list'
+	then Just $ change <$> list'
 	else addInvWithAlphabet alphabet list' (obj,cnt)
 	where
-		isHere = M.foldr (||) False $ M.map (\(obj',_) -> obj' == obj) list'
+		isHere = M.foldr (||) False $ (\(obj',_) -> obj' == obj) <$> list'
 		change (o, n) = (o, if o == obj then n + cnt else n)
 
 addInvWithAlphabet :: String -> Inv -> (Object, Int) -> Maybe Inv
@@ -166,8 +167,8 @@ bindFirst c w
 		then effectOn obj $ enchantment obj
 		else id
 	newMon = remEffect $ addEffect mon
-	newParts = map change $ parts mon
-	newPartsSpace = map changeSpace $ parts mon
+	newParts = change <$> parts mon
+	newPartsSpace = changeSpace <$> parts mon
 	msg = name mon ++ " begin" ++ ending w 
 		++ "to use " ++ title obj ++ "!"
 	

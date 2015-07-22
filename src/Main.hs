@@ -19,6 +19,7 @@ import Control.Monad (unless, liftM)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
 import Data.Time.Clock
+import Data.Functor ((<$>))
 import qualified Data.Map as M
 #ifndef mingw32_HOST_OS
 import System.Posix.User
@@ -56,7 +57,7 @@ loop world =
 				AfterSpace -> loop newWorld
 				_ -> do
 					maybeAppendFile logName $ filter (not . null) 
-						$ map fst $ message world
+						$ fst <$> message world
 					loop newWorld
 			Right msg ->
 				writeFile saveName "" >> appendFile logName (msg ++ "\n")

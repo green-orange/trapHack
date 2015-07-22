@@ -5,6 +5,7 @@ import Data.Define
 import Utils.Items
 
 import qualified Data.Map as M
+import Data.Functor ((<$>))
 
 baseEncumbrance :: Int
 baseEncumbrance = 500
@@ -51,7 +52,7 @@ getPaw  = getPart pAW
 getMain = getPart mAIN
 
 encumbrance :: Monster -> Int
-encumbrance mon = M.foldr (+) 0 $ M.map (\(o, n) -> n * weight o) $ inv mon
+encumbrance mon = M.foldr (+) 0 $ (\(o, n) -> n * weight o) <$> inv mon
 
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon = max 10 $ (`div` baseEncumbrance) $ 

@@ -20,6 +20,7 @@ import Data.List (sort)
 import Data.Maybe (mapMaybe)
 import qualified Data.Map as M
 import qualified Data.Array as A
+import Data.Functor ((<$>))
 
 minSnd :: (Ord b) => (a,b) -> (a,b) -> (a,b)
 minSnd x y = if snd x > snd y then y else x
@@ -29,7 +30,7 @@ minValue m = foldr1 minSnd $ M.toList m
 	
 minimumOn :: (Ord b, Ord k) => (a -> b) -> M.Map k a -> (k, a)
 minimumOn f m = (k, m M.! k) where
-	k = fst $ minValue $ M.map f m
+	k = fst $ minValue $ f <$>  m
 	
 almostTime :: Monster -> Int
 almostTime mon = 
@@ -91,7 +92,7 @@ closestPlayerChar x y w =
 tempFirst :: World -> World
 tempFirst w = changeMon newMon w where
 	mon = getFirst w
-	newMon = mon {temp = map decMaybe $ temp mon}
+	newMon = mon {temp = decMaybe <$> temp mon}
 
 decMaybe :: Maybe Int -> Maybe Int
 decMaybe Nothing = Nothing
@@ -164,7 +165,7 @@ dropPartialCorpse w =
 
 rotAll :: World -> World
 rotAll w = w {items = newItems, units' = (units' w) {list = newMons}} where
-	newMons = M.map rotInv $ units w
+	newMons = rotInv <$> units w
 	newItems = mapMaybe rotItemOnGround $ items w
 	rotItemOnGround arg@(x, y, obj, n)
 		| not $ isFood obj = Just arg

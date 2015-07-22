@@ -11,6 +11,7 @@ import Monsters.Parts
 
 import System.Random (StdGen, randomR, randoms, split)
 import Data.Map (fromList)
+import Data.Functor ((<$>))
 
 applyIf :: (a -> a) -> Bool -> a -> a
 applyIf f c = if c then f else id
@@ -24,8 +25,8 @@ getForgottenBeast g = (Monster {
 	inv = newInv,
 	slowness = newSlow,
 	time = newSlow,
-	res = map (const 0) (getAll :: [Elem]),
-	intr = map (const 0) (getAll :: [Intr]),
+	res = const 0 <$> (getAll :: [Elem]),
+	intr = const 0 <$> (getAll :: [Intr]),
 	temp = startTemps 1000,
 	idM = 21,
 	xp = 1
@@ -38,7 +39,7 @@ getForgottenBeast g = (Monster {
 
 forgottenAI :: StdGen -> (AIrepr, StdGen)
 forgottenAI g = (AIrepr {
-	mods = map fst $ filter snd $ zip mODSAI bools,
+	mods = fst <$> filter snd (zip mODSAI bools),
 	attackIfCloseMode = Just (elem', dist),
 	aipure = StupidAI
 }, g'') where
@@ -56,10 +57,10 @@ forgottenParts g = (rez, g') where
 	qs :: [Float]
 	(g', g'') = split g
 	qs = randoms g'
-	counts = map inverseSquareRandom qs
-	partgens = concat $ zipWith replicate counts $ map getPart [0..kINDS]
+	counts = inverseSquareRandom <$> qs
+	partgens = concat $ zipWith replicate counts $ getPart <$> [0..kINDS]
 	qs' = randoms g''
-	hps = map ((*10) . inverseSquareRandom) qs'
+	hps = ((*10) . inverseSquareRandom) <$> qs'
 	rez = zipWith3 ($) partgens (cycle [3, 2, 1]) hps
 	
 forgottenDmg :: StdGen -> (((Int, Int), Float), StdGen)
@@ -78,4 +79,4 @@ forgottenSlowness = randomR (70, 130)
 forgottenInv :: InvGen
 forgottenInv g = (fromList $ zip alphabet $ filter ((>0) . snd)
 	$ zip sTACKABLE nums, g) where
-	nums = map ((`div` 3) . inverseSquareRandom) $ randoms g
+	nums = ((`div` 3) . inverseSquareRandom) <$> randoms g

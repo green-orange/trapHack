@@ -12,6 +12,7 @@ import IO.Colors
 
 import System.Random (StdGen, randomR)
 import Data.Maybe (isJust)
+import Data.Functor ((<$>))
 
 levelM :: String -> Int
 levelM "Bat"             = 1
@@ -57,7 +58,7 @@ regPart :: Part -> Part
 regPart part = heal (regRate part) part
 
 regMonster :: Monster -> Monster
-regMonster mon = changeParts (map regPart $ parts mon) mon
+regMonster mon = changeParts (regPart <$> parts mon) mon
 
 regFirst :: World -> World
 regFirst w = changeMon newMon w where
@@ -68,8 +69,8 @@ regFirst w = changeMon newMon w where
 			$ res mon !! fromEnum Poison') mon
 
 msgCleanParts :: Monster -> [(String, Int)]
-msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ map (\x -> (lostMsg (name mon) 
-	$ partToStr $ kind x, color)) $ filter (not . aliveP) $ parts mon where
+msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ (\x -> (lostMsg (name mon) 
+	$ partToStr $ kind x, color)) <$> filter (not . aliveP) (parts mon) where
 	color = 
 		if name mon == "You"
 		then rEDiNVERSE
@@ -116,8 +117,8 @@ corpseFromMon :: Monster -> Object
 corpseFromMon mon = Food {title = title', nutrition = nutr, 
 	weight' = wei, rotRate = 1, rotTime = 800} where
 	title' = "corpse of the " ++ name mon
-	wei = 5 * sum (map maxhp $ parts mon)
-	nutr = sum $ map hp $ parts mon
+	wei = 5 * sum (maxhp <$> parts mon)
+	nutr = sum $ hp <$> parts mon
 	
 corpseFromPart :: Monster -> Part -> Object
 corpseFromPart mon part = Food {title = title', nutrition = nutr, 
@@ -128,7 +129,7 @@ corpseFromPart mon part = Food {title = title', nutrition = nutr,
 	nutr = maxhp part `div` 2
 
 startTemps :: Int -> [Maybe Int]
-startTemps n = Just n : tail (map (const Nothing) (getAll :: [Temp]))
+startTemps n = Just n : tail (const Nothing <$> (getAll :: [Temp]))
 
 intLog :: Int -> Int
 intLog = floor . flip (/) (log 2) . log . (fromIntegral :: Int -> Float)

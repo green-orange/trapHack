@@ -14,6 +14,7 @@ import qualified Data.Set as S
 import Data.Function (on)
 import Data.Maybe
 import System.Random (randomR)
+import Data.Functor ((<$>))
 
 needToBeHealedM :: Monster -> Bool
 needToBeHealedM mon =
@@ -23,7 +24,7 @@ needToBeHealed :: Part -> Bool
 needToBeHealed part = 2 * hp part < maxhp part
 
 canBeHealed :: Monster -> Bool
-canBeHealed mon = M.foldr (||) False $ M.map (isHealing . fst) $ inv mon
+canBeHealed mon = M.foldr (||) False $ (isHealing . fst) <$> inv mon
 
 isHealing :: Object -> Bool
 isHealing obj = title obj == "potion of healing"
@@ -32,13 +33,13 @@ healingAI :: World -> Char
 healingAI w = fst $ M.findMin $ M.filter (isHealing . fst) $ inv $ getFirst w
 
 canZapToAttack :: Monster -> Bool
-canZapToAttack mon = M.foldr (||) False $ M.map (isAttackWand . fst) $ inv mon
+canZapToAttack mon = M.foldr (||) False $ (isAttackWand . fst) <$> inv mon
 
 canFire :: Monster -> Bool
 canFire mon = any (isValidMissile mon) alphabet
 
 canEat :: Monster -> Bool
-canEat mon = M.foldr (||) False $ M.map (isFood . fst) $ inv mon
+canEat mon = M.foldr (||) False $ (isFood . fst) <$> inv mon
 
 needEat :: Monster -> Bool
 needEat mon = temp mon !! fromEnum Nutrition <= Just 5
@@ -51,13 +52,13 @@ isValidMissile mon c =
 	isJust objs && isMissile obj && not (null intended) where
 		objs = M.lookup c $ inv mon
 		obj = fst $ fromJust objs
-		launchers = filter isLauncher $ map (fst . fromJust) $ filter isJust 
-			$ map (flip M.lookup (inv mon) . (\p -> objectKeys p 
-			!! fromEnum WeaponSlot)) $ parts mon
+		launchers = filter isLauncher $ (fst . fromJust) <$> filter isJust 
+			((flip M.lookup (inv mon) . (\p -> objectKeys p 
+			!! fromEnum WeaponSlot)) <$> parts mon)
 		intended = filter (\w -> launcher obj == category w) launchers
 
 haveLauncher :: Monster -> Bool
-haveLauncher mon = M.foldr (||) False $ M.map (isLauncher . fst) $ inv mon
+haveLauncher mon = M.foldr (||) False $ (isLauncher . fst) <$> inv mon
 
 isAttackWand :: Object -> Bool
 isAttackWand obj = isWand obj && charge obj > 0 && 
@@ -204,5 +205,5 @@ aStar safetyFun begin end@(xEnd', yEnd') closed paths w
 			yMid = y
 		}
 		newClosed = S.insert (xBest, yBest) closed
-		add = S.fromList $ map getPath nears
+		add = S.fromList $ getPath <$> nears
 		newPaths = S.delete best $ S.union paths add

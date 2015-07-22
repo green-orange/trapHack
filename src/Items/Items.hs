@@ -187,14 +187,14 @@ fireFirst c world
 	| otherwise = (changeAction Move newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv oldMon
 	intended = filter (\w -> isLauncher w && launcher obj == category w) listWield
-	listWield = map (fst . fromJust) $ filter isJust 
-		$ map (flip M.lookup (inv oldMon) . (\ p -> objectKeys p 
-		!! fromEnum WeaponSlot)) $ filter isUpperLimb $ parts oldMon
+	listWield = fst . fromJust <$> filter isJust 
+		((flip M.lookup (inv oldMon) . (\ p -> objectKeys p 
+		!! fromEnum WeaponSlot)) <$> filter isUpperLimb (parts oldMon))
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst world
 	maybeCoords = dirs world (x, y, dx, dy)
-	cnt = min n $ sum $ map count intended
+	cnt = min n $ sum $ count <$> intended
 	newWorld = case maybeCoords of
 		Just (xNew, yNew) -> foldr (.) id (replicate cnt $ 
 			fire xNew yNew dx dy obj) $ changeMon (fulldel oldMon) world

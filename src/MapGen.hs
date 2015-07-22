@@ -7,6 +7,7 @@ import Utils.Random
 
 import System.Random
 import qualified Data.Array as A
+import Data.Functor ((<$>))
 
 instance Num b => Num (a -> b) where
 	(f + g) x = f x + g x
@@ -78,7 +79,7 @@ averaging :: A.Array (Int, Int) Int -> A.Array (Int, Int) Int
 averaging arr = A.array ((0, 0), (maxX, maxY))
 	[((x, y), avg x y) | x <- [0..maxX], y <- [0..maxY]] where
 	d = [-1..1]
-	avg x y = sum (map (arr A.!) nears) `div` length nears where
+	avg x y = sum ((arr A.!) <$> nears) `div` length nears where
 		nears = [(x + dx, y + dy) | dx <- d, dy <- d,
 			x + dx >= 0, y + dy >= 0, x + dx <= maxX, y + dy <= maxY]
 
@@ -117,8 +118,8 @@ getMountains density gen = (A.array ((0, 0), (maxX, maxY))
 		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
 	getVll xMnt yMnt x y = (* 2) $ (0.004 -) $ exp $ negate $ sqrt 
 		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
-	sumMnts x y = floor $ sum $ map (\f -> f x y) mnts
-	sumVlls x y = floor $ sum $ map (\f -> f x y) vlls
+	sumMnts x y = floor $ sum $ (\f -> f x y) <$> mnts
+	sumVlls x y = floor $ sum $ (\f -> f x y) <$> vlls
 	sumLand = sumMnts + sumVlls
 
 addRiver :: Int -> Int -> (A.Array (Int, Int) Cell, StdGen)

@@ -11,6 +11,7 @@ import Monsters.AI
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
+import Data.Functor ((<$>))
 
 nameFromGen :: MonsterGen -> String
 nameFromGen mgen = name $ fst $ mgen lol
@@ -29,9 +30,9 @@ addWave = addWaveBy addMonsters
 addWaveFull = addWaveBy addMonstersFull
 		
 levelW :: World -> Int
-levelW w = M.foldr (+) 0 $ M.map (levelM . name) $ M.filter isSoldier 
-	$ M.filterWithKey (\(x, y) _ -> abs (x - xPlayer) <= xSight 
-	&& abs (y - yPlayer) <= ySight) $ units w where
+levelW w = M.foldr (+) 0 $ (levelM . name) <$> M.filter isSoldier 
+	(M.filterWithKey (\(x, y) _ -> abs (x - xPlayer) <= xSight 
+	&& abs (y - yPlayer) <= ySight) $ units w) where
 	[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
 		$ M.toList $ units w
 		

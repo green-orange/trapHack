@@ -4,6 +4,7 @@ import Data.Define
 
 import UI.HSCurses.Curses
 import Data.Maybe (fromJust)
+import Data.Functor ((<$>))
 
 dEFAULT, gREEN, yELLOW, rED, cYAN, mAGENTA, bLUE, rEDiNVERSE :: Int
 dEFAULT    = 1
@@ -58,10 +59,10 @@ colorFromTemp Stun _ = rED
 initColors :: IO ()
 initColors = sequence_ actions where
 	colorList = ["red", "green", "yellow", "blue", "magenta", "cyan", "white"]
-	colorListFore = defaultForeground : map (fromJust . color) colorList
-	colorListBack = defaultBackground : map (fromJust . color) colorList
+	colorListFore = defaultForeground : (fromJust . color <$> colorList)
+	colorListBack = defaultBackground : (fromJust . color <$> colorList)
 	bindColor n = initPair (Pair n) (colorListFore !! mod (n-1) 8) (colorListBack !! div (n-1) 8)
-	actions = map bindColor [1..64]
+	actions = bindColor <$> [1..64]
 
 symbolMon :: String -> (Char, Int)
 symbolMon "You"               = ('@', yELLOW)

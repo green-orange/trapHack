@@ -6,9 +6,10 @@ import Utils.Changes
 import Monsters.Parts
 
 import System.Random (StdGen, randomR)
+import Data.Functor ((<$>))
 
 doSmthByFunc :: (a -> Part -> Part) -> (Part -> Bool) -> a -> Monster -> Monster
-doSmthByFunc doSmth f hp' mon = changeParts (map filterHeal $ parts mon) mon where
+doSmthByFunc doSmth f hp' mon = changeParts (filterHeal <$> parts mon) mon where
 	filterHeal part = 
 		if f part
 		then doSmth hp' part

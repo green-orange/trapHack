@@ -13,6 +13,7 @@ import IO.Texts
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
+import Data.Functor ((<$>))
 	
 getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
 	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> Int -> MonsterGen
@@ -26,8 +27,8 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 	inv = newInv,
 	slowness = slow',
 	time = slow',
-	res = map (const 0) (getAll :: [Elem]),
-	intr = map (const 0) (getAll :: [Intr]),
+	res = const 0 <$> (getAll :: [Elem]),
+	intr = const 0 <$> (getAll :: [Intr]),
 	temp = startTemps nutr,
 	xp = 1
 }, g'') where
@@ -85,14 +86,14 @@ animate x y w =
 			if filterfun arg
 			then n
 			else 0
-		hp' = sum $ map mapfun $ items w
+		hp' = sum $ mapfun <$> items w
 		newItems = filter (not . filterfun) $ items w
 		
 fooAround :: (Int -> Int -> World -> World) -> World -> World
 fooAround foo w = foldr ($) w $ [foo] >>= applToNear x >>= applToNear y where
 	x = xFirst w
 	y = yFirst w
-	applToNear t f = map f [t-1, t, t+1]
+	applToNear t f = f <$> [t-1, t, t+1]
 
 animateAround :: World -> World
 animateAround = fooAround animate

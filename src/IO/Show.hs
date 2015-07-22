@@ -20,6 +20,7 @@ import Data.List (sortBy)
 import Data.Function (on)
 import qualified Data.Array as A
 import Control.Monad (unless, when, zipWithM_, (>=>))
+import Data.Functor ((<$>))
 
 shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem :: Int
 shiftRightHP = 2 * xSight + 5
@@ -107,7 +108,7 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 		
 showMessages :: Int -> [(String, Int)] -> IO ()
 showMessages width msgs = 
-	unless (sum (map ((1+) . length . fst) msgs) < (shiftDown - 1) * width)
+	unless (sum ((1+) . length . fst <$> msgs) < (shiftDown - 1) * width)
 	(mvWAddStr stdScr (shiftDown - 1) 0 msgMore) >>
 	foldr ((>=>) . showMessage) return msgs (0, 0) >> return ()
 
@@ -171,9 +172,9 @@ drawInventory world h = do
 	mvWAddStr stdScr 0 0 msgHeaderInv
 	mapM_ showInv stringsToShow where
 		items' = M.toList $ inv $ getFirst world
-		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
+		stringsToShow = zip [1..] $ (\(c, (obj, n)) -> 
 			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj ++
-			(if isExistingBindingFirst world c then " (is used)" else "")) items'
+			(if isExistingBindingFirst world c then " (is used)" else "")) <$> items'
 		showInv :: (Int, String) -> IO ()
 		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
 
@@ -184,8 +185,8 @@ drawEquipMenu world h = do
 	mapM_ showInv stringsToShow where
 		items' = filter (\(c, (obj, _)) -> (binds obj knd == Just (slot world)) 
 			&& not (isExistingBindingFirst world c)) $ M.toList $ inv $ getFirst world
-		stringsToShow = zip [1..] $ map (\(c, (obj, n)) -> 
-			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj) items'
+		stringsToShow = zip [1..] $ (\(c, (obj, n)) -> 
+			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj) <$> items'
 		showInv :: (Int, String) -> IO ()
 		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
 		knd = kind $ parts (getFirst world) !! shift world
@@ -199,8 +200,8 @@ drawPickOrDrop isPick world h = do
 		yNow = yFirst world
 		toShow =
 			if action world == Pick
-			then zip3 [0..] alphabet $ map (\(_,_,a,b) -> (a,b)) $
-				filter (\(x,y,_,_) -> x == xNow && y == yNow) $ items world
+			then zip3 [0..] alphabet $ (\(_,_,a,b) -> (a,b)) <$>
+				filter (\(x,y,_,_) -> x == xNow && y == yNow) (items world)
 			else zipWith (\n (c,x) -> (n,c,x)) [0..] $ M.toList $ inv $ getFirst world 
 		word = if isPick then "pick" else "drop"
 
@@ -211,7 +212,7 @@ drawPartChange world _ = do
 	mvWAddStr stdScr 0 shiftW "Weapon"
 	mvWAddStr stdScr 0 shiftA "Armor"
 	mvWAddStr stdScr 0 shiftJ "Jewelry"
-	sequence_ $ zipWith3 ($) (map (drawPartFull True 1) [1..])
+	sequence_ $ zipWith3 ($) (drawPartFull True 1 <$> [1..])
 		(repeat $ getFirst world) $ parts $ getFirst world
 	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
 	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
@@ -224,7 +225,7 @@ drawJustWorld world _ = do
 	mapM_ (drawCell world) $ A.assocs $ worldmap world
 	mapM_ (drawItem world) $ items world
 	mapM_ (drawUnit world) $ M.toList $ units world
-	sequence_ $ zipWith3 ($) (map (drawPart False) [0..])
+	sequence_ $ zipWith3 ($) (drawPart False <$> [0..])
 		(repeat mon) $ sortBy (on compare kind) $ parts mon
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 

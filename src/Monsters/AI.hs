@@ -21,6 +21,7 @@ import Data.Maybe (fromJust, isNothing, isJust)
 import qualified Data.Map as M
 import Data.List (minimumBy)
 import Data.Function (on)
+import Data.Functor ((<$>))
 
 runAImod :: AImod -> AIfunc -> AIfunc
 runAImod aimod = case aimod of
@@ -68,8 +69,8 @@ acceleratorAI f x y p w = f x y p $ changeMon newMon w where
 	
 trollAI :: AIfunc -> AIfunc
 trollAI f x y p w = 
-	if any (<= 5) $ map hp $ filter (\pt -> kind pt == hEAD || kind pt == bODY) 
-		$ parts $ getFirst w
+	if any (<= 5) $ hp <$> filter (\pt -> kind pt == hEAD || kind pt == bODY)
+		(parts $ getFirst w)
 	then addMessage (msgTrollDeath, bLUE) 
 		$ changeMon (rock $ stdgen w) w
 	else f x y p w
@@ -141,8 +142,8 @@ useItemsAI f x y p w = case useSomeItem objs keys of
 	Just g -> g w
 	where
 		invList = M.toList $ inv $ getFirst w
-		objs = map (fst . snd) invList
-		keys = map fst invList
+		objs = (fst . snd) <$> invList
+		keys = fst <$> invList
 
 eatAI :: AIfunc -> AIfunc
 eatAI f x y p w = 

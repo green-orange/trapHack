@@ -3,6 +3,7 @@ module Utils.Random where
 import Data.Define
 
 import System.Random
+import Data.Functor ((<$>))
 
 intToFloat :: Int -> Float
 intToFloat = fromIntegral
@@ -34,7 +35,7 @@ inverseSquareRandom p = inverseSquareRandom' (0.999999 * p) 1 where
 		else inverseSquareRandom' (p' - bound) (n + 1)
 		
 inverseSquareList :: [Float]
-inverseSquareList = map (/(pi*pi/6.0*0.999)) $ inverseSquareList' 0.0 1 where
+inverseSquareList = (/(pi*pi/6.0*0.999)) <$> inverseSquareList' 0.0 1 where
 	inverseSquareList' q n = new : inverseSquareList' new (n + 1) where
 		new = q + 1.0 / (intToFloat n * intToFloat n) 
 		

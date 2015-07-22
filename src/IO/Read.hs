@@ -11,6 +11,7 @@ import qualified Data.Set as S
 import qualified Data.Array as A
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
+import Data.Functor ((<$>))
 
 takeDigits, dropDigits :: String -> String
 takeDigits = takeWhile (`elem` ['0'..'9'])
@@ -27,7 +28,7 @@ separate c s = first :
 		rest = dropWhile (c /=) s
 
 myReadList :: Read a => Char -> String -> [a]
-myReadList c str = map read $ separate c str
+myReadList c str = read <$> separate c str
 
 myReadByCoords :: Read a => String -> ((Int, Int), a)
 myReadByCoords str = ((read x, read y), read obj) where
@@ -38,7 +39,7 @@ myReadByCoords str = ((read x, read y), read obj) where
 	_:_:obj = dropDigits rest
 
 myReadListCoords :: Read a => Char -> String -> [((Int, Int), a)]
-myReadListCoords c str = map myReadByCoords $ separate c str
+myReadListCoords c str = myReadByCoords <$> separate c str
 
 myReadInvElem :: Read a => String -> (Char, (a, Int))
 myReadInvElem str = (c, (read obj, read n)) where
@@ -48,7 +49,7 @@ myReadInvElem str = (c, (read obj, read n)) where
 
 myReadInv :: Read a => Char -> String -> [(Char, (a, Int))]
 myReadInv _ "" = []
-myReadInv c str = map myReadInvElem $ separate c str
+myReadInv c str = myReadInvElem <$> separate c str
 
 myReadItem :: Read a => String -> (Int, Int, a, Int)
 myReadItem str = (read x, read y, read obj, read z) where
@@ -62,7 +63,7 @@ myReadItem str = (read x, read y, read obj, read z) where
 
 myReadItems :: Read a => Char -> String -> [(Int, Int, a, Int)]
 myReadItems _ "" = []
-myReadItems c str = map myReadItem $ separate c str
+myReadItems c str = myReadItem <$> separate c str
 
 instance Read Object where
 	readsPrec _ str = [(case arg1 of

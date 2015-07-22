@@ -12,6 +12,7 @@ import System.Random (StdGen)
 import qualified Data.Map as M
 import Data.Array
 import Control.Arrow (first)
+import Data.Functor ((<$>))
 
 {- Part -}
 
@@ -188,7 +189,7 @@ addItem' :: (Int, Int, Object, Int) -> [(Int, Int, Object, Int)] -> [(Int, Int, 
 addItem' i@(x, y, obj, n) list' = 
 	if null this
 	then i : list'
-	else map change list'
+	else change <$> list'
 	where
 		change i'@(x', y', obj', n') = 
 			if x == x' && y == y' && obj == obj'

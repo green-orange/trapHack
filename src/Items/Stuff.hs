@@ -13,6 +13,7 @@ import IO.Texts
 
 import System.Random
 import qualified Data.Map as M
+import Data.Functor ((<$>))
 
 deathDrop :: String -> StdGen -> (Inv, StdGen)
 deathDrop "Homunculus" = genDeathDrop [(wANDS, bound [0.6])]
@@ -126,14 +127,14 @@ uNIQUEwANDS = [wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation,
 	wandOfPsionicBlast, wandOfPoison, wandOfSlowing, wandOfStun]
 wANDS :: [Object]
 wANDS =
-	map wandOfStriking     [1..5] ++
-	map wandOfStupidity    [1..5] ++
-	map wandOfSpeed        [1..2] ++
-	map wandOfRadiation    [1..3] ++
-	map wandOfPsionicBlast [1..2] ++
-	map wandOfPoison       [1..3] ++
-	map wandOfSlowing      [1..5] ++
-	map wandOfStun         [1..4]
+	(wandOfStriking     <$> [1..5]) ++
+	(wandOfStupidity    <$> [1..5]) ++
+	(wandOfSpeed        <$> [1..2]) ++
+	(wandOfRadiation    <$> [1..3]) ++
+	(wandOfPsionicBlast <$> [1..2]) ++
+	(wandOfPoison       <$> [1..3]) ++
+	(wandOfSlowing      <$> [1..5]) ++
+	(wandOfStun         <$> [1..4])
 
 instance Random a => Random (Maybe a) where
 	random g = (Just x, g')
@@ -286,11 +287,11 @@ uNIQUErINGS = [ringOfSpeed, ringOfFireRes, ringOfColdRes,
 ringOfSpeed, ringOfFireRes, ringOfColdRes, ringOfPoisonRes, ringOfProtection 
 	:: Int -> Object
 rINGS = 
-	map ringOfSpeed      [1..4] ++
-	map ringOfFireRes    [1..3] ++
-	map ringOfColdRes    [1..3] ++
-	map ringOfPoisonRes  [1..3] ++
-	map ringOfProtection [1..3]
+	(ringOfSpeed      <$> [1..4]) ++
+	(ringOfFireRes    <$> [1..3]) ++
+	(ringOfColdRes    <$> [1..3]) ++
+	(ringOfPoisonRes  <$> [1..3]) ++
+	(ringOfProtection <$> [1..3])
 
 ringOfSpeed ench = Jewelry {title = "ring of speed", enchantment = ench,
 	bind = aRM, effectOn = \ench' -> speed (5 * ench'), 
@@ -311,7 +312,7 @@ ringOfProtection ench = Jewelry {title = "ring of protection", enchantment = enc
 uNIQUEaMULETS = [amuletOfTeleportation]
 amuletOfTeleportation :: Int -> Object
 aMULETS = 
-	map amuletOfTeleportation [1..6]
+	amuletOfTeleportation <$> [1..6]
 
 getIntrAmulet :: Int -> String -> Intr -> Int -> Int -> Object
 getIntrAmulet mult title' intr' id' ench = Jewelry {title = title', enchantment = ench,
