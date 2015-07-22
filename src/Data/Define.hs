@@ -198,7 +198,7 @@ data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
 
 data MapGenType = Sin30 | Sin3 | FlatLow | FlatHigh | AvgRandom | Avg2Random |
-	Mountains | MountainsWater deriving (Show, Read)
+	Mountains | MountainsWater | MountainsSwamp deriving (Show, Read)
 
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1

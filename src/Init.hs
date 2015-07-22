@@ -88,7 +88,8 @@ showMapChoice = do
 	putStrLn "e - averaged random map"
 	putStrLn "f - double averaged random map"
 	putStrLn "g - map with mountains and large valleys"
-	putStrLn "h - previous with added rivers"
+	putStrLn "h - (g) with rivers"
+	putStrLn "i - (g) with swamps"
 	c <- getLine
 	case c of
 		"a" -> return Sin30
@@ -99,6 +100,7 @@ showMapChoice = do
 		"f" -> return Avg2Random
 		"g" -> return Mountains
 		"h" -> return MountainsWater
+		"i" -> return MountainsSwamp
 		_ ->  do
 			putStrLn "Unknown map!"
 			showMapChoice

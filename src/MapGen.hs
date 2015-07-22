@@ -26,6 +26,7 @@ runMap AvgRandom = getAvgRandomMap
 runMap Avg2Random = getAvg2RandomMap
 runMap Mountains = getMountainMap
 runMap MountainsWater = addRivers 50 getMountainMap
+runMap MountainsSwamp = addSwampsToGen 3 $ limit *. getMountains 0.1
 
 getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
 getSinFunc maxA maxB g = (sinf, g3) where
@@ -145,5 +146,12 @@ addRivers cnt mgen g = foldr ($) (wmap, g3) $ zipWith addRiver xs ys where
 	(gy, g3) = split g2
 	xs = take cnt $ randomRs (0, maxX) gx
 	ys = take cnt $ randomRs (0, maxY) gy
-	
+
+addSwamps :: Int -> A.Array (Int, Int) Int -> A.Array (Int, Int) Cell
+addSwamps maxh = ((\x -> Cell {height = x, terrain =
+	if x <= maxh then Water else Empty}) <$>)
+
+addSwampsToGen :: Int -> HeiGen -> MapGen
+addSwampsToGen maxh hgen g = (addSwamps maxh heis, g') where
+	(heis, g') = hgen g
 
