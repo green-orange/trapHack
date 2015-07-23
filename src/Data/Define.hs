@@ -147,7 +147,6 @@ data World = World {
 	wave :: Int,
 	chars :: Set Char,
 	worldmap :: A.Array (Int, Int) Cell,
-	dirs :: (Int, Int, Int, Int) -> Maybe (Int, Int),
 	prevAction :: Char,
 	shift :: Int,
 	slot :: Slot,

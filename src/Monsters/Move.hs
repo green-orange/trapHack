@@ -21,10 +21,10 @@ import System.Random (randomR)
 
 moveFirst :: Int -> Int -> World -> (World, Bool)
 moveFirst dx dy world
-	| x + dx < 0 || y + dy < 0 || x + dx > maxX || y + dy > maxY
-		= (world, True)
-	| not $ isEmpty world xnew ynew || (dx == 0 && dy == 0) || isNothing rez
-		= (maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
+	| not $ isCell (x + dx) (y + dy)
+		= (addNeutralMessage msgIncStep world, True)
+	| not (isEmpty world xNew yNew) && (dx /= 0 || dy /= 0)
+		= (maybeUpgrade xNew yNew $ foldr (attack xNew yNew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
 		world $ filter isUpperLimb $ parts $ getFirst world, True)
 	| terrain (worldmap world A.! (x + dx, y + dy)) == Water 
@@ -34,30 +34,22 @@ moveFirst dx dy world
 	| heiNew > heiOld + 1 && not (isFlying mon) && q > tele = (changeGen g'' 
 		$ maybeAddMessage msgTooHigh world, False) 
 	| otherwise = (changeGen g'' $ dmgFallFirst (if tele >= q then 0 
-		else heiOld - heiNew) $ changeMoveFirst xnew ynew $ addNeutralMessage 
-		teleMsg $ addMessage (newMessage, yELLOW) world, True)
+		else heiOld - heiNew) $ changeMoveFirst xNew yNew $ addNeutralMessage 
+		teleMsg world, True)
 	where
 		x = xFirst world
 		y = yFirst world
-		(rez, teleMsg) = 
+		(xNew, yNew, teleMsg) = 
 			if q <= tele
-			then (Just (xR, yR), msgTeleport $ name mon)
-			else (dirs world (x, y, dx, dy), "")
-		(xnew, ynew, newMessage) =
-			if isNothing rez
-			then
-				if isPlayerNow world
-				then (x, y, msgIncStep)
-				else (x, y, "")
-			else (xnew', ynew', "") where
-				Just (xnew', ynew') = rez
+			then (xR, yR, msgTeleport $ name mon)
+			else (x + dx, y + dy, "")
 		mon = getFirst world
 		tele = intr mon !! fromEnum Teleport
 		(q, g) = randomR (1, 100) $ stdgen world
 		(xR, g') = randomR (0, maxX) g
 		(yR, g'') = randomR (0, maxY) g'
 		heiOld = height $ worldmap world A.! (x,y)
-		heiNew = height $ worldmap world A.! (xnew, ynew)
+		heiNew = height $ worldmap world A.! (xNew, yNew)
 
 attack :: Int -> Int -> Char -> World -> World
 attack x y c world = changeMons unitsNew $ addMessage (newMsg, color) 

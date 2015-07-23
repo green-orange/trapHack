@@ -19,30 +19,26 @@ yFirst = yF . units'
 getFirst :: World -> Monster
 getFirst = getFirst' . units'
 
+isCell :: Int -> Int -> Bool
+isCell x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY
+
 isEmpty :: World -> Int -> Int -> Bool
-isEmpty world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY &&
-	M.notMember (x, y) (units world)
+isEmpty world x y = isCell x y && M.notMember (x, y) (units world)
 
 isEmptyOrPlayer :: World -> Int -> Int -> Bool
-isEmptyOrPlayer world x y = x >= 0 && y >= 0 && x <= maxX && y <= maxY
+isEmptyOrPlayer world x y = isCell x y 
 	&& (case ai <$> M.lookup (x, y) (units world) of
 		Nothing -> True
 		Just You -> True
 		_ -> False)
 
 isValid :: World -> Int -> Int -> Int -> Int -> Bool
-isValid world x y dx dy = case rez of
-	Nothing -> False
-	Just (x', y') -> isEmpty world x' y'
-	where
-		rez = dirs world (x, y, dx, dy)
+isValid world x y dx dy = 
+	isCell x y && isEmpty world (x + dx) (y + dy)
 
 isValidOrPlayer :: World -> Int -> Int -> Int -> Int -> Bool
-isValidOrPlayer world x y dx dy = case rez of
-	Nothing -> False
-	Just (x', y') -> isEmptyOrPlayer world x' y'
-	where
-		rez = dirs world (x, y, dx, dy)
+isValidOrPlayer world x y dx dy = 
+	isCell x y && isEmptyOrPlayer world (x + dx) (y + dy)
 
 isSafe, isVerySafe :: World -> Int -> Int -> Int -> Int -> Bool
 isSafe = isSafeByBounds (-2) 1
@@ -50,18 +46,10 @@ isVerySafe = isSafeByBounds (-1) 1
 
 isSafeByBounds :: Int -> Int -> World -> Int -> Int -> Int -> Int -> Bool
 isSafeByBounds mindh maxdh world x y dx dy = 
-	not (x < 0 || y < 0 || x > maxX || y > maxY) &&
-	(case rez of
-	Nothing -> False
-	Just (x', y') ->
-		if x' < 0 || y' < 0 || x' > maxX || y' > maxY
-		then False
-		else let
-		dh = height (worldmap world A.! (x', y')) - 
+	isCell x y && isCell (x + dx) (y + dy) && ( let
+		dh = height (worldmap world A.! (x + dx, y + dy)) - 
 			height (worldmap world A.! (x, y)) in
 		dh <= maxdh && dh >= mindh)
-	where
-		rez = dirs world (x, y, dx, dy)
 
 class Boolean a where
 	infixr 3 &&&

@@ -14,15 +14,6 @@ import System.Random (StdGen)
 import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Functor ((<$>))
-
-rectdirs :: (Int, Int, Int, Int) -> (Int, Int, Int, Int) -> Maybe (Int, Int)
-rectdirs (xmin, ymin, xmax, ymax) (x, y, dx, dy) =
-	if xnew >= xmin && xnew <= xmax && ynew >= ymin && ynew <= ymax
-	then Just (xnew, ynew)
-	else Nothing
-	where
-		xnew = x + dx
-		ynew = y + dy
 		
 initUnits :: Units
 initUnits = Units {
@@ -37,7 +28,6 @@ initUnits = Units {
 initWorld :: MapGenType -> String -> StdGen -> World
 initWorld mapgen username gen = World {
 	worldmap = worldmap',
-	dirs = rectdirs (0, 0, maxX, maxY),
 	units' = initUnits,
 	message = [(msgWelcome username, bLUE)],
 	items = [],

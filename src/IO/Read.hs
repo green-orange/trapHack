@@ -5,7 +5,6 @@ import Data.Const
 import Items.Stuff
 import IO.Colors
 import IO.Texts
-import Init
 
 import qualified Data.Set as S
 import qualified Data.Array as A
@@ -152,7 +151,6 @@ instance Read World where
 		chars = S.empty,
 		worldmap = A.listArray ((0,0), (maxX, maxY)) 
 			$ myReadList listSepW worldmap',
-		dirs = rectdirs (0, 0, maxX, maxY),
 		prevAction = ' ',
 		shift = 0,
 		slot = toEnum 0,

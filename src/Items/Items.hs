@@ -98,10 +98,10 @@ zapFirst c world
 		(changeMon mon $ changeAction Move newWorld, True) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	Just (dx, dy) = dir c
-	maybeCoords = dirs world (x, y, dx, dy)
-	newWorld = case maybeCoords of
-		Just (xNew, yNew) -> zap world xNew yNew dx dy obj
-		Nothing -> failWorld
+	newWorld =
+		if isCell (x + dx) (y + dy)
+		then zap world (x + dx) (y + dy) dx dy obj
+		else failWorld
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst newWorld
@@ -114,9 +114,10 @@ zap world x y dx dy obj
 	| (range obj == 0) || incorrect = world
 	| (dx == 0) && (dy == 0) = newMWorld
 	| otherwise = zap newMWorld xNew yNew dx dy $ decRange obj where
-	(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
-		Nothing -> (True, (0, 0))
-		Just p -> (False, p)
+	(incorrect, xNew, yNew) = 
+		if isCell (x + dx) (y + dy)
+		then (False, x + dx, y + dy)
+		else (True, 0, 0)
 	decRange :: Object -> Object
 	decRange obj' = obj' {range = range obj - 1}
 	(newMons, msg) = 
@@ -195,12 +196,12 @@ fireFirst c world
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst world
-	maybeCoords = dirs world (x, y, dx, dy)
 	cnt = min n $ sum $ count <$> intended
-	newWorld = case maybeCoords of
-		Just (xNew, yNew) -> foldr (.) id (replicate cnt $ 
-			fire xNew yNew dx dy obj) $ changeMon (fulldel oldMon) world
-		Nothing -> failWorld
+	newWorld = 
+		if isCell (x + dx) (y + dy)
+		then foldr (.) id (replicate cnt $ fire (x + dx) (y + dy) dx dy obj)
+			$ changeMon (fulldel oldMon) world
+		else failWorld
 	Just (dx, dy) = dir c
 	Just (obj, n) = objects
 	fulldel = foldr (.) id $ replicate cnt $ delObj $ prevAction world
@@ -213,9 +214,10 @@ fire x y dx dy obj world
 	| otherwise = newWorld where
 	maybeMon = M.lookup (x, y) $ units world 
 	Just mon = maybeMon
-	(incorrect, (xNew, yNew)) = case dirs world (x, y, dx, dy) of
-		Nothing -> (True, (0, 0))
-		Just p -> (False, p)
+	(incorrect, xNew, yNew) =
+		if isCell (x + dx) (y + dy)
+		then (False, x + dx, y + dy)
+		else (True, 0, 0)
 	(newDmg, g) = objdmg obj world
 	(newMon, g') = dmgRandom newDmg mon g
 	msg = case newDmg of
@@ -263,7 +265,7 @@ useFirst c world
 		(maybeAddMessage (msgDontKnow "use") failWorld, False)
 	| isNothing $ dir c =
 		(maybeAddMessage msgNotDir failWorld, False)
-	| isNothing $ dirs world (x, y, dx, dy) = 
+	| not $ isCell (x + dx) (y + dy) = 
 		(maybeAddMessage msgNECell failWorld, False)
 	| otherwise =
 		(changeAction Move newWorld, correct) where
