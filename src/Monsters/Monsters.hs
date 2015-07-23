@@ -61,7 +61,7 @@ addMonster gen (uns, g) =
 		(y, g2) = randomR (max 0 (yPlayer - ySight), 
 			min maxY (yPlayer + ySight)) g1
 		(mon, g3) = gen g2
-		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ M.keys $ list uns
+		isCorrect = M.notMember (x, y) $ list uns
 		[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
 			$ M.toList $ list uns
 

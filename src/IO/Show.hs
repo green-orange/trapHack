@@ -40,7 +40,9 @@ placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight)
 
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
 drawUnit world ((x, y), mon) =
-	unless (abs dx > xSight || abs dy > ySight) $ do
+	if x < 0 || y < 0 || x > maxX || y > maxY
+	then error $ msgWE "drawUnit"
+	else unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, color2)
 		placeChar dx dy sym where
 		attr
@@ -61,7 +63,9 @@ drawUnit world ((x, y), mon) =
 
 drawCell :: World -> ((Int, Int), Cell) -> IO ()
 drawCell world ((x, y), _) = 
-	unless (abs dx > xSight || abs dy > ySight) $ do
+	if x < 0 || y < 0 || x > maxX || y > maxY
+	then error $ msgWE "drawCell"
+	else unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, color')
 		placeChar dx dy sym where
 		attr
@@ -87,7 +91,9 @@ drawCell world ((x, y), _) =
 
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = 
-	unless (abs dx > xSight || abs dy > ySight) $ do
+	if x < 0 || y < 0 || x > maxX || y > maxY
+	then error $ msgWE "drawItem"
+	else unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, Pair $ colorFromCell $ worldmap world A.! (x,y))
 		placeChar dx dy $ symbolItem item where
 		dx = x - xFirst world

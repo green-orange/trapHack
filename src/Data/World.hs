@@ -53,7 +53,10 @@ isSafeByBounds mindh maxdh world x y dx dy =
 	not (x < 0 || y < 0 || x > maxX || y > maxY) &&
 	(case rez of
 	Nothing -> False
-	Just (x', y') -> let
+	Just (x', y') ->
+		if x' < 0 || y' < 0 || x' > maxX || y' > maxY
+		then False
+		else let
 		dh = height (worldmap world A.! (x', y')) - 
 			height (worldmap world A.! (x, y)) in
 		dh <= maxdh && dh >= mindh)

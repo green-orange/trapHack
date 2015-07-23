@@ -21,6 +21,8 @@ import System.Random (randomR)
 
 moveFirst :: Int -> Int -> World -> (World, Bool)
 moveFirst dx dy world
+	| x + dx < 0 || y + dy < 0 || x + dx > maxX || y + dy > maxY
+		= (world, True)
 	| not $ isEmpty world xnew ynew || (dx == 0 && dy == 0) || isNothing rez
 		= (maybeUpgrade xnew ynew $ foldr (attack xnew ynew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
