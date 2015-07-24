@@ -1,4 +1,4 @@
-name:                trapHack
+name:                traphack
 version:             0.0
 synopsis:            survival roguelike game
 -- description:         
@@ -13,7 +13,7 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-executable trapHack
+executable traphack
   hs-source-dirs:      src
   main-is:             Main.hs
   ghc-options:         -Wall -fno-warn-orphans
