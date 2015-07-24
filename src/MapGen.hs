@@ -82,7 +82,7 @@ averaging arr = A.array ((0, 0), (maxX, maxY))
 	avg x y = (2 * (arr A.! (x, y)) + sum ((arr A.!) <$> nears)) 
 		`div` (2 + length nears) where
 		nears = [(x + dx, y + dy) | dx <- d, dy <- d,
-			x + dx >= 0, y + dy >= 0, x + dx <= maxX, y + dy <= maxY]
+			isCell (x + dx) (y + dy)]
 
 mapFromHeights :: A.Array (Int, Int) Int -> A.Array (Int, Int) Cell
 mapFromHeights = fmap (\h -> Cell {terrain = Empty, height = h})
@@ -129,7 +129,7 @@ addRiver x y (wmap, g) =
 	newWMap = wmap A.// [((x, y), Cell {terrain = Water, 
 		height = height $ wmap A.! (x, y)})]
 	nears =
-		filter ((\(x', y') -> x' >= 0 && y' >= 0 && x' <= maxX && y' <= maxY) &&&
+		filter ((uncurry isCell) &&&
 		((Empty ==) . terrain . (wmap A.!)) &&&
 		((height (wmap A.! (x, y)) >=) . height . (wmap A.!)))
 		[(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y)]

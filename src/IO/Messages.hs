@@ -65,8 +65,7 @@ getInfo w = changeAction Move $
 
 infoMessage :: World -> String
 infoMessage w
-	| xInfo w < 0 || yInfo w < 0 || xInfo w > maxX || yInfo w > maxY
-		= msgNECell
+	| not $ isCell (xInfo w) (yInfo w) = msgNECell
 	| abs (xInfo w - xFirst w) > xSight || abs (yInfo w - yFirst w) > ySight
 		= msgUnseenCell
 	| last str == ' ' = init str 

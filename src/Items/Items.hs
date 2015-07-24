@@ -140,7 +140,7 @@ zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 		
 trapFirst :: Char -> World -> (World, Bool)
 trapFirst c world
-	| x < 0 || y < 0 || x > maxX || y > maxY = error $ msgWE "trapFirst"
+	| not $ isCell x y = error $ msgWE "trapFirst"
 	| not $ hasPart aRM oldMon =
 		(maybeAddMessage (msgNeedArms "set a trap") failWorld, False)
 	| isNothing objects = (maybeAddMessage msgNoItem failWorld, False)
@@ -160,7 +160,7 @@ trapFirst c world
 	
 untrapFirst :: World -> (World, Bool)
 untrapFirst world 
-	| x < 0 || y < 0 || x > maxX || y > maxY = error $ msgWE "untrapFirst"
+	| not $ isCell x y = error $ msgWE "untrapFirst"
 	| not $ hasPart aRM mon =
 		(maybeAddMessage (msgNeedArms "remove a trap") failWorld, False)
 	| not $ isUntrappable $ worldmap world A.! (x, y) =
@@ -283,8 +283,7 @@ use world x y dx dy obj = case tooltype obj of
 
 usePickAxe :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
 usePickAxe world x y dx dy obj
-	| x + dx < 0 || y + dy < 0 || x + dx > maxX || y + dy > maxY
-		= (maybeAddMessage msgNECell world, False)
+	| not $ isCell (x + dx) (y + dy) = (maybeAddMessage msgNECell world, False)
 	| not (isSafeByBounds (-1) 2 world x y dx dy)
 		|| height cell == 0
 		= (maybeAddMessage msgCantDig world, False)
