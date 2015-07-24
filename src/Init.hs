@@ -14,6 +14,8 @@ import System.Random (StdGen)
 import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Functor ((<$>))
+import Data.Char (isDigit)
+import Control.Monad (when)
 		
 initUnits :: Units
 initUnits = Units {
@@ -71,26 +73,67 @@ getPlayer = Monster {
 showMapChoice :: IO MapGenType
 showMapChoice = do
 	putStrLn "Choose a map:"
-	putStrLn "a - sum of 30 sinuses (looks like aperiodic)"
-	putStrLn "b - sum of 3 sinuses"
-	putStrLn "c - flat map with height = 9"
-	putStrLn "d - flat map with height = 0"
-	putStrLn "e - averaged random map"
-	putStrLn "f - double averaged random map"
-	putStrLn "g - map with mountains and large valleys"
-	putStrLn "h - (g) with rivers"
-	putStrLn "i - (g) with swamps"
+	putStrLn "a - sum of 30 sinuses, DEFAULT"
+	putStrLn "b - flat map with height = 9"
+	putStrLn "c - averaged random map"
+	putStrLn "d - map with mountains and large valleys"
+	putStrLn "e - (g) with rivers"
+	putStrLn "f - (g) with swamps"
+	putStrLn "* - customize map"
 	c <- getLine
 	case c of
-		"a" -> return Sin30
-		"b" -> return Sin3
-		"c" -> return FlatHigh
-		"d" -> return FlatLow
-		"e" -> return AvgRandom
-		"f" -> return Avg2Random
-		"g" -> return Mountains
-		"h" -> return MountainsWater
-		"i" -> return MountainsSwamp
-		_ ->  do
-			putStrLn "Unknown map!"
-			showMapChoice
+		"a" -> return $ pureMapGen Sin30
+		"b" -> return $ pureMapGen $ Flat 9
+		"c" -> return $ MapGenType Random 1 NoWater
+		"d" -> return $ pureMapGen Mountains
+		"e" -> return $ MapGenType Mountains 0 $ Rivers 50
+		"f" -> return $ MapGenType Mountains 0 $ Swamp 3
+		"*" -> customMapChoice
+		_ ->  return $ pureMapGen Sin30
+
+customMapChoice :: IO MapGenType
+customMapChoice = do
+	putStrLn "Choose a height generator: "
+	putStrLn "a - sum of 30 sinuses (not really), DEFAULT"
+	putStrLn "b - sum of 3 sinuses"
+	putStrLn "c - random map"
+	putStrLn "d - mountains"
+	putStrLn "e - flat map (with customized height)"
+	heigenStr <- getLine
+	when (heigenStr == "e") $ putStrLn "Put height of the map (default: 9)"
+	hei <- if heigenStr == "e" then getLine else return ""
+	putStrLn "Choose averaging: (default: 0)"
+	avgStr <- getLine
+	putStrLn "Choose water: "
+	putStrLn "a - without water, DEFAULT"
+	putStrLn "b - rivers"
+	putStrLn "c - swamps"
+	waterStr <- getLine
+	when (waterStr == "b") $ putStrLn "Put count of rivers (default: 50)"
+	when (waterStr == "c") $ putStrLn "Put depth of swamps (default: 3)"
+	waternum <-	if (waterStr == "b" || waterStr == "c") then getLine
+		else return ""
+	return $ MapGenType (heigen heigenStr hei) (avg avgStr)
+		(water waterStr waternum)
+	where
+		maybeReadNum :: Int -> String -> Int
+		maybeReadNum def [] = def
+		maybeReadNum def str = 
+			if all isDigit str then read str else def
+		heigen str1 str2 = case str1 of
+			"a" -> Sin30
+			"b" -> Sin3
+			"c" -> Random
+			"d" -> Mountains
+			"e" -> Flat $ maybeReadNum 9 str2
+			_ -> Sin30
+		avg str = maybeReadNum 0 str
+		water str1 str2 = case str1 of
+			"a" -> NoWater
+			"b" -> Rivers $ maybeReadNum 50 str2
+			"c" -> Swamp $ maybeReadNum 3 str2
+			_ -> NoWater
+	
+
+
+

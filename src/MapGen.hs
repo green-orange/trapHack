@@ -8,6 +8,7 @@ import Utils.Random
 import System.Random
 import qualified Data.Array as A
 import Data.Functor ((<$>))
+import Control.Arrow (first)
 
 instance Num b => Num (a -> b) where
 	(f + g) x = f x + g x
@@ -17,16 +18,24 @@ instance Num b => Num (a -> b) where
 	(abs f) x = abs $ f x
 	(signum f) x = signum $ f x
 
+runHei :: HeiGenType -> HeiGen
+runHei Sin30 = getSinHei (-1.0) 2.0 30 40
+runHei Sin3 = getSinHei 0.01 0.99 5 10
+runHei Random = getRandomHeis
+runHei Mountains = getMountains 0.1
+runHei (Flat n) = getFlatMap n
+
+runWater :: Water -> HeiGen -> MapGen
+runWater NoWater = mapGenFromHeightGen
+runWater (Rivers n) = addRiversToGen n
+runWater (Swamp n) = addSwampsToGen n
+
 runMap :: MapGenType -> MapGen
-runMap Sin30 = getSinMap
-runMap Sin3 = getLowSinMap
-runMap FlatLow = getFlatLowMap
-runMap FlatHigh = getFlatHighMap
-runMap AvgRandom = getAvgRandomMap
-runMap Avg2Random = getAvg2RandomMap
-runMap Mountains = getMountainMap
-runMap MountainsWater = addRivers 50 getMountainMap
-runMap MountainsSwamp = addSwampsToGen 3 $ limit *. getMountains 0.1
+runMap (MapGenType heigen avg water) = runWater water $ foldr (.) 
+	(limit *. runHei heigen) $ replicate avg $ first averaging
+
+pureMapGen :: HeiGenType -> MapGenType
+pureMapGen heigen = MapGenType heigen 0 NoWater
 
 getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
 getSinFunc maxA maxB g = (sinf, g3) where
@@ -63,16 +72,6 @@ infixr 9 *.
 (f *. g) x = (f rez, x') where
 	(rez, x') = g x
 
-getSinMap, getLowSinMap, getAvgRandomMap, getAvg2RandomMap,
-	getMountainMap :: MapGen
-getSinMap = mapGenFromHeightGen $ getSinHei (-1.0) 2.0 30 40
-getLowSinMap = mapGenFromHeightGen $ getSinHei 0.01 0.99 5 10
-getAvgRandomMap = mapGenFromHeightGen $ limit 
-	*. averaging *. getRandomHeis
-getAvg2RandomMap = mapGenFromHeightGen $ limit 
-	*. averaging *. averaging *. getRandomHeis
-getMountainMap = mapGenFromHeightGen $ limit *. getMountains 0.1
-
 limit :: A.Array (Int, Int) Int -> A.Array (Int, Int) Int
 limit = fmap $ max 0 . min 9
 
@@ -80,7 +79,7 @@ averaging :: A.Array (Int, Int) Int -> A.Array (Int, Int) Int
 averaging arr = A.array ((0, 0), (maxX, maxY))
 	[((x, y), avg x y) | x <- [0..maxX], y <- [0..maxY]] where
 	d = [-1..1]
-	avg x y = sum ((arr A.!) <$> nears) `div` length nears where
+	avg x y = (2 * (arr A.! (x, y)) + sum ((arr A.!) <$> nears)) `div` (2 + length nears) where
 		nears = [(x + dx, y + dy) | dx <- d, dy <- d,
 			x + dx >= 0, y + dy >= 0, x + dx <= maxX, y + dy <= maxY]
 
@@ -91,17 +90,13 @@ mapGenFromHeightGen :: HeiGen -> MapGen
 mapGenFromHeightGen hgen gen = (mapFromHeights heis, gen')
 	where (heis, gen') = hgen gen
 
-getFlatMap :: Int -> MapGen
-getFlatMap n g = (mapFromHeights $ A.listArray ((0, 0), (maxX, maxY)) 
+getFlatMap :: Int -> HeiGen
+getFlatMap n g = (A.listArray ((0, 0), (maxX, maxY)) 
 	[n, n..], g)
-
-getFlatLowMap, getFlatHighMap :: MapGen
-getFlatLowMap = getFlatMap 0
-getFlatHighMap = getFlatMap 9
 
 getRandomHeis :: HeiGen
 getRandomHeis g = (A.listArray ((0, 0), (maxX, maxY)) 
-	$ randomRs (-4, 13) g', g'') where
+	$ randomRs (0, 9) g', g'') where
 	(g', g'') = split g
 	
 getMountains :: Float -> HeiGen
@@ -146,6 +141,9 @@ addRivers cnt mgen g = foldr ($) (wmap, g3) $ zipWith addRiver xs ys where
 	(gy, g3) = split g2
 	xs = take cnt $ randomRs (0, maxX) gx
 	ys = take cnt $ randomRs (0, maxY) gy
+
+addRiversToGen :: Int -> HeiGen -> MapGen
+addRiversToGen n = addRivers n . mapGenFromHeightGen
 
 addSwamps :: Int -> A.Array (Int, Int) Int -> A.Array (Int, Int) Cell
 addSwamps maxh = ((\x -> Cell {height = x, terrain =
