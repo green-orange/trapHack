@@ -27,6 +27,7 @@ isEmpty world x y = isCell x y && M.notMember (x, y) (units world)
 
 isEmptyOrPlayer :: World -> Int -> Int -> Bool
 isEmptyOrPlayer world x y = isCell x y 
+	&& terrain (worldmap world A.! (x, y)) == Empty
 	&& (case ai <$> M.lookup (x, y) (units world) of
 		Nothing -> True
 		Just You -> True

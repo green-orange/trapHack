@@ -79,7 +79,8 @@ averaging :: A.Array (Int, Int) Int -> A.Array (Int, Int) Int
 averaging arr = A.array ((0, 0), (maxX, maxY))
 	[((x, y), avg x y) | x <- [0..maxX], y <- [0..maxY]] where
 	d = [-1..1]
-	avg x y = (2 * (arr A.! (x, y)) + sum ((arr A.!) <$> nears)) `div` (2 + length nears) where
+	avg x y = (2 * (arr A.! (x, y)) + sum ((arr A.!) <$> nears)) 
+		`div` (2 + length nears) where
 		nears = [(x + dx, y + dy) | dx <- d, dy <- d,
 			x + dx >= 0, y + dy >= 0, x + dx <= maxX, y + dy <= maxY]
 

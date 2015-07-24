@@ -111,7 +111,7 @@ customMapChoice = do
 	waterStr <- getLine
 	when (waterStr == "b") $ putStrLn "Put count of rivers (default: 50)"
 	when (waterStr == "c") $ putStrLn "Put depth of swamps (default: 3)"
-	waternum <-	if (waterStr == "b" || waterStr == "c") then getLine
+	waternum <-	if waterStr == "b" || waterStr == "c" then getLine
 		else return ""
 	return $ MapGenType (heigen heigenStr hei) (avg avgStr)
 		(water waterStr waternum)
@@ -127,7 +127,7 @@ customMapChoice = do
 			"d" -> Mountains
 			"e" -> Flat $ maybeReadNum 9 str2
 			_ -> Sin30
-		avg str = maybeReadNum 0 str
+		avg = maybeReadNum 0
 		water str1 str2 = case str1 of
 			"a" -> NoWater
 			"b" -> Rivers $ maybeReadNum 50 str2
