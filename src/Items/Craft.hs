@@ -11,9 +11,6 @@ import IO.Texts
 
 import qualified Data.Map as M
 
-recipes :: [Recipe]
-recipes = [recWoodenSword, recStoneSword]
-
 remRes :: ResourceType -> Inv -> Maybe Inv
 remRes rt inv'
 	| null ress = Nothing
@@ -44,8 +41,10 @@ maybeRunRecipe (ress, rez) w =
 				$ changeMon ((getFirst w) {inv = inv'}) w, True) where
 				newMsg = msgCraft (name $ getFirst w) $ title rez
 
-recWoodenSword :: Recipe
-recWoodenSword = ([(Tree, 3)], woodenSword)
+recipes :: [Recipe]
+recipes = [recWoodenSword, recStoneSword, recPickAxe]
 
-recStoneSword :: Recipe
+recWoodenSword, recStoneSword, recPickAxe :: Recipe
+recWoodenSword = ([(Tree, 3)], woodenSword)
 recStoneSword = ([(Stone, 2), (Tree, 1)], stoneSword)
+recPickAxe = ([(Stone, 3), (Tree, 2)], pickAxe)
