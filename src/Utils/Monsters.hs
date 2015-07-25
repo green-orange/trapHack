@@ -31,7 +31,7 @@ levelM "Forgotten beast" = 15
 levelM "Spider"          = 6
 levelM "Soldier"         = 9
 levelM "Umber hulk"      = 7
-levelM "Tree"            = 4
+levelM "Tree"            = 2
 levelM "Bot"             = 2
 levelM _                 = 0
 

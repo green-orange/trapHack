@@ -170,7 +170,7 @@ getUmberHulk = getMonster (getHumanoidAI StupidConfAI)
 	 (getArm 3, (5, 10))]
 	14 ((2,4), 0.2) emptyInv 100 200
 
-getTree = getMonster (getPureAI NothingAI) [(getMain 1, (100, 200))] 22
+getTree = getMonster (getPureAI NothingAI) [(getMain 1, (50, 100))] 22
 	((0, 0), 0) emptyInv 10000 10000
 
 getBot = getMonster (getPureAI CleverVSAI)

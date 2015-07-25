@@ -31,7 +31,7 @@ deathDrop "Green dragon" = dragonDrop
 deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
 deathDrop "Spider" = genDeathDrop [(jEWELRY, bound [0.6])]
 deathDrop "Umber hulk" = genDeathDrop [(wANDS, bound [0.6])]
-deathDrop "Tree" = genDeathDrop [([itemFromRes Tree], bound inverseSquareList)]
+deathDrop "Tree" = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareList)]
 -- TODO deathDrop "Bot"
 deathDrop _ = \p -> (M.empty, p)
 
