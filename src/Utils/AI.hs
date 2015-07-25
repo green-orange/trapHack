@@ -126,7 +126,7 @@ useSomeItem (obj:objs) (c:cs) = case usefulItem obj c of
 	f -> f
 
 addTempByCoords :: Temp -> (Int, Int) -> Int -> Int -> World -> World
-addTempByCoords t durs dx dy w = changeGen g $ changeMons newMons w where
+addTempByCoords t durs dx dy w = w {units' = newMons, stdgen = g} where
 	(dur, g) = randomR durs $ stdgen w
 	xNew = xFirst w + dx
 	yNew = yFirst w + dy

@@ -38,25 +38,25 @@ step world c
 			Bind -> doIfCorrect $ bindFirst c world
 			Eat -> doIfCorrect $ eatFirst c world
 			Craft -> doIfCorrect $ craftByChar c world
-			Zap1 -> Left $ addDefaultMessage msgAskDir 
-				$ changeAction Zap2 $ world {prevAction = c}
+			Zap1 -> Left $ addDefaultMessage msgAskDir world
+				{prevAction = c, action = Zap2}
 			SetTrap ->
 				if c == '-'
 				then doIfCorrect $ untrapFirst world 
 				else doIfCorrect $ trapFirst c world
-			Fire1 -> Left $ addDefaultMessage msgAskDir 
-				$ changeAction Fire2 $ world {prevAction = c}
-			Use1 -> Left $ addDefaultMessage msgAskDir 
-				$ changeAction Use2 $ world {prevAction = c}
+			Fire1 -> Left $ addDefaultMessage msgAskDir world
+				{prevAction = c, action = Fire2}
+			Use1 -> Left $ addDefaultMessage msgAskDir world
+				{prevAction = c, action = Use2}
 			Inventory ->
 				if isSpace c
-				then Left $ changeAction Move world
+				then Left $ world {action = Move}
 				else Left world
 			DropMany ->
 				if isSpace c
 				then case dropManyFirst world of
 					Nothing ->
-						Left $ changeChars empty $ changeAction Move world
+						Left $ changeChars empty $ world {action = Move}
 					Just w -> Left $ newWaveIf w
 				else Left $ changeChar c world
 			Pick ->
@@ -64,12 +64,12 @@ step world c
 				then case pickFirst world of
 					(Nothing, s) ->
 						Left $ changeChars empty $ addDefaultMessage s 
-						$ changeAction Move world
+						world {action = Move}
 					(Just pick, _) -> Left $ newWaveIf pick
 				else Left $ changeChar c world
 			Equip
-				| isSpace c -> Left $ changeAction Bind world
-				| c == '\ESC' -> Left $ changeAction Move world
+				| isSpace c -> Left world {action = Bind}
+				| c == '\ESC' -> Left world {action = Move}
 				| otherwise -> case dir c of
 					Nothing -> Left world
 					Just (dx, dy) -> Left $ changeSlotOn dx 
@@ -77,9 +77,9 @@ step world c
 			Call ->
 				if c == 'y' || c == 'Y'
 				then Left $ callUpon world
-				else Left $ changeAction Move world
-			Split1 -> Left $ addDefaultMessage msgPutSize 
-				$ changeAction Split2 $ world {prevAction = c, numToSplit = 0}
+				else Left  world {action = Move}
+			Split1 -> Left $ addDefaultMessage msgPutSize world
+				{prevAction = c, numToSplit = 0, action = Split2}
 			Split2 -> 
 				if isSpace c
 				then Left $ splitFirst world {action = Move}
@@ -97,8 +97,7 @@ step world c
 				'c' -> Left $ world {action = Move, showMode = NoHeight}
 				'd' -> Left $ world {action = Move, showMode = ColorHeightAbs}
 				_   -> Left $ world {action = Move, message = [(msgUnkOpt, dEFAULT)]}
-			_ -> Left $ addMessage (msgCheater, mAGENTA)
-				$ changeAction Move world
+			_ -> Left $ addMessage (msgCheater, mAGENTA) world {action = Move}
 		else
 			let newMWorld = runAI aiNow x y peace world
 			in Left $ newWaveIf newMWorld
@@ -106,8 +105,8 @@ step world c
 		Right $ msgYouDie $ wave world - 1
 	| otherwise =
 		let (deadMonster, newStdGen) = addDeathDrop mon (stdgen world)
-		in Left $ changeGen newStdGen $ remFirst $ dropAll $ changeMon deadMonster
-			$ addMessage (name mon ++ " die!", cYAN) world
+		in Left $ remFirst $ dropAll $ changeMon deadMonster
+			$ addMessage (name mon ++ " die!", cYAN) world {stdgen = newStdGen}
 	where
 		stun = (isJust (temp mon !! fromEnum Stun) ||
 			isJust (temp mon !! fromEnum Conf) && 5*p > 1) &&
@@ -127,14 +126,14 @@ justStep :: World -> Char -> Either World String
 justStep world c = case dir c of
 	Just (dx, dy) -> doIfCorrect $ moveFirst dx dy world
 	Nothing ->
-		if isSpace c then Left $ changeAction AfterSpace world else case c of
-		'D' -> Left $ changeAction DropMany world
-		'i' -> Left $ changeAction Inventory world
-		',' -> Left $ changeAction Pick world
-		'S' -> Left $ changeAction Save world
-		'P' -> Left $ changeAction Previous world
-		'&' -> Left $ changeAction Craft world
-		'O' -> Left $ changeAction Options world
+		if isSpace c then Left $ world {action = AfterSpace} else case c of
+		'D' -> Left world {action = DropMany}
+		'i' -> Left world {action = Inventory}
+		',' -> Left world {action = Pick}
+		'S' -> Left world {action = Save}
+		'P' -> Left world {action = Previous}
+		'&' -> Left world {action = Craft}
+		'O' -> Left world {action = Options}
 		'Q' -> 
 			if wave world == 1
 			then Right msgQuitOnStart
@@ -150,19 +149,19 @@ justStep world c = case dir c of
 		't' ->
 			Left $ addDefaultMessage (msgAsk ++ "set? ["
 			 ++ listOfValidChars isTrap world ++ "] or - to untrap") 
-			 $ changeAction SetTrap world
+			 world {action = SetTrap}
 		'E' ->
-			Left $ changeAction Equip world {shift = 0, slot = minBound :: Slot}
+			Left world {shift = 0, slot = minBound :: Slot, action = Equip}
 		'C' ->
-			Left $ changeAction Call $ addDefaultMessage	msgConfirmCall world
+			Left $ addDefaultMessage msgConfirmCall world {action = Call}
 		'?' ->
-			Left $ changeAction Info $ addDefaultMessage
+			Left $ addDefaultMessage
 				msgInfo world {xInfo = xFirst world,
-				 yInfo = yFirst world}
+				 yInfo = yFirst world, action = Info}
 		_  ->
 			Left $ addMessage (msgUnkAct ++ show (fromEnum c), yELLOW) world
 
 actionByKey :: String -> (Object -> Bool) -> Action -> World -> Either World a
 actionByKey word isType char world = Left $ addDefaultMessage (msgAsk 
 	++ word ++ "? [" ++ listOfValidChars isType world ++ "]") 
-	$ changeAction char world
+	world {action = char}

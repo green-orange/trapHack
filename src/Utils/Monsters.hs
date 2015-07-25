@@ -58,7 +58,7 @@ regPart :: Part -> Part
 regPart part = heal (regRate part) part
 
 regMonster :: Monster -> Monster
-regMonster mon = changeParts (regPart <$> parts mon) mon
+regMonster mon = mon {parts = regPart <$> parts mon}
 
 regFirst :: World -> World
 regFirst w = changeMon newMon w where
@@ -102,7 +102,7 @@ xpUp g mon killed = (newMon, lvls, newGen) where
 		$ replicate lvls levelUp
 
 levelUp :: (Monster, StdGen) -> (Monster, StdGen)
-levelUp (mon, g) = (changeParts newParts mon, g') where
+levelUp (mon, g) = (mon {parts = newParts}, g') where
 	(newParts, g') = levelUpParts g $ parts mon
 
 levelUpParts :: StdGen -> [Part] -> ([Part], StdGen)

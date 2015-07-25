@@ -8,16 +8,10 @@ import Monsters.Parts
 import IO.Texts
 
 import qualified Data.Set as S
-import System.Random (StdGen)
 import qualified Data.Map as M
 import Data.Array
 import Control.Arrow (first)
 import Data.Functor ((<$>))
-
-{- Part -}
-
-changeHP :: Int -> Part -> Part
-changeHP n part = part {hp = n}
 
 {- Units -}
 
@@ -29,35 +23,20 @@ update x' y' uns =
 		Just mon -> uns {getFirst' = mon}
 	else uns
 
-changeList :: M.Map (Int, Int) Monster -> Units -> Units
-changeList m uns = uns {list = m}
-
 {- Monster -}
 
-changeParts :: [Part] -> Monster -> Monster
-changeParts ps mon = mon {parts = ps}
-
-changeTime :: Int -> Monster -> Monster
-changeTime t mon = mon {time = t}
-
-tickFirstMon :: Monster -> Monster
-tickFirstMon m = changeTime (effectiveSlowness m + time m) m
-
-changeInv :: Inv -> Monster -> Monster
-changeInv inv' mon = mon {inv = inv'}
-
 delObj :: Char -> Monster -> Monster
-delObj c m = changeInv newInv m where
+delObj c m = m {inv = newInv} where
 	newInv = M.update maybeUpd c $ inv m
 	maybeUpd (_, 1) = Nothing
 	maybeUpd (o, n) = Just (o, n - 1)
 
 delAllObj :: Char -> Monster -> Monster
-delAllObj c m = changeInv newInv m where
+delAllObj c m = m {inv = newInv} where
 	newInv = M.delete c $ inv m
 		
 decChargeByKey :: Char -> Monster -> Monster
-decChargeByKey c m = changeInv newInv m where
+decChargeByKey c m = m {inv = newInv} where
 	newInv = M.adjust (first decCharge) c $ inv m
 
 addRes :: Elem -> Int -> Monster -> Monster
@@ -81,20 +60,14 @@ setMaxTemp temp' n m = changeTemp temp' (max n old) m where
 
 {- World -}
 
-changeAction :: Action -> World -> World
-changeAction c w = w {action = c}
-
 changeMon :: Monster -> World -> World
-changeMon mon w = changeMons newMons w where
+changeMon mon w = w {units' = newMons} where
 	newMons = update x y $ (units' w) {list = M.insert (x, y) mon $ list $ units' w}
 	x = xFirst w
 	y = yFirst w
 
-changeMons :: Units -> World -> World
-changeMons mons w = w {units' = mons}
-
 changeMoveFirst :: Int -> Int -> World -> World
-changeMoveFirst x y w = changeMons newMons w where
+changeMoveFirst x y w = w {units' = newMons} where
 	newMons = (units' w) {
 		xF = x,
 		yF = y,
@@ -120,9 +93,6 @@ clearMessage width w = w {message =
 		then dropAccum xs $ n - length x - 1
 		else arg
 
-changeGen :: StdGen -> World -> World
-changeGen g w = w {stdgen = g}
-
 changeChars :: S.Set Char -> World -> World
 changeChars cs w = w {chars = cs}
 
@@ -147,13 +117,13 @@ changeTerr x y terr w = changeMap x y Cell {terrain = terr,
 	height = height $ worldmap w ! (x, y)} w
 
 spawnMon :: MonsterGen -> Int -> Int -> World -> World
-spawnMon mgen x y w = changeMons (changeList 
-	(M.insert (x, y) (newMon {time = time (getFirst w) + effectiveSlowness newMon})
-		$ units w) $ units' w) $ changeGen g w where
+spawnMon mgen x y w = w {units' = (units' w) {list = M.insert (x, y)
+	(newMon {time = time (getFirst w) + effectiveSlowness newMon})
+		$ units w}, stdgen = g} where
 	(newMon, g) = mgen $ stdgen w
 	
 paralyse :: Int -> Int -> World -> World
-paralyse dx dy w = changeMons newMons w where
+paralyse dx dy w = w {units' = newMons} where
 	xNow = xFirst w
 	yNow = yFirst w
 	x = xNow + dx

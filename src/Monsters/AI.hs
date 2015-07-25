@@ -188,7 +188,7 @@ stupidFooAI foo xPlayer yPlayer peace w = newWorld where
 			(rx, g') = randomR (-1, 1) g
 			(ry, g'') = randomR (-1, 1) g'
 			in (rx, ry, g'')
-	newWorld = foo dx' dy' peace $ changeGen newStdGen w
+	newWorld = foo dx' dy' peace w {stdgen = newStdGen}
 
 stupidestAI :: AIfunc
 stupidestAI xPlayer yPlayer peace w = 
@@ -210,7 +210,7 @@ randomAI _ _ _ w  = fst $ moveFirst rx ry newWorld where
 	g = stdgen w
 	(rx, g') = randomR (-1, 1) g
 	(ry, g'') = randomR (-1, 1) g'
-	newWorld = changeGen g'' w
+	newWorld = w {stdgen = g''}
 	
 wormAI :: AIfunc
 wormAI xPlayer yPlayer _ w = 
@@ -218,7 +218,7 @@ wormAI xPlayer yPlayer _ w =
 	then spawnMon tailWorm xNow yNow . fst . moveFirst dx dy
 	else if isJust maybeMon && name mon == "Tail" && p < 0.2
 	then killFirst
-	else fst . moveFirst dx dy) $ changeGen g w where
+	else fst . moveFirst dx dy) w {stdgen = g} where
 		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
 		xNew = xNow + dx
 		yNew = yNow + dy
@@ -261,8 +261,8 @@ ivyAI :: AIfunc
 ivyAI xPlayer yPlayer peace world
 	| abs dx <= 1 && abs dy <= 1 && not peace = fst $ moveFirst dx dy world
 	| isEmpty world xNew yNew && not (isItem xNew yNew world)
-		= spawnMon getIvy xNew yNew $ changeGen g'' world
-	| otherwise = changeGen g'' $ killFirst world where
+		= spawnMon getIvy xNew yNew world {stdgen = g''}
+	| otherwise = killFirst world {stdgen = g''} where
 		xNow = xFirst world
 		yNow = yFirst world
 		dx = xPlayer - xNow

@@ -9,7 +9,7 @@ import System.Random (StdGen, randomR)
 import Data.Functor ((<$>))
 
 doSmthByFunc :: (a -> Part -> Part) -> (Part -> Bool) -> a -> Monster -> Monster
-doSmthByFunc doSmth f hp' mon = changeParts (filterHeal <$> parts mon) mon where
+doSmthByFunc doSmth f hp' mon = mon {parts = filterHeal <$> parts mon} where
 	filterHeal part = 
 		if f part
 		then doSmth hp' part
@@ -25,7 +25,7 @@ doSmthAll :: (a -> Part -> Part) -> a -> Monster -> Monster
 doSmthAll doSmth = doSmthByFunc doSmth $ const True
 
 heal :: Int -> Part -> Part
-heal n part = changeHP (min (maxhp part) $ hp part + n) part
+heal n part = part {hp = min (maxhp part) $ hp part + n}
 
 healParts, healPartById :: Int -> Int -> Monster -> Monster
 healLimbs :: Int -> Monster -> Monster

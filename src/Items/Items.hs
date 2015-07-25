@@ -47,14 +47,14 @@ dir c = case c of
 quaffFirst :: Char -> World -> (World, Bool)
 quaffFirst c world
 	| not $ hasPart aRM oldMon = (maybeAddMessage 
-		(msgNeedArms "quaff a potion") $ changeAction Move world, False)
+		(msgNeedArms "quaff a potion") world {action = Move}, False)
 	| isNothing objects = 
-		(maybeAddMessage msgNoItem $ changeAction Move world, False)
+		(maybeAddMessage msgNoItem world {action = Move}, False)
 	| not $ isPotion obj = (maybeAddMessage (msgDontKnow "quaff")
-		$ changeAction Move world, False)
+		world {action = Move}, False)
 	| otherwise
-		= (changeGen g $ changeMon mon' $ addNeutralMessage newMsg 
-		$ changeAction Move world, True) where
+		= (changeMon mon' $ addNeutralMessage newMsg 
+		world {action = Move, stdgen = g}, True) where
 	objects = M.lookup c $ inv $ getFirst world
 	newMsg = name (getFirst world) ++ " quaff" ++ ending world 
 		++ titleShow obj ++ "."
@@ -66,14 +66,14 @@ quaffFirst c world
 readFirst :: Char -> World -> (World, Bool)
 readFirst c world 
 	| not $ hasPart aRM mon = (maybeAddMessage 
-		(msgNeedArms "read a scroll") $ changeAction Move world, False)
+		(msgNeedArms "read a scroll") world {action = Move}, False)
 	| isNothing objects =
-		(maybeAddMessage msgNoItem $ changeAction Move world, False)
+		(maybeAddMessage msgNoItem world {action = Move}, False)
 	| not $ isScroll obj = (maybeAddMessage (msgDontKnow "read")
-		$ changeAction Move world, False)
+		world {action = Move}, False)
 	| otherwise =
 		(changeMon mon' $ addNeutralMessage newMsg 
-		$ changeAction Move newWorld, True) where
+		world {action = Move}, True) where
 	objects = M.lookup c $ inv mon
 	newMsg = name mon ++ " read" ++ ending world 
 		++ titleShow obj ++ "."
@@ -95,7 +95,7 @@ zapFirst c world
 	| charge obj == 0 =
 		(maybeAddMessage (msgNoCharge "wand") failWorld, True)
 	| otherwise =
-		(changeMon mon $ changeAction Move newWorld, True) where
+		(changeMon mon newWorld {action = Move}, True) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	Just (dx, dy) = dir c
 	newWorld =
@@ -107,7 +107,7 @@ zapFirst c world
 	oldMon = getFirst newWorld
 	Just (obj, _) = objects
 	mon = decChargeByKey (prevAction newWorld) oldMon
-	failWorld = changeAction Move world
+	failWorld = world {action = Move}
 
 zap :: World -> Int -> Int -> Int -> Int -> Object -> World
 zap world x y dx dy obj
@@ -126,7 +126,7 @@ zap world x y dx dy obj
 		Just mon -> (update x y $ (units' world) {list = 
 			M.insert (x, y) (fst $ act obj (mon, stdgen world)) $ units world},
 			msgWand (title obj) (name mon))
-	newMWorld = addMessage (msg, color) $ changeMons newMons world
+	newMWorld = addMessage (msg, color) world {units' = newMons}
 	color = 
 		if isPlayerNow world
 		then gREEN
@@ -148,14 +148,14 @@ trapFirst c world
 	| terrain (worldmap world A.! (x, y)) /= Empty =
 		(maybeAddMessage msgTrapOverTrap failWorld, False)
 	| otherwise = (addNeutralMessage newMsg $ changeMon mon 
-		$ changeTerr x y (num obj) $ changeAction Move world, True) where
+		$ changeTerr x y (num obj) world {action = Move}, True) where
 	objects = M.lookup c $ inv $ getFirst world
 	x = xFirst world
 	y = yFirst world
 	oldMon = getFirst world
 	Just (obj, _) = objects
 	mon = delObj c oldMon
-	failWorld = changeAction Move world
+	failWorld = world {action = Move}
 	newMsg = name oldMon ++ " set" ++ ending world ++ title obj ++ "."
 	
 untrapFirst :: World -> (World, Bool)
@@ -167,11 +167,11 @@ untrapFirst world
 		(maybeAddMessage msgCantUntrap failWorld, False)
 	| otherwise =
 		(addItem (x, y, trap, 1) $ addNeutralMessage newMsg 
-		$ changeTerr x y Empty $ changeAction Move world, True) where
+		$ changeTerr x y Empty world {action = Move}, True) where
 	x = xFirst world
 	y = yFirst world
 	mon = getFirst world
-	failWorld = changeAction Move world
+	failWorld = world {action = Move}
 	trap = trapFromCell $ worldmap world A.! (x,y)
 	newMsg = name mon ++ " untrap" ++ ending world ++ title trap ++ "."
 	
@@ -187,7 +187,7 @@ fireFirst c world
 		(maybeAddMessage msgNoWeapAppMiss failWorld, False)
 	| isNothing $ dir c =
 		(maybeAddMessage msgNotDir failWorld, False)
-	| otherwise = (changeAction Move newWorld, True) where
+	| otherwise = (newWorld {action = Move}, True) where
 	objects = M.lookup (prevAction world) $ inv oldMon
 	intended = filter (\w -> isLauncher w && launcher obj == category w) listWield
 	listWield = fst . fromJust <$> filter isJust 
@@ -205,7 +205,7 @@ fireFirst c world
 	Just (dx, dy) = dir c
 	Just (obj, n) = objects
 	fulldel = foldr (.) id $ replicate cnt $ delObj $ prevAction world
-	failWorld = changeAction Move world
+	failWorld = world {action = Move}
 	
 fire :: Int -> Int -> Int -> Int -> Object -> World -> World
 fire x y dx dy obj world
@@ -223,8 +223,8 @@ fire x y dx dy obj world
 	msg = case newDmg of
 		Nothing -> capitalize (title obj) ++ msgMiss
 		Just _ -> capitalize (title obj) ++ msgHitMissile ++ name mon ++ "."
-	newWorld = addMessage (msg, color) $ changeGen g' 
-		$ changeMons (insertU (x, y) newMon $ units' world) world
+	newWorld = addMessage (msg, color)
+		world {units' = insertU (x, y) newMon $ units' world, stdgen = g'}
 	color = 
 		if isPlayerNow world
 		then gREEN
@@ -239,14 +239,14 @@ fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}
 eatFirst :: Char -> World -> (World, Bool)
 eatFirst c world 
 	| not $ hasUpperLimb mon = (maybeAddMessage 
-		(msgNeedArms "eat") $ changeAction Move world, False)
+		(msgNeedArms "eat") world {action = Move}, False)
 	| isNothing objects =
-		(maybeAddMessage msgNoItem $ changeAction Move world, False)
+		(maybeAddMessage msgNoItem world {action = Move}, False)
 	| not $ isFood obj = (maybeAddMessage (msgDontKnow "eat")
-		$ changeAction Move world, False)
+		world {action = Move}, False)
 	| otherwise =
 		(changeMon mon' $ addNeutralMessage newMsg 
-		$ changeAction Move world, True) where
+		world {action = Move}, True) where
 	objects = M.lookup c $ inv $ getFirst world
 	newMsg = name (getFirst world) ++ " eat" ++ ending world 
 		++ titleShow obj ++ "."
@@ -268,14 +268,14 @@ useFirst c world
 	| not $ isCell (x + dx) (y + dy) = 
 		(maybeAddMessage msgNECell failWorld, False)
 	| otherwise =
-		(changeAction Move newWorld, correct) where
+		(newWorld {action = Move}, correct) where
 	objects = M.lookup (prevAction world) $ inv $ getFirst world
 	Just (dx, dy) = dir c
 	(newWorld, correct) = use world x y dx dy obj
 	x = xFirst world
 	y = yFirst world
 	Just (obj, _) = objects
-	failWorld = changeAction Move world
+	failWorld = world {action = Move}
 
 use :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
 use world x y dx dy obj = case tooltype obj of
@@ -291,9 +291,9 @@ usePickAxe world x y dx dy obj
 		(maybeAddMessage (msgNoCharge "pick axe") world, True)
 	| not ok = (maybeAddMessage msgFullInv world, False)
 	| otherwise = (addNeutralMessage (msgGetStones cnt) 
-		$ changeGen g $ changeMon newMon 
+		$ changeMon newMon 
 		world {worldmap = worldmap world A.// [((x + dx, y + dy), 
-		cell {height = height cell - 1})]}, True)
+		cell {height = height cell - 1})], stdgen = g}, True)
 	where
 		(q, g) = randomR (0.0, 1.0) $ stdgen world
 		cnt = inverseSquareRandom q

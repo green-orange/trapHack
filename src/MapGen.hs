@@ -129,7 +129,7 @@ addRiver x y (wmap, g) =
 	newWMap = wmap A.// [((x, y), Cell {terrain = Water, 
 		height = height $ wmap A.! (x, y)})]
 	nears =
-		filter ((uncurry isCell) &&&
+		filter (uncurry isCell &&&
 		((Empty ==) . terrain . (wmap A.!)) &&&
 		((height (wmap A.! (x, y)) >=) . height . (wmap A.!)))
 		[(x, y + 1), (x, y - 1), (x + 1, y), (x - 1, y)]

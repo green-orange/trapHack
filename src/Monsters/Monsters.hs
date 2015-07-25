@@ -107,7 +107,7 @@ randomSpawn mgen w = newWorld where
 	newWorld = 
 		if null emptyNeighbors
 		then maybeAddMessage msgCantSpawnGC w
-		else changeGen g $ spawnMon mgen xR yR w
+		else spawnMon mgen xR yR w {stdgen = g}
 	(r, g) = randomR (0, length emptyNeighbors - 1) $ stdgen w
 	(xR, yR) = emptyNeighbors !! r
 

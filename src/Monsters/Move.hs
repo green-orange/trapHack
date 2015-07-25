@@ -31,11 +31,11 @@ moveFirst dx dy world
 		&& not (isFlying mon) = (maybeAddMessage msgWater world, False)
 	| name mon /= "You" && not (isFlying mon) 
 		&& terrain (worldmap world A.! (x,y)) == BearTrap = (world, True)
-	| heiNew > heiOld + 1 && not (isFlying mon) && q > tele = (changeGen g'' 
-		$ maybeAddMessage msgTooHigh world, False) 
-	| otherwise = (changeGen g'' $ dmgFallFirst (if tele >= q then 0 
+	| heiNew > heiOld + 1 && not (isFlying mon) && q > tele =
+		(maybeAddMessage msgTooHigh world {stdgen = g''}, False) 
+	| otherwise = (dmgFallFirst (if tele >= q then 0 
 		else heiOld - heiNew) $ changeMoveFirst xNew yNew $ addNeutralMessage 
-		teleMsg world, True)
+		teleMsg world {stdgen = g''}, True)
 	where
 		x = xFirst world
 		y = yFirst world
@@ -52,8 +52,8 @@ moveFirst dx dy world
 		heiNew = height $ worldmap world A.! (xNew, yNew)
 
 attack :: Int -> Int -> Char -> World -> World
-attack x y c world = changeMons unitsNew $ addMessage (newMsg, color) 
-	$ changeAction Move $ changeGen newGen' world where
+attack x y c world = addMessage (newMsg, color) 
+	world {action = Move, units' = unitsNew, stdgen = newGen'} where
 	attacker = getFirst world
 	mon = fromMaybe (error $ msgWE "attack") $ M.lookup (x, y) $ units world
 	color = 
@@ -78,10 +78,10 @@ attack x y c world = changeMons unitsNew $ addMessage (newMsg, color)
 		Just _ -> name attacker ++ msgAttack ++ ending world
 			++ name mon ++ "!"
 	(monNew, newGen') = dmgRandom newDmg mon newGen
-	unitsNew = changeList (M.insert (x, y) monNew $ units world) $ units' world
+	unitsNew = (units' world) {list = M.insert (x, y) monNew $ units world}
 
 maybeUpgrade :: Int -> Int -> World -> World
-maybeUpgrade x y w = changeGen gen $ changeMon monFirst $ addLevelUpMessages w where
+maybeUpgrade x y w = changeMon monFirst $ addLevelUpMessages w {stdgen = gen} where
 	attacker = getFirst w
 	mon = fromMaybe (error $ msgWE "maybeUpgrade") $ M.lookup (x, y) $ units w
 	(monFirst, lvls, gen) = if alive mon then (attacker, 0, stdgen w) else
@@ -90,8 +90,8 @@ maybeUpgrade x y w = changeGen gen $ changeMon monFirst $ addLevelUpMessages w w
 		$ addNeutralMessage $ msgLevelUp $ name attacker
 
 attackElem :: Elem -> Int -> Int -> World -> World
-attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color) 
-	$ changeAction Move $ changeGen newGen' w where
+attackElem elem' dx dy w = addMessage (newMsg, color) 
+	w {action = Move, units' = unitsNew, stdgen = newGen'} where
 	attacker = getFirst w
 	xNow = xFirst w
 	yNow = yFirst w
@@ -111,4 +111,4 @@ attackElem elem' dx dy w = changeMons unitsNew $ addMessage (newMsg, color)
 		Just _ -> name attacker ++ " " ++ attackName elem'
 			++ ending w ++ name mon ++ "!"
 	(monNew, newGen') = dmgRandomElem elem' newDmg mon newGen
-	unitsNew = changeList (M.insert (xNew, yNew) monNew $ units w) $ units' w
+	unitsNew = (units' w) {list = M.insert (xNew, yNew) monNew $ units w}

@@ -39,7 +39,7 @@ almostTime mon =
 	else 0
 
 updateFirst :: World -> World
-updateFirst w = changeMons newUnits w where
+updateFirst w = w {units' = newUnits} where
 	newUnits = (units' w) {
 		xF = x,
 		yF = y,
@@ -56,7 +56,7 @@ newWaveIf world =
 		
 cycleWorld :: World -> World
 cycleWorld w = rotAll $ tempFirst $ actTrapFirst $ regFirst $ cleanFirst 
-	$ changeMons newUnits $ addMessages (msgCleanParts monNew) newWorld where
+	$ (addMessages (msgCleanParts monNew) newWorld) {units' = newUnits} where
 		newUnits = (units' newWorld) {
 			xF = x,
 			yF = y,
@@ -69,9 +69,8 @@ cleanFirst :: World -> World
 cleanFirst w = changeMon (cleanParts $ getFirst w) $ dropPartialCorpse w
 
 remFirst :: World -> World
-remFirst world = updateFirst $ changeMons 
-	(deleteU (xFirst world, yFirst world) $ units' world) 
-	$ changeAction Move world
+remFirst world = updateFirst $ world {action = Move, units' =
+	deleteU (xFirst world, yFirst world) $ units' world}
 
 closestPlayerChar :: Int -> Int -> World -> Maybe (Int, Int)
 closestPlayerChar x y w = 
@@ -100,8 +99,8 @@ decMaybe (Just 0) = Nothing
 decMaybe (Just n) = Just $ n - 1
 
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
-addDeathDrop mon g = (changeInv (addCorpse 
-	$ M.union (inv mon) newDrop) mon, newGen) where
+addDeathDrop mon g = (mon {inv = addCorpse 
+	$ M.union (inv mon) newDrop}, newGen) where
 	(newDrop, newGen) = deathDrop (name mon) g
 	corpse = corpseFromMon mon
 	addCorpse = if name mon `elem` nOcORPSES
@@ -111,7 +110,9 @@ addDeathDrop mon g = (changeInv (addCorpse
 		_ -> M.insert (head notAlphabet) (corpse, 1)
 
 tickFirst :: World -> World
-tickFirst w = changeMon (tickFirstMon $ getFirst w) w
+tickFirst w = changeMon (tickFirstMon $ getFirst w) w where
+	tickFirstMon :: Monster -> Monster
+	tickFirstMon m = m {time = effectiveSlowness m + time m}
 
 listOfValidChars :: (Object -> Bool) -> World -> String
 listOfValidChars f world = sort $ M.keys 
@@ -124,7 +125,7 @@ doIfCorrect (rez, correct) =
 	else Left rez
 
 actTrapFirst :: World -> World
-actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w where
+actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} where
 	x = xFirst w
 	y = yFirst w
 	mon = getFirst w
@@ -146,14 +147,14 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeGen g $ changeMon newMon w whe
 		| otherwise = ((mon, stdgen w), "")
 
 callUpon :: World -> World
-callUpon w = changeAction Move $ addMessage (msgLanding (wave w) , rED) 
-	$ newWave $ cycleWorld w
+callUpon w = addMessage (msgLanding (wave w) , rED) 
+	$ newWave $ cycleWorld w {action = Move}
 
 dropPartialCorpse :: World -> World
 dropPartialCorpse w = 
 	if name mon `elem` nOcORPSES then w
-	else changeGen g' $ (foldr ((.) . addItem . wrap . 
-	corpseFromPart mon) id $ filter (not . aliveP) $ parts mon) w where
+	else (foldr ((.) . addItem . wrap . corpseFromPart mon) id
+		$ filter (not . aliveP) $ parts mon) w {stdgen = g'} where
 		mindx = if xFirst w == 0 then 0 else -1
 		maxdx = if xFirst w == maxX then 0 else 1
 		mindy = if yFirst w == 0 then 0 else -1

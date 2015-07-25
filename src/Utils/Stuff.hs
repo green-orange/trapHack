@@ -25,7 +25,7 @@ unrandom :: (a -> a) -> (a, x) -> (a, x)
 unrandom f (a, x) = (f a, x)
 
 cleanParts :: Monster -> Monster
-cleanParts mon = delEffects $ changeParts (filter aliveP $ parts mon) mon
+cleanParts mon = delEffects $ mon {parts = filter aliveP $ parts mon}
 	where delEffects = foldr (((.) . (\ (obj, _) -> effectOff obj 
 		$ enchantment obj)) . fromJust) id $ filter isJust 
 		$ (flip M.lookup (inv mon) . (\ p -> objectKeys p 
@@ -53,7 +53,7 @@ addRandomPart (m, g) = (addPart m knd hp' regRate', g3) where
 	(regRate', g3) = randomR (1, 4) g2
 
 addPart :: Monster -> Int -> Int -> Int -> Monster
-addPart mon knd hp' regRate' = changeParts (newPart : parts mon) mon where
+addPart mon knd hp' regRate' = mon {parts = newPart : parts mon} where
 	newPart = Part {
 		hp = hp',
 		maxhp = hp',
@@ -65,7 +65,7 @@ addPart mon knd hp' regRate' = changeParts (newPart : parts mon) mon where
 	newID = (+) 1 $ maximum $ idP <$> parts mon
 
 fireAround :: Int -> (Int, Int) -> World -> World
-fireAround d pair w = addMessages newMsgs $ changeGen g $ changeMons newMons w where
+fireAround d pair w = addMessages newMsgs w {units' = newMons, stdgen = g} where
 	xNow = xFirst w
 	yNow = yFirst w
 	(newDmg, g) = randomR pair $ stdgen w
@@ -122,7 +122,7 @@ enchantAll sl n mon = foldr (enchantByLetter .
 		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}
 
 actWithFirst :: ((Monster, StdGen) -> (Monster, StdGen)) -> World -> World
-actWithFirst f w = changeGen newGen $ changeMon newMon w where
+actWithFirst f w = changeMon newMon w {stdgen = newGen} where
 	(newMon, newGen) = f (getFirst w, stdgen w)
 
 addRandom :: Random a => (a, a) -> (a -> b -> c) -> (b, StdGen) -> (c, StdGen)

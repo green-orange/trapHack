@@ -21,12 +21,12 @@ import Data.Functor ((<$>))
 dropFirst :: Char -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
 	| isNothing objects = 
-		(maybeAddMessage msgNoItem $ changeAction Move world, False)
+		(maybeAddMessage msgNoItem world {action = Move}, False)
 	| isExistingBindingFirst world c && alive (getFirst world) = 
-		(maybeAddMessage msgDropEquipped $ changeAction Move world, False)
+		(maybeAddMessage msgDropEquipped world {action = Move}, False)
 	| otherwise = 
 		(changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
-		$ changeAction Move world, True) where
+		world {action = Move}, True) where
 	objects = M.lookup c $ inv $ getFirst world
 	(obj, cnt) = fromJust objects
 	x = xFirst world
@@ -64,7 +64,7 @@ pickFirst world =
 	Nothing -> (Nothing, msgFullInv)
 	Just newInv ->
 		let
-		mon = changeInv newInv oldMon
+		mon = oldMon {inv = newInv}
 		color = 
 			if isPlayerNow world
 			then gREEN
@@ -87,9 +87,9 @@ dropManyFirst world =
 	else Just newWorld where
 		newMsg = name (getFirst world) ++ " drop" ++ ending world 
 			++ "some objects."
-		newWorld = changeAction Move $ changeChars S.empty 
+		newWorld = changeChars S.empty 
 			$ addNeutralMessage newMsg $ foldr (\ x y 
-			-> fst $ dropFirst x y True) world 
+			-> fst $ dropFirst x y True) world {action = Move} 
 			$ S.toList $ chars world
 
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
@@ -131,7 +131,7 @@ split f (x:xs) =
 bindFirst :: Char -> World -> (World, Bool)
 bindFirst c w 
 	| c == '-' =
-		(changeMon (changeParts newPartsSpace $ remEffect mon) newWorld, True)
+		(changeMon (remEffect mon {parts = newPartsSpace}) newWorld, True)
 	| isNothing objects =
 		(maybeAddMessage msgNoItem newWorld, False)
 	| isNothing maybeNewSlot || newSlot /= slot w =
@@ -140,12 +140,12 @@ bindFirst c w
 		(maybeAddMessage msgRepeatedBind
 		newWorld, False)
 	| otherwise = (addNeutralMessage msg $ changeMon 
-		(changeParts newParts newMon) newWorld, True) where
+		(newMon {parts = newParts}) newWorld, True) where
 	objects = M.lookup c $ inv mon
 	maybeNewSlot = binds obj $ kind part
 	Just newSlot = maybeNewSlot
 	(obj, _) = fromJust objects
-	newWorld = changeAction Move w
+	newWorld = w {action = Move}
 	mon = getFirst w
 	part = parts mon !! shift w
 	change part' = 

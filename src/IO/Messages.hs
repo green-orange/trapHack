@@ -60,8 +60,7 @@ addDefaultMessage :: String -> World -> World
 addDefaultMessage msg = addMessage (msg, dEFAULT)
 
 getInfo :: World -> World
-getInfo w = changeAction Move $ 
-	addDefaultMessage msg w where msg = infoMessage w
+getInfo w = addDefaultMessage msg w {action = Move} where msg = infoMessage w
 
 infoMessage :: World -> String
 infoMessage w
