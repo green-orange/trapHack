@@ -19,6 +19,7 @@ import qualified Data.Array as A
 import Data.Maybe (fromJust, isNothing, fromMaybe)
 import System.Random (randomR)
 
+-- | move the current monster with given direction
 moveFirst :: Int -> Int -> World -> (World, Bool)
 moveFirst dx dy world
 	| not $ isCell (x + dx) (y + dy)
@@ -51,6 +52,7 @@ moveFirst dx dy world
 		heiOld = height $ worldmap world A.! (x,y)
 		heiNew = height $ worldmap world A.! (xNew, yNew)
 
+-- | attack monster with giben coords and inventory index of the weapon
 attack :: Int -> Int -> Char -> World -> World
 attack x y c world = addMessage (newMsg, color) 
 	world {action = Move, units' = unitsNew, stdgen = newGen'} where
@@ -80,6 +82,7 @@ attack x y c world = addMessage (newMsg, color)
 	(monNew, newGen') = dmgRandom newDmg mon newGen
 	unitsNew = (units' world) {list = M.insert (x, y) monNew $ units world}
 
+-- | maybe upgrade first monster after killing a monster with given coords
 maybeUpgrade :: Int -> Int -> World -> World
 maybeUpgrade x y w = changeMon monFirst $ addLevelUpMessages w {stdgen = gen} where
 	attacker = getFirst w
@@ -89,6 +92,7 @@ maybeUpgrade x y w = changeMon monFirst $ addLevelUpMessages w {stdgen = gen} wh
 	addLevelUpMessages = foldr (.) id $ replicate lvls 
 		$ addNeutralMessage $ msgLevelUp $ name attacker
 
+-- | attack with elemental power and given direction
 attackElem :: Elem -> Int -> Int -> World -> World
 attackElem elem' dx dy w = addMessage (newMsg, color) 
 	w {action = Move, units' = unitsNew, stdgen = newGen'} where

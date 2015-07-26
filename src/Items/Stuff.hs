@@ -15,6 +15,7 @@ import System.Random
 import qualified Data.Map as M
 import Data.Functor ((<$>))
 
+-- | generate death drop by monster name
 deathDrop :: String -> StdGen -> (Inv, StdGen)
 deathDrop "Homunculus" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Beetle" = genDeathDrop [(pOTIONS, bound [0.5])]
@@ -35,9 +36,11 @@ deathDrop "Tree" = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareLis
 -- TODO deathDrop "Bot"
 deathDrop _ = \p -> (M.empty, p)
 
+-- | generate drop for all dragons
 dragonDrop :: StdGen -> (Inv, StdGen)
 dragonDrop = genDeathDrop [(jEWELRY, bound [0.4])]
 
+-- | return last n such that sum of first n element of the list is less then q
 bound :: [Float] -> Float -> Int
 bound list' p = bound' list' p 0 where
 	bound' []     _  n = n
@@ -46,9 +49,12 @@ bound list' p = bound' list' p 0 where
 		then n
 		else bound' xs p' (n + 1)
 
+-- | converts list [object_category, cnt_func] to the inventory
 genDeathDrop :: [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
 genDeathDrop = genDeathDropByAlph $ tail notAlphabet
 
+-- | converts list [object_category, cnt_func] to the inventory
+-- with given alphabet
 genDeathDropByAlph :: String -> [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
 genDeathDropByAlph _ [] g = (M.empty, g)
 genDeathDropByAlph [] _ _ = error $ msgWE "genDeathDropByAlph"

@@ -14,7 +14,10 @@ import IO.Texts
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
 import Data.Functor ((<$>))
-	
+
+-- | get monster by Ai representation, list of part getters and hps,
+-- id, damage getter, inventory generator, slowness, start nutrition
+-- and random number generator
 getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
 	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> Int -> MonsterGen
 getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
@@ -42,14 +45,18 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 	(partGens, g') = addHPs ps g
 	(newInv, g'') = inv' g'
 
+-- | get dummy from Scroll of Animation; it really do nothing
 getDummy :: Int -> Float -> MonsterGen
 getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] 19 
 	((0, 0), 0.0) emptyInv 10000 1
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
+-- | add list of monster generators to given units in sight of the player
 addMonsters gens pair = foldr addMonster pair gens
+-- | add list of monster generators to given units in the random place
 addMonstersFull gens pair = foldr addMonsterFull pair gens
 
+-- | add one monster to given units in sight of the player
 addMonster :: MonsterGen -> (Units, StdGen) -> (Units, StdGen)
 addMonster gen (uns, g) = 
 	if isCorrect
@@ -65,6 +72,7 @@ addMonster gen (uns, g) =
 		[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
 			$ M.toList $ list uns
 
+-- | add one monster generator to given units in the random place
 addMonsterFull :: MonsterGen -> (Units, StdGen) -> (Units, StdGen)
 addMonsterFull gen (uns, g) = 
 	if isCorrect
@@ -75,7 +83,8 @@ addMonsterFull gen (uns, g) =
 		(y, g2) = randomR (0, maxY) g1
 		(mon, g3) = gen g2
 		isCorrect = not $ any (\(a,b) -> a == x && b == y) $ M.keys $ list uns
-	
+
+-- | animate all objects in the given cell
 animate :: Int -> Int -> World -> World
 animate x y w = 
 	if isEmpty w x y && hp' > 0
@@ -88,16 +97,19 @@ animate x y w =
 			else 0
 		hp' = sum $ mapfun <$> items w
 		newItems = filter (not . filterfun) $ items w
-		
+
+-- | do something with all cells around given
 fooAround :: (Int -> Int -> World -> World) -> World -> World
 fooAround foo w = foldr ($) w $ [foo] >>= applToNear x >>= applToNear y where
 	x = xFirst w
 	y = yFirst w
 	applToNear t f = f <$> [t-1, t, t+1]
 
+-- | animate all items around given cell
 animateAround :: World -> World
 animateAround = fooAround animate
-	
+
+-- | spawn given monster in the random cell next to the current monster
 randomSpawn :: MonsterGen -> World -> World
 randomSpawn mgen w = newWorld where
 	x = xFirst w

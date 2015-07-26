@@ -13,9 +13,11 @@ import System.Random (StdGen, randomR, randoms, split)
 import Data.Map (fromList)
 import Data.Functor ((<$>))
 
+-- | apply the function if predicat is True and do nothing else
 applyIf :: (a -> a) -> Bool -> a -> a
 applyIf f c = if c then f else id
 
+-- | et full random generated Forgotten Beast
 getForgottenBeast :: MonsterGen
 getForgottenBeast g = (Monster {
 	ai = AI newAI,
@@ -37,6 +39,7 @@ getForgottenBeast g = (Monster {
 		(newInv, g4) = forgottenInv g3
 		(newSlow, g5) = forgottenSlowness g4
 
+-- | get ai with random base, modificators and range attack 
 forgottenAI :: StdGen -> (AIrepr, StdGen)
 forgottenAI g = (AIrepr {
 	mods = fst <$> filter snd (zip mODSAI bools),
@@ -51,7 +54,7 @@ forgottenAI g = (AIrepr {
 	dist = 1 + inverseSquareRandom p
 	elem' = toEnum $ uniform q 0 $ fromEnum (maxBound :: Elem)
 	
-
+-- | get random parts with random hp
 forgottenParts :: StdGen -> ([Int -> Part], StdGen)
 forgottenParts g = (rez, g') where
 	qs :: [Float]
@@ -62,7 +65,8 @@ forgottenParts g = (rez, g') where
 	qs' = randoms g''
 	hps = ((*10) . inverseSquareRandom) <$> qs'
 	rez = zipWith3 ($) partgens (cycle [3, 2, 1]) hps
-	
+
+-- | get random damage getter
 forgottenDmg :: StdGen -> (((Int, Int), Float), StdGen)
 forgottenDmg g = (((cnt, dice), failProb), g3) where
 	p, q, r :: Float
@@ -72,10 +76,12 @@ forgottenDmg g = (((cnt, dice), failProb), g3) where
 	cnt = 1 + inverseSquareRandom p
 	dice = 2 + inverseSquareRandom q
 	failProb = 0.5 * r
-	
+
+-- | get random slowness from 70 to 130
 forgottenSlowness :: StdGen -> (Int, StdGen)
 forgottenSlowness = randomR (70, 130)
 
+-- | get an inventory with random stackable items
 forgottenInv :: InvGen
 forgottenInv g = (fromList $ zip alphabet $ filter ((>0) . snd)
 	$ zip sTACKABLE nums, g) where

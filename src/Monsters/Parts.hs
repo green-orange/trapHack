@@ -7,9 +7,11 @@ import Utils.Items
 import qualified Data.Map as M
 import Data.Functor ((<$>))
 
+-- | base encumbrance of all monsters in the game
 baseEncumbrance :: Int
 baseEncumbrance = 500
 
+-- | converts patr type to the string
 partToStr :: Int -> String
 partToStr x
 	| x == bODY = "Body"
@@ -21,13 +23,15 @@ partToStr x
 	| x == mAIN = "Main"
 	| otherwise = error "unknown part"
 
+-- | detect lower limbs to walk
 isLowerLimb :: Part -> Bool
 isLowerLimb p = (kind p == lEG) || (kind p == wING) || (kind p == pAW)
-
+-- | detect upper limbs to attack
 isUpperLimb :: Part -> Bool
 isUpperLimb p = (kind p == aRM) || (kind p == wING) || 
 	(kind p == pAW) || (kind p == mAIN)
 
+-- | get part by given kind, regeneration rate, hp and id
 getPart :: Int -> Int -> Int -> Int -> Part
 getPart knd regRate' hp' id' = Part {
 	hp = hp',
@@ -38,9 +42,11 @@ getPart knd regRate' hp' id' = Part {
 	objectKeys = replicate sLOTS ' '
 }
 
+-- | check is this part alive
 aliveP :: Part -> Bool
 aliveP p = hp p > 0
 
+-- | getPart specifications
 getBody, getHead, getLeg, getArm, getWing, getPaw, getMain :: 
 	Int -> Int -> Int -> Part
 getBody = getPart bODY
@@ -51,17 +57,22 @@ getWing = getPart wING
 getPaw  = getPart pAW
 getMain = getPart mAIN
 
+-- | calculate encumbrance of the monster
 encumbrance :: Monster -> Int
 encumbrance mon = M.foldr (+) 0 $ (\(o, n) -> n * weight o) <$> inv mon
 
+-- | calculate effective slowness of the monster
+-- (with encumbrance effect, count of legs etc)
 effectiveSlowness :: Monster -> Int
 effectiveSlowness mon = max 10 $ (`div` baseEncumbrance) $ 
 	(*) (max baseEncumbrance $ encumbrance mon) $ div (slowness mon) 
 	$ 1 + length (filter isLowerLimb $ parts mon)
 
+-- | check is this slot of given part empty
 isEmptyPart :: Slot -> Monster -> Part -> Bool
 isEmptyPart sl mon part = M.notMember (objectKeys part !! fromEnum sl) $ inv mon
 
+-- | calculate armor class of the part armor
 acPart :: Monster -> Part -> Int
 acPart mon part = (case armor of
 	Nothing -> 0
@@ -74,13 +85,16 @@ acPart mon part = (case armor of
 		armor = M.lookup (objectKeys part !! fromEnum ArmorSlot) (inv mon)
 		jewelry = M.lookup (objectKeys part !! fromEnum JewelrySlot) (inv mon)
 
+-- | have this monster any part of given kind?
 hasPart :: Int -> Monster -> Bool
 hasPart knd mon = 
 	any (\x -> kind x == knd) $ parts mon
 
+-- | have this monsters upper limbs?
 hasUpperLimb :: Monster -> Bool
 hasUpperLimb mon = any isUpperLimb $ parts mon
 
+-- | can this monster fly?
 isFlying :: Monster -> Bool
 isFlying = hasPart wING
 

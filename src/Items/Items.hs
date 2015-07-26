@@ -22,6 +22,7 @@ import System.Random (randomR)
 import qualified Data.Map as M
 import qualified Data.Array as A
 
+-- | dir from given char if it's possible
 dir :: Char -> Maybe (Int, Int)
 dir c = case c of
 	'k' -> Just ( 0, -1)
@@ -44,6 +45,7 @@ dir c = case c of
 	'5' -> Just ( 0,  0)
 	_           -> Nothing
 
+-- | quaff a potion with given position in inventory
 quaffFirst :: Char -> World -> (World, Bool)
 quaffFirst c world
 	| not $ hasPart aRM oldMon = (maybeAddMessage 
@@ -62,7 +64,8 @@ quaffFirst c world
 	oldMon = getFirst world
 	(mon, g) = act obj (oldMon, stdgen world)
 	mon' = delObj c mon
-	
+
+-- | read a scroll with given position in inventory
 readFirst :: Char -> World -> (World, Bool)
 readFirst c world 
 	| not $ hasPart aRM mon = (maybeAddMessage 
@@ -82,6 +85,7 @@ readFirst c world
 	mon = getFirst world
 	mon' = delObj c $ getFirst newWorld
 
+-- | zap a wand in given direction when item position is lying in 'prevAction'
 zapFirst :: Char -> World -> (World, Bool)
 zapFirst c world 
 	| not $ hasPart aRM $ getFirst world =
@@ -109,6 +113,7 @@ zapFirst c world
 	mon = decChargeByKey (prevAction newWorld) oldMon
 	failWorld = world {action = Move}
 
+-- | zap a wand from given position in given direction
 zap :: World -> Int -> Int -> Int -> Int -> Object -> World
 zap world x y dx dy obj
 	| (range obj == 0) || incorrect = world
@@ -135,9 +140,11 @@ zap world x y dx dy obj
 			Just False -> bLUE
 			Just True  -> rED
 
+-- | zap a wand with given position in inventory (for AI usage)
 zapMon :: Char -> Char -> World -> World
 zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
-		
+
+-- | set a trap with given position in inventory
 trapFirst :: Char -> World -> (World, Bool)
 trapFirst c world
 	| not $ isCell x y = error $ msgWE "trapFirst"
@@ -157,7 +164,8 @@ trapFirst c world
 	mon = delObj c oldMon
 	failWorld = world {action = Move}
 	newMsg = name oldMon ++ " set" ++ ending world ++ title obj ++ "."
-	
+
+-- | remove a trap on the cell when you stand
 untrapFirst :: World -> (World, Bool)
 untrapFirst world 
 	| not $ isCell x y = error $ msgWE "untrapFirst"
@@ -174,7 +182,8 @@ untrapFirst world
 	failWorld = world {action = Move}
 	trap = trapFromCell $ worldmap world A.! (x,y)
 	newMsg = name mon ++ " untrap" ++ ending world ++ title trap ++ "."
-	
+
+-- | fire with given direction when missile is lying in 'prevAction'
 fireFirst :: Char -> World -> (World, Bool)
 fireFirst c world
 	| not $ hasPart aRM oldMon =
@@ -206,7 +215,8 @@ fireFirst c world
 	Just (obj, n) = objects
 	fulldel = foldr (.) id $ replicate cnt $ delObj $ prevAction world
 	failWorld = world {action = Move}
-	
+
+-- | fire from given position with given direction
 fire :: Int -> Int -> Int -> Int -> Object -> World -> World
 fire x y dx dy obj world
 	| incorrect = world
@@ -232,10 +242,12 @@ fire x y dx dy obj world
 			Nothing    -> undefined
 			Just False -> bLUE
 			Just True  -> rED
-		
+
+-- | fire a missile with given position in inventory (for AI usage)
 fireMon :: Char -> Char -> World -> World
 fireMon dir' obj world = fst $ fireFirst dir' $ world {prevAction = obj}
 
+-- | eat an item with given position in inventory
 eatFirst :: Char -> World -> (World, Bool)
 eatFirst c world 
 	| not $ hasUpperLimb mon = (maybeAddMessage 
@@ -255,6 +267,7 @@ eatFirst c world
 	mon' = delObj c $ changeTemp Nutrition (Just $ nutr + nutrition obj) mon
 	Just nutr = temp mon !! fromEnum Nutrition
 
+-- | use an item in given direction when position is lying in 'prevAction'
 useFirst :: Char -> World -> (World, Bool)
 useFirst c world
 	| not $ hasPart aRM $ getFirst world =
@@ -277,10 +290,12 @@ useFirst c world
 	Just (obj, _) = objects
 	failWorld = world {action = Move}
 
+-- | use a tool from given position in given direction
 use :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
 use world x y dx dy obj = case tooltype obj of
 	PickAxe -> usePickAxe world x y dx dy obj
 
+-- | use a tool from given position in given direction
 usePickAxe :: World -> Int -> Int -> Int -> Int -> Object -> (World, Bool)
 usePickAxe world x y dx dy obj
 	| not $ isCell (x + dx) (y + dy) = (maybeAddMessage msgNECell world, False)

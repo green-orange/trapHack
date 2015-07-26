@@ -11,6 +11,8 @@ import IO.Texts
 
 import qualified Data.Map as M
 
+-- | remove given resource from inventory if it's possible
+-- else return Nothing
 remRes :: ResourceType -> Inv -> Maybe Inv
 remRes rt inv'
 	| null ress = Nothing
@@ -21,9 +23,11 @@ remRes rt inv'
 		&& restype o == rt) inv'
 	(c, (obj, n)):_ = ress
 
+-- | remove 'cnt' resources from inventory if it's possible
 remRess :: ResourceType -> Int -> Inv -> Maybe Inv
 remRess rt cnt inv' = foldr (=<<) (Just inv') $ replicate cnt $ remRes rt
 
+-- | use a recipe by a given char
 craftByChar :: Char -> World -> (World, Bool)
 craftByChar c w = 
 	if ind >= 0 && ind < length recipes
@@ -31,6 +35,7 @@ craftByChar c w =
 	else (maybeAddMessage msgUnkRep w {action = Move}, False)
 	where ind = fromEnum c - fromEnum 'a'
 
+-- | use given recipe
 maybeRunRecipe :: Recipe -> World -> (World, Bool)
 maybeRunRecipe (ress, rez) w =
 	case foldr ((=<<) . uncurry remRess) (Just $ inv $ getFirst w) ress of
@@ -41,6 +46,7 @@ maybeRunRecipe (ress, rez) w =
 				$ changeMon ((getFirst w) {inv = inv'}) w, True) where
 				newMsg = msgCraft (name $ getFirst w) $ title rez
 
+-- | list of recipes
 recipes :: [Recipe]
 recipes = [recWoodenSword, recStoneSword, recPickAxe]
 

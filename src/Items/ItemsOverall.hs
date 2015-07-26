@@ -18,6 +18,8 @@ import Data.Maybe (isNothing, fromJust)
 import Data.Char (isDigit)
 import Data.Functor ((<$>))
 
+-- | drop an item with given position in inventory;
+-- ignore messages if third argument is True
 dropFirst :: Char -> World -> Bool -> (World, Bool)
 dropFirst c world ignoreMessages
 	| isNothing objects = 
@@ -39,10 +41,12 @@ dropFirst c world ignoreMessages
 		else name (getFirst world) ++ " drop" ++ ending world 
 			++ titleShow obj ++ "."
 
+-- | drop all items in the inventory of current monster
 dropAll :: World -> World
 dropAll world = foldr ((\x y -> fst $ dropFirst x y True) . fst)
 	world $ M.toList $ inv $ getFirst world
 
+-- | pick items in the current 'chars' world
 pickFirst :: World -> (Maybe World, String)
 pickFirst world =
 	if S.null $ chars world
@@ -79,7 +83,8 @@ pickFirst world =
 			action = Move,
 			chars = S.empty
 		}, "")
-		
+
+-- | drop items in the current 'chars' world
 dropManyFirst :: World -> Maybe World
 dropManyFirst world =
 	if S.null $ chars world
@@ -92,9 +97,11 @@ dropManyFirst world =
 			-> fst $ dropFirst x y True) world {action = Move} 
 			$ S.toList $ chars world
 
+-- | add list of items with counts to given inventory if it's possible
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv
 addInvs startInv items' = foldr ((>=>) . addInv) return items' startInv
 
+-- | add one item with count to given inventory if it's possible
 addInv :: (Object, Int) -> Inv -> Maybe Inv
 addInv (obj, cnt) list' =
 	if isHere
@@ -104,6 +111,7 @@ addInv (obj, cnt) list' =
 		isHere = M.foldr (||) False $ (\(obj',_) -> obj' == obj) <$> list'
 		change (o, n) = (o, if o == obj then n + cnt else n)
 
+-- | add one item with count and given alphabet if it's possible 
 addInvWithAlphabet :: String -> Inv -> (Object, Int) -> Maybe Inv
 addInvWithAlphabet [] _ _ = Nothing
 addInvWithAlphabet (a:as) inv' (obj', cnt') = 
@@ -111,6 +119,8 @@ addInvWithAlphabet (a:as) inv' (obj', cnt') =
 	then addInvWithAlphabet as inv' (obj', cnt')
 	else Just $ M.insert a (obj', cnt') inv'
 
+-- | converts [x_i] to [(x_i, a_i)] where a_i == -1 if not (f x_i);
+-- else a_i are [0..]
 addIndices :: (a -> Bool) -> [a] -> [(a, Int)]
 addIndices = addIndices' 0 where
 	addIndices' :: Int -> (a -> Bool) -> [a] -> [(a, Int)]
@@ -120,6 +130,7 @@ addIndices = addIndices' 0 where
 		then (x, n) : addIndices' (n + 1) f xs
 		else (x, -1) : addIndices' n f xs
 
+-- | split f xs === (filter f xs, filter (not . f) xs)
 split :: (a -> Bool) -> [a] -> ([a], [a])
 split _ [] = ([], [])
 split f (x:xs) =
@@ -128,6 +139,7 @@ split f (x:xs) =
 	else (a, x:b)
 	where (a, b) = split f xs
 
+-- | binds item with given position in the inventory to a changed body part
 bindFirst :: Char -> World -> (World, Bool)
 bindFirst c w 
 	| c == '-' =
@@ -171,10 +183,13 @@ bindFirst c w
 	newPartsSpace = changeSpace <$> parts mon
 	msg = name mon ++ " begin" ++ ending w 
 		++ "to use " ++ title obj ++ "!"
-	
+
+-- | binds an item with index 'c' to slot 'sl' and part 'ind'
 bindMon :: Slot -> Char -> Int -> World -> World
 bindMon sl c ind w = fst $ bindFirst c $ w {shift = ind, slot = sl}
 
+-- | return a slot to bind given object with given kind of body part,
+-- or Nothing if it doesn't exist 
 binds :: Object -> Int -> Maybe Slot
 binds obj knd
 	| (isWeapon obj || isLauncher obj) && knd == aRM = 
@@ -183,12 +198,14 @@ binds obj knd
 	| isJewelry obj && knd == bind obj = Just JewelrySlot
 	| otherwise = Nothing
 
+-- | read decimal number by chars
 addNumber :: Char -> World -> World
 addNumber c w = 
 	if isDigit c
 	then w {numToSplit = numToSplit w * 10 + fromEnum c - fromEnum '0'}
 	else addDefaultMessage msgNaN w
 
+-- | split stack of items where index is 'prevAction' and count is 'numToSplit'
 splitFirst :: World -> World
 splitFirst w
 	| isNothing maybeObj = maybeAddMessage msgNoItem w
