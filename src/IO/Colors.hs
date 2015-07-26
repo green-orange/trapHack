@@ -6,6 +6,7 @@ import UI.HSCurses.Curses
 import Data.Maybe (fromJust)
 import Data.Functor ((<$>))
 
+-- | constants with handles of foreground colors
 dEFAULT, gREEN, yELLOW, rED, cYAN, mAGENTA, bLUE, rEDiNVERSE :: Int
 dEFAULT    = 1
 rED        = 2
@@ -16,6 +17,7 @@ mAGENTA    = 6
 cYAN       = 7
 rEDiNVERSE = 58
 
+-- | converts terrain to handle of a background color
 colorFromTerr :: Terrain -> Int
 colorFromTerr Empty      = 8  -- default
 colorFromTerr BearTrap   = 32 -- yellow
@@ -24,9 +26,11 @@ colorFromTerr PoisonTrap = 56 -- green
 colorFromTerr MagicTrap  = 48 -- magenta
 colorFromTerr Water      = 40 -- blue
 
+-- | converts cell to handle of a background color
 colorFromCell :: Cell -> Int
 colorFromCell = colorFromTerr . terrain
 
+-- | converts height difference to a color
 colorFromHei :: Int -> Int
 colorFromHei hei
 	| hei  < -3 = dEFAULT
@@ -37,6 +41,7 @@ colorFromHei hei
 	| hei  <  4 = bLUE
 	| otherwise = mAGENTA
 
+-- | converts absolute height to a color
 colorFromHeiAbs :: Int -> Int
 colorFromHeiAbs hei
 	| hei  <  2 = rED
@@ -46,6 +51,7 @@ colorFromHeiAbs hei
 	| hei  <  7 = bLUE
 	| otherwise = mAGENTA
 
+-- | convert a temporary effect to a color
 colorFromTemp :: Temp -> Int -> Int
 colorFromTemp Nutrition n
 	| n <= 5  = rEDiNVERSE
@@ -56,6 +62,7 @@ colorFromTemp Poison _ = rED
 colorFromTemp Conf _ = yELLOW
 colorFromTemp Stun _ = rED
 
+-- | initialize handle of all color pairs
 initColors :: IO ()
 initColors = sequence_ actions where
 	colorList = ["red", "green", "yellow", "blue", "magenta", "cyan", "white"]
@@ -64,6 +71,7 @@ initColors = sequence_ actions where
 	bindColor n = initPair (Pair n) (colorListFore !! mod (n-1) 8) (colorListBack !! div (n-1) 8)
 	actions = bindColor <$> [1..64]
 
+-- | char and color by a monster name
 symbolMon :: String -> (Char, Int)
 symbolMon "You"               = ('@', yELLOW)
 symbolMon "Homunculus"        = ('h', yELLOW)

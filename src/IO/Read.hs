@@ -13,9 +13,12 @@ import Data.Maybe (fromMaybe)
 import Data.Functor ((<$>))
 
 takeDigits, dropDigits :: String -> String
+-- | take prefix of the string with digits only
 takeDigits = takeWhile (`elem` ['0'..'9'])
+-- | drop prefix of the string with digits only
 dropDigits = dropWhile (`elem` ['0'..'9'])
 
+-- | split string to a list of strings by given separator
 separate :: Char -> String -> [String]
 separate _ [] = [""]
 separate c s = first : 
@@ -26,9 +29,12 @@ separate c s = first :
 		first = takeWhile (c /=) s
 		rest = dropWhile (c /=) s
 
+-- | method to read lists without parenthesis and commas;
+-- inverse to myShowList
 myReadList :: Read a => Char -> String -> [a]
 myReadList c str = read <$> separate c str
 
+-- | method to read pair (coord, smth)
 myReadByCoords :: Read a => String -> ((Int, Int), a)
 myReadByCoords str = ((read x, read y), read obj) where
 	cont = init $ tail $ tail str
@@ -37,19 +43,23 @@ myReadByCoords str = ((read x, read y), read obj) where
 	y = takeDigits rest
 	_:_:obj = dropDigits rest
 
+-- | method to read a list of pairs (coord, smth)
 myReadListCoords :: Read a => Char -> String -> [((Int, Int), a)]
 myReadListCoords c str = myReadByCoords <$> separate c str
 
+-- | method to read element of the monster inventory
 myReadInvElem :: Read a => String -> (Char, (a, Int))
 myReadInvElem str = (c, (read obj, read n)) where
 	_:_:c:_:_:_:cont = init $ init str
 	n = reverse $ takeDigits $ reverse cont
 	obj = reverse $ tail $ dropDigits $ reverse cont
 
+-- | method to read the monster inventory
 myReadInv :: Read a => Char -> String -> [(Char, (a, Int))]
 myReadInv _ "" = []
 myReadInv c str = myReadInvElem <$> separate c str
 
+-- | method to read the item on a ground
 myReadItem :: Read a => String -> (Int, Int, a, Int)
 myReadItem str = (read x, read y, read obj, read z) where
 	_:cont = init str
@@ -60,6 +70,7 @@ myReadItem str = (read x, read y, read obj, read z) where
 	z = reverse $ takeDigits $ reverse rest'
 	obj = reverse $ tail $ dropDigits $ reverse rest'
 
+-- | method to read all items on a ground
 myReadItems :: Read a => Char -> String -> [(Int, Int, a, Int)]
 myReadItems _ "" = []
 myReadItems c str = myReadItem <$> separate c str

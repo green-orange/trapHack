@@ -79,7 +79,7 @@ addMonsterFull gen (uns, g) =
 animate :: Int -> Int -> World -> World
 animate x y w = 
 	if isEmpty w x y && hp' > 0
-	then spawnMon (getDummy hp' lol) x y $ w {items = newItems}
+	then spawnMon (getDummy hp' undefined) x y $ w {items = newItems}
 	else w where
 		filterfun (x', y', _, _) = x == x' && y == y'
 		mapfun arg@(_, _, _, n) = 

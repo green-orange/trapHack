@@ -16,7 +16,8 @@ import qualified Data.Map as M
 import Data.Functor ((<$>))
 import Data.Char (isDigit)
 import Control.Monad (when)
-		
+
+-- | initialize 'units' with in the center
 initUnits :: Units
 initUnits = Units {
 	xF = x',
@@ -27,6 +28,8 @@ initUnits = Units {
 	x' = div maxX 2
 	y' = div maxY 2
 
+-- | initialize world with given type of map generator,
+-- username and RNG
 initWorld :: MapGenType -> String -> StdGen -> World
 initWorld mapgen username gen = World {
 	worldmap = worldmap',
@@ -47,6 +50,7 @@ initWorld mapgen username gen = World {
 	mapType = mapgen
 } where (worldmap', newStdGen) = runMap mapgen gen
 
+-- | initialize the Player
 getPlayer :: Monster
 getPlayer = Monster {
 	ai = You,
@@ -70,6 +74,7 @@ getPlayer = Monster {
 	xp = 1
 }
 
+-- | show start menu with start map generator choice
 showMapChoice :: IO MapGenType
 showMapChoice = do
 	putStrLn "Choose a map:"
@@ -91,6 +96,7 @@ showMapChoice = do
 		"*" -> customMapChoice
 		_ ->  return $ pureMapGen Sin30
 
+-- | show advanced map menu
 customMapChoice :: IO MapGenType
 customMapChoice = do
 	putStrLn "Choose a height generator: "
@@ -133,7 +139,3 @@ customMapChoice = do
 			"b" -> Rivers $ maybeReadNum 50 str2
 			"c" -> Swamp $ maybeReadNum 3 str2
 			_ -> NoWater
-	
-
-
-

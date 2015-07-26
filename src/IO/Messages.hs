@@ -13,6 +13,7 @@ import IO.Texts
 import qualified Data.Map as M
 import Data.Array
 
+-- | return full title of an item
 titleShow :: Object -> String
 titleShow x = title x ++ 
 	if isWand x || isTool x
@@ -22,46 +23,52 @@ titleShow x = title x ++
 		++ show (enchantment x) ++ ")"
 	else ""
 
+-- | capitalize first letter of the string if it isn't empty
 capitalize :: String -> String
 capitalize [] = []
 capitalize (x:xs) = toEnum (fromEnum x - fromEnum 'a' + fromEnum 'A') : xs
 
+-- | return " " if current monster is a player and "s " otherwise
 ending :: World -> String
-ending world =
-	if isPlayerNow world
-	then " "
-	else "s "
+ending world = if isPlayerNow world then " " else "s "
 
+-- | add "a " or "an " article to a string
 addArticle :: String -> String
 addArticle "" = ""
 addArticle str@(x:_) =
 	if x `elem` "aeiouAEIOU" then "an " ++ str
 	else "a " ++ str
 
+-- | add message about losing a body part
 lostMsg :: String -> String -> String
 lostMsg monName partName =
 	if partName == "Main"
 	then ""
 	else monName ++ " lost " ++ addArticle partName ++ "."
-	
+
+-- | add yellow message if current monster is a player
 maybeAddMessage :: String -> World -> World
 maybeAddMessage msg w = 
 	if isPlayerNow w
 	then addMessage (msg, yELLOW) w
 	else w
-	
+
+-- | add green message if current monster is a player and yellow otherwise 
 addNeutralMessage :: String -> World -> World
 addNeutralMessage msg w = 
 	if isPlayerNow w
 	then addMessage (msg, gREEN) w
 	else addMessage (msg, yELLOW) w
-	
+
+-- | add white message
 addDefaultMessage :: String -> World -> World
 addDefaultMessage msg = addMessage (msg, dEFAULT)
 
+-- | get info about chosen cell and continue the step
 getInfo :: World -> World
 getInfo w = addDefaultMessage msg w {action = Move} where msg = infoMessage w
 
+-- | get string with info
 infoMessage :: World -> String
 infoMessage w
 	| not $ isCell (xInfo w) (yInfo w) = msgNECell

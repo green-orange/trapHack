@@ -5,22 +5,26 @@ import qualified Data.Array as A
 import System.Random (StdGen)
 import Data.Set (Set)
 
+-- | list of monster names sorted by ID
 monNames :: [String]
 monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
 	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
 	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
 	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot"]
 
+-- | separators used to read/write lists in the save
 listSepMon, listSepW, listSepUn :: Char
 listSepMon = '&'
 listSepW = '*'
 listSepUn = '%'
 
+-- | method to show lists without parenthesis and commas
 myShowList :: Show a => Char -> [a] -> String
 myShowList _ [] = ""
 myShowList _ [x] = show x
 myShowList c (x:xs) = show x ++ [c] ++ myShowList c xs
 
+-- | a record type with all units in game and info about current step
 data Units = Units {
 	xF :: Int,
 	yF :: Int,
@@ -28,12 +32,14 @@ data Units = Units {
 	list :: M.Map (Int, Int) Monster
 }
 
+-- | symbol to separate fields in 'Units' data
 unitsSep :: Char
 unitsSep = '^'
 instance Show Units where
 	show uns = show (xF uns) ++ [unitsSep] ++ show (yF uns) ++ [unitsSep]
 		++ myShowList listSepUn (M.toList $ list uns)
 
+-- | a record type with one body part include an item binds to it
 data Part = Part {
 	hp :: Int,
 	maxhp :: Int,
@@ -43,6 +49,7 @@ data Part = Part {
 	objectKeys :: String
 } deriving (Show, Read)
 
+-- | a record type with full info about one monster
 data Monster = Monster {
 	ai :: AI,
 	parts :: [Part],
@@ -58,12 +65,15 @@ data Monster = Monster {
 	xp :: Int
 }
 
+-- | any item in the game
 data Object =
+	-- | potions can do something with a monster who quaff it
 	Potion {
 		title :: String,
 		act :: (Monster, StdGen) -> (Monster, StdGen),
 		idO :: Int
 	} | 
+	-- | wands can do something with a monster which was zapped by the wand
 	Wand {
 		title :: String,
 		act :: (Monster, StdGen) -> (Monster, StdGen),
@@ -71,16 +81,21 @@ data Object =
 		charge :: Int,
 		idO :: Int
 	} |
+	-- | scroll can do something with all world, but often it acts
+	-- only on small part of the world near to monster who read it
 	Scroll {
 		title :: String,
 		actw :: World -> World,
 		idO :: Int
 	} | 
+	-- | trap can be set on a cell and do something with monster
+	-- who caught in it
 	Trap {
 		title :: String,
 		num :: Terrain,
 		idO :: Int
 	} |
+	-- | missile can be fired from a 'Launcher'
 	Missile {
 		title :: String,
 		objdmg' :: StdDmg,
@@ -88,6 +103,7 @@ data Object =
 		enchantment :: Int,
 		idO :: Int
 	} |
+	-- | launcher can be used to fire 'Missile'
 	Launcher {
 		title :: String,
 		count' :: Int,
@@ -96,6 +112,7 @@ data Object =
 		weight' :: Int,
 		idO :: Int
 	} |
+	-- | weapon can increment the damage produced by you
 	Weapon {
 		title :: String,
 		objdmg' :: StdDmg,
@@ -103,6 +120,8 @@ data Object =
 		weight' :: Int,
 		idO :: Int
 	} |
+	-- | armor binds to differnt body parts and protect them
+	-- from physical damage 
 	Armor {
 		title :: String,
 		ac' :: Int,
@@ -111,6 +130,8 @@ data Object =
 		weight' :: Int,
 		idO :: Int
 	} |
+	-- | jewelry binds to different body parts and gives
+	-- you some magic abilities or intrinsics 
 	Jewelry {
 		title :: String,
 		enchantment :: Int,
@@ -119,6 +140,7 @@ data Object =
 		effectOff :: Int -> Monster -> Monster,
 		idO :: Int
 	} |
+	-- | food must be used to don't die from starvation 
 	Food {
 		title :: String,
 		nutrition :: Int,
@@ -126,10 +148,12 @@ data Object =
 		rotRate :: Int,
 		rotTime :: Int
 	} |
+	-- | resources are items using by craft something from them
 	Resource {
 		title :: String,
 		restype :: ResourceType
 	} |
+	-- | tools are all another items
 	Tool {
 		title :: String,
 		tooltype :: ToolType,
@@ -138,81 +162,109 @@ data Object =
 		idO :: Int
 	}
 
+-- | record with all world
 data World = World {
-	units' :: Units,
-	message :: [(String, Int)],
-	items :: [(Int, Int, Object, Int)],
-	action :: Action,
-	stdgen :: StdGen,
-	wave :: Int,
-	chars :: Set Char,
-	worldmap :: A.Array (Int, Int) Cell,
-	prevAction :: Char,
-	shift :: Int,
-	slot :: Slot,
-	xInfo :: Int,
-	yInfo :: Int,
-	numToSplit :: Int,
-	showMode :: ShowMode,
-	mapType :: MapGenType
+	  units' :: Units -- ^ all 'Units' in the game
+	, message :: [(String, Int)] -- ^ current message for player
+	, items :: [(Int, Int, Object, Int)] -- ^ items on the ground
+	, action :: Action -- ^ last monster action
+	, stdgen :: StdGen -- ^ random number generator
+	, wave :: Int -- ^ number of NEXT wave
+	, chars :: Set Char -- ^ chars using for picking or multi-dropping
+	, worldmap :: A.Array (Int, Int) Cell -- ^ world map with heights and terrains
+	, prevAction :: Char -- ^ previous symbol pressed by the player
+	, shift :: Int -- ^ vertical shift in equip menu
+	, slot :: Slot -- ^ horizontal shift in equip menu
+	, xInfo :: Int -- ^ current x coordinate when you show info about smth
+	, yInfo :: Int -- ^ current y coordinate when you show info about smth
+	, numToSplit :: Int -- ^ number using to Split command
+	, showMode :: ShowMode -- ^ mode to show the worldmap
+	, mapType :: MapGenType -- ^ type of the map generator (for scroll of safety) 
 }
 
+-- | record with one cell of the world
 data Cell = Cell {
 	terrain :: Terrain,
 	height :: Int
 }
 
+-- | mode to show the worldmap
 data ShowMode = ColorHeight | ColorHeightAbs | ColorMonsters | NoHeight
 	deriving (Eq)
 
+-- | type of the resource
 data ResourceType = Tree | Stone deriving (Eq, Show, Read)
 
+-- | type of the tool
 data ToolType = PickAxe deriving (Eq)
 
+-- | current action in the game
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
 	Info | Save | Previous | AfterSpace | Split1 | Split2 | Craft | 
 	Options | Use1 | Use2 deriving (Eq)
 
+-- | modificators of the AI
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
 	FireAI | WieldLauncherAI | WieldWeaponAI | BindArmorAI | 
 	UseItemsAI | EatAI deriving (Show, Read, Enum)
+-- | base AI types
 data AIpure = NothingAI | StupidestAI | StupidAI | StupidParalysisAI | 
 	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | CollectorAI |
 	GolemAI | CleverSAI | CleverVSAI | CleverUAI deriving (Show, Read)
+-- | AI representation to read and show
 data AIrepr = AIrepr {
 	mods :: [AImod],
 	attackIfCloseMode :: Maybe (Elem, Int),
 	aipure :: AIpure
 } deriving (Show, Read)
 
+-- | monster AI or player
 data AI = You | AI AIrepr deriving (Show, Read)
-	
+
+-- | abstract intrinsic
 data Intr = Teleport deriving (Enum, Show, Bounded)
 
+-- | temporary intrinsic decreased every step
 data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 
+-- | type of the terrain (empty, water or some trap)
 data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap 
 	deriving (Eq)
+
+-- | item slot of the every part
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
 
+-- | base type of height generator
 data HeiGenType = Sin30 | Sin3 | Flat Int | Random | Mountains
 	deriving (Show, Read)
+
+-- | number of height averaging
 type Avg = Int
+
+-- | type of using water in the map
 data Water = NoWater | Rivers Int | Swamp Int deriving (Show, Read)
 
+-- | full info about map generator
 data MapGenType = MapGenType HeiGenType Avg Water deriving (Show, Read)
 
+-- | number of slots
 sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
 
+-- | elements that can be used to special attacks
 data Elem = Fire | Poison' | Cold deriving (Enum, Bounded)
 
+-- | monster inventory
 type Inv = M.Map Char (Object, Int)
+-- | standard damage output function (world used just as StdGen source)
 type StdDmg = World -> (Maybe Int, StdGen)
+-- | inventory generator to spawn a death drop
 type InvGen = StdGen -> (Inv, StdGen)
+-- | a craft recipe
 type Recipe = ([(ResourceType, Int)], Object)
 
+-- | items are equal iff they can be put in a stack
 instance Eq Object where
 	(Potion t _ _) == (Potion t' _ _) = t == t'
 	(Trap t _ _) == (Trap t' _ _) = t == t'
@@ -233,6 +285,7 @@ instance Read Elem where
 	readsPrec _ "Cold" = [(Cold, "")]
 	readsPrec _ e = error $ "parse error: Elem " ++ e
 
+-- | symbol to separate fields in 'Cell' data
 cellSep :: Char
 cellSep = '$'
 
@@ -256,6 +309,7 @@ instance Read Terrain where
 	readsPrec _ "water" = [(Water, "")]
 	readsPrec _ t = error $ "parse error: Terrain " ++ t
 
+-- | symbol to separate fields in 'Monster' data
 monSep :: Char
 monSep = '\n'
 
@@ -272,6 +326,7 @@ instance Show Monster where
 		myShowList listSepMon (temp mon) ++ [monSep] ++
 		show (idM mon) ++ [monSep] ++ show (xp mon)
 
+-- | symbol to separate fields in 'Object' data
 objSep :: Char
 objSep = '/'
 
@@ -297,6 +352,8 @@ instance Show Object where
 	show o@(Resource {}) = "Resource" ++ [objSep] ++ show (restype o)
 	show o@(Tool {}) = "Tool" ++ [objSep] ++ show (idO o) ++ [objSep] 
 		++ show (charge o)
+
+-- | symbol to separate fields in 'World' data
 worldSep :: Char
 worldSep = '#'
 

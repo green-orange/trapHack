@@ -2,6 +2,7 @@ module IO.Texts where
 
 import Data.Define
 
+-- | get a message about zapping
 msgWand :: String -> String -> String
 msgWand title' name' = 
 	case title' of
@@ -21,6 +22,7 @@ msgWand title' name' =
 	prefixPast = if isYou then "You were " else name' ++ " was "
 	end = if isYou then "" else "s"
 
+-- | converts number of a wave when you die to a string
 numToStr :: Int -> String
 numToStr t
 	| t == 1 = "first"
@@ -52,7 +54,8 @@ numToStr t
 	| t == 90 = "ninetieth"
 	| t < 100 = decToStr (div t 10) ++ "-" ++ numToStr (mod t 10)
 	| otherwise = show t
-	
+
+-- | converts decimals to 'numToStr'
 decToStr :: Int -> String
 decToStr t
 	| t == 2 = "twenty"
@@ -65,6 +68,7 @@ decToStr t
 	| t == 9 = "ninety"
 	| otherwise = error "wrong number of tens"
 
+-- | special attack verb from 'Elem'
 attackName :: Elem -> String
 attackName Fire = "burn"
 attackName Poison' = "poison"

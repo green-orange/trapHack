@@ -14,7 +14,7 @@ import qualified Data.Map as M
 import Data.Functor ((<$>))
 
 nameFromGen :: MonsterGen -> String
-nameFromGen mgen = name $ fst $ mgen lol
+nameFromGen mgen = name $ fst $ mgen undefined
 
 addWaveBy :: ([MonsterGen] -> (Units, StdGen) -> (Units, StdGen)) 
 	-> Int -> (Units, StdGen) -> (Units, StdGen)

@@ -23,21 +23,28 @@ import Control.Monad (unless, when, zipWithM_, (>=>))
 import Data.Functor ((<$>))
 
 shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem :: Int
+-- | shift from left side to a position with hit points
 shiftRightHP = 2 * xSight + 5
+-- | shift from left side to a position with some attributes
 shiftAttrs = 2 * xSight + 30
+-- | difference between of columns in equip menu
 diff = 20
+-- | 'WeaponSlot' column menu
 shiftW = 30
+-- | 'ArmorSlot' column menu
 shiftA = shiftW + diff
+-- | 'JewelrySlot' column menu
 shiftJ = shiftA + diff
+-- | vertical shift from top to a first 'Elem' position
 shiftElem = 4
 
+-- | cast 'Char' type to HSCurses 'ChType'  
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
-
+-- | place given char by given coords
 placeChar :: Int -> Int -> Char -> IO ()
-placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight)
-	. castEnum
-
+placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight) . castEnum
+-- | draw a unit on the given position
 drawUnit :: World -> ((Int, Int), Monster) -> IO ()
 drawUnit world ((x, y), mon) =
 	if isCell x y
@@ -61,7 +68,7 @@ drawUnit world ((x, y), mon) =
 		back = colorFromCell $ worldmap world A.! (x,y)
 		dx = x - xFirst world
 		dy = y - yFirst world
-
+-- | draw a cell with given position
 drawCell :: World -> ((Int, Int), Cell) -> IO ()
 drawCell world ((x, y), _) = 
 	if isCell x y
@@ -90,7 +97,7 @@ drawCell world ((x, y), _) =
 			| x == div maxX 2 && y == div maxY 2 = '*'
 			| showMode world == NoHeight = '.'
 			| otherwise = head $ show $ height $ worldmap world A.! (x,y)
-
+-- | draw items with given position
 drawItem :: World -> (Int, Int, Object, Int) -> IO ()
 drawItem world(x, y, item, _) = 
 	if isCell x y
@@ -105,7 +112,8 @@ drawItem world(x, y, item, _) =
 			if action world == Info && x == xInfo world && y == yInfo world
 			then setStandout attr0 True
 			else setBold attr0 True
-
+-- | draw pick or drop menu with given height of screen, set of chosen chars
+-- and item on the ground 
 showItemsPD :: Int -> S.Set Char -> (Int, Char, (Object, Int)) -> IO ()
 showItemsPD h toPick' (n, c, (obj,cnt)) =
 	mvWAddStr stdScr (mod (n + 1) h) (30 * div (n + 1) h)
@@ -114,13 +122,13 @@ showItemsPD h toPick' (n, c, (obj,cnt)) =
 		if S.member c toPick'
 		then " + "
 		else " - "
-		
+-- | show messages in the top of the screen
 showMessages :: Int -> [(String, Int)] -> IO ()
 showMessages width msgs = 
 	unless (sum ((1+) . length . fst <$> msgs) < (shiftDown - 1) * width)
 	(mvWAddStr stdScr (shiftDown - 1) 0 msgMore) >>
 	foldr ((>=>) . showMessage) return msgs (0, 0) >> return ()
-
+-- | show one message
 showMessage :: (String, Int) -> (Int, Int) -> IO (Int, Int)
 showMessage (msg, color') (x, y) = do
 	(_, w) <- scrSize
@@ -135,7 +143,7 @@ showMessage (msg, color') (x, y) = do
 			dy' = y + 1 + length msg
 			dx = x + div dy' w
 			dy = mod dy' w
-
+-- | show one elemental resistance
 showElemRes :: World -> Elem -> IO ()
 showElemRes world e =
 	unless (value == 0) $ mvWAddStr stdScr 
@@ -143,7 +151,7 @@ showElemRes world e =
 	pos = fromEnum e
 	value = res (getFirst world) !! pos
 	str = show e ++ " res: " ++ show value
-
+-- | show one intrinsic
 showIntr :: World -> Intr -> IO ()
 showIntr world i = 
 	unless (value == 0) $ mvWAddStr stdScr 
@@ -152,7 +160,7 @@ showIntr world i =
 	pos = fromEnum i
 	value = intr (getFirst world) !! pos
 	str = show i ++ ": " ++ show value
-
+-- | show one temporary effect
 showTemp :: World -> Temp -> IO ()
 showTemp world t = 
 	case value of
@@ -168,13 +176,14 @@ showTemp world t =
 	Just rez = value
 	str = show t ++ " (" ++ show rez ++ ")"
 	clr = colorFromTemp t rez
-
+-- | show one craft recipe
 showRecipe :: Recipe -> Int -> IO ()
 showRecipe (ress, rez) y = mvWAddStr stdScr y 0 str where
 	str = toEnum (fromEnum 'a' + y - 1) : " - " 
 		++ concatMap resToStr ress ++ "=> " ++ title rez
 	resToStr (r, cnt) = show cnt ++ " * " ++ show r ++ " "
 
+-- | draw player inventory
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -186,7 +195,7 @@ drawInventory world h = do
 			(if isExistingBindingFirst world c then " (is used)" else "")) <$> items'
 		showInv :: (Int, String) -> IO ()
 		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
-
+-- | draw list of items in equipment menu
 drawEquipMenu :: World -> Int -> IO ()
 drawEquipMenu world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -199,7 +208,7 @@ drawEquipMenu world h = do
 		showInv :: (Int, String) -> IO ()
 		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
 		knd = kind $ parts (getFirst world) !! shift world
-		
+-- | draw pick or drop menu (first argument is True iff pick)
 drawPickOrDrop :: Bool -> World -> Int -> IO ()
 drawPickOrDrop isPick world h = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -213,7 +222,7 @@ drawPickOrDrop isPick world h = do
 				filter (\(x,y,_,_) -> x == xNow && y == yNow) (items world)
 			else zipWith (\n (c,x) -> (n,c,x)) [0..] $ M.toList $ inv $ getFirst world 
 		word = if isPick then "pick" else "drop"
-
+-- | draw parts with bindings in equipment menu
 drawPartChange :: World -> Int -> IO ()
 drawPartChange world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -225,7 +234,7 @@ drawPartChange world _ = do
 		(repeat $ getFirst world) $ parts $ getFirst world
 	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
 	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
-
+-- | draw just a world after another step
 drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -251,17 +260,17 @@ drawJustWorld world _ = do
 	mapM_ (showIntr world) (getAll :: [Intr])
 	mapM_ (showTemp world) (getAll :: [Temp]) where
 		mon = getFirst world
-
+-- | draw list of all recipes
 drawCraft :: World -> Int -> IO ()
 drawCraft _ _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 	mvWAddStr stdScr 0 0 msgHeaderCraft >>
 	zipWithM_ showRecipe recipes [1..]
-
+-- | draw split menu
 drawSplit :: World -> Int -> IO ()
 drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 	mvWAddStr stdScr 0 0 (show $ numToSplit w) >>
-	drawJustWorld w lol
-
+	drawJustWorld w undefined
+-- | draw options menu
 drawOptions :: World -> Int -> IO ()
 drawOptions _ _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
@@ -269,7 +278,7 @@ drawOptions _ _ = do
 	mvWAddStr stdScr 1 0 msgOptColorMon
 	mvWAddStr stdScr 2 0 msgOptNoHei
 	mvWAddStr stdScr 3 0 msgOptColorHeiAbs
-
+-- | choose a draw mode and draw all
 draw :: World -> IO ()
 draw world = do
 	(h, _) <- scrSize
@@ -283,14 +292,14 @@ draw world = do
 		Craft -> drawCraft
 		Options -> drawOptions
 		_ -> drawJustWorld) world h
-
+-- | redraw world and get char from the player
 redraw :: World -> IO Char
 redraw world = 
 	erase >> draw world >> refresh >> getChar
-
+-- | show info about one body part (with bindings)
 drawPart :: Bool -> Int -> Monster -> Part -> IO ()
 drawPart isFull y = drawPartFull isFull shiftRightHP $ shiftDown + y
-
+-- | show info about a part (with bindings iff first argument is True)
 drawPartFull :: Bool -> Int -> Int -> Monster -> Part -> IO ()
 drawPartFull isFull x y mon part = do
 	wAttrSet stdScr (attr0, Pair gREEN)
@@ -325,6 +334,7 @@ drawPartFull isFull x y mon part = do
 		objsA = M.lookup (objectKeys part !! fromEnum ArmorSlot) $ inv mon
 		objsJ = M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon
 
+-- | symbol to show item on the ground
 symbolItem :: Object -> Char
 symbolItem (Potion {})   = '!'
 symbolItem (Scroll {})   = '?'

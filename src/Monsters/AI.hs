@@ -239,7 +239,7 @@ collectorAI _ _ _ world =
 	where
 		(xItem, yItem, _, _) = 
 			if null (items world)
-			then (0, 0, lol, lol)
+			then (0, 0, undefined, undefined)
 			else minimumBy cmp $ items world
 		dist x y = max (x - xFirst world) (y - yFirst world)
 		cmp = on compare (\(x, y, _, _) -> dist x y)

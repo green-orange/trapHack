@@ -72,7 +72,7 @@ fireAround d pair w = addMessages newMsgs w {units' = newMons, stdgen = g} where
 	newMons = mapU (fireDmg g) $ units' w
 	isClose ((x, y), _) = abs (x - xNow) <= d && abs (y - yNow) <= d
 	fireDmg gen (x, y) mon = 
-		if isClose ((x, y), lol)
+		if isClose ((x, y), undefined)
 		then fst $ dmgRandomElem Fire (Just newDmg) mon gen
 		else mon
 	msg (_,mon) = 

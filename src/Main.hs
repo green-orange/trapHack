@@ -1,4 +1,16 @@
 {-# LANGUAGE CPP #-}
+{-|
+Module      : Main
+Description : Main module to run the game
+Copyright   : (c) Khadaev Konstantin, 2015
+License     : Unlicense
+Maintainer  : khadaev98@gmail.com
+Stability   : experimental
+Portability : POSIX
+
+This module contains Main function to run the game and some utilities
+for work with file system and some platform-dependent things
+-}
 module Main where
 
 import Data.Const
@@ -26,20 +38,26 @@ import System.Posix.User
 #endif
 
 logName, saveName :: String
+-- | file with the game log
 logName = "trapHack.log"
+-- | file with the game save
 saveName = "trapHack.save"
 
+-- | catch all exceptions to run 'endWin' after exit with error
 catchAll :: IO a -> (SomeException -> IO a) -> IO a
 catchAll = catch
 
+-- | read file with name 'logName' and adapt it to show as in-game message
 getReverseLog :: IO [(String, Int)]
 getReverseLog = liftM (map (flip (,) dEFAULT) . tail . reverse 
 	. separate '\n') $ readFile logName
 
+-- | gives XP level of the player
 playerLevel :: World -> Int
 playerLevel w = intLog $ xp player where
 	player = snd . head $ M.toList $ M.filter (("You" ==) . name) $ units w
 
+-- | main loop in the game
 loop :: World -> IO (String, Int)
 loop world =
 	if isPlayerNow world
@@ -72,6 +90,7 @@ loop world =
 	maybeAppendFile fileName strings = 
 		unless (null strings) $ appendFile fileName $ unwords strings ++ "\n"
 
+-- | choose all parameters and start or load the game
 main :: IO ()
 main = do
 	save <- catchAll (readFile saveName) $ const $ return ""

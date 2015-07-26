@@ -22,6 +22,7 @@ import Data.Maybe (isJust)
 import System.Random (randomR)
 import Data.Char (isSpace)
 
+-- | converts a char from the player to some action or end of game
 step :: World -> Char -> Either World String
 step world c
 	| alive mon = 
@@ -121,7 +122,8 @@ step world c
 			(yFirst world) world of
 			Just (xP, yP) -> (xP, yP, False)
 			Nothing -> (xR, yR, True)
-		
+
+-- | case when action is just move
 justStep :: World -> Char -> Either World String
 justStep world c = case dir c of
 	Just (dx, dy) -> doIfCorrect $ moveFirst dx dy world
@@ -161,6 +163,7 @@ justStep world c = case dir c of
 		_  ->
 			Left $ addMessage (msgUnkAct ++ show (fromEnum c), yELLOW) world
 
+-- | action with key choose and 'action' changing
 actionByKey :: String -> (Object -> Bool) -> Action -> World -> Either World a
 actionByKey word isType char world = Left $ addDefaultMessage (msgAsk 
 	++ word ++ "? [" ++ listOfValidChars isType world ++ "]") 

@@ -131,7 +131,7 @@ zap world x y dx dy obj
 		if isPlayerNow world
 		then gREEN
 		else case isPlayer <$> M.lookup (x, y) (units world) of
-			Nothing    -> lol
+			Nothing    -> undefined
 			Just False -> bLUE
 			Just True  -> rED
 
@@ -229,7 +229,7 @@ fire x y dx dy obj world
 		if isPlayerNow world
 		then gREEN
 		else case isPlayer <$> M.lookup (x, y) (units world) of
-			Nothing    -> lol
+			Nothing    -> undefined
 			Just False -> bLUE
 			Just True  -> rED
 		
@@ -301,7 +301,7 @@ usePickAxe world x y dx dy obj
 		mon = getFirst world
 		invOld = inv mon
 		(invNew, ok) = case addInv (itemFromRes Stone, cnt) invOld of
-			Nothing -> (lol, False)
+			Nothing -> (undefined, False)
 			Just i -> (i, True)
 		newMon = decChargeByKey (prevAction world) mon {inv = invNew}
 	
