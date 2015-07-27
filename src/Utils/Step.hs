@@ -22,22 +22,24 @@ import qualified Data.Map as M
 import qualified Data.Array as A
 import Data.Functor ((<$>))
 
+-- | return pair with minimum second element
 minSnd :: (Ord b) => (a,b) -> (a,b) -> (a,b)
 minSnd x y = if snd x > snd y then y else x
 
+-- | find pair with minimum second element in the 'Map' 
 minValue :: (Ord k, Ord a) => M.Map k a -> (k, a)
 minValue m = foldr1 minSnd $ M.toList m
-	
+
+-- | find key of pair with minimal second elenent 'on' some function
 minimumOn :: (Ord b, Ord k) => (a -> b) -> M.Map k a -> (k, a)
 minimumOn f m = (k, m M.! k) where
-	k = fst $ minValue $ f <$>  m
-	
-almostTime :: Monster -> Int
-almostTime mon = 
-	if alive mon
-	then time mon
-	else 0
+	k = fst $ minValue $ f <$> m
 
+-- | return 'time' if monster is alive and 0 else
+almostTime :: Monster -> Int
+almostTime mon = if alive mon then time mon else 0
+
+-- | find next monster (with minimum 'almostTime')
 updateFirst :: World -> World
 updateFirst w = w {units' = newUnits} where
 	newUnits = (units' w) {
@@ -47,13 +49,15 @@ updateFirst w = w {units' = newUnits} where
 	}
 	((x, y), monNew) = minimumOn almostTime $ units w
 
+-- | spawn new wave if it needs
 newWaveIf :: World -> World
 newWaveIf world =
 	if not (isPlayerNow world) ||
 		levelW world * 3 > wave world then newWorld
 	else callUpon world
 	where newWorld = cycleWorld world
-		
+
+-- | change current monster to the next and update all
 cycleWorld :: World -> World
 cycleWorld w = rotAll $ tempFirst $ actTrapFirst $ regFirst $ cleanFirst 
 	$ (addMessages (msgCleanParts monNew) newWorld) {units' = newUnits} where
@@ -65,13 +69,16 @@ cycleWorld w = rotAll $ tempFirst $ actTrapFirst $ regFirst $ cleanFirst
 		((x, y), monNew) = minimumOn almostTime $ units newWorld
 		newWorld = tickFirst w
 
+-- | remove lost parts and add partial corpses
 cleanFirst :: World -> World
 cleanFirst w = changeMon (cleanParts $ getFirst w) $ dropPartialCorpse w
 
+-- | remove first monster
 remFirst :: World -> World
 remFirst world = updateFirst $ world {action = Move, units' =
 	deleteU (xFirst world, yFirst world) $ units' world}
 
+-- | find closest monster with ai == 'You'
 closestPlayerChar :: Int -> Int -> World -> Maybe (Int, Int)
 closestPlayerChar x y w = 
 	if M.null yous || abs (x - xP) > xSight || abs (y - yP) > ySight
@@ -88,16 +95,19 @@ closestPlayerChar x y w =
 		else (x1, y1)
 	(xP, yP) = foldr1 closest $ M.keys yous
 
+-- | decrease temporaty effects of the first monster
 tempFirst :: World -> World
 tempFirst w = changeMon newMon w where
 	mon = getFirst w
 	newMon = mon {temp = decMaybe <$> temp mon}
 
+-- | decrease value in Maybe Int
 decMaybe :: Maybe Int -> Maybe Int
 decMaybe Nothing = Nothing
 decMaybe (Just 0) = Nothing
 decMaybe (Just n) = Just $ n - 1
 
+-- | add death drop and corpse to the monster inventory
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
 addDeathDrop mon g = (mon {inv = addCorpse 
 	$ M.union (inv mon) newDrop}, newGen) where
@@ -109,21 +119,25 @@ addDeathDrop mon g = (mon {inv = addCorpse
 		0 -> id
 		_ -> M.insert (head notAlphabet) (corpse, 1)
 
+-- | update 'time' for first monster
 tickFirst :: World -> World
 tickFirst w = changeMon (tickFirstMon $ getFirst w) w where
 	tickFirstMon :: Monster -> Monster
 	tickFirstMon m = m {time = effectiveSlowness m + time m}
 
+-- | list of indices of items with given predicate
 listOfValidChars :: (Object -> Bool) -> World -> String
 listOfValidChars f world = sort $ M.keys 
 	$ M.filter (f . fst) $ inv $ getFirst world
-	
+
+-- | do some action if it was correct
 doIfCorrect :: (World, Bool) -> Either World a
 doIfCorrect (rez, correct) = 
 	if correct
 	then Left $ newWaveIf rez
 	else Left rez
 
+-- | act trap on the first monster
 actTrapFirst :: World -> World
 actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} where
 	x = xFirst w
@@ -146,10 +160,12 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 			in ((newMon', g''), msgWand (title obj) (name mon))
 		| otherwise = ((mon, stdgen w), "")
 
+-- | call upon the new wave
 callUpon :: World -> World
 callUpon w = addMessage (msgLanding (wave w) , rED) 
 	$ newWave $ cycleWorld w {action = Move}
 
+-- | drop partial corpses to cells near to the monster
 dropPartialCorpse :: World -> World
 dropPartialCorpse w = 
 	if name mon `elem` nOcORPSES then w
@@ -164,6 +180,7 @@ dropPartialCorpse w =
 		wrap obj = (xFirst w + dx, yFirst w + dy, obj, 1)
 		mon = getFirst w
 
+-- | rot all corpses (both in inventory and on the ground)
 rotAll :: World -> World
 rotAll w = w {items = newItems, units' = (units' w) {list = newMons}} where
 	newMons = rotInv <$> units w
@@ -173,6 +190,7 @@ rotAll w = w {items = newItems, units' = (units' w) {list = newMons}} where
 		| rotRate obj >= rotTime obj = Nothing
 		| otherwise = Just (x, y, obj {rotTime = rotTime obj - rotRate obj}, n)
 
+-- | rot all corpses in the inventory
 rotInv :: Monster -> Monster
 rotInv mon = mon {inv = M.mapMaybe rotItem $ inv mon} where
 	rotItem arg@(obj, n)

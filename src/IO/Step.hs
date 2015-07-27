@@ -57,15 +57,14 @@ step world c
 				if isSpace c
 				then case dropManyFirst world of
 					Nothing ->
-						Left $ changeChars empty $ world {action = Move}
+						Left $ world {action = Move, chars = empty}
 					Just w -> Left $ newWaveIf w
 				else Left $ changeChar c world
 			Pick ->
 				if isSpace c
 				then case pickFirst world of
-					(Nothing, s) ->
-						Left $ changeChars empty $ addDefaultMessage s 
-						world {action = Move}
+					(Nothing, s) -> Left $ addDefaultMessage s
+						world {action = Move, chars = empty}
 					(Just pick, _) -> Left $ newWaveIf pick
 				else Left $ changeChar c world
 			Equip

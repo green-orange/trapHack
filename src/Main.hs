@@ -1,15 +1,12 @@
 {-# LANGUAGE CPP #-}
 {-|
 Module      : Main
-Description : Main module to run the game
+Description : roguelike game with puzzle elements
 Copyright   : (c) Khadaev Konstantin, 2015
 License     : Unlicense
 Maintainer  : khadaev98@gmail.com
 Stability   : experimental
 Portability : POSIX
-
-This module contains Main function to run the game and some utilities
-for work with file system and some platform-dependent things
 -}
 module Main where
 

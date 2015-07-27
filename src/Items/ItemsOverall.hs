@@ -92,10 +92,10 @@ dropManyFirst world =
 	else Just newWorld where
 		newMsg = name (getFirst world) ++ " drop" ++ ending world 
 			++ "some objects."
-		newWorld = changeChars S.empty 
-			$ addNeutralMessage newMsg $ foldr (\ x y 
-			-> fst $ dropFirst x y True) world {action = Move} 
-			$ S.toList $ chars world
+		newWorld = 
+			addNeutralMessage newMsg $ foldr (\ x y -> fst $ dropFirst
+				x y True) world {action = Move, chars = S.empty} 
+				$ S.toList $ chars world
 
 -- | add list of items with counts to given inventory if it's possible
 addInvs :: Inv -> [(Object, Int)] -> Maybe Inv

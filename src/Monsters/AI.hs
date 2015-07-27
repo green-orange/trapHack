@@ -81,7 +81,7 @@ trollAI f x y p w =
 		$ changeMon (rock $ stdgen w) w
 	else f x y p w
 
--- | technical ``monster'' for 'trollAI'
+-- | technical "monster" for 'trollAI'
 rock :: StdGen -> Monster
 rock g = fst $ getMonster (getPureAI NothingAI) [(getMain 0, (100, 5000))] 
 	20 ((0,0),0.0) emptyInv 10000 1 g
@@ -197,7 +197,7 @@ stupidPoisonAI = stupidFooAI (\x y _ -> fst . moveFirst x y .
 stupidConfAI = stupidFooAI (\x y _ -> fst . moveFirst x y . 
 	addTempByCoords Conf (0, 6) x y)
 
--- stupid AI with some action (type of attack)
+-- | stupid AI with some action (type of attack)
 stupidFooAI :: AIfunc -> AIfunc
 stupidFooAI foo xPlayer yPlayer peace w = newWorld where
 	g = stdgen w
@@ -279,7 +279,7 @@ collectorAI _ _ _ world =
 		dist x y = max (x - xFirst world) (y - yFirst world)
 		cmp = on compare (\(x, y, _, _) -> dist x y)
 
--- AI for Golem: just stand on the one placeand attack all enemies
+-- | AI for Golem: just stand on the one placeand attack all enemies
 golemAI :: AIfunc
 golemAI _ _ _ world = case nears of
 	[] -> world
