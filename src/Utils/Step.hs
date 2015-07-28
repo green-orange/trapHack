@@ -144,21 +144,23 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 	y = yFirst w
 	mon = getFirst w
 	trap = terrain $ worldmap w A.! (x,y)
-	((newMon, g), newMsg)
-		| trap == FireTrap = (dmgRandomElem Fire (Just 8) mon $ stdgen w,
+	fireTrapped = (dmgRandomElem Fire (Just 8) mon $ stdgen w,
 			if name mon == "You"
 			then msgFireYou
 			else name mon ++ msgFire)
-		| trap == PoisonTrap = (randTemp Poison (5, 15) (mon, stdgen w),
+	((newMon, g), newMsg) = case trap of
+		FireTrap -> fireTrapped
+		Bonfire -> fireTrapped
+		PoisonTrap -> (randTemp Poison (5, 15) (mon, stdgen w),
 			if name mon == "You"
 			then msgPoisonYou
 			else name mon ++ msgPoison)
-		| trap == MagicTrap = let
+		MagicTrap -> let
 			(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
 			obj = wANDS !! ind
 			(newMon', g'') = act obj (mon, g')
 			in ((newMon', g''), msgWand (title obj) (name mon))
-		| otherwise = ((mon, stdgen w), "")
+		_ -> ((mon, stdgen w), "")
 
 -- | call upon the new wave
 callUpon :: World -> World

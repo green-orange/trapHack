@@ -25,6 +25,7 @@ colorFromTerr FireTrap   = 16 -- red
 colorFromTerr PoisonTrap = 56 -- green
 colorFromTerr MagicTrap  = 48 -- magenta
 colorFromTerr Water      = 40 -- blue
+colorFromTerr Bonfire    = 16 -- red
 
 -- | converts cell to handle of a background color
 colorFromCell :: Cell -> Int

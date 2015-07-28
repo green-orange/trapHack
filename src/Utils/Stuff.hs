@@ -20,6 +20,7 @@ import Data.Maybe (isJust, fromJust)
 import Control.Applicative ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
+import qualified Data.Array as A
 
 -- | converts function that needs some random to the function ingoring it 
 unrandom :: (a -> a) -> (a, x) -> (a, x)
@@ -73,7 +74,8 @@ addPart mon knd hp' regRate' = mon {parts = newPart : parts mon} where
 
 -- | fire all cells around you (for scroll of fire)
 fireAround :: Int -> (Int, Int) -> World -> World
-fireAround d pair w = addMessages newMsgs w {units' = newMons, stdgen = g} where
+fireAround d pair w = spawnBonfires $ addMessages newMsgs 
+	w {units' = newMons, stdgen = g} where
 	xNow = xFirst w
 	yNow = yFirst w
 	(newDmg, g) = randomR pair $ stdgen w
@@ -99,9 +101,25 @@ stupidity mon = mon {ai = newAI} where
 			then AI $ getPureAI StupidestAI
 			else old
 
+-- | spawn bonfires on cell next to you with some probability
+spawnBonfires :: World -> World
+spawnBonfires w = foldr ($) w $ map spawnBonfire nears where
+	x = xFirst w
+	y = yFirst w
+	d = [-1, 0, 1]
+	nears = [(x + dx, y + dy) | dx <- d, dy <- d]
+
+-- | spawn one bonfire with given coordinates with some probability
+spawnBonfire :: (Int, Int) -> World -> World
+spawnBonfire (x, y) w = changeTerr x y newTerr w {stdgen = g'} where
+	spawnProb :: Float
+	spawnProb = 0.2
+	(q, g') = randomR (0.0, 1.0) $ stdgen w
+	newTerr = if q < spawnProb then Bonfire else terrain $ worldmap w A.! (x, y)
+
 -- | can you untrap this?
 isUntrappable :: Cell -> Bool
-isUntrappable = (`notElem` [Empty, Water]). terrain
+isUntrappable = (`notElem` [Empty, Water, Bonfire]). terrain
 
 -- | teleport you to a new safe world
 safety :: World -> World

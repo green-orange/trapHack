@@ -230,7 +230,7 @@ data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 
 -- | type of the terrain (empty, water or some trap)
 data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap 
-	deriving (Eq)
+	| Bonfire deriving (Eq)
 
 -- | item slot of the every part
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
@@ -299,6 +299,7 @@ instance Show Terrain where
 	show FireTrap = "fire trap"
 	show PoisonTrap = "poison trap"
 	show MagicTrap = "magic trap"
+	show Bonfire = "bonfire"
 
 instance Read Terrain where
 	readsPrec _ "" = [(Empty, "")]
@@ -307,6 +308,7 @@ instance Read Terrain where
 	readsPrec _ "poison trap" = [(PoisonTrap, "")]
 	readsPrec _ "magic trap" = [(MagicTrap, "")]
 	readsPrec _ "water" = [(Water, "")]
+	readsPrec _ "bonfire" = [(Bonfire, "")]
 	readsPrec _ t = error $ "parse error: Terrain " ++ t
 
 -- | symbol to separate fields in 'Monster' data

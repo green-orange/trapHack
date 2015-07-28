@@ -76,7 +76,7 @@ readFirst c world
 		world {action = Move}, False)
 	| otherwise =
 		(changeMon mon' $ addNeutralMessage newMsg 
-		world {action = Move}, True) where
+		newWorld {action = Move}, True) where
 	objects = M.lookup c $ inv mon
 	newMsg = name mon ++ " read" ++ ending world 
 		++ titleShow obj ++ "."
