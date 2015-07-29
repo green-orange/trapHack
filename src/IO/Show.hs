@@ -6,6 +6,7 @@ import Data.Monster
 import Data.Define
 import Utils.Items
 import Utils.Monsters
+import Utils.Stuff (isUntrappable)
 import Items.ItemsOverall
 import Items.Craft
 import Monsters.Parts
@@ -95,6 +96,7 @@ drawCell world ((x, y), _) =
 				_ -> colorFromCell cell
 		sym
 			| x == div maxX 2 && y == div maxY 2 = '*'
+			| isUntrappable $ worldmap world A.! (x,y) = '^'
 			| showMode world == NoHeight = '.'
 			| otherwise = head $ show $ height $ worldmap world A.! (x,y)
 -- | draw items with given position
