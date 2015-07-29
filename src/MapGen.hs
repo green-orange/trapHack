@@ -33,14 +33,20 @@ runWater NoWater = mapGenFromHeightGen
 runWater (Rivers n) = addRiversToGen n
 runWater (Swamp n) = addSwampsToGen n
 
+-- | add given type of traps to map generator
+runTraps :: TrapMap -> MapGen -> MapGen
+runTraps NoTraps = id
+runTraps (Bonfires n) = foldr (.) id $ replicate n $ addRandomTerr Bonfire
+runTraps (MagicMap n) = foldr (.) id $ replicate n $ addRandomTerr MagicNatural
+
 -- | converts MapGenType (enumerable type) to map generator function
 runMap :: MapGenType -> MapGen
-runMap (MapGenType heigen avg water) = runWater water $ foldr (.) 
-	(limit *. runHei heigen) $ replicate avg $ first averaging
+runMap (MapGenType heigen avg water traps) = runTraps traps $ runWater water
+	$ foldr (.) (limit *. runHei heigen) $ replicate avg $ first averaging
 
 -- | return map generator with given height generator and without water
 pureMapGen :: HeiGenType -> MapGenType
-pureMapGen heigen = MapGenType heigen 0 NoWater
+pureMapGen heigen = MapGenType heigen 0 NoWater NoTraps
 
 -- | get random function like sin (ax + by + c) and new StdGen
 getSinFunc :: Float -> Float -> StdGen -> (Int -> Int -> Float, StdGen)
@@ -182,3 +188,14 @@ addSwampsToGen :: Int -> HeiGen -> MapGen
 addSwampsToGen maxh hgen g = (addSwamps maxh heis, g') where
 	(heis, g') = hgen g
 
+-- | add given terrain to a random place if this place is 'Empty'
+addRandomTerr :: Terrain -> MapGen -> MapGen
+addRandomTerr terr mgen g = 
+	if terrain cell == Empty
+	then (wmap A.// [((x, y), cell {terrain = terr})], g3)
+	else (wmap, g3)
+	where
+	(x, g1) = randomR (0, maxX) g
+	(y, g2) = randomR (0, maxY) g1
+	(wmap, g3) = mgen g2
+	cell = wmap A.! (x, y)

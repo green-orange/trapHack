@@ -145,9 +145,13 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 	mon = getFirst w
 	trap = terrain $ worldmap w A.! (x,y)
 	fireTrapped = (dmgRandomElem Fire (Just 8) mon $ stdgen w,
-			if name mon == "You"
-			then msgFireYou
-			else name mon ++ msgFire)
+		if name mon == "You"
+		then msgFireYou
+		else name mon ++ msgFire)
+	magicTrapped = ((newMon', g''), msgWand (title obj) (name mon)) where
+		(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
+		obj = wANDS !! ind
+		(newMon', g'') = act obj (mon, g')
 	((newMon, g), newMsg) = case trap of
 		FireTrap -> fireTrapped
 		Bonfire -> fireTrapped
@@ -155,11 +159,8 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 			if name mon == "You"
 			then msgPoisonYou
 			else name mon ++ msgPoison)
-		MagicTrap -> let
-			(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
-			obj = wANDS !! ind
-			(newMon', g'') = act obj (mon, g')
-			in ((newMon', g''), msgWand (title obj) (name mon))
+		MagicTrap -> magicTrapped
+		MagicNatural -> magicTrapped
 		_ -> ((mon, stdgen w), "")
 
 -- | call upon the new wave

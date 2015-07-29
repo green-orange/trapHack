@@ -19,13 +19,14 @@ rEDiNVERSE = 58
 
 -- | converts terrain to handle of a background color
 colorFromTerr :: Terrain -> Int
-colorFromTerr Empty      = 8  -- default
-colorFromTerr BearTrap   = 32 -- yellow
-colorFromTerr FireTrap   = 16 -- red
-colorFromTerr PoisonTrap = 56 -- green
-colorFromTerr MagicTrap  = 48 -- magenta
-colorFromTerr Water      = 40 -- blue
-colorFromTerr Bonfire    = 16 -- red
+colorFromTerr Empty        = 8  -- default
+colorFromTerr BearTrap     = 32 -- yellow
+colorFromTerr FireTrap     = 16 -- red
+colorFromTerr PoisonTrap   = 56 -- green
+colorFromTerr MagicTrap    = 48 -- magenta
+colorFromTerr Water        = 40 -- blue
+colorFromTerr Bonfire      = 16 -- red
+colorFromTerr MagicNatural = 48 -- magenta
 
 -- | converts cell to handle of a background color
 colorFromCell :: Cell -> Int

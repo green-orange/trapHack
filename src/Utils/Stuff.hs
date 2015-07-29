@@ -119,7 +119,7 @@ spawnBonfire (x, y) w = changeTerr x y newTerr w {stdgen = g'} where
 
 -- | can you untrap this?
 isUntrappable :: Cell -> Bool
-isUntrappable = (`notElem` [Empty, Water, Bonfire]). terrain
+isUntrappable = (`notElem` [Empty, Water, Bonfire, MagicNatural]). terrain
 
 -- | teleport you to a new safe world
 safety :: World -> World

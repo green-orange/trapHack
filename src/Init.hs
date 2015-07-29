@@ -78,21 +78,23 @@ getPlayer = Monster {
 showMapChoice :: IO MapGenType
 showMapChoice = do
 	putStrLn "Choose a map:"
-	putStrLn "a - sum of 30 sinuses, DEFAULT"
+	putStrLn "a - map with mountains and large valleys, DEFAULT"
 	putStrLn "b - flat map with height = 9"
 	putStrLn "c - averaged random map"
-	putStrLn "d - map with mountains and large valleys"
-	putStrLn "e - (g) with rivers"
-	putStrLn "f - (g) with swamps"
+	putStrLn "d - (a) with rivers"
+	putStrLn "e - (a) with swamps"
+	putStrLn "f - (a) with bonfires"
+	putStrLn "g - (a) with magic sources"
 	putStrLn "* - customize map"
 	c <- getLine
 	case c of
-		"a" -> return $ pureMapGen Sin30
+		"a" -> return $ pureMapGen Mountains
 		"b" -> return $ pureMapGen $ Flat 9
-		"c" -> return $ MapGenType Random 1 NoWater
-		"d" -> return $ pureMapGen Mountains
-		"e" -> return $ MapGenType Mountains 0 $ Rivers 50
-		"f" -> return $ MapGenType Mountains 0 $ Swamp 3
+		"c" -> return $ MapGenType Random 1 NoWater NoTraps
+		"d" -> return $ MapGenType Mountains 0 (Rivers 50) NoTraps
+		"e" -> return $ MapGenType Mountains 0 (Swamp 3) NoTraps
+		"f" -> return $ MapGenType Mountains 0 NoWater $ Bonfires 100
+		"g" -> return $ MapGenType Mountains 0 NoWater $ MagicMap 100 
 		"*" -> customMapChoice
 		_ ->  return $ pureMapGen Sin30
 
@@ -119,8 +121,17 @@ customMapChoice = do
 	when (waterStr == "c") $ putStrLn "Put depth of swamps (default: 3)"
 	waternum <-	if waterStr == "b" || waterStr == "c" then getLine
 		else return ""
+	putStrLn "Choose traps: "
+	putStrLn "a - without traps, DEFAULT"
+	putStrLn "b - bonfires"
+	putStrLn "c - magic sources"
+	trapStr <- getLine
+	when (trapStr == "b" || trapStr == "c")
+		$ putStrLn "Put count of traps (default: 100)"
+	trapnum <- if trapStr == "b" || trapStr == "c" then getLine
+		else return ""
 	return $ MapGenType (heigen heigenStr hei) (avg avgStr)
-		(water waterStr waternum)
+		(water waterStr waternum) (traps trapStr trapnum)
 	where
 		maybeReadNum :: Int -> String -> Int
 		maybeReadNum def [] = def
@@ -139,3 +150,8 @@ customMapChoice = do
 			"b" -> Rivers $ maybeReadNum 50 str2
 			"c" -> Swamp $ maybeReadNum 3 str2
 			_ -> NoWater
+		traps str1 str2 = case str1 of
+			"a" -> NoTraps
+			"b" -> Bonfires $ maybeReadNum 100 str2
+			"c" -> MagicMap $ maybeReadNum 100 str2
+			_ -> NoTraps

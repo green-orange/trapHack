@@ -230,7 +230,7 @@ data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 
 -- | type of the terrain (empty, water or some trap)
 data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap 
-	| Bonfire deriving (Eq)
+	| Bonfire | MagicNatural deriving (Eq)
 
 -- | item slot of the every part
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
@@ -242,11 +242,14 @@ data HeiGenType = Sin30 | Sin3 | Flat Int | Random | Mountains
 -- | number of height averaging
 type Avg = Int
 
--- | type of using water in the map
+-- | type of water using in the map
 data Water = NoWater | Rivers Int | Swamp Int deriving (Show, Read)
 
+-- | type of traps using in the map
+data TrapMap = NoTraps | Bonfires Int | MagicMap Int deriving (Show, Read)
+
 -- | full info about map generator
-data MapGenType = MapGenType HeiGenType Avg Water deriving (Show, Read)
+data MapGenType = MapGenType HeiGenType Avg Water TrapMap deriving (Show, Read)
 
 -- | number of slots
 sLOTS :: Int
@@ -300,6 +303,7 @@ instance Show Terrain where
 	show PoisonTrap = "poison trap"
 	show MagicTrap = "magic trap"
 	show Bonfire = "bonfire"
+	show MagicNatural = "magic source"
 
 instance Read Terrain where
 	readsPrec _ "" = [(Empty, "")]
@@ -309,6 +313,7 @@ instance Read Terrain where
 	readsPrec _ "magic trap" = [(MagicTrap, "")]
 	readsPrec _ "water" = [(Water, "")]
 	readsPrec _ "bonfire" = [(Bonfire, "")]
+	readsPrec _ "magic source" = [(MagicNatural, "")]
 	readsPrec _ t = error $ "parse error: Terrain " ++ t
 
 -- | symbol to separate fields in 'Monster' data
