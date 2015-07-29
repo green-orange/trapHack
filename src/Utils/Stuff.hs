@@ -103,7 +103,7 @@ stupidity mon = mon {ai = newAI} where
 
 -- | spawn bonfires on cell next to you with some probability
 spawnBonfires :: World -> World
-spawnBonfires w = foldr ($) w $ map spawnBonfire nears where
+spawnBonfires w = foldr spawnBonfires w nears where
 	x = xFirst w
 	y = yFirst w
 	d = [-1, 0, 1]
