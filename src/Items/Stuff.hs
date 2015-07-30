@@ -57,7 +57,7 @@ genDeathDrop = genDeathDropByAlph $ tail notAlphabet
 -- with given alphabet
 genDeathDropByAlph :: String -> [([Object], Float -> Int)] -> StdGen -> (Inv, StdGen)
 genDeathDropByAlph _ [] g = (M.empty, g)
-genDeathDropByAlph [] _ _ = error $ msgWE "genDeathDropByAlph"
+genDeathDropByAlph [] _ _ = putWE "genDeathDropByAlph"
 genDeathDropByAlph alph@(a:as) ((objs, f):xs) g =
 	case f p of
 		0 -> genDeathDropByAlph alph xs g'

@@ -136,7 +136,7 @@ zap world x y dx dy obj
 		if isPlayerNow world
 		then gREEN
 		else case isPlayer <$> M.lookup (x, y) (units world) of
-			Nothing    -> undefined
+			Nothing    -> putWE "zap"
 			Just False -> bLUE
 			Just True  -> rED
 
@@ -147,7 +147,7 @@ zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 -- | set a trap with given position in inventory
 trapFirst :: Char -> World -> (World, Bool)
 trapFirst c world
-	| not $ isCell x y = error $ msgWE "trapFirst"
+	| not $ isCell x y = putWE "trapFirst"
 	| not $ hasPart aRM oldMon =
 		(maybeAddMessage (msgNeedArms "set a trap") failWorld, False)
 	| isNothing objects = (maybeAddMessage msgNoItem failWorld, False)
@@ -168,7 +168,7 @@ trapFirst c world
 -- | remove a trap on the cell when you stand
 untrapFirst :: World -> (World, Bool)
 untrapFirst world 
-	| not $ isCell x y = error $ msgWE "untrapFirst"
+	| not $ isCell x y = putWE "untrapFirst"
 	| not $ hasPart aRM mon =
 		(maybeAddMessage (msgNeedArms "remove a trap") failWorld, False)
 	| not $ isUntrappable $ worldmap world A.! (x, y) =
@@ -239,7 +239,7 @@ fire x y dx dy obj world
 		if isPlayerNow world
 		then gREEN
 		else case isPlayer <$> M.lookup (x, y) (units world) of
-			Nothing    -> undefined
+			Nothing    -> putWE "fire"
 			Just False -> bLUE
 			Just True  -> rED
 
@@ -316,7 +316,7 @@ usePickAxe world x y dx dy obj
 		mon = getFirst world
 		invOld = inv mon
 		(invNew, ok) = case addInv (itemFromRes Stone, cnt) invOld of
-			Nothing -> (undefined, False)
+			Nothing -> (putWE "usePickAxe", False)
 			Just i -> (i, True)
 		newMon = decChargeByKey (prevAction world) mon {inv = invNew}
 	

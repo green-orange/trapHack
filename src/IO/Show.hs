@@ -52,7 +52,7 @@ drawUnit world ((x, y), mon) =
 	then unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, color2)
 		placeChar dx dy sym
-	else error $ msgWE "drawUnit"
+	else putWE "drawUnit"
 	where
 		attr
 			| x == xFirst world && y == yFirst world ||
@@ -76,7 +76,7 @@ drawCell world ((x, y), _) =
 	then unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, color')
 		placeChar dx dy sym
-	else error $ msgWE "drawCell"
+	else putWE "drawCell"
 	where
 		attr
 			| action world == Info && x == xInfo world && y == yInfo world
@@ -106,7 +106,7 @@ drawItem world(x, y, item, _) =
 	then unless (abs dx > xSight || abs dy > ySight) $ do
 		wAttrSet stdScr (attr, Pair $ colorFromCell $ worldmap world A.! (x,y))
 		placeChar dx dy $ symbolItem item 
-	else error $ msgWE "drawItem"
+	else putWE "drawItem"
 	where
 		dx = x - xFirst world
 		dy = y - yFirst world
@@ -271,7 +271,7 @@ drawCraft _ _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 drawSplit :: World -> Int -> IO ()
 drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 	mvWAddStr stdScr 0 0 (show $ numToSplit w) >>
-	drawJustWorld w undefined
+	drawJustWorld w (putWE "drawJustWorld")
 -- | draw options menu
 drawOptions :: World -> Int -> IO ()
 drawOptions _ _ = do

@@ -19,7 +19,7 @@ update :: Int -> Int -> Units -> Units
 update x' y' uns = 
 	if x' == xF uns && y' == yF uns
 	then case M.lookup (x', y') $ list uns of
-		Nothing -> error $ msgWE "update" 
+		Nothing -> putWE "update" 
 		Just mon -> uns {getFirst' = mon}
 	else uns
 
@@ -167,11 +167,11 @@ enchant n obj = obj {enchantment = enchantment obj + n}
 
 -- | change one element of a list with given index
 changeElem :: Int -> a -> [a] -> [a]
-changeElem _ _ [] = error $ msgWE "changeElem"
+changeElem _ _ [] = putWE "changeElem"
 changeElem x t (a:as)
 	| x == 0 = t : as
 	| x > 0 = a : changeElem (x - 1) t as
-	| otherwise = error $ msgWE "changeElem"
+	| otherwise = putWE "changeElem"
 
 -- | add item to list of items on the ground
 addItem' :: (Int, Int, Object, Int) -> [(Int, Int, Object, Int)] -> [(Int, Int, Object, Int)]

@@ -89,7 +89,7 @@ zapAI = fromJust . getterByCond isAttackWand
 
 -- | return index of stack of valid missiles
 missileAI :: World -> Char
-missileAI world = fromMaybe (error $ msgWE "missileAI") 
+missileAI world = fromMaybe (putWE "missileAI") 
 	$ listToMaybe $ filter (isValidMissile mon) alphabet where
 	mon = getFirst world
 

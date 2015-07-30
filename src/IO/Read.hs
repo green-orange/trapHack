@@ -133,7 +133,7 @@ instance Read Units where
 	readsPrec _ str = [(Units {
 		xF = xNew,
 		yF = yNew,
-		getFirst' = fromMaybe (error $ msgWE "Read Units") 
+		getFirst' = fromMaybe (putWE "Read Units") 
 			$ M.lookup (xNew, yNew) listNew,
 		list = listNew
 	}, "")] where

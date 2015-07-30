@@ -25,7 +25,7 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 	parts = zipWith ($) partGens [0..],
 	idM = id',
 	name = if id' >= 0 && id' < length monNames then monNames !! id'
-		else error $ msgWE "getMonster",
+		else putWE "getMonster",
 	stddmg = stddmg',
 	inv = newInv,
 	slowness = slow',
@@ -88,7 +88,7 @@ addMonsterFull gen (uns, g) =
 animate :: Int -> Int -> World -> World
 animate x y w = 
 	if isEmpty w x y && hp' > 0
-	then spawnMon (getDummy hp' undefined) x y $ w {items = newItems}
+	then spawnMon (getDummy hp' $ putWE "animate") x y $ w {items = newItems}
 	else w where
 		filterfun (x', y', _, _) = x == x' && y == y'
 		mapfun arg@(_, _, _, n) = 

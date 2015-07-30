@@ -8,6 +8,7 @@ import Monsters.Monsters
 import Monsters.MonsterList
 import Monsters.Forgotten
 import Monsters.AI
+import IO.Texts
 
 import System.Random (StdGen, randomR)
 import qualified Data.Map as M
@@ -15,7 +16,7 @@ import Data.Functor ((<$>))
 
 -- | get monster name from a generator
 nameFromGen :: MonsterGen -> String
-nameFromGen mgen = name $ fst $ mgen undefined
+nameFromGen mgen = name $ fst $ mgen $ putWE "nameFromGen"
 
 -- | add wave by given function
 addWaveBy :: ([MonsterGen] -> (Units, StdGen) -> (Units, StdGen)) 

@@ -57,7 +57,7 @@ attack :: Int -> Int -> Char -> World -> World
 attack x y c world = addMessage (newMsg, color) 
 	world {action = Move, units' = unitsNew, stdgen = newGen'} where
 	attacker = getFirst world
-	mon = fromMaybe (error $ msgWE "attack") $ M.lookup (x, y) $ units world
+	mon = fromMaybe (putWE "attack") $ M.lookup (x, y) $ units world
 	color = 
 		if isPlayerNow world
 		then case newDmg of
@@ -86,7 +86,7 @@ attack x y c world = addMessage (newMsg, color)
 maybeUpgrade :: Int -> Int -> World -> World
 maybeUpgrade x y w = changeMon monFirst $ addLevelUpMessages w {stdgen = gen} where
 	attacker = getFirst w
-	mon = fromMaybe (error $ msgWE "maybeUpgrade") $ M.lookup (x, y) $ units w
+	mon = fromMaybe (putWE "maybeUpgrade") $ M.lookup (x, y) $ units w
 	(monFirst, lvls, gen) = if alive mon then (attacker, 0, stdgen w) else
 		xpUp (stdgen w) attacker mon
 	addLevelUpMessages = foldr (.) id $ replicate lvls 
@@ -101,7 +101,7 @@ attackElem elem' dx dy w = addMessage (newMsg, color)
 	yNow = yFirst w
 	xNew = xNow + dx
 	yNew = yNow + dy
-	mon = fromMaybe (error $ msgWE "attackElem") 
+	mon = fromMaybe (putWE "attackElem") 
 		$ M.lookup (xNew, yNew) $ units w
 	color = case ai mon of
 		You -> case newDmg of

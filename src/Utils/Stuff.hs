@@ -82,7 +82,7 @@ fireAround d pair w = spawnBonfires $ addMessages newMsgs
 	newMons = mapU (fireDmg g) $ units' w
 	isClose ((x, y), _) = abs (x - xNow) <= d && abs (y - yNow) <= d
 	fireDmg gen (x, y) mon = 
-		if isClose ((x, y), undefined)
+		if isClose ((x, y), putWE "fireAround")
 		then fst $ dmgRandomElem Fire (Just newDmg) mon gen
 		else mon
 	msg (_,mon) = 
@@ -103,7 +103,7 @@ stupidity mon = mon {ai = newAI} where
 
 -- | spawn bonfires on cell next to you with some probability
 spawnBonfires :: World -> World
-spawnBonfires w = foldr spawnBonfires w nears where
+spawnBonfires w = foldr spawnBonfire w nears where
 	x = xFirst w
 	y = yFirst w
 	d = [-1, 0, 1]
