@@ -178,9 +178,12 @@ showTemp world t =
 	Just rez = value
 	str = show t ++ " (" ++ show rez ++ ")"
 	clr = colorFromTemp t rez
+
 -- | show one craft recipe
-showRecipe :: Recipe -> Int -> IO ()
-showRecipe (ress, rez) y = mvWAddStr stdScr y 0 str where
+showRecipe :: Inv -> Recipe -> Int -> IO ()
+showRecipe inv' (ress, rez) y = 
+	wAttrSet stdScr (attr0, Pair $ colorFromRecipe inv' ress) >>
+	mvWAddStr stdScr y 0 str where
 	str = toEnum (fromEnum 'a' + y - 1) : " - " 
 		++ concatMap resToStr ress ++ "=> " ++ title rez
 	resToStr (r, cnt) = show cnt ++ " * " ++ show r ++ " "
@@ -264,9 +267,9 @@ drawJustWorld world _ = do
 		mon = getFirst world
 -- | draw list of all recipes
 drawCraft :: World -> Int -> IO ()
-drawCraft _ _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
+drawCraft w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
 	mvWAddStr stdScr 0 0 msgHeaderCraft >>
-	zipWithM_ showRecipe recipes [1..]
+	zipWithM_ (showRecipe $ inv $ getFirst w) recipes [1..]
 -- | draw split menu
 drawSplit :: World -> Int -> IO ()
 drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>

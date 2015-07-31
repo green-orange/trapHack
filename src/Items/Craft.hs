@@ -8,8 +8,10 @@ import Items.Stuff
 import Items.ItemsOverall
 import IO.Messages
 import IO.Texts
+import IO.Colors
 
 import qualified Data.Map as M
+import Data.Maybe (isJust)
 
 -- | remove given resource from inventory if it's possible
 -- else return Nothing
@@ -49,6 +51,15 @@ maybeRunRecipe (ress, rez) w =
 -- | list of recipes
 recipes :: [Recipe]
 recipes = [recWoodenSword, recStoneSword, recPickAxe]
+
+-- | is given recipe available
+isAvailableRecipe :: Inv -> [(ResourceType, Int)] -> Bool
+isAvailableRecipe inv' ress = isJust $ foldr ((=<<) . uncurry remRess)
+	(Just inv') ress
+
+colorFromRecipe :: Inv -> [(ResourceType, Int)] -> Int
+colorFromRecipe inv' ress = if ok then gREEN else dEFAULT where
+	ok = isAvailableRecipe inv' ress
 
 recWoodenSword, recStoneSword, recPickAxe :: Recipe
 recWoodenSword = ([(Tree, 3)], woodenSword)
