@@ -14,32 +14,32 @@ import IO.Texts
 import Control.Monad ((>=>))
 import qualified Data.Set as S
 import qualified Data.Map as M
-import Data.Maybe (isNothing, fromJust)
 import Data.Char (isDigit)
 import Data.Functor ((<$>))
 
 -- | drop an item with given position in inventory;
 -- ignore messages if third argument is True
 dropFirst :: Char -> World -> Bool -> (World, Bool)
-dropFirst c world ignoreMessages
-	| isNothing objects = 
-		(maybeAddMessage msgNoItem world {action = Move}, False)
-	| isExistingBindingFirst world c && alive (getFirst world) = 
-		(maybeAddMessage msgDropEquipped world {action = Move}, False)
-	| otherwise = 
-		(changeMon mon $ addNeutralMessage newMsg $ addItem (x, y, obj, cnt) 
-		world {action = Move}, True) where
-	objects = M.lookup c $ inv $ getFirst world
-	(obj, cnt) = fromJust objects
-	x = xFirst world
-	y = yFirst world
-	oldmon = getFirst world
-	mon = delAllObj c oldmon
-	newMsg =
-		if ignoreMessages
-		then ""
-		else name (getFirst world) ++ " drop" ++ ending world 
-			++ titleShow obj ++ "."
+dropFirst c world ignoreMessages =
+	case objects of
+		Nothing -> (maybeAddMessage msgNoItem world {action = Move}, False)
+		Just (obj, cnt) ->
+			if isExistingBindingFirst world c && alive (getFirst world)
+			then (maybeAddMessage msgDropEquipped world {action = Move}, False)
+			else let
+				newMsg =
+					if ignoreMessages
+					then ""
+					else name (getFirst world) ++ " drop" ++ ending world 
+						++ titleShow obj ++ "."
+			in (changeMon mon $ addNeutralMessage newMsg
+				$ addItem (x, y, obj, cnt) world {action = Move}, True)
+	where
+		objects = M.lookup c $ inv $ getFirst world
+		x = xFirst world
+		y = yFirst world
+		oldmon = getFirst world
+		mon = delAllObj c oldmon
 
 -- | drop all items in the inventory of current monster
 dropAll :: World -> World
@@ -141,48 +141,52 @@ split f (x:xs) =
 
 -- | binds item with given position in the inventory to a changed body part
 bindFirst :: Char -> World -> (World, Bool)
-bindFirst c w 
-	| c == '-' =
-		(changeMon (remEffect mon {parts = newPartsSpace}) newWorld, True)
-	| isNothing objects =
-		(maybeAddMessage msgNoItem newWorld, False)
-	| isNothing maybeNewSlot || newSlot /= slot w =
-		(maybeAddMessage msgWrongBind newWorld, False)
-	| isExistingBindingFirst w c =
-		(maybeAddMessage msgRepeatedBind
-		newWorld, False)
-	| otherwise = (addNeutralMessage msg $ changeMon 
-		(newMon {parts = newParts}) newWorld, True) where
-	objects = M.lookup c $ inv mon
-	maybeNewSlot = binds obj $ kind part
-	Just newSlot = maybeNewSlot
-	(obj, _) = fromJust objects
-	newWorld = w {action = Move}
-	mon = getFirst w
-	part = parts mon !! shift w
-	change part' = 
-		if idP part == idP part'
-		then part' {objectKeys = changeElem (fromEnum newSlot) 
-			c $ objectKeys part}
-		else part'
-	changeSpace part' =
-		if idP part == idP part'
-		then part' {objectKeys = changeElem (fromEnum $ slot w) ' '
-			$ objectKeys part}
-		else part'
-	remEffect = 
-		case M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon of
-			Nothing -> id
-			Just (obj',_) -> effectOff obj' $ enchantment obj'
-	addEffect = 
-		if isJewelry obj
-		then effectOn obj $ enchantment obj
-		else id
-	newMon = remEffect $ addEffect mon
-	newParts = change <$> parts mon
-	newPartsSpace = changeSpace <$> parts mon
-	msg = name mon ++ " begin" ++ ending w 
-		++ "to use " ++ title obj ++ "!"
+bindFirst c w =
+	if c == '-'
+	then (changeMon (remEffect mon {parts = newPartsSpace}) newWorld, True)
+	else case objects of
+		Nothing -> (maybeAddMessage msgNoItem newWorld, False)
+		Just (obj, _) -> let
+			maybeNewSlot = binds obj $ kind part
+			addEffect = 
+				if isJewelry obj
+				then effectOn obj $ enchantment obj
+				else id				
+			msg = name mon ++ " begin" ++ ending w 
+				++ "to use " ++ title obj ++ "!"
+			newMon = remEffect $ addEffect mon
+			in case maybeNewSlot of 
+			Nothing -> (maybeAddMessage msgWrongBind newWorld, False)
+			Just newSlot -> 
+				let
+				change part' = 
+					if idP part == idP part'
+					then part' {objectKeys = changeElem (fromEnum newSlot) 
+						c $ objectKeys part}
+					else part'	
+				newParts = change <$> parts mon
+				in
+				if newSlot /= slot w
+				then (maybeAddMessage msgWrongBind newWorld, False)
+				else if isExistingBindingFirst w c
+				then (maybeAddMessage msgRepeatedBind newWorld, False)
+				else (addNeutralMessage msg $ changeMon 
+					(newMon {parts = newParts}) newWorld, True)
+	where
+		objects = M.lookup c $ inv mon
+		newWorld = w {action = Move}
+		mon = getFirst w
+		part = parts mon !! shift w
+		changeSpace part' =
+			if idP part == idP part'
+			then part' {objectKeys = changeElem (fromEnum $ slot w) ' '
+				$ objectKeys part}
+			else part'
+		remEffect = 
+			case M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon of
+				Nothing -> id
+				Just (obj',_) -> effectOff obj' $ enchantment obj'
+		newPartsSpace = changeSpace <$> parts mon
 
 -- | binds an item with index 'c' to slot 'sl' and part 'ind'
 bindMon :: Slot -> Char -> Int -> World -> World
@@ -207,17 +211,18 @@ addNumber c w =
 
 -- | split stack of items where index is 'prevAction' and count is 'numToSplit'
 splitFirst :: World -> World
-splitFirst w
-	| isNothing maybeObj = maybeAddMessage msgNoItem w
-	| M.size (inv mon) == length alphabet = maybeAddMessage msgFullInv w
-	| pile > n = maybeAddMessage msgNotEnough w
-	| pile == n || pile == 0 = w
-	| otherwise = changeMon (mon {inv = newInv}) w
+splitFirst w =
+	case maybeObj of
+		Nothing -> maybeAddMessage msgNoItem w
+		Just (obj, n) -> case addInvWithAlphabet alphabet
+			(M.insert (prevAction w) (obj, n - pile) $ inv mon) (obj, pile) of
+				Nothing -> maybeAddMessage msgFullInv w
+				Just newInv
+					| pile > n -> maybeAddMessage msgNotEnough w
+					| pile == n || pile == 0 -> w
+					| otherwise -> changeMon (mon {inv = newInv}) w
 	where
-	mon = getFirst w
-	pile = numToSplit w
-	maybeObj = M.lookup (prevAction w) $ inv mon
-	Just (obj, n) = maybeObj
-	Just newInv = addInvWithAlphabet alphabet (M.insert (prevAction w) 
-		(obj, n - pile) $ inv mon) (obj, pile)
+		mon = getFirst w
+		pile = numToSplit w
+		maybeObj = M.lookup (prevAction w) $ inv mon
 	

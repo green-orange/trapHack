@@ -3,7 +3,7 @@ module IO.Colors where
 import Data.Define
 
 import UI.HSCurses.Curses
-import Data.Maybe (fromJust)
+import Data.Maybe (catMaybes)
 import Data.Functor ((<$>))
 
 -- | constants with handles of foreground colors
@@ -68,8 +68,8 @@ colorFromTemp Stun _ = rED
 initColors :: IO ()
 initColors = sequence_ actions where
 	colorList = ["red", "green", "yellow", "blue", "magenta", "cyan", "white"]
-	colorListFore = defaultForeground : (fromJust . color <$> colorList)
-	colorListBack = defaultBackground : (fromJust . color <$> colorList)
+	colorListFore = defaultForeground : catMaybes (color <$> colorList)
+	colorListBack = defaultBackground : catMaybes (color <$> colorList)
 	bindColor n = initPair (Pair n) (colorListFore !! mod (n-1) 8) (colorListBack !! div (n-1) 8)
 	actions = bindColor <$> [1..64]
 

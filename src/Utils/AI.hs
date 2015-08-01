@@ -64,14 +64,16 @@ foodAI = fromJust . getterByCond isFood
 
 -- | can this monster use given missile with current launcher?
 isValidMissile :: Monster -> Char -> Bool
-isValidMissile mon c = 
-	isJust objs && isMissile obj && not (null intended) where
+isValidMissile mon c = case objs of
+	Nothing -> False
+	Just (obj, _) ->
+		let intended = filter (\w -> launcher obj == category w) launchers
+		in isMissile obj && not (null intended)
+	where
 		objs = M.lookup c $ inv mon
-		obj = fst $ fromJust objs
-		launchers = filter isLauncher $ (fst . fromJust) <$> filter isJust 
+		launchers = filter isLauncher $ fst <$> catMaybes
 			((flip M.lookup (inv mon) . (\p -> objectKeys p 
 			!! fromEnum WeaponSlot)) <$> parts mon)
-		intended = filter (\w -> launcher obj == category w) launchers
 
 -- | have this monster any launcher?
 haveLauncher :: Monster -> Bool

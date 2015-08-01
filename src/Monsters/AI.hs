@@ -17,7 +17,6 @@ import IO.Colors
 import IO.Texts
 
 import System.Random (randomR, StdGen)
-import Data.Maybe (fromJust, isNothing, isJust)
 import qualified Data.Map as M
 import Data.List (minimumBy)
 import Data.Function (on)
@@ -110,7 +109,9 @@ zapAttackAI f xPlayer yPlayer p w =
 pickAI :: AIfunc -> AIfunc
 pickAI f x y p w =
 	if isItemHere w
-	then fromJust $ fst $ pickFirst $ foldr changeChar w alphabet
+	then case pickFirst $ foldr changeChar w alphabet of
+		(Nothing, _) -> putWE "pickAI"
+		(Just rez, _) -> rez
 	else f x y p w
 
 -- | monster can fire all missiles
@@ -246,16 +247,20 @@ randomAI _ _ _ w  = fst $ moveFirst rx ry newWorld where
 -- it move to cell with tail
 wormAI :: AIfunc
 wormAI xPlayer yPlayer _ w = 
-	(if isNothing maybeMon && isSafe w xNow yNow dx dy
-	then spawnMon tailWorm xNow yNow . fst . moveFirst dx dy
-	else if isJust maybeMon && name mon == "Tail" && p < 0.2
-	then killFirst
-	else fst . moveFirst dx dy) w {stdgen = g} where
+	(case maybeMon of
+		Nothing ->
+			if isSafe w xNow yNow dx dy
+			then spawnMon tailWorm xNow yNow . fst . moveFirst dx dy
+			else fst . moveFirst dx dy
+		Just mon ->
+			if name mon == "Tail" && p < 0.2
+			then killFirst
+			else fst . moveFirst dx dy) w {stdgen = g}
+	where
 		(xNow, yNow, dx, dy) = coordsFromWorld xPlayer yPlayer w
 		xNew = xNow + dx
 		yNew = yNow + dy
 		maybeMon = M.lookup (xNew, yNew) (units w)
-		Just mon = maybeMon
 		p :: Float
 		(p, g) = randomR (0.0, 1.0) $ stdgen w
 
@@ -269,7 +274,9 @@ tailWorm = getMonster (getPureAI NothingAI) [(getMain 0, (100, 200))]
 collectorAI :: AIfunc
 collectorAI _ _ _ world = 
 	if isItemHere world
-	then fromJust $ fst $ pickFirst $ foldr changeChar world alphabet
+	then case pickFirst $ foldr changeChar world alphabet of
+		(Nothing, _) -> putWE "collectorAI"
+		(Just rez, _) -> rez
 	else stupidAI xItem yItem False world
 	where
 		(xItem, yItem, _, _) = 
@@ -287,9 +294,10 @@ golemAI _ _ _ world = case nears of
 	where
 		xNow = xFirst world
 		yNow = yFirst world
-		needToAttack (dx, dy) = isJust mons && isEnemy mon where
-			mons = M.lookup (xNow + dx, yNow + dy) $ units world
-			Just mon = mons
+		needToAttack (dx, dy) = 
+			case M.lookup (xNow + dx, yNow + dy) $ units world of
+				Nothing -> False
+				Just mon -> isEnemy mon
 		d = [-1, 0, 1]
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
 

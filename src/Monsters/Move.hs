@@ -16,7 +16,7 @@ import IO.Texts
 
 import qualified Data.Map as M
 import qualified Data.Array as A
-import Data.Maybe (fromJust, isNothing, fromMaybe)
+import Data.Maybe (fromMaybe)
 import System.Random (randomR)
 
 -- | move the current monster with given direction
@@ -71,9 +71,13 @@ attack x y c world = addMessage (newMsg, color)
 			_ -> bLUE
 	weapons = M.lookup c (inv attacker)
 	dmggen = 
-		if isNothing weapons || not (isWeapon $ fst $ fromJust weapons)
-		then uncurry dices $ stddmg attacker
-		else objdmg $ fst $ fromJust weapons
+		let withoutWeapons = uncurry dices $ stddmg attacker in
+		case weapons of
+			Nothing -> withoutWeapons
+			Just (weap, _) -> 
+				if not (isWeapon weap)
+				then withoutWeapons
+				else objdmg weap
 	(newDmg, newGen) =  dmggen world
 	newMsg = case newDmg of
 		Nothing -> name attacker ++ msgMiss

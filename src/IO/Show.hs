@@ -166,18 +166,18 @@ showIntr world i =
 showTemp :: World -> Temp -> IO ()
 showTemp world t = 
 	case value of
-	Nothing -> return ()
-	_ -> wAttrSet stdScr (attr0, Pair clr) >>
-		mvWAddStr stdScr (shiftDown + shiftElem + 2 + elems + intrs + pos) 
-		shiftAttrs str
+		Nothing -> return ()
+		Just rez -> let
+				str = show t ++ " (" ++ show rez ++ ")"
+				clr = colorFromTemp t rez
+			in wAttrSet stdScr (attr0, Pair clr) >>
+				mvWAddStr stdScr (shiftDown + shiftElem + 2 + elems
+				+ intrs + pos) shiftAttrs str
 	where
 	elems = fromEnum (maxBound :: Elem) - fromEnum (minBound :: Elem)
 	intrs = fromEnum (maxBound :: Intr) - fromEnum (minBound :: Intr)
 	pos = fromEnum t
 	value = temp (getFirst world) !! pos
-	Just rez = value
-	str = show t ++ " (" ++ show rez ++ ")"
-	clr = colorFromTemp t rez
 
 -- | show one craft recipe
 showRecipe :: Inv -> Recipe -> Int -> IO ()

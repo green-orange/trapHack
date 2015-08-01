@@ -16,7 +16,7 @@ import IO.Texts
 import MapGen
 
 import System.Random (StdGen, randomR, Random)
-import Data.Maybe (isJust, fromJust)
+import Data.Maybe (catMaybes)
 import Control.Applicative ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
@@ -29,8 +29,8 @@ unrandom f (a, x) = (f a, x)
 -- | remove died part and effect of jewelry on them
 cleanParts :: Monster -> Monster
 cleanParts mon = delEffects $ mon {parts = filter aliveP $ parts mon}
-	where delEffects = foldr (((.) . (\ (obj, _) -> effectOff obj 
-		$ enchantment obj)) . fromJust) id $ filter isJust 
+	where delEffects = foldr ((.) . (\ (obj, _) -> effectOff obj 
+		$ enchantment obj)) id $ catMaybes
 		$ (flip M.lookup (inv mon) . (\ p -> objectKeys p 
 		!! fromEnum JewelrySlot)) <$> filter (not . aliveP) (parts mon)
 
