@@ -23,7 +23,7 @@ import System.Random (randomR)
 moveFirst :: Int -> Int -> World -> (World, Bool)
 moveFirst dx dy world
 	| not $ isCell (x + dx) (y + dy)
-		= (addNeutralMessage msgIncStep world, True)
+		= (maybeAddMessage msgIncStep world, True)
 	| not (isEmpty world xNew yNew) && (dx /= 0 || dy /= 0)
 		= (maybeUpgrade xNew yNew $ foldr (attack xNew yNew . 
 		(\ p -> objectKeys p !! fromEnum WeaponSlot))
