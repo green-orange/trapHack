@@ -33,8 +33,7 @@ deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)
 deathDrop "Spider" = genDeathDrop [(jEWELRY, bound [0.6])]
 deathDrop "Umber hulk" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Tree" = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareList)]
--- TODO deathDrop "Bot"
--- TODO deathDrop "Bee"
+deathDrop "Bot" = genDeathDrop [([itemFromRes MetalScrap], bound [0.7])]
 deathDrop _ = \p -> (M.empty, p)
 
 -- | generate drop for all dragons
@@ -211,10 +210,11 @@ bow = getLauncher "bow" 30 2 "bow" 1
 
 longbow = getLauncher "longbow" 40 3 "bow" 2
 
-dagger, shortsword, sword, crysknife, woodenSword, stoneSword :: Object
+dagger, shortsword, sword, crysknife, woodenSword, stoneSword, crowbar :: Object
 
 uNIQUEwEAPONS :: [Object]
-uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife, woodenSword, stoneSword]
+uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife, woodenSword, 
+	stoneSword, crowbar]
 wEAPONS :: [Object]
 wEAPONS = 
 	replicate 4 dagger ++
@@ -225,17 +225,19 @@ getWeapon :: String -> Int -> Int -> StdDmg -> Object
 getWeapon t w id' o = Weapon {title = t, objdmg' = o, enchantment = 0, 
 	weight' = w, idO = id'}
 
-dagger = getWeapon "dagger" 10 0 $ dices (1,12) 0.0           -- avg = 6.5
+dagger      = getWeapon "dagger"       10 0 $ dices (1,12) 0.0 -- avg =  6.5
 
-shortsword = getWeapon "shortsword" 30 1 $ dices (2,8) 0.1    -- avg = 8.1
+shortsword  = getWeapon "shortsword"   30 1 $ dices (2, 8) 0.1 -- avg =  8.1
 
-sword = getWeapon "sword" 40 2 $ dices (2,10) 0.1             -- avg = 9.9
+sword       = getWeapon "sword"        40 2 $ dices (2,10) 0.1 -- avg =  9.9
 
-crysknife = getWeapon "crysknife" 20 3 $ dices (5,5) 0.0      -- avg = 15
+crysknife   = getWeapon "crysknife"    20 3 $ dices (5, 5) 0.0 -- avg = 15.0
 
-woodenSword = getWeapon "wooden sword" 20 4 $ dices (2,7) 0.3 -- avg = 5.6
+woodenSword = getWeapon "wooden sword" 20 4 $ dices (2, 7) 0.3 -- avg =  5.6
 
-stoneSword = getWeapon "stone sword" 50 5 $ dices (2,9) 0.2   -- avg = 8
+stoneSword  = getWeapon "stone sword"  50 5 $ dices (2, 9) 0.2 -- avg =  8.0
+
+crowbar     = getWeapon "crowbar"      30 6 $ dices (2, 8) 0.0 -- avg =  9.0
 
 uNIQUEaRMOR, uNIQUEhELMS, uNIQUEgLOVES, uNIQUEbOOTS :: [Object]
 aRMOR, bODYaRMOR, hELMETS, gLOVES, bOOTS :: [Object]

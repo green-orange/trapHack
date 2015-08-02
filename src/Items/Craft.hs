@@ -61,7 +61,8 @@ colorFromRecipe :: Inv -> [(ResourceType, Int)] -> Int
 colorFromRecipe inv' ress = if ok then gREEN else dEFAULT where
 	ok = isAvailableRecipe inv' ress
 
-recWoodenSword, recStoneSword, recPickAxe :: Recipe
+recWoodenSword, recStoneSword, recPickAxe, recCrowbar :: Recipe
 recWoodenSword = ([(Tree, 3)], woodenSword)
 recStoneSword = ([(Stone, 2), (Tree, 1)], stoneSword)
 recPickAxe = ([(Stone, 3), (Tree, 2)], pickAxe)
+recCrowbar = ([(MetalScrap, 1)], crowbar)

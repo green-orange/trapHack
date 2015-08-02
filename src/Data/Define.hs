@@ -193,7 +193,18 @@ data ShowMode = ColorHeight | ColorHeightAbs | ColorMonsters | NoHeight
 	deriving (Eq)
 
 -- | type of the resource
-data ResourceType = Tree | Stone deriving (Eq, Show, Read)
+data ResourceType = Tree | Stone | MetalScrap deriving (Eq)
+
+instance Show ResourceType where
+	show Tree = "tree"
+	show Stone = "stone"
+	show MetalScrap = "metal scrap"
+
+instance Read ResourceType where
+	readsPrec _ "tree" = [(Tree, "")]
+	readsPrec _ "stone" = [(Stone, "")]
+	readsPrec _ "metal scrap" = [(MetalScrap, "")]
+	readsPrec _ r = error $ "Parse error: ResourceType" ++ r
 
 -- | type of the tool
 data ToolType = PickAxe deriving (Eq)
