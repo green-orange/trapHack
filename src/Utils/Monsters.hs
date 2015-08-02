@@ -34,12 +34,13 @@ levelM "Soldier"         = 9
 levelM "Umber hulk"      = 7
 levelM "Tree"            = 2
 levelM "Bot"             = 2
+levelM "Bee"             = 2
 levelM _                 = 0
 
 nOTsOLDIERS, nOTeNEMIES :: [String]
 
 -- | names of monsters who doesn't attack you specially
-nOTsOLDIERS = nOTeNEMIES ++ ["Bat", "Ivy", "Worm"]
+nOTsOLDIERS = nOTeNEMIES ++ ["Homunculus", "Bat", "Ivy", "Worm"]
 -- | can this monster attack you specially?
 isSoldier :: Monster -> Bool
 isSoldier mon = not $ isPlayer mon || elem (name mon) nOTsOLDIERS

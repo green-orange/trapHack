@@ -99,4 +99,5 @@ symbolMon "Soldier"           = ('@', yELLOW)
 symbolMon "Umber hulk"        = ('U', yELLOW)
 symbolMon "Tree"              = ('Y', gREEN)
 symbolMon "Bot"               = ('b', cYAN)
+symbolMon "Bee"               = ('b', yELLOW)
 symbolMon _                   = error "unknown monster"

@@ -34,6 +34,7 @@ deathDrop "Spider" = genDeathDrop [(jEWELRY, bound [0.6])]
 deathDrop "Umber hulk" = genDeathDrop [(wANDS, bound [0.6])]
 deathDrop "Tree" = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareList)]
 -- TODO deathDrop "Bot"
+-- TODO deathDrop "Bee"
 deathDrop _ = \p -> (M.empty, p)
 
 -- | generate drop for all dragons

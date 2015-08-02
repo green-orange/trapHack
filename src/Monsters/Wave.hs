@@ -53,7 +53,7 @@ genWave n g
 	gens = [getHomunculus, getBeetle, getBat, getHunter, getIvy,
 		getAccelerator, getTroll, getWorm, getFloatingEye, getRedDragon, 
 		getWhiteDragon, getGreenDragon, getForgottenBeast, getSpider, 
-		getSoldier, getUmberHulk, getTree, getBot]
+		getSoldier, getUmberHulk, getTree, getBot, getBee]
 	genM = gens !! ind
 	d = levelM $ nameFromGen genM
 	(oldWave, g'') = genWave (n - d) g'
