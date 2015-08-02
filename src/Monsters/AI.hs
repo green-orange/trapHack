@@ -218,8 +218,7 @@ stupidFooAI foo xPlayer yPlayer peace w = newWorld where
 			in (rx, ry, g'')
 	newWorld = foo dx' dy' peace w {stdgen = newStdGen}
 
--- | very stupid AI only for Homunculus;
--- it can move only directly to you
+-- | very stupid AI: monster can move only directly to you
 stupidestAI :: AIfunc
 stupidestAI xPlayer yPlayer peace w = 
 	newWorld
@@ -231,6 +230,7 @@ stupidestAI xPlayer yPlayer peace w =
 		(dx', dy') = 
 			if isValidAndSafe w xNow yNow dx dy
 				|| not (isValid w xNow yNow dx dy) && not peace
+				|| isFlying (getFirst w)
 			then (dx, dy)
 			else (0, 0)
 		newWorld = fst $ moveFirst dx' dy' w
