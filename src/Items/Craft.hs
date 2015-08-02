@@ -50,7 +50,7 @@ maybeRunRecipe (ress, rez) w =
 
 -- | list of recipes
 recipes :: [Recipe]
-recipes = [recWoodenSword, recStoneSword, recPickAxe]
+recipes = [recWoodenSword, recStoneSword, recPickAxe, recCrowbar]
 
 -- | is given recipe available
 isAvailableRecipe :: Inv -> [(ResourceType, Int)] -> Bool
