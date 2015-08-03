@@ -3,6 +3,7 @@ module IO.Read where
 import Data.Define
 import Data.Const
 import Items.Stuff
+import Monsters.Monsters
 import IO.Colors
 import IO.Texts
 

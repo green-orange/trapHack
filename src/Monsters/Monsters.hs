@@ -15,6 +15,13 @@ import System.Random (StdGen, randomR)
 import qualified Data.Map as M
 import Data.Functor ((<$>))
 
+-- | list of monster names sorted by ID
+monNames :: [String]
+monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
+	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
+	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
+	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot", "Bee"]
+
 -- | get monster by Ai representation, list of part getters and hps,
 -- id, damage getter, inventory generator, slowness, start nutrition
 -- and random number generator

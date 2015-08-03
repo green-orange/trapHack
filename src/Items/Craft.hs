@@ -56,13 +56,17 @@ recipes = [recWoodenSword, recStoneSword, recPickAxe, recCrowbar]
 isAvailableRecipe :: Inv -> [(ResourceType, Int)] -> Bool
 isAvailableRecipe inv' ress = isJust $ foldr ((=<<) . uncurry remRess)
 	(Just inv') ress
-
+-- | color to show given recipe
 colorFromRecipe :: Inv -> [(ResourceType, Int)] -> Int
 colorFromRecipe inv' ress = if ok then gREEN else dEFAULT where
 	ok = isAvailableRecipe inv' ress
 
 recWoodenSword, recStoneSword, recPickAxe, recCrowbar :: Recipe
+-- | wooden sword is your first and weakest weapon
 recWoodenSword = ([(Tree, 3)], woodenSword)
+-- | stone sword if more adequate weapon
 recStoneSword = ([(Stone, 2), (Tree, 1)], stoneSword)
+-- | craft this useful tool when your first pickaxe will broken
 recPickAxe = ([(Stone, 3), (Tree, 2)], pickAxe)
+-- | enough powerful weapon from strange metal scrap
 recCrowbar = ([(MetalScrap, 1)], crowbar)

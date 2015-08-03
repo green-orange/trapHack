@@ -5,13 +5,6 @@ import qualified Data.Array as A
 import System.Random (StdGen)
 import Data.Set (Set)
 
--- | list of monster names sorted by ID
-monNames :: [String]
-monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
-	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
-	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
-	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot", "Bee"]
-
 -- | separators used to read/write lists in the save
 listSepMon, listSepW, listSepUn :: Char
 listSepMon = '&'
