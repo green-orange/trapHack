@@ -18,9 +18,10 @@ import IO.Colors
 import IO.Texts
 
 import Data.Set (empty)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, fromMaybe)
 import System.Random (randomR)
 import Data.Char (isSpace)
+import Data.Functor ((<$>))
 
 -- | converts a char from the player to some action or end of game
 step :: World -> Char -> Either World String
@@ -55,10 +56,8 @@ step world c
 				else Left world
 			DropMany ->
 				if isSpace c
-				then case dropManyFirst world of
-					Nothing ->
-						Left $ world {action = Move, chars = empty}
-					Just w -> Left $ newWaveIf w
+				then Left $ fromMaybe (world {action = Move, chars = empty})
+					$ changeChar c <$> dropManyFirst world
 				else Left $ changeChar c world
 			Pick ->
 				if isSpace c

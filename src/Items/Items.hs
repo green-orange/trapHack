@@ -239,10 +239,9 @@ fire x y dx dy obj world =
 			let
 			(newDmg, g) = objdmg obj world
 			(newMon, g') = dmgRandom newDmg mon g
-			msg = case newDmg of
-				Nothing -> capitalize (title obj) ++ msgMiss
-				Just _ -> capitalize (title obj) ++ msgHitMissile
-					++ name mon ++ "."
+			msg = capitalize (title obj) ++ case newDmg of
+				Nothing -> msgMiss
+				Just _ -> msgHitMissile ++ name mon ++ "."
 			newWorld = addMessage (msg, color)
 				world {units' = insertU (x, y) newMon $ units' world,
 				stdgen = g'}
