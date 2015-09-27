@@ -96,7 +96,9 @@ instance Read Object where
 			| bind' == aRM -> (uNIQUErINGS !! id') ench'
 			| otherwise -> error $ "parse error: part: " ++ show bind'
 		"Food" -> Food {title = read arg2, nutrition = read arg3, 
-			weight' = read arg4, rotRate = read arg5, rotTime = read arg6}
+			weight' = read arg4, rotRate = read arg5, rotTime = read arg6,
+			idO = read arg7, effect = if isBerry' then effect 
+			$ bERRIES !! read arg7 else id, isBerry = isBerry'}
 		"Resource" -> Resource {title = arg2, restype = read arg2}
 		"Tool" -> (tOOLS !! id') {charge = ench'}
 		_ -> error $ "parse error: " ++ str, "")]
@@ -105,7 +107,8 @@ instance Read Object where
 		arg1 : arg2 : rest = parse
 		arg3 : rest' = rest
 		arg4 : rest'' = rest'
-		arg5 : arg6 : _ = rest''
+		arg5 : arg6 : arg7 : _ = rest''
+		isBerry' = arg7 /= "-1"
 		id', bind', ench' :: Int
 		id' = read arg2
 		ench' = read arg3

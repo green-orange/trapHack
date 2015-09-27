@@ -141,7 +141,8 @@ data Object =
 		rotRate :: Int,
 		rotTime :: Int,
 		effect :: Monster -> Monster,
-		isBerry :: Bool
+		isBerry :: Bool,
+		idO :: Int
 	} |
 	-- | resources are items using by craft something from them
 	Resource {
@@ -362,7 +363,8 @@ instance Show Object where
 		++ show (enchantment o) ++ [objSep] ++ show (bind o)
 	show o@(Food {}) = "Food" ++ [objSep] ++ show (title o) ++ [objSep] 
 		++ show (nutrition o) ++ [objSep] ++ show (weight' o) ++ [objSep]
-		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) 
+		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) ++ [objSep] 
+		++ show (idO o)
 	show o@(Resource {}) = "Resource" ++ [objSep] ++ show (restype o)
 	show o@(Tool {}) = "Tool" ++ [objSep] ++ show (idO o) ++ [objSep] 
 		++ show (charge o)

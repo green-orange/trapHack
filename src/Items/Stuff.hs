@@ -369,7 +369,8 @@ foodRation = Food {
 	rotRate = 0,
 	rotTime = 1,
 	effect = id,
-	isBerry = False
+	isBerry = False,
+	idO = -1
 }
 
 pickAxe :: Object
@@ -389,21 +390,22 @@ strawberry, wolfberry, belladonna :: Object
 -- | list of all berries
 bERRIES :: [Object]
 bERRIES = [strawberry, wolfberry, belladonna]
--- | get a berry by title, nutrition and effect
-getBerry :: String -> Int -> (Monster -> Monster) -> Object
-getBerry title' nutr eff = Food {
+-- | get a berry by title, nutrition, id and effect
+getBerry :: String -> Int -> Int -> (Monster -> Monster) -> Object
+getBerry title' nutr id' eff = Food {
 	title = title',
 	nutrition = nutr,
 	weight' = 10,
 	rotRate = 1,
 	rotTime = 100,
 	effect = eff,
-	isBerry = True
+	isBerry = True,
+	idO = id'
 }
 
 -- | just a strawberry without any effects
-strawberry = getBerry "strawberry" 30 id
+strawberry = getBerry "strawberry" 30 0 id
 -- | just a berry with negative nutrition
-wolfberry = getBerry "wolfberry" (-30) id
+wolfberry = getBerry "wolfberry" (-30) 1 id
 -- | poisons you
-belladonna = getBerry "belladonna" 0 $ setMaxTemp Poison $ Just 5
+belladonna = getBerry "belladonna" 0 2 $ setMaxTemp Poison $ Just 5

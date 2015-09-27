@@ -131,7 +131,7 @@ levelUpParts g (p:ps) = (headPart : tailParts, g'') where
 corpseFromMon :: Monster -> Object
 corpseFromMon mon = Food {title = title', nutrition = nutr, 
 	weight' = wei, rotRate = 1, rotTime = 800, effect = id, 
-	isBerry = False} where
+	isBerry = False, idO = -1} where
 	title' = "corpse of the " ++ name mon
 	wei = 5 * sum (maxhp <$> parts mon)
 	nutr = sum $ hp <$> parts mon
@@ -140,7 +140,7 @@ corpseFromMon mon = Food {title = title', nutrition = nutr,
 corpseFromPart :: Monster -> Part -> Object
 corpseFromPart mon part = Food {title = title', nutrition = nutr, 
 	weight' = wei, rotRate = 1, rotTime = if kind part == mAIN then 0 else 500, 
-	effect = id, isBerry = False} where
+	effect = id, isBerry = False, idO = -1} where
 	title' = partToStr (kind part) ++ " of the " ++ name mon
 	wei = 5 * maxhp part
 	nutr = maxhp part `div` 2
