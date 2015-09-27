@@ -4,6 +4,7 @@ import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
+import Data.ID
 import Utils.Changes
 import Utils.HealDamage
 import Monsters.Parts
@@ -15,46 +16,38 @@ import Data.Maybe (isJust)
 import Data.Functor ((<$>))
 
 -- | return danger level by monster name
-levelM :: String -> Int
-levelM "Bat"             = 1
-levelM "Homunculus"      = 1
-levelM "Beetle"          = 3
-levelM "Ivy"             = 3
-levelM "Accelerator"     = 5
-levelM "Floating eye"    = 6
-levelM "Hunter"          = 7
-levelM "Troll"           = 6
-levelM "Worm"            = 5
-levelM "Red dragon"      = 10
-levelM "Green dragon"    = 10
-levelM "White dragon"    = 10
-levelM "Forgotten beast" = 15
-levelM "Spider"          = 6
-levelM "Soldier"         = 9
-levelM "Umber hulk"      = 7
-levelM "Tree"            = 0
-levelM "Bot"             = 2
-levelM "Bee"             = 2
-levelM _                 = 0
+levelM :: Int -> Int
+levelM x
+	| x `elem` [idTre, idBsh] = 0
+	| x `elem` [idBat, idHom] = 1
+	| x `elem` [idBee, idBot] = 2
+	| x `elem` [idBtl, idIvy] = 3
+	| x `elem` [idWrm, idAcc] = 5
+	| x `elem` [idFlE, idWrm, idSpd] = 6
+	| x `elem` [idUmH, idHun] = 7
+	| x `elem` [idSol] = 9
+	| x `elem` [idRDr, idWDr, idGDr] = 10
+	| x `elem` [idFgB] = 15
+	| otherwise = 0
 
-nOTsOLDIERS, nOTeNEMIES :: [String]
+nOTsOLDIERS, nOTeNEMIES :: [Int]
 
 -- | names of monsters who doesn't attack you specially
-nOTsOLDIERS = nOTeNEMIES ++ ["Homunculus", "Bat", "Ivy", "Worm"]
+nOTsOLDIERS = nOTeNEMIES ++ [idHom, idBat, idIvy, idWrm, idBsh]
 -- | can this monster attack you specially?
 isSoldier :: Monster -> Bool
-isSoldier mon = not $ isPlayer mon || elem (name mon) nOTsOLDIERS
+isSoldier mon = not $ isPlayer mon || elem (idM mon) nOTsOLDIERS
 
 -- | names of monsters who doesn't attack you
-nOTeNEMIES = ["You", "Dummy", "Garbage collector", "Rock", "Tail", "Golem",
-	"Tree"]
+nOTeNEMIES = [idYou, idDum, idGrC, idRck, idTai, idGlm,
+	idTre]
 -- | can this monster attack you?
 isEnemy :: Monster -> Bool
-isEnemy mon = not $ isPlayer mon || elem (name mon) nOTeNEMIES
+isEnemy mon = not $ isPlayer mon || elem (idM mon) nOTeNEMIES
 
 -- | names of monsters who can't leave corpses
-nOcORPSES :: [String]
-nOcORPSES = ["Ivy", "Bot", "Tree", "Tail", "Dummy", "Rock"]
+nOcORPSES :: [Int]
+nOcORPSES = [idIvy, idBot, idTre, idTai, idDum, idRck]
 
 -- | is this monster alive?
 -- monster can die if it has no head ot body and no 'main'
@@ -97,8 +90,8 @@ killFirst w = changeMon mon w where
 
 -- | can this monster walk?
 canWalk :: Monster -> Bool
-canWalk m = name m `notElem` 
-	["Rock", "Ivy", "Tail", "Worm", "Dummy", "Golem", "Tree"]
+canWalk m = idM m `notElem` 
+	[idRck, idIvy, idTai, idWrm, idDum, idGlm, idTre, idBsh]
 
 -- | set temporary effect to a maximum from current and random values
 randTemp :: Temp -> (Int, Int) -> (Monster, StdGen) -> (Monster, StdGen)
@@ -107,15 +100,15 @@ randTemp temp' bounds (mon, g) = (newMon, g') where
 	newMon = setMaxTemp temp' (Just duration) mon
 
 -- | experience for killing monster with this name
-level4XP :: String -> Int
-level4XP "Ivy"  = 0
-level4XP "Tree" = 0
-level4XP str = levelM str
+level4XP :: Int -> Int
+level4XP x
+	| x == idTre || x == idIvy || x == idBsh = 0
+	| otherwise = levelM x
 
 -- | increase level of the monster by given xp
 xpUp :: StdGen -> Monster -> Monster -> (Monster, Int, StdGen)
 xpUp g mon killed = (newMon, lvls, newGen) where
-	newXp = xp mon + xp killed + level4XP (name killed)
+	newXp = xp mon + xp killed + level4XP (idM killed)
 	lvls = intLog newXp - intLog (xp mon)
 	(newMon, newGen) = foldr ($) (mon {xp = newXp}, g)
 		$ replicate lvls levelUp
@@ -137,7 +130,8 @@ levelUpParts g (p:ps) = (headPart : tailParts, g'') where
 -- | generate a corpse for given monster
 corpseFromMon :: Monster -> Object
 corpseFromMon mon = Food {title = title', nutrition = nutr, 
-	weight' = wei, rotRate = 1, rotTime = 800} where
+	weight' = wei, rotRate = 1, rotTime = 800, effect = id, 
+	isBerry = False} where
 	title' = "corpse of the " ++ name mon
 	wei = 5 * sum (maxhp <$> parts mon)
 	nutr = sum $ hp <$> parts mon
@@ -145,8 +139,8 @@ corpseFromMon mon = Food {title = title', nutrition = nutr,
 -- | generate partial corpse from given body part
 corpseFromPart :: Monster -> Part -> Object
 corpseFromPart mon part = Food {title = title', nutrition = nutr, 
-	weight' = wei, rotRate = 1, 
-	rotTime = if kind part == mAIN then 0 else 500} where
+	weight' = wei, rotRate = 1, rotTime = if kind part == mAIN then 0 else 500, 
+	effect = id, isBerry = False} where
 	title' = partToStr (kind part) ++ " of the " ++ name mon
 	wei = 5 * maxhp part
 	nutr = maxhp part `div` 2

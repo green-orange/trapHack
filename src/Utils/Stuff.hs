@@ -4,6 +4,7 @@ import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
+import Data.ID
 import Utils.Changes
 import Utils.Random
 import Utils.HealDamage
@@ -174,7 +175,7 @@ getGarbageCollector = getMonster (getEatAI CollectorAI)
 	 (getLeg  1, ( 8, 12)),
 	 (getArm  1, ( 8, 12)),
 	 (getArm  1, ( 8, 12))]
-	 17 ((2,4), 0.4) emptyInv 100 100
+	 idGrC ((2,4), 0.4) emptyInv 100 100
 
 -- | golem can be created by a Kabbalistic scroll; it will attack all enemies
 -- near it
@@ -186,7 +187,7 @@ getGolem = getMonster (getPureAI GolemAI)
 	 (getLeg  1, ( 3,  7)),
 	 (getArm  1, ( 2,  6)),
 	 (getArm  1, ( 2,  6))]
-	18 ((2,4), 0.3) emptyInv 100 10000
+	idGlm ((2,4), 0.3) emptyInv 100 10000
 
 -- | spawn a golem next to you
 spawnGolem :: Int -> Int -> World -> World

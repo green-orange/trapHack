@@ -104,16 +104,15 @@ tempFirst w = changeMon newMon w where
 -- | decrease value in Maybe Int
 decMaybe :: Maybe Int -> Maybe Int
 decMaybe Nothing = Nothing
-decMaybe (Just 0) = Nothing
-decMaybe (Just n) = Just $ n - 1
+decMaybe (Just n) = if n <= 0 then Nothing else Just (n - 1)
 
 -- | add death drop and corpse to the monster inventory
 addDeathDrop :: Monster -> StdGen -> (Monster, StdGen)
 addDeathDrop mon g = (mon {inv = addCorpse 
 	$ M.union (inv mon) newDrop}, newGen) where
-	(newDrop, newGen) = deathDrop (name mon) g
+	(newDrop, newGen) = deathDrop (idM mon) g
 	corpse = corpseFromMon mon
-	addCorpse = if name mon `elem` nOcORPSES
+	addCorpse = if idM mon `elem` nOcORPSES
 		then id
 		else case nutrition corpse of
 		0 -> id
@@ -171,7 +170,7 @@ callUpon w = addMessage (msgLanding (wave w) , rED)
 -- | drop partial corpses to cells near to the monster
 dropPartialCorpse :: World -> World
 dropPartialCorpse w = 
-	if name mon `elem` nOcORPSES then w
+	if idM mon `elem` nOcORPSES then w
 	else (foldr ((.) . addItem . wrap . corpseFromPart mon) id
 		$ filter (not . aliveP) $ parts mon) w {stdgen = g'} where
 		mindx = if xFirst w == 0 then 0 else -1

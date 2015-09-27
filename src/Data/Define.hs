@@ -139,7 +139,9 @@ data Object =
 		nutrition :: Int,
 		weight' :: Int,
 		rotRate :: Int,
-		rotTime :: Int
+		rotTime :: Int,
+		effect :: Monster -> Monster,
+		isBerry :: Bool
 	} |
 	-- | resources are items using by craft something from them
 	Resource {
@@ -214,8 +216,9 @@ data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI |
 	UseItemsAI | EatAI deriving (Show, Read, Enum)
 -- | base AI types
 data AIpure = NothingAI | StupidestAI | StupidAI | StupidParalysisAI | 
-	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | CollectorAI |
-	GolemAI | CleverSAI | CleverVSAI | CleverUAI deriving (Show, Read)
+	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | BushAI |
+	CollectorAI | GolemAI | CleverSAI | CleverVSAI | CleverUAI 
+	deriving (Show, Read)
 -- | AI representation to read and show
 data AIrepr = AIrepr {
 	mods :: [AImod],

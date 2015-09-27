@@ -2,6 +2,7 @@ module Items.Stuff where
 
 import Data.Const
 import Data.Define
+import Data.ID
 import Utils.Stuff
 import Utils.Random
 import Utils.HealDamage
@@ -16,25 +17,25 @@ import qualified Data.Map as M
 import Data.Functor ((<$>))
 
 -- | generate death drop by monster name
-deathDrop :: String -> StdGen -> (Inv, StdGen)
-deathDrop "Homunculus" = genDeathDrop [(wANDS, bound [0.6])]
-deathDrop "Beetle" = genDeathDrop [(pOTIONS, bound [0.5])]
-deathDrop "Bat" = genDeathDrop [(pOTIONS, bound [0.3, 0.8])]
-deathDrop "Hunter" = genDeathDrop [(tRAPS, bound [0.3, 0.8])]
-deathDrop "Ivy" = genDeathDrop [(sCROLLS, bound [0.9])]
-deathDrop "Accelerator" = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
-deathDrop "Troll" = genDeathDrop [(wANDS, bound [0.6])]
-deathDrop "Worm" = genDeathDrop [([crysknife], bound [0.8])]
-deathDrop "Floating eye" = genDeathDrop [(pOTIONS, bound [0.5])]
-deathDrop "Red dragon" = dragonDrop
-deathDrop "White dragon" = dragonDrop
-deathDrop "Green dragon" = dragonDrop
-deathDrop "Forgotten beast" = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
-deathDrop "Spider" = genDeathDrop [(jEWELRY, bound [0.6])]
-deathDrop "Umber hulk" = genDeathDrop [(wANDS, bound [0.6])]
-deathDrop "Tree" = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareList)]
-deathDrop "Bot" = genDeathDrop [([itemFromRes MetalScrap], bound [0.7])]
-deathDrop _ = \p -> (M.empty, p)
+deathDrop :: Int -> StdGen -> (Inv, StdGen)
+deathDrop x
+	| x == idHom = genDeathDrop [(wANDS, bound [0.6])]
+	| x == idBtl = genDeathDrop [(pOTIONS, bound [0.5])]
+	| x == idBat = genDeathDrop [(pOTIONS, bound [0.3, 0.8])]
+	| x == idHun = genDeathDrop [(tRAPS, bound [0.3, 0.8])]
+	| x == idIvy = genDeathDrop [(sCROLLS, bound [0.9])]
+	| x == idAcc = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
+	| x == idTrl = genDeathDrop [(wANDS, bound [0.6])]
+	| x == idWrm = genDeathDrop [([crysknife], bound [0.8])]
+	| x == idFlE = genDeathDrop [(pOTIONS, bound [0.5])]
+	| x == idRDr || x == idWDr || x == idGDr = dragonDrop
+	| x == idFgB = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
+	| x == idSpd = genDeathDrop [(jEWELRY, bound [0.6])]
+	| x == idUmH = genDeathDrop [(wANDS, bound [0.6])]
+	| x == idTre = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareList)]
+	| x == idBot = genDeathDrop [([itemFromRes MetalScrap], bound [0.7])]
+	| x == idBsh = genDeathDrop [(bERRIES, bound [0.2, 0.5, 0.9])]
+	| otherwise = \p -> (M.empty, p)
 
 -- | generate drop for all dragons
 dragonDrop :: StdGen -> (Inv, StdGen)
@@ -366,7 +367,9 @@ foodRation = Food {
 	nutrition = 200,
 	weight' = 20,
 	rotRate = 0,
-	rotTime = 1
+	rotTime = 1,
+	effect = id,
+	isBerry = False
 }
 
 pickAxe :: Object
@@ -381,3 +384,26 @@ pickAxe = Tool {
 	charge = 20,
 	idO = 0
 }
+
+strawberry, wolfberry, belladonna :: Object
+-- | list of all berries
+bERRIES :: [Object]
+bERRIES = [strawberry, wolfberry, belladonna]
+-- | get a berry by title, nutrition and effect
+getBerry :: String -> Int -> (Monster -> Monster) -> Object
+getBerry title' nutr eff = Food {
+	title = title',
+	nutrition = nutr,
+	weight' = 10,
+	rotRate = 1,
+	rotTime = 100,
+	effect = eff,
+	isBerry = True
+}
+
+-- | just a strawberry without any effects
+strawberry = getBerry "strawberry" 30 id
+-- | just a berry with negative nutrition
+wolfberry = getBerry "wolfberry" (-30) id
+-- | poisons you
+belladonna = getBerry "belladonna" 0 $ setMaxTemp Poison $ Just 5

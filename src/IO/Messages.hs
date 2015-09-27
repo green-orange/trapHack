@@ -15,13 +15,15 @@ import Data.Array
 
 -- | return full title of an item
 titleShow :: Object -> String
-titleShow x = title x ++ 
-	if isWand x || isTool x
-	then " (" ++ show (charge x) ++ ")"
-	else if isWeapon x || isArmor x || isLauncher x || isJewelry x
-	then " (" ++ (if enchantment x >= 0 then "+" else "") 
-		++ show (enchantment x) ++ ")"
-	else ""
+titleShow x = 
+	if isFood x && isBerry x then "berry"
+	else title x ++ 
+		if isWand x || isTool x
+		then " (" ++ show (charge x) ++ ")"
+		else if isWeapon x || isArmor x || isLauncher x || isJewelry x
+		then " (" ++ (if enchantment x >= 0 then "+" else "") 
+			++ show (enchantment x) ++ ")"
+		else ""
 
 -- | capitalize first letter of the string if it isn't empty
 capitalize :: String -> String

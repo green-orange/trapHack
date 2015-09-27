@@ -277,7 +277,7 @@ eatFirst c world =
 			else let
 			newMsg = name (getFirst world) ++ " eat" ++ ending world 
 				++ titleShow obj ++ "."
-			mon' = delObj c $ changeTemp Nutrition
+			mon' = effect obj $ delObj c $ changeTemp Nutrition
 				(Just $ nutr + nutrition obj) mon
 			in (changeMon mon' $ addNeutralMessage newMsg 
 				world {action = Move}, True)

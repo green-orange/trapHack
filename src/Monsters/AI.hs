@@ -4,6 +4,7 @@ import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
+import Data.ID
 import Utils.Changes
 import Utils.AI
 import Utils.Monsters
@@ -53,7 +54,8 @@ runAIpure aip = case aip of
 	StupidConfAI -> stupidConfAI
 	RandomAI -> randomAI
 	WormAI -> wormAI
-	IvyAI -> ivyAI
+	IvyAI -> breedAI getIvy
+	BushAI -> breedAI getBush
 	CollectorAI -> collectorAI
 	GolemAI -> golemAI
 	CleverSAI -> cleverSafeAI
@@ -83,7 +85,7 @@ trollAI f x y p w =
 -- | technical "monster" for 'trollAI'
 rock :: StdGen -> Monster
 rock g = fst $ getMonster (getPureAI NothingAI) [(getMain 0, (100, 5000))] 
-	20 ((0,0),0.0) emptyInv 10000 1 g
+	idRck ((0,0),0.0) emptyInv 10000 1 g
 
 -- | list of all normal modificators (for Forgotten Beasts) 
 mODSAI :: [AImod]
@@ -267,7 +269,7 @@ wormAI xPlayer yPlayer _ w =
 -- | just tail of the worm
 tailWorm :: MonsterGen
 tailWorm = getMonster (getPureAI NothingAI) [(getMain 0, (100, 200))] 
-	16 ((0,0),0.0) emptyInv 10000 1
+	idTai ((0,0),0.0) emptyInv 10000 1
 
 -- | AI for Garbage Collector: if moves to nearest item
 -- on the ground and pick it
@@ -301,12 +303,12 @@ golemAI _ _ _ world = case nears of
 		d = [-1, 0, 1]
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
 
--- | AI for Ivy: grow in the random direction or attack you if can 
-ivyAI :: AIfunc
-ivyAI xPlayer yPlayer peace world
+-- | AI for breeders: grow in the random direction or attack you if can 
+breedAI :: MonsterGen -> AIfunc
+breedAI mgen xPlayer yPlayer peace world
 	| abs dx <= 1 && abs dy <= 1 && not peace = fst $ moveFirst dx dy world
 	| isEmpty world xNew yNew && not (isItem xNew yNew world)
-		= spawnMon getIvy xNew yNew world {stdgen = g''}
+		= spawnMon mgen xNew yNew world {stdgen = g''}
 	| otherwise = killFirst world {stdgen = g''} where
 		xNow = xFirst world
 		yNow = yFirst world
@@ -320,8 +322,12 @@ ivyAI xPlayer yPlayer peace world
 
 -- | Ivy monster; it MUST have low speed (at most like now) 
 getIvy :: MonsterGen
-getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] 15
+getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] idIvy
 	((2,10), 0.0) emptyInv 400 100
+-- | Bush monster is a bit faster than Ivy
+getBush :: MonsterGen
+getBush = getMonster (getPureAI BushAI) [(getMain 2, (5, 15))]
+	idBsh ((1, 10), 0.0) emptyInv 300 100
 
 cleverSafeAI, cleverVerySafeAI, cleverUnsafeAI :: AIfunc
 -- | clever AI version when monster doesn't recieve big wounds

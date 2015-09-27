@@ -4,6 +4,7 @@ import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
+import Data.ID
 import Utils.Changes
 import Utils.Monsters
 import Monsters.Parts
@@ -20,7 +21,7 @@ monNames :: [String]
 monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Troll",
 	"Worm", "Floating eye", "Red dragon", "White dragon", "Green dragon",
 	"Spider", "Soldier", "Umber hulk", "Ivy", "Tail", "Garbage collector",
-	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot", "Bee"]
+	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot", "Bee", "Bush"]
 
 -- | get monster by Ai representation, list of part getters and hps,
 -- id, damage getter, inventory generator, slowness, start nutrition
@@ -54,7 +55,7 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 
 -- | get dummy from Scroll of Animation; it really do nothing
 getDummy :: Int -> Float -> MonsterGen
-getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] 19 
+getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] idDum 
 	((0, 0), 0.0) emptyInv 10000 1
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)

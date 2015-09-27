@@ -61,7 +61,7 @@ drawUnit world ((x, y), mon) =
 			| showMode world == ColorHeight || 
 				showMode world == ColorHeightAbs = setBold attr0 True
 			| otherwise = attr0
-		(sym, color1) = symbolMon $ name mon
+		(sym, color1) = symbolMon $ idM mon
 		color2 = Pair $ case showMode world of
 			ColorHeight -> dEFAULT
 			ColorHeightAbs -> dEFAULT

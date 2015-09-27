@@ -2,6 +2,7 @@ module Init where
 
 import Data.Const
 import Data.Define
+import Data.ID
 import Utils.Monsters
 --import Utils.Items
 import Items.Stuff
@@ -70,7 +71,7 @@ getPlayer = Monster {
 	res = const 0 <$> (getAll :: [Elem]),
 	intr = const 0 <$> (getAll :: [Intr]),
 	temp = startTemps 50,
-	idM = 0,
+	idM = idYou,
 	xp = 1
 }
 

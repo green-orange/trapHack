@@ -14,9 +14,9 @@ import System.Random (StdGen, randomR)
 import qualified Data.Map as M
 import Data.Functor ((<$>))
 
--- | get monster name from a generator
-nameFromGen :: MonsterGen -> String
-nameFromGen mgen = name $ fst $ mgen $ putWE "nameFromGen"
+-- | get monster id from a generator
+idFromGen :: MonsterGen -> Int
+idFromGen mgen = idM $ fst $ mgen $ putWE "nameFromGen"
 
 -- | add wave by given function
 addWaveBy :: ([MonsterGen] -> (Units, StdGen) -> (Units, StdGen)) 
@@ -36,7 +36,7 @@ addWaveFull = addWaveBy addMonstersFull
 
 -- | calculate danger level of the world 
 levelW :: World -> Int
-levelW w = M.foldr (+) 0 $ (levelM . name) <$> M.filter isSoldier 
+levelW w = M.foldr (+) 0 $ (levelM . idM) <$> M.filter isSoldier 
 	(M.filterWithKey (\(x, y) _ -> abs (x - xPlayer) <= xSight 
 	&& abs (y - yPlayer) <= ySight) $ units w) where
 	[((xPlayer, yPlayer), _)] = filter (\(_,m) -> name m == "You") 
@@ -53,9 +53,9 @@ genWave n g
 	gens = [getHomunculus, getBeetle, getBat, getHunter, getIvy,
 		getAccelerator, getTroll, getWorm, getFloatingEye, getRedDragon, 
 		getWhiteDragon, getGreenDragon, getForgottenBeast, getSpider, 
-		getSoldier, getUmberHulk, getTree, getBot, getBee]
+		getSoldier, getUmberHulk, getTree, getBot, getBee, getBush]
 	genM = gens !! ind
-	d = levelM $ nameFromGen genM
+	d = levelM $ idFromGen genM
 	(oldWave, g'') = genWave (n - d) g'
 
 -- | add new wave to a world

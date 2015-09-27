@@ -1,6 +1,7 @@
 module IO.Colors where
 
 import Data.Define
+import Data.ID
 
 import UI.HSCurses.Curses
 import Data.Maybe (catMaybes)
@@ -74,30 +75,32 @@ initColors = sequence_ actions where
 	actions = bindColor <$> [1..64]
 
 -- | char and color by a monster name
-symbolMon :: String -> (Char, Int)
-symbolMon "You"               = ('@', yELLOW)
-symbolMon "Homunculus"        = ('h', yELLOW)
-symbolMon "Beetle"            = ('a', cYAN)
-symbolMon "Bat"               = ('B', rED)
-symbolMon "Hunter"            = ('H', yELLOW)
-symbolMon "Ivy"               = ('I', gREEN)
-symbolMon "Dummy"             = ('&', bLUE)
-symbolMon "Garbage collector" = ('G', bLUE)
-symbolMon "Accelerator"       = ('A', yELLOW)
-symbolMon "Troll"             = ('T', rED)
-symbolMon "Rock"              = ('#', bLUE)
-symbolMon "Tail"              = ('~', bLUE)
-symbolMon "Worm"              = ('w', rED)
-symbolMon "Golem"             = ('g', bLUE)
-symbolMon "Floating eye"      = ('e', mAGENTA)
-symbolMon "Red dragon"        = ('D', rED)
-symbolMon "White dragon"      = ('D', dEFAULT)
-symbolMon "Green dragon"      = ('D', gREEN)
-symbolMon "Forgotten beast"   = ('X', mAGENTA)
-symbolMon "Spider"            = ('s', rED)
-symbolMon "Soldier"           = ('@', yELLOW)
-symbolMon "Umber hulk"        = ('U', yELLOW)
-symbolMon "Tree"              = ('Y', gREEN)
-symbolMon "Bot"               = ('$', cYAN)
-symbolMon "Bee"               = ('b', yELLOW)
-symbolMon _                   = error "unknown monster"
+symbolMon :: Int -> (Char, Int)
+symbolMon x
+	| x == idYou = ('@', yELLOW)
+	| x == idHom = ('h', yELLOW)
+	| x == idBtl = ('a', cYAN)
+	| x == idBat = ('B', rED)
+	| x == idHun = ('H', yELLOW)
+	| x == idIvy = ('I', gREEN)
+	| x == idDum = ('&', bLUE)
+	| x == idGrC = ('G', bLUE)
+	| x == idAcc = ('A', yELLOW)
+	| x == idTrl = ('T', rED)
+	| x == idRck = ('#', bLUE)
+	| x == idTai = ('~', bLUE)
+	| x == idWrm = ('w', rED)
+	| x == idGlm = ('g', bLUE)
+	| x == idFlE = ('e', mAGENTA)
+	| x == idRDr = ('D', rED)
+	| x == idWDr = ('D', dEFAULT)
+	| x == idGDr = ('D', gREEN)
+	| x == idFgB = ('X', mAGENTA)
+	| x == idSpd = ('s', rED)
+	| x == idSol = ('@', yELLOW)
+	| x == idUmH = ('U', yELLOW)
+	| x == idTre = ('Y', gREEN)
+	| x == idBot = ('$', cYAN)
+	| x == idBee = ('b', yELLOW)
+	| x == idBsh = ('y', gREEN)
+	| otherwise = error "unknown monster"

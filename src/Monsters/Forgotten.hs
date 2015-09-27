@@ -3,6 +3,7 @@ module Monsters.Forgotten where
 import Data.Const
 import Data.Monster
 import Data.Define
+import Data.ID
 import Utils.Monsters
 import Utils.Random
 import Items.Stuff
@@ -30,7 +31,7 @@ getForgottenBeast g = (Monster {
 	res = const 0 <$> (getAll :: [Elem]),
 	intr = const 0 <$> (getAll :: [Intr]),
 	temp = startTemps 1000,
-	idM = 21,
+	idM = idFgB,
 	xp = 1
 	}, g5) where
 		(newAI, g1) = forgottenAI g
