@@ -18,10 +18,10 @@ import Data.Functor ((<$>))
 -- | return danger level by monster name
 levelM :: Int -> Int
 levelM x
-	| x `elem` [idTre, idBsh] = 0
+	| x `elem` [idTre] = 0
 	| x `elem` [idBat, idHom] = 1
 	| x `elem` [idBee, idBot] = 2
-	| x `elem` [idBtl, idIvy] = 3
+	| x `elem` [idBtl, idIvy, idBsh] = 3
 	| x `elem` [idWrm, idAcc] = 5
 	| x `elem` [idFlE, idWrm, idSpd] = 6
 	| x `elem` [idUmH, idHun] = 7
