@@ -152,6 +152,11 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 		obj = wANDS !! ind
 		(newMon', g'') = act obj (mon, g')
 	((newMon, g), newMsg) = case trap of
+		Water -> if isFlying mon then ((mon, stdgen w), "")
+			else (dmgRandom (Just 100) mon (stdgen w),
+				if name mon == "You"
+				then msgDrownYou
+				else name mon ++ msgDrown)
 		FireTrap -> fireTrapped
 		Bonfire -> fireTrapped
 		PoisonTrap -> (randTemp Poison (5, 15) (mon, stdgen w),

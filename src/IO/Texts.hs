@@ -173,7 +173,7 @@ msgOptNoHei = "c - height doesn't shown"
 msgOptColorHeiAbs = "d - map is colored by absolute height, monsters are white."
 
 {-Other-}
-msgSafety, msgTrollDeath :: String
+msgSafety, msgTrollDeath, msgDrownYou, msgDrown :: String
 msgLanding :: Int -> String
 msgLevelUp, msgWE :: String -> String
 msgTeleport :: String -> String
@@ -196,6 +196,8 @@ msgCraft n t =
 	else n ++ " successfully crafts " ++ t ++ "!"
 msgGetStones 1 = "You get a stone!"
 msgGetStones n = "You get " ++ show n ++ " stones!"
+msgDrownYou = "You are drowning!"
+msgDrown = " sinks!"
 
 -- | put 'weird error' in given function
 putWE :: String -> a

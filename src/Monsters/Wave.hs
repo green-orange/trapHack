@@ -50,7 +50,7 @@ genWave n g
 	| otherwise = (genM : oldWave, g'') where
 	ind :: Int
 	(ind, g') = randomR (0, length gens - 1) g
-	gens = replicate 8 getTree ++ 
+	gens = replicate 4 getTree ++ 
 		[getHomunculus, getBeetle, getBat, getHunter, getIvy,
 		getAccelerator, getTroll, getWorm, getFloatingEye, getRedDragon, 
 		getWhiteDragon, getGreenDragon, getForgottenBeast, getSpider, 
