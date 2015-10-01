@@ -19,22 +19,22 @@ import Data.Char (isDigit)
 import Control.Monad (when)
 
 -- | initialize 'units' with in the center
-initUnits :: Units
-initUnits = Units {
+initUnits :: Monster -> Units
+initUnits char = Units {
 	xF = x',
 	yF = y',
-	getFirst' = getPlayer,
-	list = M.singleton (x', y') getPlayer
+	getFirst' = char,
+	list = M.singleton (x', y') char
 } where
 	x' = div maxX 2
 	y' = div maxY 2
 
 -- | initialize world with given type of map generator,
 -- username and RNG
-initWorld :: MapGenType -> String -> StdGen -> World
-initWorld mapgen username gen = World {
+initWorld :: MapGenType -> Monster -> String -> StdGen -> World
+initWorld mapgen char username gen = World {
 	worldmap = worldmap',
-	units' = initUnits,
+	units' = initUnits char,
 	message = [(msgWelcome username, bLUE)],
 	items = [],
 	action = Move,
@@ -65,12 +65,87 @@ getPlayer = Monster {
 		 [0..],
 	name = "You",
 	stddmg = ((1,10), 0.2), -- avg 4.4
-	inv = M.singleton 'a' (pickAxe, 1),
+	inv = M.empty,
 	slowness = 100,
 	time = 100,
 	res = const 0 <$> (getAll :: [Elem]),
 	intr = const 0 <$> (getAll :: [Intr]),
 	temp = startTemps 50,
+	idM = idYou,
+	xp = 1
+}
+
+-- | initialize flying Player
+getFlyingPlayer :: Monster
+getFlyingPlayer = Monster {
+	ai = You,
+	parts = zipWith ($) 
+		[getBody 1 40, 
+		 getHead 1 30, 
+		 getLeg  2 20, 
+		 getLeg  2 20, 
+		 getArm  2 20, 
+		 getArm  2 20,
+		 getWing 2 20,
+		 getWing 2 20]
+		 [0..],
+	name = "You",
+	stddmg = ((1,10), 0.2), -- avg 4.4
+	inv = M.empty,
+	slowness = 100,
+	time = 100,
+	res = const 0 <$> (getAll :: [Elem]),
+	intr = const 0 <$> (getAll :: [Intr]),
+	temp = startTemps 50,
+	idM = idYou,
+	xp = 1
+}
+
+-- | initialize very strong Player
+getStrongPlayer :: Monster
+getStrongPlayer = Monster {
+	ai = You,
+	parts = zipWith ($) 
+		[getBody 10 400, 
+		 getHead 10 300, 
+		 getLeg  20 200, 
+		 getLeg  20 200, 
+		 getArm  20 200, 
+		 getArm  20 200]
+		 [0..],
+	name = "You",
+	stddmg = ((1000,1000), 0.0), -- avg 1000
+	inv = M.empty,
+	slowness = 50,
+	time = 50,
+	res = const 0 <$> (getAll :: [Elem]),
+	intr = const 0 <$> (getAll :: [Intr]),
+	temp = startTemps 5000,
+	idM = idYou,
+	xp = 1
+}
+
+getGodlikePlayer :: Monster
+getGodlikePlayer = Monster {
+	ai = You,
+	parts = zipWith ($) 
+		[getBody 10 400, 
+		 getHead 10 300, 
+		 getLeg  20 200, 
+		 getLeg  20 200, 
+		 getArm  20 200, 
+		 getArm  20 200,
+		 getWing 20 200,
+		 getWing 20 200]
+		 [0..],
+	name = "You",
+	stddmg = ((1,1000), 0.0), -- avg 500
+	inv = M.empty,
+	slowness = 50,
+	time = 50,
+	res = const 0 <$> (getAll :: [Elem]),
+	intr = const 0 <$> (getAll :: [Intr]),
+	temp = startTemps 5000,
 	idM = idYou,
 	xp = 1
 }
@@ -156,3 +231,38 @@ customMapChoice = do
 			"b" -> Bonfires $ maybeReadNum 100 str2
 			"c" -> MagicMap $ maybeReadNum 100 str2
 			_ -> NoTraps
+
+-- | show start menu with character choice
+showCharChoice :: IO Monster
+showCharChoice = do
+	putStrLn "Choose your character: "
+	putStrLn "a - standard character without items"
+	putStrLn "b - (a) with pickaxe, DEFAULT"
+	putStrLn "c - (a) with stacks of potions, scrolls, rings, amulets, "
+	putStrLn "wands, traps and tools"
+	putStrLn "d - flying creature without items"
+	putStrLn "e - character with very high stats, maximum armor and weapon"
+	putStrLn "f - (c) + (d) + (e)"
+	c <- getLine
+	return $ case c of
+		"a" -> getPlayer
+		"b" -> getPlayer {inv = M.singleton 'a' (pickAxe, 1)}
+		"c" -> getPlayer {inv = listToMap fullInv}
+		"d" -> getFlyingPlayer
+		"e" -> getStrongPlayer {inv = listToMap warInv}
+		"f" -> getGodlikePlayer {inv = listToMap $ warInv ++ fullInv}
+		_ -> getPlayer {inv = M.singleton 'a' (pickAxe, 1)}
+
+-- | converts list to a map where alphabet letters are keys
+listToMap :: [a] -> M.Map Char (a, Int)
+listToMap = M.fromList . zip alphabet . flip zip [1,1..]
+
+-- | list of all magical items
+fullInv :: [Object]
+fullInv = pOTIONS ++ sCROLLS ++ map ($ 5) uNIQUEaMULETS ++ map ($ 4) uNIQUErINGS
+	++ map ($ 100) uNIQUEwANDS ++ tRAPS ++ tOOLS -- must be unique
+
+-- | maximum armor and weapon
+warInv :: [Object]
+warInv = map (\x -> x {enchantment = 100})
+	[crysknife, plateMail, kabuto, gauntlet, highBoot]

@@ -110,8 +110,9 @@ main = do
 			then catchAll (return $ Just $ read save) $ const $ return Nothing
 			else do
 				mapgen <- showMapChoice
+				char <- showCharChoice
 				writeFile logName ""
-				return $ Just $ initWorld mapgen username gen
+				return $ Just $ initWorld mapgen char username gen
 		timeBegin <- getCurrentTime
 		case maybeWorld of
 			Nothing -> endWin >> putStrLn msgLoadErr
