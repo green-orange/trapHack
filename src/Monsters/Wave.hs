@@ -50,10 +50,11 @@ genWave n g
 	| otherwise = (genM : oldWave, g'') where
 	ind :: Int
 	(ind, g') = randomR (0, length gens - 1) g
-	gens = [getHomunculus, getBeetle, getBat, getHunter, getIvy,
+	gens = replicate 8 getTree ++ 
+		[getHomunculus, getBeetle, getBat, getHunter, getIvy,
 		getAccelerator, getTroll, getWorm, getFloatingEye, getRedDragon, 
 		getWhiteDragon, getGreenDragon, getForgottenBeast, getSpider, 
-		getSoldier, getUmberHulk, getTree, getBot, getBee, getBush]
+		getSoldier, getUmberHulk, getBot, getBee, getBush]
 	genM = gens !! ind
 	d = levelM $ idFromGen genM
 	(oldWave, g'') = genWave (n - d) g'
