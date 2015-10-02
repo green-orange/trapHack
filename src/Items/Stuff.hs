@@ -112,12 +112,13 @@ sTACKABLE :: [Object]
 sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
 	
 potionOfHealing, potionOfIntellect, potionOfMutation, potionOfEnchantWeapon,
-	potionOfEnchantArmor, potionOfEnchantJewelry, soup :: Object
+	potionOfEnchantArmor, potionOfEnchantJewelry, soup, potionOfStrength
+	:: Object
 -- | list of all potions
 pOTIONS :: [Object]
 pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation, 
 	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantJewelry,
-	soup]
+	soup, potionOfStrength]
 -- | heals your body
 potionOfHealing = Potion {title = "potion of healing",
 	act = addRandom (5, 15) $ healParts bODY, idO = 0}
@@ -139,6 +140,9 @@ potionOfEnchantJewelry = Potion {title = "potion of enchant jewelry",
 	act = addRandom (0, 3) $ enchantAll JewelrySlot, idO = 5}
 -- | just increase your satiety
 soup = Potion {title = "soup", act = addRandom (20, 100) addNutr, idO = 6}
+-- | increase your strength
+potionOfStrength = Potion {title = "potion of strength",
+	act = addRandom (1, 3) $ addIntr Strength, idO = 7}
 
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
 	kabbalisticScroll, scrollOfBandaging :: Object
@@ -374,11 +378,12 @@ ringOfPoisonRes = getRingRes "ring of poison resistance" Poison' 3
 ringOfProtection ench = Jewelry {title = "ring of protection", enchantment = ench,
 	bind = aRM, effectOn = flip const, effectOff = flip const, idO = 4}
 -- | list of all amulets
-uNIQUEaMULETS = [amuletOfTeleportation]
-amuletOfTeleportation :: Int -> Object
+uNIQUEaMULETS = [amuletOfTeleportation, amuletOfStrength]
+amuletOfTeleportation, amuletOfStrength :: Int -> Object
 -- | list of amulets with probabilities to generate random jewelry
 aMULETS = 
-	amuletOfTeleportation <$> [1..6]
+	(amuletOfTeleportation <$> [1..6]) ++
+	(amuletOfStrength      <$> [1..4])
 -- | get amulet that gives you some intrincic by multiplicator, title, 
 -- intrinsic, id and enchantment
 getIntrAmulet :: Int -> String -> Intr -> Int -> Int -> Object
@@ -387,6 +392,8 @@ getIntrAmulet mult title' intr' id' ench = Jewelry {title = title', enchantment 
 	effectOff = \ench' -> addIntr intr' (-mult * ench'), idO = id'}
 -- | gives you teleportation ability
 amuletOfTeleportation = getIntrAmulet 2 "amulet of teleportation" Teleport 0
+-- | increase your strength
+amuletOfStrength = getIntrAmulet 1 "amulet of strength" Strength 1
 -- | converts terrain to a trap item if it's possible
 trapFromTerrain :: Terrain -> Object
 trapFromTerrain x = case x of
