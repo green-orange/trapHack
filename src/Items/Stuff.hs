@@ -16,6 +16,44 @@ import System.Random
 import qualified Data.Map as M
 import Data.Functor ((<$>))
 
+-- | homunculus sometmes generates with attack wand
+wandForHom :: Float -> Int -> Object
+wandForHom = flip uniformFromList [wandOfPoison, wandOfSlowing, 
+	wandOfSpeed, wandOfStriking, wandOfStun]
+
+-- | generate an inventory for a homunculus
+invHom :: StdGen -> (Inv, StdGen)
+invHom g =
+	(if p <= 0.1
+	then M.singleton 'a' (wandForHom q 1, 1)
+	else M.empty, g'') where
+		p, q :: Float
+		(p, g') = randomR (0.0, 1.0) g 
+		(q, g'') = randomR (0.0, 1.0) g'
+
+-- | hunter always generates with a bow
+hunterInv :: InvGen
+hunterInv g = (M.fromList $ zip alphabet $ addRation
+	[(arrow, 10 * inverseSquareRandom p)
+	,(lAUNCHERS !! uniform q 0 (length lAUNCHERS - 1), 1)
+	], g3) where
+		(p, g1) = randomR (0.0, 1.0) g
+		(q, g2) = randomR (0.0, 1.0) g1
+		(n, g3) = randomR (0, 2) g2
+		addRation = if n == 0 then id else (:) (foodRation, n)
+
+-- | soldier generates with weapon, different armor and some food 
+soldierInv :: InvGen
+soldierInv g = (M.fromList $ zip alphabet $ addRation $ zip
+	[uniformFromList x1 wEAPONS,
+	uniformFromList x2 aRMOR,
+	uniformFromList x3 aRMOR] [1,1..], g4) where
+		(x1, g1) = randomR (0.0, 1.0) g
+		(x2, g2) = randomR (0.0, 1.0) g1
+		(x3, g3) = randomR (0.0, 1.0) g2
+		(n,  g4) = randomR (0, 2) g3
+		addRation = if n == 0 then id else (:) (foodRation, n)
+
 -- | generate death drop by monster name
 deathDrop :: Int -> StdGen -> (Inv, StdGen)
 deathDrop x

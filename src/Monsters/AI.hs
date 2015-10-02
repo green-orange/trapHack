@@ -14,6 +14,7 @@ import Monsters.Move
 import Monsters.Parts
 import Monsters.Monsters
 import Monsters.AIrepr
+import Monsters.PartsList
 import IO.Colors
 import IO.Texts
 
@@ -84,8 +85,8 @@ trollAI f x y p w =
 
 -- | technical "monster" for 'trollAI'
 rock :: StdGen -> Monster
-rock g = fst $ getMonster (getPureAI NothingAI) [(getMain 0, (100, 5000))] 
-	idRck ((0,0),0.0) emptyInv 10000 1 g
+rock = fst . getMonster (getPureAI NothingAI) partsRck
+	idRck ((0,0),0.0) emptyInv 10000 1 0
 
 -- | list of all normal modificators (for Forgotten Beasts) 
 mODSAI :: [AImod]
@@ -268,8 +269,8 @@ wormAI xPlayer yPlayer _ w =
 
 -- | just tail of the worm
 tailWorm :: MonsterGen
-tailWorm = getMonster (getPureAI NothingAI) [(getMain 0, (100, 200))] 
-	idTai ((0,0),0.0) emptyInv 10000 1
+tailWorm = getMonster (getPureAI NothingAI) partsTai
+	idTai ((0,0),0.0) emptyInv 10000 1 0
 
 -- | AI for Garbage Collector: if moves to nearest item
 -- on the ground and pick it
@@ -322,12 +323,12 @@ breedAI mgen xPlayer yPlayer peace world
 
 -- | Ivy monster; it MUST have low speed (at most like now) 
 getIvy :: MonsterGen
-getIvy = getMonster (getPureAI IvyAI) [(getMain 2, (5, 15))] idIvy
-	((2,10), 0.0) emptyInv 400 100
+getIvy = getMonster (getPureAI IvyAI) partsIvy idIvy
+	((2,10), 0.0) emptyInv 400 100 0
 -- | Bush monster is a bit faster than Ivy
 getBush :: MonsterGen
-getBush = getMonster (getPureAI BushAI) [(getMain 2, (5, 15))]
-	idBsh ((1, 10), 0.0) emptyInv 300 100
+getBush = getMonster (getPureAI BushAI) partsBsh
+	idBsh ((1, 10), 0.0) emptyInv 300 100 0
 
 cleverSafeAI, cleverVerySafeAI, cleverUnsafeAI :: AIfunc
 -- | clever AI version when monster doesn't recieve big wounds

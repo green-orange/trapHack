@@ -51,25 +51,35 @@ initWorld mapgen char username gen = World {
 	mapType = mapgen
 } where (worldmap', newStdGen) = runMap mapgen gen
 
+partsYou, partsStrongYou :: [Part]
+partsYou = zipWith ($) [
+	getBody 1 40, 
+	getHead 1 30, 
+	getLeg  2 20, 
+	getLeg  2 20, 
+	getArm  2 20, 
+	getArm  2 20] [0..]
+
+partsStrongYou = zipWith ($) [
+	getBody 10 400, 
+	getHead 10 300, 
+	getLeg  20 200, 
+	getLeg  20 200, 
+	getArm  20 200, 
+	getArm  20 200] [0..]
+
 -- | initialize the Player
 getPlayer :: Monster
 getPlayer = Monster {
 	ai = You,
-	parts = zipWith ($) 
-		[getBody 1 40, 
-		 getHead 1 30, 
-		 getLeg  2 20, 
-		 getLeg  2 20, 
-		 getArm  2 20, 
-		 getArm  2 20]
-		 [0..],
+	parts = partsYou,
 	name = "You",
 	stddmg = ((1,10), 0.2), -- avg 4.4
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
 	res = const 0 <$> (getAll :: [Elem]),
-	intr = const 0 <$> (getAll :: [Intr]),
+	intr = startIntrs 10,
 	temp = startTemps 50,
 	idM = idYou,
 	xp = 1
@@ -79,23 +89,14 @@ getPlayer = Monster {
 getFlyingPlayer :: Monster
 getFlyingPlayer = Monster {
 	ai = You,
-	parts = zipWith ($) 
-		[getBody 1 40, 
-		 getHead 1 30, 
-		 getLeg  2 20, 
-		 getLeg  2 20, 
-		 getArm  2 20, 
-		 getArm  2 20,
-		 getWing 2 20,
-		 getWing 2 20]
-		 [0..],
+	parts = partsYou,
 	name = "You",
 	stddmg = ((1,10), 0.2), -- avg 4.4
 	inv = M.empty,
 	slowness = 100,
 	time = 100,
 	res = const 0 <$> (getAll :: [Elem]),
-	intr = const 0 <$> (getAll :: [Intr]),
+	intr = startIntrs 10,
 	temp = startTemps 50,
 	idM = idYou,
 	xp = 1
@@ -105,21 +106,14 @@ getFlyingPlayer = Monster {
 getStrongPlayer :: Monster
 getStrongPlayer = Monster {
 	ai = You,
-	parts = zipWith ($) 
-		[getBody 10 400, 
-		 getHead 10 300, 
-		 getLeg  20 200, 
-		 getLeg  20 200, 
-		 getArm  20 200, 
-		 getArm  20 200]
-		 [0..],
+	parts = partsStrongYou,
 	name = "You",
 	stddmg = ((1000,1000), 0.0), -- avg 1000
 	inv = M.empty,
 	slowness = 50,
 	time = 50,
 	res = const 0 <$> (getAll :: [Elem]),
-	intr = const 0 <$> (getAll :: [Intr]),
+	intr = startIntrs 100,
 	temp = startTemps 5000,
 	idM = idYou,
 	xp = 1
@@ -128,23 +122,14 @@ getStrongPlayer = Monster {
 getGodlikePlayer :: Monster
 getGodlikePlayer = Monster {
 	ai = You,
-	parts = zipWith ($) 
-		[getBody 10 400, 
-		 getHead 10 300, 
-		 getLeg  20 200, 
-		 getLeg  20 200, 
-		 getArm  20 200, 
-		 getArm  20 200,
-		 getWing 20 200,
-		 getWing 20 200]
-		 [0..],
+	parts = partsStrongYou,
 	name = "You",
 	stddmg = ((1,1000), 0.0), -- avg 500
 	inv = M.empty,
 	slowness = 50,
 	time = 50,
 	res = const 0 <$> (getAll :: [Elem]),
-	intr = const 0 <$> (getAll :: [Intr]),
+	intr = startIntrs 1000,
 	temp = startTemps 5000,
 	idM = idYou,
 	xp = 1

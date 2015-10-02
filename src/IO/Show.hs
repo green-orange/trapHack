@@ -256,7 +256,7 @@ drawJustWorld world _ = do
 	mvWAddStr stdScr (shiftDown + 1) shiftAttrs $ "XP: " ++ 
 		show (xp mon) ++ "; Level: " ++ show (intLog $ xp mon)
 	wAttrSet stdScr (attr0, Pair yELLOW)
-	unless (encumbrance (getFirst world) <= baseEncumbrance)
+	unless (encumbrance mon <= capacity mon)
 		$ mvWAddStr stdScr (shiftDown + 2) shiftAttrs "Burdened"
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	mvWAddStr stdScr (shiftDown + 3) shiftAttrs

@@ -24,11 +24,11 @@ monNames = ["You", "Homunculus", "Beetle", "Bat", "Hunter", "Accelerator", "Trol
 	"Golem", "Dummy", "Rock", "Forgotten beast", "Tree", "Bot", "Bee", "Bush"]
 
 -- | get monster by Ai representation, list of part getters and hps,
--- id, damage getter, inventory generator, slowness, start nutrition
--- and random number generator
+-- id, damage getter, inventory generator, slowness, start nutrition,
+-- strength and random number generator
 getMonster :: AIrepr -> [(Int -> Int -> Part, (Int, Int))]
-	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> Int -> MonsterGen
-getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
+	-> Int -> ((Int, Int), Float) -> InvGen -> Int -> Int -> Int -> MonsterGen
+getMonster ai' ps id' stddmg' inv' slow' nutr str g = (Monster {
 	ai = AI ai',
 	parts = zipWith ($) partGens [0..],
 	idM = id',
@@ -39,7 +39,7 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 	slowness = slow',
 	time = slow',
 	res = const 0 <$> (getAll :: [Elem]),
-	intr = const 0 <$> (getAll :: [Intr]),
+	intr = startIntrs str,
 	temp = startTemps nutr,
 	xp = 1
 }, g'') where
@@ -56,7 +56,7 @@ getMonster ai' ps id' stddmg' inv' slow' nutr g = (Monster {
 -- | get dummy from Scroll of Animation; it really do nothing
 getDummy :: Int -> Float -> MonsterGen
 getDummy n _ = getMonster (getPureAI NothingAI) [(getMain 1, (n, n))] idDum 
-	((0, 0), 0.0) emptyInv 10000 1
+	((0, 0), 0.0) emptyInv 10000 1 0
 
 addMonsters, addMonstersFull :: [MonsterGen] -> (Units, StdGen) -> (Units, StdGen)
 -- | add list of monster generators to given units in sight of the player

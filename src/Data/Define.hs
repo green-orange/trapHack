@@ -231,7 +231,7 @@ data AIrepr = AIrepr {
 data AI = You | AI AIrepr deriving (Show, Read)
 
 -- | abstract intrinsic
-data Intr = Teleport deriving (Enum, Show, Bounded)
+data Intr = Strength | Teleport deriving (Enum, Show, Bounded)
 
 -- | temporary intrinsic decreased every step
 data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)

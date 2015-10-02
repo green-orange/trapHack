@@ -149,6 +149,10 @@ corpseFromPart mon part = Food {title = title', nutrition = nutr,
 startTemps :: Int -> [Maybe Int]
 startTemps n = Just n : tail (const Nothing <$> (getAll :: [Temp]))
 
+-- | list of intrs where all but 'Strength' are 0
+startIntrs :: Int -> [Int]
+startIntrs n = n : tail (const 0 <$> (getAll :: [Intr]))
+
 -- | intLog k === max n such that 2^n <= k
 intLog :: Int -> Int
 intLog = floor . flip (/) (log 2) . log . (fromIntegral :: Int -> Float)

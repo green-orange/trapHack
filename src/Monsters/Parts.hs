@@ -7,11 +7,18 @@ import Utils.Items
 import qualified Data.Map as M
 import Data.Functor ((<$>))
 
--- | base encumbrance of all monsters in the game
-baseEncumbrance :: Int
-baseEncumbrance = 500
+-- | capacity for monster with zero strength
+baseCapacity :: Int
+baseCapacity = 50
+-- | increase in capacity per unit of strength
+capacityByStrength :: Int
+capacityByStrength = 40
+-- | capacity of the monster
+capacity :: Monster -> Int
+capacity mon = baseCapacity + capacityByStrength *
+	(intr mon !! fromEnum Strength)
 
--- | converts patr type to the string
+-- | converts part type to the string
 partToStr :: Int -> String
 partToStr x
 	| x == bODY = "Body"
@@ -64,8 +71,8 @@ encumbrance mon = M.foldr (+) 0 $ (\(o, n) -> n * weight o) <$> inv mon
 -- | calculate effective slowness of the monster
 -- (with encumbrance effect, count of legs etc)
 effectiveSlowness :: Monster -> Int
-effectiveSlowness mon = max 10 $ (`div` baseEncumbrance) $ 
-	(*) (max baseEncumbrance $ encumbrance mon) $ div (slowness mon) 
+effectiveSlowness mon = max 10 $ (`div` capacity mon) $ 
+	(*) (max (capacity mon) $ encumbrance mon) $ div (slowness mon) 
 	$ 1 + length (filter isLowerLimb $ parts mon)
 
 -- | check is this slot of given part empty

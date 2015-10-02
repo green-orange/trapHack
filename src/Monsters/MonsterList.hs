@@ -1,195 +1,70 @@
 module Monsters.MonsterList where
 
-import Data.Const
 import Data.Monster
 import Data.Define
 import Data.ID
-import Utils.Random
 import Items.Stuff
 import Monsters.Monsters
-import Monsters.Parts
 import Monsters.AIrepr
+import Monsters.PartsList
 
-import qualified Data.Map as M
-import System.Random (randomR)
-
+-- !!! numbers at the end of definitions: slowness, nutrition, strength
 getHomunculus, getBeetle, getBat, getHunter, getAccelerator, getTroll,
 	getWorm, getFloatingEye, getRedDragon, getWhiteDragon, getGreenDragon,
 	getSpider, getSoldier, getUmberHulk, getTree, getBot, getBee :: MonsterGen
+
 -- | homunculus is very stupid and so weak
-getHomunculus = getMonster (getHumanoidAI StupidestAI)
-	[(getBody 1, (10, 30)), 
-	 (getHead 1, (8, 12)),
-	 (getLeg 1, (3, 7)),
-	 (getLeg 1, (3, 7)),
-	 (getArm 1, (2, 6)),
-	 (getArm 1, (2, 6))]
-	idHom ((2,4), 0.4)
-	(\g -> let
-		p, q :: Float
-		(p, g') = randomR (0.0, 1.0) g 
-		(q, g'') = randomR (0.0, 1.0) g' in
-		(if p <= 0.1
-		then M.singleton 'a' (wandForHom q 1, 1)
-		else M.empty, g'')) 100 200
--- | homunculus sometmes generates with attack wand
-wandForHom :: Float -> Int -> Object
-wandForHom = flip uniformFromList [wandOfPoison, wandOfSlowing, 
-	wandOfSpeed, wandOfStriking, wandOfStun]
+getHomunculus = getMonster (getHumanoidAI StupidestAI) partsHom
+	idHom ((2, 4), 0.4) invHom 100 200 10
 -- | beetles are very weak but fast because they have six legs
-getBeetle = getMonster (getEatAI StupidAI)
-	[(getBody 1, (10, 20)),
-	 (getHead 1, ( 5, 15)),
-	 (getPaw  1, ( 5,  9)),
-	 (getPaw  1, ( 5,  9)),
-	 (getLeg 1, (2, 8)),
-	 (getLeg 1, (2, 8)),
-	 (getLeg 1, (2, 8)),
-	 (getLeg 1, (2, 8))]
-	idBtl ((1,5), 0.1) emptyInv 100 100
+getBeetle = getMonster (getEatAI StupidAI) partsBtl
+	idBtl ((1, 5), 0.1) emptyInv 100 100 5
 -- | bats are fat and pretty fast but they can attack you only randomly
-getBat = getMonster (getPureAI RandomAI)
-	[(getBody 1, (10, 50)), 
-	 (getHead 1, (5, 35)),
-	 (getWing 2, (5, 15)),
-	 (getWing 2, (5, 15))]
-	idBat ((3,5), 0.2) emptyInv 50 1000
+getBat = getMonster (getPureAI RandomAI) partsBat
+	idBat ((3, 5), 0.2) emptyInv 50 1000 5
 -- | hunter is clever and can use bow
-getHunter = getMonster (getHunterAI CleverVSAI)
-	[(getBody 1, (10, 30)),
-	 (getHead 1, (10, 30)),
-	 (getLeg 1, (5, 10)),
-	 (getLeg 1, (5, 10)),
-	 (getArm 1, (5, 10)),
-	 (getArm 1, (5, 10))]
-	idHun ((1,4), 0.5) hunterInv 60 200 
--- | hunter always generates with a bow
-hunterInv :: InvGen
-hunterInv g = (M.fromList $ zip alphabet $ addRation
-	[(arrow, 10 * inverseSquareRandom p)
-	,(lAUNCHERS !! uniform q 0 (length lAUNCHERS - 1), 1)
-	], g3) where
-		(p, g1) = randomR (0.0, 1.0) g
-		(q, g2) = randomR (0.0, 1.0) g1
-		(n, g3) = randomR (0, 2) g2
-		addRation = if n == 0 then id else (:) (foodRation, n)
+getHunter = getMonster (getHunterAI CleverVSAI) partsHun
+	idHun ((1, 4), 0.5) hunterInv 60 200 10
 -- | accelerator increase its speed every step
-getAccelerator = getMonster (AIrepr [AcceleratorAI, EatAI] Nothing StupidAI)
-	[(getBody 1, (10, 20)), 
-	 (getHead 1, (8, 12)),
-	 (getLeg 1, (3, 7)),
-	 (getLeg 1, (3 ,7)),
-	 (getArm 1, (2, 6)),
-	 (getArm 1, (2, 6))]
-	idAcc ((1,6), 0.2) emptyInv 150 200
+getAccelerator = getMonster (AIrepr [AcceleratorAI, EatAI] Nothing StupidAI) partsAcc
+	idAcc ((1, 6), 0.2) emptyInv 100 200 8
 -- | troll is fat ans stupid; it can transform to a 'rock' instead of death
-getTroll = getMonster (AIrepr [TrollAI, EatAI] Nothing StupidAI)
-	[(getBody 2, (10, 30)),
-	 (getHead 2, (10, 20)),
-	 (getLeg 3, (8, 12)),
-	 (getLeg 3, (8, 12)),
-	 (getArm 3, (8, 12)),
-	 (getArm 3, (8, 12))]
-	idTrl ((2,5), 0.4) emptyInv 100 200
+getTroll = getMonster (AIrepr [TrollAI, EatAI] Nothing StupidAI) partsTrl
+	idTrl ((2, 5), 0.4) emptyInv 100 200 20
 -- | worm is very long and so fat
-getWorm = getMonster (getPureAI WormAI)
-	[(getMain 1, (200, 500))]
-	idWrm ((5,8), 0.4) emptyInv 100 1000
+getWorm = getMonster (getPureAI WormAI) partsWrm
+	idWrm ((5, 8), 0.4) emptyInv 100 1000 30
 -- | floating eye can fly and paralyze it, but it is so slow
-getFloatingEye = getMonster (getEatAI StupidParalysisAI)
-	[(getMain 2, (10, 40)),
-	 (getWing 1, (5, 10)),
-	 (getWing 1, (5, 10))]
-	idFlE ((1,5), 0.2) emptyInv 200 300
+getFloatingEye = getMonster (getEatAI StupidParalysisAI) partsFlE
+	idFlE ((1, 5), 0.2) emptyInv 200 300 5
 -- | this dragon will attack you with fire from some distance;
 -- this is balaced dragon
-getRedDragon = getMonster (getDragonAI Fire 3)
-	[(getBody 2, (10, 40)),
-	 (getHead 2, (10, 30)),
-	 (getLeg 1, (5, 15)),
-	 (getLeg 1, (5, 15)),
-	 (getWing 3, (5, 15)),
-	 (getWing 3, (5, 15))]
-	idRDr ((3,4), 0.2) emptyInv 120 300
+getRedDragon = getMonster (getDragonAI Fire 3) partsRDr
+	idRDr ((3, 4), 0.2) emptyInv 120 300 15
 -- | this dragon will attack you with cold from some distance; 
 -- this is powerful dragon
-getWhiteDragon = getMonster (getDragonAI Cold 3)
-	[(getBody 2, (10, 40)),
-	 (getHead 2, (10, 30)),
-	 (getLeg 1, (5, 15)),
-	 (getLeg 1, (5, 15)),
-	 (getWing 3, (10, 20)),
-	 (getWing 3, (10, 20))]
-	idWDr ((4,5), 0.2) emptyInv 200 300
+getWhiteDragon = getMonster (getDragonAI Cold 3) partsWDr
+	idWDr ((4,5), 0.2) emptyInv 200 300 15
 -- | this dragon will attack you with poison from some distance;
 -- this is fast dragon
-getGreenDragon = getMonster (getDragonAI Poison' 3)
-	[(getBody 2, (10, 40)),
-	 (getHead 2, (10, 30)),
-	 (getLeg 1, (10, 20)),
-	 (getLeg 1, (10, 20)),
-	 (getWing 3, (10, 30)),
-	 (getWing 3, (10, 30))]
-	idGDr ((2,5), 0.2) emptyInv 80 300
+getGreenDragon = getMonster (getDragonAI Poison' 3) partsRDr
+	idGDr ((2, 5), 0.2) emptyInv 80 300 15
 -- | spider has eight legs and it's poisonous
-getSpider = getMonster (getEatAI StupidPoisonAI)
-	[(getBody 1, (10, 20)),
-	 (getHead 1, (5, 15)),
-	 (getPaw 1, (5, 8)),
-	 (getPaw 1, (5, 8)),
-	 (getLeg 1, (2, 5)),
-	 (getLeg 1, (2, 5)),
-	 (getLeg 1, (2, 5)),
-	 (getLeg 1, (2, 5)),
-	 (getLeg 1, (2, 5)),
-	 (getLeg 1, (2, 5))]
-	idSpd ((2,3), 0.1) emptyInv 250 200
+getSpider = getMonster (getEatAI StupidPoisonAI) partsSpd
+	idSpd ((2, 3), 0.1) emptyInv 250 200 5
 -- | soldier can wield the weapon and wear the armor;
 -- it's almost as clever as you
-getSoldier = getMonster (getHumanoidAI CleverSAI)
-	[(getBody 2, (10, 30)),
-	 (getHead 2, (10, 20)),
-	 (getLeg 3, (8, 12)),
-	 (getLeg 3, (8, 12)),
-	 (getArm 3, (8, 12)),
-	 (getArm 3, (8, 12))]
-	idSol ((1,10), 0.2) soldierInv 100 300
--- | soldier generates with weapon, different armor and some food 
-soldierInv :: InvGen
-soldierInv g = (M.fromList $ zip alphabet $ addRation $ zip
-	[uniformFromList x1 wEAPONS,
-	uniformFromList x2 aRMOR,
-	uniformFromList x3 aRMOR] [1,1..], g4) where
-		(x1, g1) = randomR (0.0, 1.0) g
-		(x2, g2) = randomR (0.0, 1.0) g1
-		(x3, g3) = randomR (0.0, 1.0) g2
-		(n,  g4) = randomR (0, 2) g3
-		addRation = if n == 0 then id else (:) (foodRation, n)
+getSoldier = getMonster (getHumanoidAI CleverSAI) partsSol
+	idSol ((1, 10), 0.2) soldierInv 100 300 12
 -- | this humanoid can confuse you by gase attack
-getUmberHulk = getMonster (getHumanoidAI StupidConfAI)
-	[(getBody 2, (10, 20)),
-	 (getHead 2, (10, 15)),
-	 (getLeg 3, (5, 10)),
-	 (getLeg 3, (5, 10)),
-	 (getArm 3, (5, 10)),
-	 (getArm 3, (5, 10))]
-	idUmH ((2,4), 0.2) emptyInv 100 200
+getUmberHulk = getMonster (getHumanoidAI StupidConfAI) partsUmH
+	idUmH ((2, 4), 0.2) emptyInv 100 200 10
 -- | Just a tree. Do nothing.
-getTree = getMonster (getPureAI NothingAI) [(getMain 1, (50, 100))] 22
-	((0, 0), 0) emptyInv 10000 10000
+getTree = getMonster (getPureAI NothingAI) partsTre
+	idTre ((0, 0), 0) emptyInv 10000 10000 0
 -- | clever squeaky light bot
-getBot = getMonster (getPureAI CleverVSAI)
-	[(getBody 1, (10, 15)),
-	 (getHead 1, (8, 12)),
-	 (getLeg 1, (1, 6)),
-	 (getLeg 1, (1, 6)),
-	 (getArm 1, (1, 6)),
-	 (getArm 1, (1, 6))]
-	idBot ((1, 6), 0.1) emptyInv 100 10000
+getBot = getMonster (getPureAI CleverVSAI) partsBot
+	idBot ((1, 6), 0.1) emptyInv 100 10000 8
 -- | very small flying creature
-getBee = getMonster (getPureAI StupidestAI)
-	[(getBody 1, (10, 20)), 
-	 (getHead 1, (8, 15)),
-	 (getWing 2, (2, 8)),
-	 (getWing 2, (2, 8))]
-	idBee ((1, 6), 0.2) emptyInv 100 200
+getBee = getMonster (getPureAI StupidestAI) partsBee
+	idBee ((1, 6), 0.2) emptyInv 100 200 5

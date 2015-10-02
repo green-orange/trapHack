@@ -12,6 +12,7 @@ import Utils.Monsters
 import Monsters.Parts
 import Monsters.AIrepr
 import Monsters.Monsters
+import Monsters.PartsList
 import IO.Colors
 import IO.Texts
 import MapGen
@@ -168,26 +169,14 @@ addRandom pair f (o, g) = (f value o, g') where
 -- | garbage collector can help you in picking all items from the ground;
 -- it can be creating by a scroll of collecting
 getGarbageCollector :: MonsterGen		  
-getGarbageCollector = getMonster (getEatAI CollectorAI)
-	[(getBody 1, (20, 40)), 
-	 (getHead 1, (10, 30)),
-	 (getLeg  1, ( 8, 12)),
-	 (getLeg  1, ( 8, 12)),
-	 (getArm  1, ( 8, 12)),
-	 (getArm  1, ( 8, 12))]
-	 idGrC ((2,4), 0.4) emptyInv 100 100
+getGarbageCollector = getMonster (getEatAI CollectorAI) partsGrC
+	 idGrC ((2,4), 0.4) emptyInv 100 100 10
 
 -- | golem can be created by a Kabbalistic scroll; it will attack all enemies
 -- near it
 getGolem :: MonsterGen
-getGolem = getMonster (getPureAI GolemAI)
-	[(getBody 1, (10, 30)), 
-	 (getHead 1, ( 8, 12)),
-	 (getLeg  1, ( 3,  7)),
-	 (getLeg  1, ( 3,  7)),
-	 (getArm  1, ( 2,  6)),
-	 (getArm  1, ( 2,  6))]
-	idGlm ((2,4), 0.3) emptyInv 100 10000
+getGolem = getMonster (getPureAI GolemAI) partsGlm
+	idGlm ((2,4), 0.3) emptyInv 100 10000 10
 
 -- | spawn a golem next to you
 spawnGolem :: Int -> Int -> World -> World
