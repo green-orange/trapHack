@@ -135,11 +135,11 @@ msgHeaderInv, msgHeaderEquip, msgHeaderBind, msgHeaderCraft :: String
 msgHeaderPickDrop :: String -> String
 
 msgHeaderInv = "Your inventory: (press Enter or Space to close it)"
-msgHeaderEquip = "Change an item or press - to change nothing"
+msgHeaderEquip = "Choose an item or press - to choose nothing"
 msgHeaderPickDrop word = "What do you want to " ++ word 
 	++ " up? (press Enter to finish)"
-msgHeaderBind = "Change your part to bind."
-msgHeaderCraft = "Change a recipe."
+msgHeaderBind = "Choose your part to bind."
+msgHeaderCraft = "Choose a recipe."
 
 {-Exit messages-}
 msgQuitOnStart :: String
