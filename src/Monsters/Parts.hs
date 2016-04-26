@@ -95,7 +95,7 @@ acPart mon part = (case armor of
 -- | have this monster any part of given kind?
 hasPart :: Int -> Monster -> Bool
 hasPart knd mon = 
-	any (\x -> kind x == knd) $ parts mon
+	any ( (== knd) . kind) $ parts mon
 
 -- | have this monsters upper limbs?
 hasUpperLimb :: Monster -> Bool

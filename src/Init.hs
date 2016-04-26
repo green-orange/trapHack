@@ -239,15 +239,15 @@ showCharChoice = do
 		_ -> getPlayer {inv = M.singleton 'a' (pickAxe, 1)}
 
 -- | converts list to a map where alphabet letters are keys
-listToMap :: [a] -> M.Map Char (a, Int)
-listToMap = M.fromList . zip alphabet . flip zip [1,1..]
+listToMap :: [a] -> M.Map Char a
+listToMap = M.fromList . zip alphabet
 
 -- | list of all magical items
-fullInv :: [Object]
-fullInv = pOTIONS ++ sCROLLS ++ map ($ 5) uNIQUEaMULETS ++ map ($ 4) uNIQUErINGS
-	++ map ($ 100) uNIQUEwANDS ++ tRAPS ++ tOOLS -- must be unique
+fullInv :: [(Object, Int)]
+fullInv = zip (map ($ 5) uNIQUEaMULETS ++ map ($ 4) uNIQUErINGS
+	++ map ($ 100) uNIQUEwANDS ++ tRAPS ++ tOOLS) [1, 1..] ++ zip (pOTIONS ++ sCROLLS) [100, 100..]
 
 -- | maximum armor and weapon
-warInv :: [Object]
-warInv = map (\x -> x {enchantment = 100})
+warInv :: [(Object, Int)]
+warInv = flip zip [1, 1..] $ map (\x -> x {enchantment = 100})
 	[crysknife, plateMail, kabuto, gauntlet, highBoot]
