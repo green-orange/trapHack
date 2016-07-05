@@ -71,9 +71,9 @@ weight :: Object -> Int
 weight (Potion {})   = 20
 weight (Wand {})     = 7
 weight (Scroll {})   = 5
-weight (Trap {})     = 50
+weight (Trap {})     = 2
 weight (Missile {})  = 2
-weight (Jewelry {})  = 10
+weight (Jewelry {})  = 5
 weight (Resource {}) = 3
 weight obj = weight' obj
 

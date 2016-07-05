@@ -47,7 +47,7 @@ initWorld mapgen char username gen = World {
 	xInfo = 0,
 	yInfo = 0,
 	numToSplit = 0,
-	showMode = ColorMonsters,
+	showMode = ColorHeightAbs,
 	mapType = mapgen
 } where (worldmap', newStdGen) = runMap mapgen gen
 
@@ -217,12 +217,16 @@ customMapChoice = do
 			"c" -> MagicMap $ maybeReadNum 100 str2
 			_ -> NoTraps
 
+-- | get player with default inventory
+getDefaultPlayer :: Monster
+getDefaultPlayer = getPlayer {inv = listToMap defInv}
+
 -- | show start menu with character choice
 showCharChoice :: IO Monster
 showCharChoice = do
 	putStrLn "Choose your character: "
 	putStrLn "a - standard character without items"
-	putStrLn "b - (a) with pickaxe, DEFAULT"
+	putStrLn "b - (a) with pickaxe and traps, DEFAULT"
 	putStrLn "c - (a) with stacks of potions, scrolls, rings, amulets, "
 	putStrLn "wands, traps and tools"
 	putStrLn "d - flying creature without items"
@@ -231,12 +235,12 @@ showCharChoice = do
 	c <- getLine
 	return $ case c of
 		"a" -> getPlayer
-		"b" -> getPlayer {inv = M.singleton 'a' (pickAxe, 1)}
-		"c" -> getPlayer {inv = listToMap fullInv}
+		"b" -> getPlayer {inv = listToMap defInv}
+		"c" -> getDefaultPlayer 
 		"d" -> getFlyingPlayer
 		"e" -> getStrongPlayer {inv = listToMap warInv}
 		"f" -> getGodlikePlayer {inv = listToMap $ warInv ++ fullInv}
-		_ -> getPlayer {inv = M.singleton 'a' (pickAxe, 1)}
+		_ -> getDefaultPlayer
 
 -- | converts list to a map where alphabet letters are keys
 listToMap :: [a] -> M.Map Char a
@@ -246,6 +250,10 @@ listToMap = M.fromList . zip alphabet
 fullInv :: [(Object, Int)]
 fullInv = zip (map ($ 5) uNIQUEaMULETS ++ map ($ 4) uNIQUErINGS
 	++ map ($ 100) uNIQUEwANDS ++ tRAPS ++ tOOLS) [1, 1..] ++ zip (pOTIONS ++ sCROLLS) [100, 100..]
+
+-- | default inventory: lotsa traps and a pickaxe
+defInv :: [(Object, Int)]
+defInv = zip tRAPS [5, 5..] ++ [(pickAxe, 1)]
 
 -- | maximum armor and weapon
 warInv :: [(Object, Int)]
