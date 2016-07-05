@@ -134,7 +134,7 @@ msgPutSize = "Enter the size of one pile."
 msgHeaderInv, msgHeaderEquip, msgHeaderBind, msgHeaderCraft :: String
 msgHeaderPickDrop :: String -> String
 
-msgHeaderInv = "Your inventory: (press Enter or Space to close it)"
+msgHeaderInv = "Your inventory: (press Enter, Space or Escape to close it)"
 msgHeaderEquip = "Choose an item or press - to choose nothing"
 msgHeaderPickDrop word = "What do you want to " ++ word 
 	++ " up? (press Enter to finish)"

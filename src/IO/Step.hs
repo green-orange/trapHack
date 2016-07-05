@@ -51,7 +51,7 @@ step world c
 			Use1 -> Left $ addDefaultMessage msgAskDir world
 				{prevAction = c, action = Use2}
 			Inventory ->
-				if isSpace c
+				if isSpace c || c == '\ESC'
 				then Left $ world {action = Move}
 				else Left world
 			DropMany ->
