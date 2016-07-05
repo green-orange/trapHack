@@ -14,6 +14,7 @@ r - **r**ead (a scroll)
 z - **z**ap (a wand)  
 E - **e**quip a part by something  
 f - **f**ire  
+e - **e**at  
 t - set or remove **t**rap  
 i - show **i**nventory  
 d - **d**rop one item  
@@ -26,4 +27,5 @@ S - **s**ave the game
 P - show **p**revious messages  
 s - **s**plit pile of items  
 O - change **o**ptions  
-U - **u**se item  
+U - **u**se item
+& - craft something  
