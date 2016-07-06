@@ -77,42 +77,31 @@ myReadItems _ "" = []
 myReadItems c str = myReadItem <$> separate c str
 
 instance Read Object where
-	readsPrec _ str = [(case arg1 of
-		"Potion" -> pOTIONS !! id'
-		"Wand" -> (uNIQUEwANDS !! id') ench'
-		"Scroll" -> sCROLLS !! id'
-		"Trap" -> tRAPS !! id'
-		"Missile" -> (mISSILES !! id') {enchantment = ench'}
-		"Launcher" -> (lAUNCHERS !! id') {enchantment = ench'}
-		"Weapon" -> (uNIQUEwEAPONS !! id') {enchantment = ench'}
-		"Armor"
-			| bind' == hEAD -> (uNIQUEhELMS !! id') {enchantment = ench'}
-			| bind' == bODY -> (uNIQUEaRMOR !! id') {enchantment = ench'}
-			| bind' == lEG  -> (uNIQUEbOOTS !! id') {enchantment = ench'}
-			| bind' == aRM -> (uNIQUEgLOVES !! id') {enchantment = ench'}
-			| otherwise -> error $ "parse error: part: " ++ show bind'
-		"Jewelry"
-			| bind' == hEAD -> (uNIQUEaMULETS !! id') ench'
-			| bind' == aRM -> (uNIQUErINGS !! id') ench'
-			| otherwise -> error $ "parse error: part: " ++ show bind'
-		"Food" -> Food {title = read arg2, nutrition = read arg3, 
-			weight' = read arg4, rotRate = read arg5, rotTime = read arg6,
-			idO = read arg7, effect = if isBerry' then effect 
-			$ bERRIES !! read arg7 else id, isBerry = isBerry'}
-		"Resource" -> Resource {title = arg2, restype = read arg2}
-		"Tool" -> (tOOLS !! id') {charge = ench'}
+	readsPrec _ str = [(case raw !! 0 of
+		"Potion" -> potions !! id'
+		"Wand" -> (uniqueWands !! id') ench'
+		"Scroll" -> scrolls !! id'
+		"Trap" -> traps !! id'
+		"Missile" -> (missiles !! id') {enchantment = ench'}
+		"Launcher" -> (launchers !! id') {enchantment = ench'}
+		"Weapon" -> (uniqueWeapons !! id') {enchantment = ench'}
+		"Armor" -> (armorByType !! bind' !! id') {enchantment = ench'}
+		"Jewelry" -> jewelryByType !! bind' !! id' $ ench'
+		"Food" -> Food {title = raw !! 1, nutrition = parsed !! 2 , 
+			weight' = parsed !! 3, rotRate = parsed !! 4, rotTime = parsed !! 5,
+			idO = parsed !! 6, effect = if isBerry' then effect 
+			$ berries !! (parsed !! 6) else id, isBerry = isBerry'}
+		"Resource" -> Resource {title = raw !! 1, restype = read $ raw !! 1}
+		"Tool" -> (tools !! id') {charge = ench'}
 		_ -> error $ "parse error: " ++ str, "")]
 		where
-		parse = separate objSep str
-		arg1 : arg2 : rest = parse
-		arg3 : rest' = rest
-		arg4 : rest'' = rest'
-		arg5 : arg6 : arg7 : _ = rest''
-		isBerry' = arg7 /= "-1"
+		raw = separate objSep str
+		parsed = map read raw
+		isBerry' = raw !! 6 /= "-1"
 		id', bind', ench' :: Int
-		id' = read arg2
-		ench' = read arg3
-		bind' = read arg4
+		id' = parsed !! 1
+		ench' = parsed !! 2
+		bind' = parsed !! 3
 
 instance Read Monster where
 	readsPrec _ str = [(Monster {

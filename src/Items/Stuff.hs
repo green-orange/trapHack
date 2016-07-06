@@ -35,7 +35,7 @@ invHom g =
 hunterInv :: InvGen
 hunterInv g = (M.fromList $ zip alphabet $ addRation
 	[(arrow, 10 * inverseSquareRandom p)
-	,(lAUNCHERS !! uniform q 0 (length lAUNCHERS - 1), 1)
+	,(launchers !! uniform q 0 (length launchers - 1), 1)
 	], g3) where
 		(p, g1) = randomR (0.0, 1.0) g
 		(q, g2) = randomR (0.0, 1.0) g1
@@ -45,9 +45,9 @@ hunterInv g = (M.fromList $ zip alphabet $ addRation
 -- | soldier generates with weapon, different armor and some food 
 soldierInv :: InvGen
 soldierInv g = (M.fromList $ zip alphabet $ addRation $ zip
-	[uniformFromList x1 wEAPONS,
-	uniformFromList x2 aRMOR,
-	uniformFromList x3 aRMOR] [1,1..], g4) where
+	[uniformFromList x1 weapons,
+	uniformFromList x2 armor,
+	uniformFromList x3 armor] [1,1..], g4) where
 		(x1, g1) = randomR (0.0, 1.0) g
 		(x2, g2) = randomR (0.0, 1.0) g1
 		(x3, g3) = randomR (0.0, 1.0) g2
@@ -57,27 +57,27 @@ soldierInv g = (M.fromList $ zip alphabet $ addRation $ zip
 -- | generate death drop by monster name
 deathDrop :: Int -> StdGen -> (Inv, StdGen)
 deathDrop x
-	| x == idHom = genDeathDrop [(wANDS, bound [0.6])]
-	| x == idBtl = genDeathDrop [(pOTIONS, bound [0.5])]
-	| x == idBat = genDeathDrop [(pOTIONS, bound [0.3, 0.8])]
-	| x == idHun = genDeathDrop [(tRAPS, bound [0.3, 0.8])]
-	| x == idIvy = genDeathDrop [(sCROLLS, bound [0.9])]
-	| x == idAcc = genDeathDrop [(sCROLLS, bound [0.6, 0.9])]
-	| x == idTrl = genDeathDrop [(wANDS, bound [0.6])]
+	| x == idHom = genDeathDrop [(wands, bound [0.6])]
+	| x == idBtl = genDeathDrop [(potions, bound [0.5])]
+	| x == idBat = genDeathDrop [(potions, bound [0.3, 0.8])]
+	| x == idHun = genDeathDrop [(traps, bound [0.3, 0.8])]
+	| x == idIvy = genDeathDrop [(scrolls, bound [0.9])]
+	| x == idAcc = genDeathDrop [(scrolls, bound [0.6, 0.9])]
+	| x == idTrl = genDeathDrop [(wands, bound [0.6])]
 	| x == idWrm = genDeathDrop [([crysknife], bound [0.8])]
-	| x == idFlE = genDeathDrop [(pOTIONS, bound [0.5])]
+	| x == idFlE = genDeathDrop [(potions, bound [0.5])]
 	| x == idRDr || x == idWDr || x == idGDr = dragonDrop
-	| x == idFgB = genDeathDrop [(sTACKABLE, bound inverseSquareList)]
-	| x == idSpd = genDeathDrop [(jEWELRY, bound [0.6])]
-	| x == idUmH = genDeathDrop [(wANDS, bound [0.6])]
+	| x == idFgB = genDeathDrop [(stackable, bound inverseSquareList)]
+	| x == idSpd = genDeathDrop [(jewelry, bound [0.6])]
+	| x == idUmH = genDeathDrop [(wands, bound [0.6])]
 	| x == idTre = genDeathDrop [([itemFromRes Tree], 3 * bound inverseSquareList)]
 	| x == idBot = genDeathDrop [([itemFromRes MetalScrap], bound [0.7])]
-	| x == idBsh = genDeathDrop [(bERRIES, bound [0.2, 0.5, 0.9])]
+	| x == idBsh = genDeathDrop [(berries, bound [0.2, 0.5, 0.9])]
 	| otherwise = \p -> (M.empty, p)
 
 -- | generate drop for all dragons
 dragonDrop :: StdGen -> (Inv, StdGen)
-dragonDrop = genDeathDrop [(jEWELRY, bound [0.4])]
+dragonDrop = genDeathDrop [(jewelry, bound [0.4])]
 
 -- | return last n such that sum of first n element of the list is less then q
 bound :: [Float] -> Float -> Int
@@ -108,16 +108,16 @@ genDeathDropByAlph alph@(a:as) ((objs, f):xs) g =
 		(rest, newG) = genDeathDropByAlph as xs g''
 
 -- | list of all stackable items
-sTACKABLE :: [Object]
-sTACKABLE = pOTIONS ++ tRAPS ++ sCROLLS ++ mISSILES
+stackable :: [Object]
+stackable = potions ++ traps ++ scrolls ++ missiles
 	
 potionOfHealing, potionOfIntellect, potionOfMutation, potionOfEnchantWeapon,
-	potionOfEnchantArmor, potionOfEnchantJewelry, soup, potionOfStrength
+	potionOfEnchantArmor, potionOfEnchantjewelry, soup, potionOfStrength
 	:: Object
 -- | list of all potions
-pOTIONS :: [Object]
-pOTIONS = [potionOfHealing, potionOfIntellect, potionOfMutation, 
-	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantJewelry,
+potions :: [Object]
+potions = [potionOfHealing, potionOfIntellect, potionOfMutation, 
+	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantjewelry,
 	soup, potionOfStrength]
 -- | heals your body
 potionOfHealing = Potion {title = "potion of healing",
@@ -136,7 +136,7 @@ potionOfEnchantWeapon = Potion {title = "potion of enchant weapon",
 potionOfEnchantArmor = Potion {title = "potion of enchant armor",
 	act = addRandom (0, 3) $ enchantAll ArmorSlot, idO = 4}
 -- | enchant all your putted jewelry
-potionOfEnchantJewelry = Potion {title = "potion of enchant jewelry",
+potionOfEnchantjewelry = Potion {title = "potion of enchant jewelry",
 	act = addRandom (0, 3) $ enchantAll JewelrySlot, idO = 5}
 -- | just increase your satiety
 soup = Potion {title = "soup", act = addRandom (20, 100) addNutr, idO = 6}
@@ -147,8 +147,8 @@ potionOfStrength = Potion {title = "potion of strength",
 scrollOfFire, scrollOfAnimation, scrollOfCollection, scrollOfSafety, 
 	kabbalisticScroll, scrollOfBandaging :: Object
 -- | list of all scrolls
-sCROLLS :: [Object]
-sCROLLS = [scrollOfFire, scrollOfAnimation, scrollOfCollection, 
+scrolls :: [Object]
+scrolls = [scrollOfFire, scrollOfAnimation, scrollOfCollection, 
 	scrollOfSafety, kabbalisticScroll, scrollOfBandaging]
 -- | attacks all mosnters near you with fire; creates some bonfires
 scrollOfFire = Scroll {title = "scroll of fire",
@@ -174,12 +174,12 @@ wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation,
 	wandOfPsionicBlast, wandOfPoison, wandOfSlowing, wandOfStun
 	:: Int -> Object
 -- | list of all function (charge -> wand)
-uNIQUEwANDS :: [Int -> Object]
-uNIQUEwANDS = [wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation,
+uniqueWands :: [Int -> Object]
+uniqueWands = [wandOfStriking, wandOfStupidity, wandOfSpeed, wandOfRadiation,
 	wandOfPsionicBlast, wandOfPoison, wandOfSlowing, wandOfStun]
 -- | list of charged wands to generate death drop 
-wANDS :: [Object]
-wANDS =
+wands :: [Object]
+wands =
 	(wandOfStriking     <$> [1..5]) ++
 	(wandOfStupidity    <$> [1..5]) ++
 	(wandOfSpeed        <$> [1..2]) ++
@@ -223,8 +223,8 @@ wandOfStun ch = Wand {title = "wand of stun", act = randTemp Stun (1, 10),
 
 bearTrap, fireTrap, poisonTrap, magicTrap :: Object
 -- | list of all traps
-tRAPS :: [Object]
-tRAPS = [bearTrap, fireTrap, poisonTrap, magicTrap]
+traps :: [Object]
+traps = [bearTrap, fireTrap, poisonTrap, magicTrap]
 -- | block all moves (don't work with you and fluing creatures)
 bearTrap = Trap {title = "bear trap", num = BearTrap, idO = 0}
 -- | attack monster with fire
@@ -236,8 +236,8 @@ magicTrap = Trap {title = "magic trap",	num = MagicTrap, idO = 3}
 
 arrow :: Object
 -- | list of all missiles
-mISSILES :: [Object]
-mISSILES = [arrow]
+missiles :: [Object]
+missiles = [arrow]
 -- | get a missile by given title and dmg, launcher kind
 getMissile :: String -> StdDmg -> String -> Object
 getMissile t o l = Missile {title = t, objdmg' = o, launcher = l,
@@ -247,8 +247,8 @@ arrow = getMissile "arrow" (dices (1,6) 0.2) "bow"
 
 shortbow, bow, longbow :: Object
 
-lAUNCHERS :: [Object]
-lAUNCHERS = [shortbow, bow, longbow]
+launchers :: [Object]
+launchers = [shortbow, bow, longbow]
 -- | get a launcher by title, weight, count of missiles by one shot,
 -- category and id
 getLauncher :: String -> Int -> Int -> String -> Int -> Object
@@ -263,12 +263,12 @@ longbow = getLauncher "longbow" 40 3 "bow" 2
 
 dagger, shortsword, sword, crysknife, woodenSword, stoneSword, crowbar :: Object
 -- | list of all weapons
-uNIQUEwEAPONS :: [Object]
-uNIQUEwEAPONS = [dagger, shortsword, sword, crysknife, woodenSword, 
+uniqueWeapons :: [Object]
+uniqueWeapons = [dagger, shortsword, sword, crysknife, woodenSword, 
 	stoneSword, crowbar]
 -- | list of all random generated weapons
-wEAPONS :: [Object]
-wEAPONS = 
+weapons :: [Object]
+weapons = 
 	replicate 4 dagger ++
 	replicate 2 shortsword ++
 	replicate 1 sword
@@ -291,19 +291,28 @@ stoneSword  = getWeapon "stone sword"  50 5 $ dices (2, 9) 0.2
 -- | crowbar: average damage = 9.0
 crowbar     = getWeapon "crowbar"      30 6 $ dices (2, 8) 0.0
 
-uNIQUEaRMOR, uNIQUEhELMS, uNIQUEgLOVES, uNIQUEbOOTS :: [Object]
-aRMOR, bODYaRMOR, hELMETS, gLOVES, bOOTS :: [Object]
+uniqueArmor, uniqueHelms, uniqueGloves, uniqueBoots :: [Object]
+armor, bodyArmor, helmets, gloves, boots :: [Object]
 -- | list of all armor
-aRMOR = bODYaRMOR ++ hELMETS ++ gLOVES ++ bOOTS
+armor = bodyArmor ++ helmets ++ gloves ++ boots
 -- | get armor by title, weight, ac, binding (a body part) and id
 getArmor :: String -> Int -> Int -> Int -> Int -> Object
 getArmor t w a b id' = Armor {title = t, ac' = a, bind = b, enchantment = 0, 
 	weight' = w, idO = id'}
+
+armorByType :: [[Object]]
+armorByType =
+	[uniqueArmor  -- ^ bODY
+	,uniqueHelms  -- ^ hEAD
+	,uniqueBoots  -- ^ lEG
+	,uniqueGloves] -- ^ aRM
+
+
 -- | list of all body armor classes
-uNIQUEaRMOR = [leatherJacket, leatherArmor, ringMail, plateMail]
+uniqueArmor = [leatherJacket, leatherArmor, ringMail, plateMail]
 leatherJacket, leatherArmor, ringMail, plateMail :: Object
 -- | list of armor with coefficients to generate random armor
-bODYaRMOR = 
+bodyArmor = 
 	replicate 4 leatherJacket ++
 	replicate 3 leatherArmor ++ 
 	replicate 2 ringMail ++
@@ -314,10 +323,10 @@ leatherArmor = getArmor "leather armor" 150 2 bODY 1
 ringMail = getArmor "ring mail" 250 3 bODY 2
 plateMail = getArmor "plate mail" 450 4 bODY 3
 -- | list of all helms
-uNIQUEhELMS = [fedora, hardHat, helmet, kabuto]
+uniqueHelms = [fedora, hardHat, helmet, kabuto]
 fedora, hardHat, helmet, kabuto :: Object
 -- | list of helms with probabilities to generate random armor
-hELMETS =
+helmets =
 	replicate 4 fedora ++
 	replicate 3 hardHat ++
 	replicate 2 helmet ++
@@ -328,33 +337,42 @@ hardHat = getArmor "hard hat" 20 2 hEAD 1
 helmet = getArmor "helmet" 40 3 hEAD 2
 kabuto = getArmor "kabuto" 50 4 hEAD 3
 -- | list of all gloves
-uNIQUEgLOVES = gLOVES
+uniqueGloves = gloves
 glove, gauntlet :: Object
 -- | list of gloves with probabilities to generate random armor
-gLOVES = [glove, gauntlet]
+gloves = [glove, gauntlet]
 
 glove = getArmor "glove" 3 1 aRM 0
 gauntlet = getArmor "gauntlet" 5 2 aRM 1
 -- | list of all boots
-uNIQUEbOOTS = bOOTS
+uniqueBoots = boots
 lowBoot, highBoot :: Object
 -- | list of boots with probablilities to generate random armor
-bOOTS = [lowBoot, highBoot]
+boots = [lowBoot, highBoot]
 
 lowBoot = getArmor "low boot" 10 1 lEG 0
 highBoot = getArmor "high boot" 20 2 lEG 1
 
-uNIQUErINGS, uNIQUEaMULETS :: [Int -> Object]
-jEWELRY, rINGS, aMULETS :: [Object]
+uniqueRings, uniqueAmulets :: [Int -> Object]
+jewelry, rings, amulets :: [Object]
 -- | list of all jewelry
-jEWELRY = rINGS ++ aMULETS
+jewelry = rings ++ amulets
 -- | list of all (enchantment -> ring) functions
-uNIQUErINGS = [ringOfSpeed, ringOfFireRes, ringOfColdRes, 
+
+jewelryByType :: [[Int -> Object]]
+jewelryByType =
+	[putWE "jewelryByType" -- ^ hEAD
+	,uniqueAmulets         -- ^ bODY
+	,putWE "jewelryByType" -- ^ lEG
+	,uniqueRings]          -- ^ aRM
+
+
+uniqueRings = [ringOfSpeed, ringOfFireRes, ringOfColdRes, 
 	ringOfPoisonRes, ringOfProtection]
 ringOfSpeed, ringOfFireRes, ringOfColdRes, ringOfPoisonRes, ringOfProtection 
 	:: Int -> Object
 -- | list of rings with probabilities to generate random jewelry
-rINGS = 
+rings = 
 	(ringOfSpeed      <$> [1..4]) ++
 	(ringOfFireRes    <$> [1..3]) ++
 	(ringOfColdRes    <$> [1..3]) ++
@@ -378,10 +396,10 @@ ringOfPoisonRes = getRingRes "ring of poison resistance" Poison' 3
 ringOfProtection ench = Jewelry {title = "ring of protection", enchantment = ench,
 	bind = aRM, effectOn = flip const, effectOff = flip const, idO = 4}
 -- | list of all amulets
-uNIQUEaMULETS = [amuletOfTeleportation, amuletOfStrength]
+uniqueAmulets = [amuletOfTeleportation, amuletOfStrength]
 amuletOfTeleportation, amuletOfStrength :: Int -> Object
 -- | list of amulets with probabilities to generate random jewelry
-aMULETS = 
+amulets = 
 	(amuletOfTeleportation <$> [1..6]) ++
 	(amuletOfStrength      <$> [1..4])
 -- | get amulet that gives you some intrincic by multiplicator, title, 
@@ -420,8 +438,8 @@ foodRation = Food {
 
 pickAxe :: Object
 -- | list of all items
-tOOLS :: [Object]
-tOOLS = [pickAxe]
+tools :: [Object]
+tools = [pickAxe]
 -- | pick axe to extract stone
 pickAxe = Tool {
 	title = "pick axe",
@@ -433,8 +451,8 @@ pickAxe = Tool {
 
 strawberry, wolfberry, belladonna :: Object
 -- | list of all berries
-bERRIES :: [Object]
-bERRIES = [strawberry, wolfberry, belladonna]
+berries :: [Object]
+berries = [strawberry, wolfberry, belladonna]
 -- | get a berry by title, nutrition, id and effect
 getBerry :: String -> Int -> Int -> (Monster -> Monster) -> Object
 getBerry title' nutr id' eff = Food {

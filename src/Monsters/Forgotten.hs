@@ -85,5 +85,5 @@ forgottenSlowness = randomR (70, 130)
 -- | get an inventory with random stackable items
 forgottenInv :: InvGen
 forgottenInv g = (fromList $ zip alphabet $ filter ((>0) . snd)
-	$ zip sTACKABLE nums, g) where
+	$ zip stackable nums, g) where
 	nums = ((`div` 3) . inverseSquareRandom) <$> randoms g

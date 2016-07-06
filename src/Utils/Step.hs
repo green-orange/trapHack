@@ -148,8 +148,8 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 		then msgFireYou
 		else name mon ++ msgFire)
 	magicTrapped = ((newMon', g''), msgWand (title obj) (name mon)) where
-		(ind, g') = randomR (0, length wANDS - 1) $ stdgen w
-		obj = wANDS !! ind
+		(ind, g') = randomR (0, length wands - 1) $ stdgen w
+		obj = wands !! ind
 		(newMon', g'') = act obj (mon, g')
 	((newMon, g), newMsg) = case trap of
 		Water -> if isFlying mon then ((mon, stdgen w), "")

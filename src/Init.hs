@@ -192,7 +192,7 @@ customMapChoice = do
 	trapnum <- if trapStr == "b" || trapStr == "c" then getLine
 		else return ""
 	return $ MapGenType (heigen heigenStr hei) (avg avgStr)
-		(water waterStr waternum) (traps trapStr trapnum)
+		(water waterStr waternum) (trapsType trapStr trapnum)
 	where
 		maybeReadNum :: Int -> String -> Int
 		maybeReadNum def [] = def
@@ -211,7 +211,7 @@ customMapChoice = do
 			"b" -> Rivers $ maybeReadNum 50 str2
 			"c" -> Swamp $ maybeReadNum 3 str2
 			_ -> NoWater
-		traps str1 str2 = case str1 of
+		trapsType str1 str2 = case str1 of
 			"a" -> NoTraps
 			"b" -> Bonfires $ maybeReadNum 100 str2
 			"c" -> MagicMap $ maybeReadNum 100 str2
@@ -248,12 +248,12 @@ listToMap = M.fromList . zip alphabet
 
 -- | list of all magical items
 fullInv :: [(Object, Int)]
-fullInv = zip (map ($ 5) uNIQUEaMULETS ++ map ($ 4) uNIQUErINGS
-	++ map ($ 100) uNIQUEwANDS ++ tOOLS) [1, 1..] ++ zip (pOTIONS ++ sCROLLS ++ tRAPS) [100, 100..]
+fullInv = zip (map ($ 5) uniqueAmulets ++ map ($ 4) uniqueRings
+	++ map ($ 100) uniqueWands ++ tools) [1, 1..] ++ zip (potions ++ scrolls ++ traps) [100, 100..]
 
 -- | default inventory: lotsa traps and a pickaxe
 defInv :: [(Object, Int)]
-defInv = zip tRAPS [5, 5..] ++ [(pickAxe, 1)]
+defInv = zip traps [5, 5..] ++ [(pickAxe, 1)]
 
 -- | maximum armor and weapon
 warInv :: [(Object, Int)]
