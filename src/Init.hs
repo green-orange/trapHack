@@ -249,7 +249,7 @@ listToMap = M.fromList . zip alphabet
 -- | list of all magical items
 fullInv :: [(Object, Int)]
 fullInv = zip (map ($ 5) uNIQUEaMULETS ++ map ($ 4) uNIQUErINGS
-	++ map ($ 100) uNIQUEwANDS ++ tRAPS ++ tOOLS) [1, 1..] ++ zip (pOTIONS ++ sCROLLS) [100, 100..]
+	++ map ($ 100) uNIQUEwANDS ++ tOOLS) [1, 1..] ++ zip (pOTIONS ++ sCROLLS ++ tRAPS) [100, 100..]
 
 -- | default inventory: lotsa traps and a pickaxe
 defInv :: [(Object, Int)]
