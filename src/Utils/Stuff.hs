@@ -1,6 +1,5 @@
 module Utils.Stuff where
 
-import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
@@ -44,7 +43,8 @@ upgrade n part = part {
 	regRate = regRate part + 1
 }
 
-upgradeParts, upgradePartById :: Int -> Int -> Monster -> Monster
+upgradeParts :: PartKind -> Int -> Monster -> Monster
+upgradePartById :: Int -> Int -> Monster -> Monster
 upgradeAll :: Int -> Monster -> Monster
 -- | upgrade parts with given kind
 upgradeParts = doSmthParts upgrade
@@ -55,14 +55,14 @@ upgradeAll = doSmthAll upgrade
 
 -- | add random part to a monster (for potion of mutation)
 addRandomPart :: (Monster, StdGen) -> (Monster, StdGen)
-addRandomPart (m, g) = (addPart m knd hp' regRate', g3) where
-	(knd, g1) = randomR (0, kINDS) g
+addRandomPart (m, g) = (addPart m (toEnum knd) hp' regRate', g3) where
+	(knd, g1) = randomR (0, fromEnum Main - 1) g
 	(p, g2) = randomR (0.0, 1.0) g1
 	hp' = 5 * inverseSquareRandom p
 	(regRate', g3) = randomR (1, 4) g2
 
 -- | add part with given characteristic to a monster
-addPart :: Monster -> Int -> Int -> Int -> Monster
+addPart :: Monster -> PartKind -> Int -> Int -> Monster
 addPart mon knd hp' regRate' = mon {parts = newPart : parts mon} where
 	newPart = Part {
 		hp = hp',
@@ -89,8 +89,8 @@ fireAround d pair w = spawnBonfires $ addMessages newMsgs
 		else mon
 	msg (_,mon) = 
 		if name mon == "You"
-		then (msgFireYou, rED)
-		else (name mon ++ msgFire, gREEN)
+		then (msgFireYou, red)
+		else (name mon ++ msgFire, green)
 	newMsgs = msg <$> filter isClose (M.toList $ units w)
 
 -- | change AI to 'StupidestAI' if monster is active and isn't player
@@ -127,7 +127,7 @@ isUntrappable = (`notElem` [Empty, Water, Bonfire, MagicNatural]). terrain
 safety :: World -> World
 safety w = w {
 	units' = (units' w) {list = M.singleton (xFirst w, yFirst w) $ getFirst w},
-	message = [(msgSafety, bLUE)],
+	message = [(msgSafety, blue)],
 	items = [],
 	action = Move,
 	wave = wave w + 1,

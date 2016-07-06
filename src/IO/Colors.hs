@@ -8,27 +8,28 @@ import Data.Maybe (catMaybes)
 import Data.Functor ((<$>))
 
 -- | constants with handles of foreground colors
-dEFAULT, gREEN, yELLOW, rED, cYAN, mAGENTA, bLUE, rEDiNVERSE, dEFAULTbACK :: Int
-dEFAULT     = 1
-rED         = 2
-gREEN       = 3
-yELLOW      = 4
-bLUE        = 5
-mAGENTA     = 6
-cYAN        = 7
-rEDiNVERSE  = 58
-dEFAULTbACK = 8
+backMult, defaultc, defaultBack, red, green, yellow, blue, magenta, cyan, redInverse :: Int
+backMult    = 8
+defaultc    = 1
+defaultBack = defaultc * backMult
+red         = 2
+green       = 3
+yellow      = 4
+blue        = 5
+magenta     = 6
+cyan        = 7
+redInverse  = backMult * (backMult - 1) + red
 
 -- | converts terrain to handle of a background color
 colorFromTerr :: Terrain -> Int
-colorFromTerr Empty        = 8  -- default
-colorFromTerr BearTrap     = 32 -- yellow
-colorFromTerr FireTrap     = 16 -- red
-colorFromTerr PoisonTrap   = 56 -- green
-colorFromTerr MagicTrap    = 48 -- magenta
-colorFromTerr Water        = 40 -- blue
-colorFromTerr Bonfire      = 16 -- red
-colorFromTerr MagicNatural = 48 -- magenta
+colorFromTerr Empty        = defaultBack
+colorFromTerr BearTrap     = yellow  * backMult
+colorFromTerr FireTrap     = red     * backMult
+colorFromTerr PoisonTrap   = green   * backMult
+colorFromTerr MagicTrap    = magenta * backMult
+colorFromTerr Water        = blue    * backMult
+colorFromTerr Bonfire      = red     * backMult
+colorFromTerr MagicNatural = magenta * backMult
 
 -- | converts cell to handle of a background color
 colorFromCell :: Cell -> Int
@@ -37,34 +38,34 @@ colorFromCell = colorFromTerr . terrain
 -- | converts height difference to a color
 colorFromHei :: Int -> Int
 colorFromHei hei
-	| hei  < -3 = dEFAULT
-	| hei  < -1 = rED
-	| hei == -1 = yELLOW
-	| hei ==  0 = gREEN
-	| hei ==  1 = cYAN
-	| hei  <  4 = bLUE
-	| otherwise = mAGENTA
+	| hei  < -3 = defaultc
+	| hei  < -1 = red
+	| hei == -1 = yellow
+	| hei ==  0 = green
+	| hei ==  1 = cyan
+	| hei  <  4 = blue
+	| otherwise = magenta
 
 -- | converts absolute height to a color
 colorFromHeiAbs :: Int -> Int
 colorFromHeiAbs hei
-	| hei  <  2 = rED
-	| hei  <  4 = yELLOW
-	| hei ==  4 = gREEN
-	| hei ==  5 = cYAN
-	| hei  <  7 = bLUE
-	| otherwise = mAGENTA
+	| hei  <  2 = red
+	| hei  <  4 = yellow
+	| hei ==  4 = green
+	| hei ==  5 = cyan
+	| hei  <  7 = blue
+	| otherwise = magenta
 
 -- | convert a temporary effect to a color
 colorFromTemp :: Temp -> Int -> Int
 colorFromTemp Nutrition n
-	| n <= 5  = rEDiNVERSE
-	| n <= 20 = rED
-	| n <= 50 = yELLOW
-	| otherwise = dEFAULT
-colorFromTemp Poison _ = rED
-colorFromTemp Conf _ = yELLOW
-colorFromTemp Stun _ = rED
+	| n <= 5  = redInverse
+	| n <= 20 = red
+	| n <= 50 = yellow
+	| otherwise = defaultc
+colorFromTemp Poison _ = red
+colorFromTemp Conf _ = yellow
+colorFromTemp Stun _ = red
 
 -- | initialize handle of all color pairs
 initColors :: IO ()
@@ -78,30 +79,30 @@ initColors = sequence_ actions where
 -- | char and color by a monster name
 symbolMon :: Int -> (Char, Int)
 symbolMon x
-	| x == idYou = ('@', yELLOW)
-	| x == idHom = ('h', yELLOW)
-	| x == idBtl = ('a', cYAN)
-	| x == idBat = ('B', rED)
-	| x == idHun = ('H', yELLOW)
-	| x == idIvy = ('I', gREEN)
-	| x == idDum = ('&', bLUE)
-	| x == idGrC = ('G', bLUE)
-	| x == idAcc = ('A', yELLOW)
-	| x == idTrl = ('T', rED)
-	| x == idRck = ('#', bLUE)
-	| x == idTai = ('~', bLUE)
-	| x == idWrm = ('w', rED)
-	| x == idGlm = ('g', bLUE)
-	| x == idFlE = ('e', mAGENTA)
-	| x == idRDr = ('D', rED)
-	| x == idWDr = ('D', dEFAULT)
-	| x == idGDr = ('D', gREEN)
-	| x == idFgB = ('X', mAGENTA)
-	| x == idSpd = ('s', rED)
-	| x == idSol = ('@', yELLOW)
-	| x == idUmH = ('U', yELLOW)
-	| x == idTre = ('Y', gREEN)
-	| x == idBot = ('$', cYAN)
-	| x == idBee = ('b', yELLOW)
-	| x == idBsh = ('y', gREEN)
+	| x == idYou = ('@', yellow)
+	| x == idHom = ('h', yellow)
+	| x == idBtl = ('a', cyan)
+	| x == idBat = ('B', red)
+	| x == idHun = ('H', yellow)
+	| x == idIvy = ('I', green)
+	| x == idDum = ('&', blue)
+	| x == idGrC = ('G', blue)
+	| x == idAcc = ('A', yellow)
+	| x == idTrl = ('T', red)
+	| x == idRck = ('#', blue)
+	| x == idTai = ('~', blue)
+	| x == idWrm = ('w', red)
+	| x == idGlm = ('g', blue)
+	| x == idFlE = ('e', magenta)
+	| x == idRDr = ('D', red)
+	| x == idWDr = ('D', defaultc)
+	| x == idGDr = ('D', green)
+	| x == idFgB = ('X', magenta)
+	| x == idSpd = ('s', red)
+	| x == idSol = ('@', yellow)
+	| x == idUmH = ('U', yellow)
+	| x == idTre = ('Y', green)
+	| x == idBot = ('$', cyan)
+	| x == idBee = ('b', yellow)
+	| x == idBsh = ('y', green)
 	| otherwise = error "unknown monster"

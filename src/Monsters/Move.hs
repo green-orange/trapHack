@@ -61,14 +61,14 @@ attack x y c world = addMessage (newMsg, color)
 	color = 
 		if isPlayerNow world
 		then case newDmg of
-			Nothing -> cYAN
-			_		-> gREEN
+			Nothing -> cyan
+			_		-> green
 		else case ai mon of
 			You ->
 				case newDmg of
-					Nothing -> yELLOW
-					_		-> rED
-			_ -> bLUE
+					Nothing -> yellow
+					_		-> red
+			_ -> blue
 	weapons = M.lookup c (inv attacker)
 	dmggen = 
 		let withoutWeapons = uncurry dices $ stddmg attacker in
@@ -109,9 +109,9 @@ attackElem elem' dx dy w = addMessage (newMsg, color)
 		$ M.lookup (xNew, yNew) $ units w
 	color = case ai mon of
 		You -> case newDmg of
-			Nothing -> yELLOW
-			_		-> rED
-		_ -> bLUE
+			Nothing -> yellow
+			_		-> red
+		_ -> blue
 	dmggen = uncurry dices $ stddmg attacker
 	(newDmg, newGen) =  dmggen w
 	newMsg = case newDmg of

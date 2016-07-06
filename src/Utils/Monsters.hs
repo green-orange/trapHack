@@ -30,31 +30,31 @@ levelM x
 	| x `elem` [idFgB] = 15
 	| otherwise = 0
 
-nOTsOLDIERS, nOTeNEMIES :: [Int]
+notSoldiers, notEnemies :: [Int]
 
 -- | names of monsters who doesn't attack you specially
-nOTsOLDIERS = nOTeNEMIES ++ [idHom, idBat, idIvy, idWrm, idBsh]
+notSoldiers = notEnemies ++ [idHom, idBat, idIvy, idWrm, idBsh]
 -- | can this monster attack you specially?
 isSoldier :: Monster -> Bool
-isSoldier mon = not $ isPlayer mon || elem (idM mon) nOTsOLDIERS
+isSoldier mon = not $ isPlayer mon || elem (idM mon) notSoldiers
 
 -- | names of monsters who doesn't attack you
-nOTeNEMIES = [idYou, idDum, idGrC, idRck, idTai, idGlm,
+notEnemies = [idYou, idDum, idGrC, idRck, idTai, idGlm,
 	idTre]
 -- | can this monster attack you?
 isEnemy :: Monster -> Bool
-isEnemy mon = not $ isPlayer mon || elem (idM mon) nOTeNEMIES
+isEnemy mon = not $ isPlayer mon || elem (idM mon) notEnemies
 
 -- | names of monsters who can't leave corpses
-nOcORPSES :: [Int]
-nOcORPSES = [idIvy, idBot, idTre, idTai, idDum, idRck]
+noCorpses :: [Int]
+noCorpses = [idIvy, idBot, idTre, idTai, idDum, idRck]
 
 -- | is this monster alive?
 -- monster can die if it has no head ot body and no 'main'
 -- or if it was starved (nutrition == 0)
 alive :: Monster -> Bool
-alive mon = isJust (temp mon' !! fromEnum Nutrition) && hasPart bODY mon' 
-	&& hasPart hEAD mon' || hasPart mAIN mon' where
+alive mon = isJust (temp mon' !! fromEnum Nutrition) && hasPart Body mon' 
+	&& hasPart Head mon' || hasPart Main mon' where
 	mon' = mon {parts = filter ((>0) . hp) $ parts mon}
 
 -- | regenerate the part
@@ -77,11 +77,11 @@ regFirst w = changeMon newMon w where
 -- | add messages like "Foo lost Bar"
 msgCleanParts :: Monster -> [(String, Int)]
 msgCleanParts mon = foldr (:) [] $ filter ((/="") . fst) $ (\x -> (lostMsg (name mon) 
-	$ partToStr $ kind x, color)) <$> filter (not . aliveP) (parts mon) where
+	$ show $ kind x, color)) <$> filter (not . aliveP) (parts mon) where
 	color = 
 		if name mon == "You"
-		then rEDiNVERSE
-		else gREEN
+		then redInverse
+		else green
 
 -- | instakill current monster (used for worm and ivy)
 killFirst :: World -> World
@@ -139,9 +139,9 @@ corpseFromMon mon = Food {title = title', nutrition = nutr,
 -- | generate partial corpse from given body part
 corpseFromPart :: Monster -> Part -> Object
 corpseFromPart mon part = Food {title = title', nutrition = nutr, 
-	weight' = wei, rotRate = 1, rotTime = if kind part == mAIN then 0 else 500, 
+	weight' = wei, rotRate = 1, rotTime = if kind part == Main then 0 else 500, 
 	effect = id, isBerry = False, idO = -1} where
-	title' = partToStr (kind part) ++ " of the " ++ name mon
+	title' = show (kind part) ++ " of the " ++ name mon
 	wei = 5 * maxhp part
 	nutr = maxhp part `div` 2
 

@@ -95,8 +95,8 @@ step world c
 				'b' -> Left $ world {action = Move, showMode = ColorMonsters}
 				'c' -> Left $ world {action = Move, showMode = NoHeight}
 				'd' -> Left $ world {action = Move, showMode = ColorHeightAbs}
-				_   -> Left $ world {action = Move, message = [(msgUnkOpt, dEFAULT)]}
-			_ -> Left $ addMessage (msgCheater, mAGENTA) world {action = Move}
+				_   -> Left $ world {action = Move, message = [(msgUnkOpt, defaultc)]}
+			_ -> Left $ addMessage (msgCheater, magenta) world {action = Move}
 		else
 			let newMWorld = runAI aiNow x y peace world
 			in Left $ newWaveIf newMWorld
@@ -105,7 +105,7 @@ step world c
 	| otherwise =
 		let (deadMonster, newStdGen) = addDeathDrop mon (stdgen world)
 		in Left $ remFirst $ dropAll $ changeMon deadMonster
-			$ addMessage (name mon ++ " die!", cYAN) world {stdgen = newStdGen}
+			$ addMessage (name mon ++ " die!", cyan) world {stdgen = newStdGen}
 	where
 		stun = (isJust (temp mon !! fromEnum Stun) ||
 			isJust (temp mon !! fromEnum Conf) && 5*p > 1) &&
@@ -159,7 +159,7 @@ justStep world c = case dir c of
 				msgInfo world {xInfo = xFirst world,
 				 yInfo = yFirst world, action = Info}
 		_  ->
-			Left $ addMessage (msgUnkAct ++ show (fromEnum c), yELLOW) world
+			Left $ addMessage (msgUnkAct ++ show (fromEnum c), yellow) world
 
 -- | action with key choose and 'action' changing
 actionByKey :: String -> (Object -> Bool) -> Action -> World -> Either World a

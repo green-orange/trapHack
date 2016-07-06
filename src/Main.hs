@@ -47,7 +47,7 @@ catchAll = catch
 
 -- | read file with name 'logName' and adapt it to show as in-game message
 getReverseLog :: IO [(String, Int)]
-getReverseLog = liftM (map (flip (,) dEFAULT) . tail . reverse 
+getReverseLog = liftM (map (flip (,) defaultc) . tail . reverse 
 	. separate '\n') $ readFile logName
 
 -- | gives XP level of the player

@@ -43,7 +43,7 @@ getForgottenBeast g = (Monster {
 -- | get ai with random base, modificators and range attack 
 forgottenAI :: StdGen -> (AIrepr, StdGen)
 forgottenAI g = (AIrepr {
-	mods = fst <$> filter snd (zip mODSAI bools),
+	mods = fst <$> filter snd (zip modsAI bools),
 	attackIfCloseMode = Just (elem', dist),
 	aipure = StupidAI
 }, g'') where
@@ -62,7 +62,7 @@ forgottenParts g = (rez, g') where
 	(g', g'') = split g
 	qs = randoms g'
 	counts = inverseSquareRandom <$> qs
-	partgens = concat $ zipWith replicate counts $ getPart <$> [0..kINDS]
+	partgens = concat $ zipWith replicate counts $ getPart <$> [minBound .. pred maxBound]
 	qs' = randoms g''
 	hps = ((*10) . inverseSquareRandom) <$> qs'
 	rez = zipWith3 ($) partgens (cycle [3, 2, 1]) hps

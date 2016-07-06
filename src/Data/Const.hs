@@ -24,15 +24,3 @@ notAlphabet = ['{'..]
 shiftDown :: Int
 shiftDown = 5
 
--- | IDs for different body parts
-bODY, hEAD, lEG, aRM, wING, pAW, kINDS, mAIN :: Int
-
-bODY = 0
-hEAD = 1
-lEG  = 2
-aRM  = 3
-wING = 4
-pAW  = 5
-kINDS = pAW
-
-mAIN = 32

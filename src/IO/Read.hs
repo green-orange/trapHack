@@ -147,7 +147,7 @@ instance Read Cell where
 instance Read World where
 	readsPrec _ str = [(World {
 		units' = read units'',
-		message = [("", dEFAULT)],
+		message = [("", defaultc)],
 		items = myReadItems listSepW items',
 		action = Move,
 		stdgen = read stdgen',

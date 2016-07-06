@@ -17,7 +17,7 @@ doSmthByFunc doSmth f hp' mon = mon {parts = filterHeal <$> parts mon} where
 		else part
 
 -- | do smth with parts of given kind
-doSmthParts :: (a -> Part -> Part) -> Int -> a -> Monster -> Monster
+doSmthParts :: (a -> Part -> Part) -> PartKind -> a -> Monster -> Monster
 doSmthParts doSmth knd = doSmthByFunc doSmth ((== knd) . kind)
 
 -- | do smth with one part with given id
@@ -32,7 +32,8 @@ doSmthAll doSmth = doSmthByFunc doSmth $ const True
 heal :: Int -> Part -> Part
 heal n part = part {hp = min (maxhp part) $ hp part + n}
 
-healParts, healPartById :: Int -> Int -> Monster -> Monster
+healParts :: PartKind -> Int -> Monster -> Monster
+healPartById :: Int -> Int -> Monster -> Monster
 healLimbs :: Int -> Monster -> Monster
 -- | heal parts with given kind
 healParts = doSmthParts heal
@@ -45,7 +46,8 @@ healLimbs = doSmthByFunc heal (isLowerLimb ||| isUpperLimb)
 healAll :: Int -> Monster -> Monster
 healAll = doSmthAll heal
 
-dmgParts, dmgPartById :: Int -> Maybe Int -> Monster -> Monster
+dmgParts :: PartKind -> Maybe Int -> Monster -> Monster
+dmgPartById :: Int -> Maybe Int -> Monster -> Monster
 -- | damage parts with given kind
 dmgParts a b mon = doSmthParts (dmg mon) a b mon
 -- | damage part with given id

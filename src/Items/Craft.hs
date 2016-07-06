@@ -58,7 +58,7 @@ isAvailableRecipe inv' ress = isJust $ foldr ((=<<) . uncurry remRess)
 	(Just inv') ress
 -- | color to show given recipe
 colorFromRecipe :: Inv -> [(ResourceType, Int)] -> Int
-colorFromRecipe inv' ress = if ok then gREEN else dEFAULT where
+colorFromRecipe inv' ress = if ok then green else defaultc where
 	ok = isAvailableRecipe inv' ress
 
 recWoodenSword, recStoneSword, recPickAxe, recCrowbar :: Recipe

@@ -36,7 +36,7 @@ instance Show Units where
 data Part = Part {
 	hp :: Int,
 	maxhp :: Int,
-	kind :: Int,
+	kind :: PartKind,
 	idP :: Int,
 	regRate :: Int,
 	objectKeys :: String
@@ -118,7 +118,7 @@ data Object =
 	Armor {
 		title :: String,
 		ac' :: Int,
-		bind :: Int,
+		bind :: PartKind,
 		enchantment :: Int,
 		weight' :: Int,
 		idO :: Int
@@ -128,7 +128,7 @@ data Object =
 	Jewelry {
 		title :: String,
 		enchantment :: Int,
-		bind :: Int,
+		bind :: PartKind,
 		effectOn :: Int -> Monster -> Monster,
 		effectOff :: Int -> Monster -> Monster,
 		idO :: Int
@@ -277,6 +277,9 @@ type StdDmg = World -> (Maybe Int, StdGen)
 type InvGen = StdGen -> (Inv, StdGen)
 -- | a craft recipe
 type Recipe = ([(ResourceType, Int)], Object)
+
+-- | type of a body part
+data PartKind = Body | Head | Leg | Arm | Wing | Paw | Main deriving (Show, Read, Eq, Enum, Ord, Bounded)
 
 -- | items are equal iff they can be put in a stack
 instance Eq Object where

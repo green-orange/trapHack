@@ -35,7 +35,7 @@ initWorld :: MapGenType -> Monster -> String -> StdGen -> World
 initWorld mapgen char username gen = World {
 	worldmap = worldmap',
 	units' = initUnits char,
-	message = [(msgWelcome username, bLUE)],
+	message = [(msgWelcome username, blue)],
 	items = [],
 	action = Move,
 	stdgen = newStdGen,

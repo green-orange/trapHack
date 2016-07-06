@@ -24,7 +24,7 @@ getterByCond cond world = safeMinFst $ M.filterWithKey fun $ inv $ getFirst worl
 -- | is this monster need to heal at least one of its bodies?
 needToBeHealedM :: Monster -> Bool
 needToBeHealedM mon =
-	any (\x -> kind x == bODY && needToBeHealed x) $ parts mon
+	any (\x -> kind x == Body && needToBeHealed x) $ parts mon
 
 -- | is this part need to be healed?
 needToBeHealed :: Part -> Bool
@@ -109,11 +109,11 @@ weaponAI = getterByCond isWeapon
 launcherAI = getterByCond isLauncher
 
 -- | is this object an armor and is it bind to this kind of body part?
-isArmorByKind :: Int -> Object -> Bool
+isArmorByKind :: PartKind -> Object -> Bool
 isArmorByKind knd obj = isArmor obj && bind obj == knd
 
 -- | return index of some armor with given condition
-getArmorByKind :: Int -> World -> Maybe Char
+getArmorByKind :: PartKind -> World -> Maybe Char
 getArmorByKind = getterByCond . isArmorByKind
 
 -- | are these cells on the one vertical, horizontal or diagonal line

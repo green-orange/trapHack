@@ -1,6 +1,5 @@
 module Items.Items where
 
-import Data.Const
 import Data.World
 import Data.Monster
 import Data.Define
@@ -48,7 +47,7 @@ dir c = case c of
 -- | quaff a potion with given position in inventory
 quaffFirst :: Char -> World -> (World, Bool)
 quaffFirst c world =
-	if not $ hasPart aRM oldMon then (maybeAddMessage 
+	if not $ hasPart Arm oldMon then (maybeAddMessage 
 		(msgNeedArms "quaff a potion") world {action = Move}, False)
 	else case objects of 
 		Nothing -> (maybeAddMessage msgNoItem world {action = Move}, False)
@@ -69,7 +68,7 @@ quaffFirst c world =
 -- | read a scroll with given position in inventory
 readFirst :: Char -> World -> (World, Bool)
 readFirst c world =
-	if not $ hasPart aRM mon then (maybeAddMessage 
+	if not $ hasPart Arm mon then (maybeAddMessage 
 		(msgNeedArms "read a scroll") world {action = Move}, False)
 	else case objects of 
 		Nothing -> (maybeAddMessage msgNoItem world {action = Move}, False)
@@ -90,7 +89,7 @@ readFirst c world =
 -- | zap a wand in given direction when item position is lying in 'prevAction'
 zapFirst :: Char -> World -> (World, Bool)
 zapFirst c world =
-	if not $ hasPart aRM $ getFirst world
+	if not $ hasPart Arm $ getFirst world
 	then (maybeAddMessage (msgNeedArms "zap a wand") failWorld, False)
 	else case objects of
 		Nothing -> (maybeAddMessage msgNoItem failWorld, False)
@@ -138,11 +137,11 @@ zap world x y dx dy obj
 	newMWorld = addMessage (msg, color) world {units' = newMons}
 	color = 
 		if isPlayerNow world
-		then gREEN
+		then green
 		else case isPlayer <$> M.lookup (x, y) (units world) of
 			Nothing    -> putWE "zap"
-			Just False -> bLUE
-			Just True  -> rED
+			Just False -> blue
+			Just True  -> red
 
 -- | zap a wand with given position in inventory (for AI usage)
 zapMon :: Char -> Char -> World -> World
@@ -152,7 +151,7 @@ zapMon dir' obj world = fst $ zapFirst dir' $ world {prevAction = obj}
 trapFirst :: Char -> World -> (World, Bool)
 trapFirst c world
 	| not $ isCell x y = putWE "trapFirst"
-	| not $ hasPart aRM oldMon =
+	| not $ hasPart Arm oldMon =
 		(maybeAddMessage (msgNeedArms "set a trap") failWorld, False)
 	| otherwise = case objects of
 		Nothing -> (maybeAddMessage msgNoItem failWorld, False)
@@ -177,7 +176,7 @@ trapFirst c world
 untrapFirst :: World -> (World, Bool)
 untrapFirst world 
 	| not $ isCell x y = putWE "untrapFirst"
-	| not $ hasPart aRM mon =
+	| not $ hasPart Arm mon =
 		(maybeAddMessage (msgNeedArms "remove a trap") failWorld, False)
 	| not $ isUntrappable $ worldmap world A.! (x, y) =
 		(maybeAddMessage msgCantUntrap failWorld, False)
@@ -194,7 +193,7 @@ untrapFirst world
 -- | fire with given direction when missile is lying in 'prevAction'
 fireFirst :: Char -> World -> (World, Bool)
 fireFirst c world =
-	if not $ hasPart aRM oldMon
+	if not $ hasPart Arm oldMon
 	then (maybeAddMessage (msgNeedArms "fire") failWorld, False)
 	else case objects of
 		Nothing -> (maybeAddMessage msgNoItem failWorld, False)
@@ -247,11 +246,11 @@ fire x y dx dy obj world =
 				stdgen = g'}
 			color = 
 				if isPlayerNow world
-				then gREEN
+				then green
 				else case isPlayer <$> M.lookup (x, y) (units world) of
 					Nothing    -> putWE "fire"
-					Just False -> bLUE
-					Just True  -> rED
+					Just False -> blue
+					Just True  -> red
 			in newWorld
 	where
 		maybeMon = M.lookup (x, y) $ units world 
@@ -289,7 +288,7 @@ eatFirst c world =
 -- | use an item in given direction when position is lying in 'prevAction'
 useFirst :: Char -> World -> (World, Bool)
 useFirst c world =
-	if not $ hasPart aRM $ getFirst world
+	if not $ hasPart Arm $ getFirst world
 	then (maybeAddMessage (msgNeedArms "use a tool") failWorld, False)
 	else case objects of
 		Nothing -> (maybeAddMessage msgNoItem failWorld, False)

@@ -42,7 +42,7 @@ hunterInv g = (M.fromList $ zip alphabet $ addRation
 		(n, g3) = randomR (0, 2) g2
 		addRation = if n == 0 then id else (:) (foodRation, n)
 
--- | soldier generates with weapon, different armor and some food 
+-- | soldier generates with weapon, different Armor and some food 
 soldierInv :: InvGen
 soldierInv g = (M.fromList $ zip alphabet $ addRation $ zip
 	[uniformFromList x1 weapons,
@@ -119,21 +119,21 @@ potions :: [Object]
 potions = [potionOfHealing, potionOfIntellect, potionOfMutation, 
 	potionOfEnchantWeapon, potionOfEnchantArmor, potionOfEnchantjewelry,
 	soup, potionOfStrength]
--- | heals your body
+-- | heals your Body
 potionOfHealing = Potion {title = "potion of healing",
-	act = addRandom (5, 15) $ healParts bODY, idO = 0}
--- | increase current and maximal hp of your head and
+	act = addRandom (5, 15) $ healParts Body, idO = 0}
+-- | increase current and maximal hp of your Head and
 -- it regeneration rate
 potionOfIntellect = Potion {title = "potion of intellect",
-	act = addRandom (1, 10) $ upgradeParts hEAD, idO = 1}
--- | add random body part
+	act = addRandom (1, 10) $ upgradeParts Head, idO = 1}
+-- | add random Body part
 potionOfMutation = Potion {title = "potion of mutation",
 	act = addRandomPart, idO = 2}
 -- | enchant all your wielded weapons
 potionOfEnchantWeapon = Potion {title = "potion of enchant weapon",
 	act = addRandom (0, 3) $ enchantAll WeaponSlot, idO = 3}
--- | enchant all your weared armor
-potionOfEnchantArmor = Potion {title = "potion of enchant armor",
+-- | enchant all your weared Armor
+potionOfEnchantArmor = Potion {title = "potion of enchant Armor",
 	act = addRandom (0, 3) $ enchantAll ArmorSlot, idO = 4}
 -- | enchant all your putted jewelry
 potionOfEnchantjewelry = Potion {title = "potion of enchant jewelry",
@@ -293,65 +293,65 @@ crowbar     = getWeapon "crowbar"      30 6 $ dices (2, 8) 0.0
 
 uniqueArmor, uniqueHelms, uniqueGloves, uniqueBoots :: [Object]
 armor, bodyArmor, helmets, gloves, boots :: [Object]
--- | list of all armor
+-- | list of all Armor
 armor = bodyArmor ++ helmets ++ gloves ++ boots
--- | get armor by title, weight, ac, binding (a body part) and id
-getArmor :: String -> Int -> Int -> Int -> Int -> Object
+-- | get Armor by title, weight, ac, binding (a Body part) and id
+getArmor :: String -> Int -> Int -> PartKind -> Int -> Object
 getArmor t w a b id' = Armor {title = t, ac' = a, bind = b, enchantment = 0, 
 	weight' = w, idO = id'}
 
 armorByType :: [[Object]]
 armorByType =
-	[uniqueArmor  -- ^ bODY
-	,uniqueHelms  -- ^ hEAD
-	,uniqueBoots  -- ^ lEG
-	,uniqueGloves] -- ^ aRM
+	[uniqueArmor  -- ^ Body
+	,uniqueHelms  -- ^ Head
+	,uniqueBoots  -- ^ Leg
+	,uniqueGloves] -- ^ Arm
 
 
--- | list of all body armor classes
+-- | list of all Body Armor classes
 uniqueArmor = [leatherJacket, leatherArmor, ringMail, plateMail]
 leatherJacket, leatherArmor, ringMail, plateMail :: Object
--- | list of armor with coefficients to generate random armor
+-- | list of Armor with coefficients to generate random Armor
 bodyArmor = 
 	replicate 4 leatherJacket ++
 	replicate 3 leatherArmor ++ 
 	replicate 2 ringMail ++
 	replicate 1 plateMail
 
-leatherJacket = getArmor "leather jacket" 30 1 bODY 0
-leatherArmor = getArmor "leather armor" 150 2 bODY 1
-ringMail = getArmor "ring mail" 250 3 bODY 2
-plateMail = getArmor "plate mail" 450 4 bODY 3
+leatherJacket = getArmor "leather jacket" 30 1 Body 0
+leatherArmor = getArmor "leather Armor" 150 2 Body 1
+ringMail = getArmor "ring mail" 250 3 Body 2
+plateMail = getArmor "plate mail" 450 4 Body 3
 -- | list of all helms
 uniqueHelms = [fedora, hardHat, helmet, kabuto]
 fedora, hardHat, helmet, kabuto :: Object
--- | list of helms with probabilities to generate random armor
+-- | list of helms with probabilities to generate random Armor
 helmets =
 	replicate 4 fedora ++
 	replicate 3 hardHat ++
 	replicate 2 helmet ++
 	replicate 1 kabuto
 
-fedora = getArmor "fedora" 3 1 hEAD 0
-hardHat = getArmor "hard hat" 20 2 hEAD 1
-helmet = getArmor "helmet" 40 3 hEAD 2
-kabuto = getArmor "kabuto" 50 4 hEAD 3
+fedora = getArmor "fedora" 3 1 Head 0
+hardHat = getArmor "hard hat" 20 2 Head 1
+helmet = getArmor "helmet" 40 3 Head 2
+kabuto = getArmor "kabuto" 50 4 Head 3
 -- | list of all gloves
 uniqueGloves = gloves
 glove, gauntlet :: Object
--- | list of gloves with probabilities to generate random armor
+-- | list of gloves with probabilities to generate random Armor
 gloves = [glove, gauntlet]
 
-glove = getArmor "glove" 3 1 aRM 0
-gauntlet = getArmor "gauntlet" 5 2 aRM 1
+glove = getArmor "glove" 3 1 Arm 0
+gauntlet = getArmor "gauntlet" 5 2 Arm 1
 -- | list of all boots
 uniqueBoots = boots
 lowBoot, highBoot :: Object
--- | list of boots with probablilities to generate random armor
+-- | list of boots with probablilities to generate random Armor
 boots = [lowBoot, highBoot]
 
-lowBoot = getArmor "low boot" 10 1 lEG 0
-highBoot = getArmor "high boot" 20 2 lEG 1
+lowBoot = getArmor "low boot" 10 1 Leg 0
+highBoot = getArmor "high boot" 20 2 Leg 1
 
 uniqueRings, uniqueAmulets :: [Int -> Object]
 jewelry, rings, amulets :: [Object]
@@ -361,10 +361,10 @@ jewelry = rings ++ amulets
 
 jewelryByType :: [[Int -> Object]]
 jewelryByType =
-	[putWE "jewelryByType" -- ^ hEAD
-	,uniqueAmulets         -- ^ bODY
-	,putWE "jewelryByType" -- ^ lEG
-	,uniqueRings]          -- ^ aRM
+	[putWE "jewelryByType" -- ^ Head
+	,uniqueAmulets         -- ^ Body
+	,putWE "jewelryByType" -- ^ Leg
+	,uniqueRings]          -- ^ Arm
 
 
 uniqueRings = [ringOfSpeed, ringOfFireRes, ringOfColdRes, 
@@ -380,21 +380,21 @@ rings =
 	(ringOfProtection <$> [1..3])
 -- | increase speed
 ringOfSpeed ench = Jewelry {title = "ring of speed", enchantment = ench,
-	bind = aRM, effectOn = \ench' -> speed (5 * ench'), 
+	bind = Arm, effectOn = \ench' -> speed (5 * ench'), 
 	effectOff = \ench' -> speed (-5 * ench'), idO = 0}
 -- | get a ring that gives you some resistance by title, element of resistance,
 -- id and enchantment
 getRingRes :: String -> Elem -> Int -> Int -> Object
 getRingRes title' elem' id' ench = Jewelry {title = title', enchantment = ench,
-	bind = aRM, effectOn = \ench' -> addRes elem' (2 * ench'), 
+	bind = Arm, effectOn = \ench' -> addRes elem' (2 * ench'), 
 	effectOff = \ench' -> addRes elem' (-2 * ench'), idO = id'}
 
 ringOfFireRes = getRingRes "ring of fire resistance" Fire 1
 ringOfColdRes = getRingRes "ring of cold resistance" Cold 2
 ringOfPoisonRes = getRingRes "ring of poison resistance" Poison' 3
--- | increase ac of the arm
+-- | increase ac of the Arm
 ringOfProtection ench = Jewelry {title = "ring of protection", enchantment = ench,
-	bind = aRM, effectOn = flip const, effectOff = flip const, idO = 4}
+	bind = Arm, effectOn = flip const, effectOff = flip const, idO = 4}
 -- | list of all amulets
 uniqueAmulets = [amuletOfTeleportation, amuletOfStrength]
 amuletOfTeleportation, amuletOfStrength :: Int -> Object
@@ -406,7 +406,7 @@ amulets =
 -- intrinsic, id and enchantment
 getIntrAmulet :: Int -> String -> Intr -> Int -> Int -> Object
 getIntrAmulet mult title' intr' id' ench = Jewelry {title = title', enchantment = ench,
-	bind = hEAD, effectOn = \ench' -> addIntr intr' (mult * ench'), 
+	bind = Head, effectOn = \ench' -> addIntr intr' (mult * ench'), 
 	effectOff = \ench' -> addIntr intr' (-mult * ench'), idO = id'}
 -- | gives you teleportation ability
 amuletOfTeleportation = getIntrAmulet 2 "amulet of teleportation" Teleport 0

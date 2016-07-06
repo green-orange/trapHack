@@ -6,7 +6,6 @@ import Data.Monster
 import Data.Define
 import Utils.Changes
 import Utils.Items
-import Monsters.Parts
 import IO.Colors
 import IO.Texts
 
@@ -52,19 +51,19 @@ lostMsg monName partName =
 maybeAddMessage :: String -> World -> World
 maybeAddMessage msg w = 
 	if isPlayerNow w
-	then addMessage (msg, yELLOW) w
+	then addMessage (msg, yellow) w
 	else w
 
 -- | add green message if current monster is a player and yellow otherwise 
 addNeutralMessage :: String -> World -> World
 addNeutralMessage msg w = 
 	if isPlayerNow w
-	then addMessage (msg, gREEN) w
-	else addMessage (msg, yELLOW) w
+	then addMessage (msg, green) w
+	else addMessage (msg, yellow) w
 
 -- | add white message
 addDefaultMessage :: String -> World -> World
-addDefaultMessage msg = addMessage (msg, dEFAULT)
+addDefaultMessage msg = addMessage (msg, defaultc)
 
 -- | get info about chosen cell and continue the step
 getInfo :: World -> World
@@ -87,7 +86,7 @@ infoMessage w
 	monInfo = case un of
 		Nothing -> ""
 		Just mon -> "Monster: " ++ name mon ++ ". Parts: " ++ 
-			concatMap (\p -> partToStr (kind p) ++ "; ") (parts mon)
+			concatMap (\p -> show (kind p) ++ "; ") (parts mon)
 	objsInfo = case objs of
 		[] -> ""
 		_ -> (++) "Objects: " $ concatMap (\(_,_,i,n) -> titleShow i ++ 

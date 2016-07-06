@@ -62,7 +62,7 @@ dataToShowUnit world ((x, y), mon) =
 	if isCell x y
 	then
 		if abs dx > xSight || abs dy > ySight then Nothing
-		else Just (dx, dy, sym, attr, colorFore, dEFAULTbACK)
+		else Just (dx, dy, sym, attr, colorFore, defaultBack)
 	else putWE "drawUnit"
 	where
 		attr
@@ -94,12 +94,12 @@ dataToShowCell world ((x, y), _) =
 		colorBack = 
 			if terrain cell /= Empty
 			then colorFromCell cell
-			else dEFAULTbACK
+			else defaultBack
 		colorFore = case showMode world of
 			ColorHeight -> colorFromHei $ height cell - 
 				height (worldmap world A.! (xFirst world, yFirst world))
 			ColorHeightAbs -> colorFromHeiAbs $ height cell
-			_ -> dEFAULT
+			_ -> defaultc
 		sym
 			| x == div maxX 2 && y == div maxY 2 = '*'
 			| isUntrappable $ worldmap world A.! (x,y) = '^'
@@ -112,7 +112,7 @@ dataToShowItem world(x, y, item, _) =
 	if isCell x y
 	then 
 		if abs dx > xSight || abs dy > ySight then Nothing
-		else Just (dx, dy, symbolItem item, setBold attr0 True, dEFAULT, dEFAULTbACK)
+		else Just (dx, dy, symbolItem item, setBold attr0 True, defaultc, defaultBack)
 	else putWE "drawItem"
 	where
 		dx = x - xFirst world
@@ -195,7 +195,7 @@ showRecipe inv' (ress, rez) y =
 -- | draw player inventory
 drawInventory :: World -> Int -> IO ()
 drawInventory world h = do
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr 0 0 msgHeaderInv
 	mapM_ showInv stringsToShow where
 		items' = M.toList $ inv $ getFirst world
@@ -207,7 +207,7 @@ drawInventory world h = do
 -- | draw list of items in equipment menu
 drawEquipMenu :: World -> Int -> IO ()
 drawEquipMenu world h = do
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr 0 0 msgHeaderEquip
 	mapM_ showInv stringsToShow where
 		items' = filter (\(c, (obj, _)) -> (binds obj knd == Just (slot world)) 
@@ -220,7 +220,7 @@ drawEquipMenu world h = do
 -- | draw pick or drop menu (first argument is True iff pick)
 drawPickOrDrop :: Bool -> World -> Int -> IO ()
 drawPickOrDrop isPick world h = do
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr 0 0 $ msgHeaderPickDrop word
 	mapM_ (showItemsPD h $ chars world) toShow where
 		xNow = xFirst world
@@ -234,14 +234,14 @@ drawPickOrDrop isPick world h = do
 -- | draw parts with bindings in equipment menu
 drawPartChange :: World -> Int -> IO ()
 drawPartChange world _ = do
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr 0 0 msgHeaderBind
 	mvWAddStr stdScr 0 shiftW "Weapon"
 	mvWAddStr stdScr 0 shiftA "Armor"
 	mvWAddStr stdScr 0 shiftJ "Jewelry"
 	sequence_ $ zipWith3 ($) (drawPartFull True 1 <$> [1..])
 		(repeat $ getFirst world) $ parts $ getFirst world
-	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
+	wAttrSet stdScr (setBold attr0 True, Pair defaultc)
 	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
 
 addDataToShow :: DataToShow -> M.Map (Int, Int) DataToShow -> M.Map (Int, Int) DataToShow
@@ -256,7 +256,7 @@ addDataToShow dts@(Just(x, y, ch, attr, fore, _)) m =
 -- | draw just a world after another step
 drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	(_, w) <- scrSize
 	showMessages w $ message world
 
@@ -270,15 +270,15 @@ drawJustWorld world _ = do
 	mapM_ showByData $ M.elems todo
 	sequence_ $ zipWith3 ($) (drawPart False <$> [0..])
 		(repeat mon) $ sortBy (on compare kind) $ parts mon
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr shiftDown shiftAttrs $ "Slowness: " ++ 
 		show (effectiveSlowness mon)
 	mvWAddStr stdScr (shiftDown + 1) shiftAttrs $ "XP: " ++ 
 		show (xp mon) ++ "; Level: " ++ show (intLog $ xp mon)
-	wAttrSet stdScr (attr0, Pair yELLOW)
+	wAttrSet stdScr (attr0, Pair yellow)
 	unless (encumbrance mon <= capacity mon)
 		$ mvWAddStr stdScr (shiftDown + 2) shiftAttrs "Burdened"
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr (shiftDown + 3) shiftAttrs
 			$ "Next wave: " ++ show (wave world)
 	mapM_ (showElemRes world) (getAll :: [Elem])
@@ -287,18 +287,18 @@ drawJustWorld world _ = do
 		mon = getFirst world
 -- | draw list of all recipes
 drawCraft :: World -> Int -> IO ()
-drawCraft w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
+drawCraft w _ = wAttrSet stdScr (attr0, Pair defaultc) >>
 	mvWAddStr stdScr 0 0 msgHeaderCraft >>
 	zipWithM_ (showRecipe $ inv $ getFirst w) recipes [1..]
 -- | draw split menu
 drawSplit :: World -> Int -> IO ()
-drawSplit w _ = wAttrSet stdScr (attr0, Pair dEFAULT) >>
+drawSplit w _ = wAttrSet stdScr (attr0, Pair defaultc) >>
 	mvWAddStr stdScr 0 0 (show $ numToSplit w) >>
 	drawJustWorld w (putWE "drawJustWorld")
 -- | draw options menu
 drawOptions :: World -> Int -> IO ()
 drawOptions _ _ = do
-	wAttrSet stdScr (attr0, Pair dEFAULT)
+	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr 0 0 msgOptColorHei
 	mvWAddStr stdScr 1 0 msgOptColorMon
 	mvWAddStr stdScr 2 0 msgOptNoHei
@@ -327,20 +327,20 @@ drawPart isFull y = drawPartFull isFull shiftRightHP $ shiftDown + y
 -- | show info about a part (with bindings iff first argument is True)
 drawPartFull :: Bool -> Int -> Int -> Monster -> Part -> IO ()
 drawPartFull isFull x y mon part = do
-	wAttrSet stdScr (attr0, Pair gREEN)
+	wAttrSet stdScr (attr0, Pair green)
 	when (hp part * 3 < maxhp part * 2 || hp part <= 10)
-		$ wAttrSet stdScr (attr0, Pair yELLOW)
+		$ wAttrSet stdScr (attr0, Pair yellow)
 	when (hp part * 3 < maxhp part || hp part <= 5)
-		$ wAttrSet stdScr (attr0, Pair rED)
+		$ wAttrSet stdScr (attr0, Pair red)
 	when (hp part * 8 < maxhp part || hp part <= 3)
-		$ wAttrSet stdScr (attr0, Pair rEDiNVERSE)
+		$ wAttrSet stdScr (attr0, Pair redInverse)
 	mvWAddStr stdScr y x     str1
 	mvWAddStr stdScr y (x+5) str2
 	mvWAddStr stdScr y (x+shiftW-1) strW
 	mvWAddStr stdScr y (x+shiftA-1) strA
 	mvWAddStr stdScr y (x+shiftJ-1) strJ
 	where
-		str1 = partToStr (kind part) ++ ":"
+		str1 = show (kind part) ++ ":"
 		str2 = show (hp part) ++ "/" ++ show (maxhp part) ++
 			" rr: " ++ show (regRate part)
 		(strW, strA, strJ) =

@@ -71,8 +71,8 @@ pickFirst world =
 		mon = oldMon {inv = newInv}
 		color = 
 			if isPlayerNow world
-			then gREEN
-			else yELLOW
+			then green
+			else yellow
 		newMessage = (name mon ++ " pick" ++ ending world 
 			++ "some objects.", color) : message world
 		in (Just world {
@@ -194,9 +194,9 @@ bindMon sl c ind w = fst $ bindFirst c $ w {shift = ind, slot = sl}
 
 -- | return a slot to bind given object with given kind of body part,
 -- or Nothing if it doesn't exist 
-binds :: Object -> Int -> Maybe Slot
+binds :: Object -> PartKind -> Maybe Slot
 binds obj knd
-	| (isWeapon obj || isLauncher obj) && knd == aRM = 
+	| (isWeapon obj || isLauncher obj) && knd == Arm = 
 		Just WeaponSlot
 	| isArmor obj && knd == bind obj = Just ArmorSlot
 	| isJewelry obj && knd == bind obj = Just JewelrySlot

@@ -1,6 +1,5 @@
 module Monsters.Parts where
 
-import Data.Const
 import Data.Define
 import Utils.Items
 
@@ -18,28 +17,16 @@ capacity :: Monster -> Int
 capacity mon = baseCapacity + capacityByStrength *
 	(intr mon !! fromEnum Strength)
 
--- | converts part type to the string
-partToStr :: Int -> String
-partToStr x
-	| x == bODY = "Body"
-	| x == hEAD = "Head"
-	| x == lEG  = "Leg"
-	| x == aRM  = "Arm"
-	| x == wING = "Wing"
-	| x == pAW  = "Paw"
-	| x == mAIN = "Main"
-	| otherwise = error "unknown part"
-
 -- | detect lower limbs to walk
 isLowerLimb :: Part -> Bool
-isLowerLimb p = (kind p == lEG) || (kind p == wING) || (kind p == pAW)
+isLowerLimb p = (kind p == Leg) || (kind p == Wing) || (kind p == Paw)
 -- | detect upper limbs to attack
 isUpperLimb :: Part -> Bool
-isUpperLimb p = (kind p == aRM) || (kind p == wING) || 
-	(kind p == pAW) || (kind p == mAIN)
+isUpperLimb p = (kind p == Arm) || (kind p == Wing) || 
+	(kind p == Paw) || (kind p == Main)
 
 -- | get part by given kind, regeneration rate, hp and id
-getPart :: Int -> Int -> Int -> Int -> Part
+getPart :: PartKind -> Int -> Int -> Int -> Part
 getPart knd regRate' hp' id' = Part {
 	hp = hp',
 	maxhp = hp',
@@ -56,13 +43,13 @@ aliveP p = hp p > 0
 -- | getPart specifications
 getBody, getHead, getLeg, getArm, getWing, getPaw, getMain :: 
 	Int -> Int -> Int -> Part
-getBody = getPart bODY
-getHead = getPart hEAD
-getLeg  = getPart lEG
-getArm  = getPart aRM
-getWing = getPart wING
-getPaw  = getPart pAW
-getMain = getPart mAIN
+getBody = getPart Body
+getHead = getPart Head
+getLeg  = getPart Leg
+getArm  = getPart Arm
+getWing = getPart Wing
+getPaw  = getPart Paw
+getMain = getPart Main
 
 -- | calculate encumbrance of the monster
 encumbrance :: Monster -> Int
@@ -93,7 +80,7 @@ acPart mon part = (case armor of
 		jewelry = M.lookup (objectKeys part !! fromEnum JewelrySlot) (inv mon)
 
 -- | have this monster any part of given kind?
-hasPart :: Int -> Monster -> Bool
+hasPart :: PartKind -> Monster -> Bool
 hasPart knd mon = 
 	any ( (== knd) . kind) $ parts mon
 
@@ -103,5 +90,5 @@ hasUpperLimb mon = any isUpperLimb $ parts mon
 
 -- | can this monster fly?
 isFlying :: Monster -> Bool
-isFlying = hasPart wING
+isFlying = hasPart Wing
 

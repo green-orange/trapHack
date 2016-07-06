@@ -112,7 +112,7 @@ addDeathDrop mon g = (mon {inv = addCorpse
 	$ M.union (inv mon) newDrop}, newGen) where
 	(newDrop, newGen) = deathDrop (idM mon) g
 	corpse = corpseFromMon mon
-	addCorpse = if idM mon `elem` nOcORPSES
+	addCorpse = if idM mon `elem` noCorpses
 		then id
 		else case nutrition corpse of
 		0 -> id
@@ -138,7 +138,7 @@ doIfCorrect (rez, correct) =
 
 -- | act trap on the first monster
 actTrapFirst :: World -> World
-actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} where
+actTrapFirst w = addMessage (newMsg, red) $ changeMon newMon w {stdgen = g} where
 	x = xFirst w
 	y = yFirst w
 	mon = getFirst w
@@ -169,13 +169,13 @@ actTrapFirst w = addMessage (newMsg, rED) $ changeMon newMon w {stdgen = g} wher
 
 -- | call upon the new wave
 callUpon :: World -> World
-callUpon w = addMessage (msgLanding (wave w) , rED) 
+callUpon w = addMessage (msgLanding (wave w) , red) 
 	$ newWave $ cycleWorld w {action = Move}
 
 -- | drop partial corpses to cells near to the monster
 dropPartialCorpse :: World -> World
 dropPartialCorpse w = 
-	if idM mon `elem` nOcORPSES then w
+	if idM mon `elem` noCorpses then w
 	else (foldr ((.) . addItem . wrap . corpseFromPart mon) id
 		$ filter (not . aliveP) $ parts mon) w {stdgen = g'} where
 		mindx = if xFirst w == 0 then 0 else -1

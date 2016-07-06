@@ -77,9 +77,9 @@ acceleratorAI f x y p w = f x y p $ changeMon newMon w where
 -- | monster can became a 'rock' instead of death
 trollAI :: AIfunc -> AIfunc
 trollAI f x y p w = 
-	if any (<= 5) $ hp <$> filter (\pt -> kind pt == hEAD || kind pt == bODY)
+	if any (<= 5) $ hp <$> filter (\pt -> kind pt == Head || kind pt == Body)
 		(parts $ getFirst w)
-	then addMessage (msgTrollDeath, bLUE) 
+	then addMessage (msgTrollDeath, blue) 
 		$ changeMon (rock $ stdgen w) w
 	else f x y p w
 
@@ -89,8 +89,8 @@ rock = fst . getMonster (getPureAI NothingAI) partsRck
 	idRck ((0,0),0.0) emptyInv 10000 1 0
 
 -- | list of all normal modificators (for Forgotten Beasts) 
-mODSAI :: [AImod]
-mODSAI = [HealAI ..]
+modsAI :: [AImod]
+modsAI = [HealAI ..]
 
 -- | monster can use healing
 healAI :: AIfunc -> AIfunc
@@ -129,7 +129,7 @@ fireAI f xPlayer yPlayer p w =
 
 -- | monster can bind items to given kind of part and slot;
 -- 'getter' is a function to choose this item
-bindSomethingAI :: Slot -> Int -> (World -> Maybe Char) -> AIfunc -> AIfunc
+bindSomethingAI :: Slot -> PartKind -> (World -> Maybe Char) -> AIfunc -> AIfunc
 bindSomethingAI sl knd getter f x y p w = 
 	case emptyParts of
 		[] -> f x y p w
@@ -143,7 +143,7 @@ bindSomethingAI sl knd getter f x y p w =
 
 -- | specification of 'bindSomethingAI' to wield smth
 wieldSomethingAI :: (World -> Maybe Char) -> AIfunc -> AIfunc
-wieldSomethingAI = bindSomethingAI WeaponSlot aRM
+wieldSomethingAI = bindSomethingAI WeaponSlot Arm
 
 wieldLauncherAI, wieldWeaponAI :: AIfunc -> AIfunc
 -- | monster can wield launcher
@@ -152,12 +152,12 @@ wieldLauncherAI = wieldSomethingAI launcherAI
 wieldWeaponAI = wieldSomethingAI weaponAI
 
 -- | monster can bind armor of the given kind
-bindArmorByKind :: Int -> AIfunc -> AIfunc
+bindArmorByKind :: PartKind -> AIfunc -> AIfunc
 bindArmorByKind knd = bindSomethingAI ArmorSlot knd $ getArmorByKind knd
 
 -- | monster can bind armor of all existence kinds
 bindArmorAI :: AIfunc -> AIfunc
-bindArmorAI = foldr ((.) . bindArmorByKind) id [bODY, hEAD, aRM, lEG]
+bindArmorAI = foldr ((.) . bindArmorByKind) id [Body ..]
 
 -- | monster can use some useful items
 useItemsAI :: AIfunc -> AIfunc
