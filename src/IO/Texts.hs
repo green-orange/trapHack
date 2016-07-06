@@ -167,10 +167,10 @@ msgPoisonYou = "You were poisoned!"
 {- Options -}
 msgOptColorHei, msgOptColorMon, msgOptNoHei, msgOptColorHeiAbs :: String
 
-msgOptColorHei = "a - map is colored by relative height, monsters are white."
-msgOptColorMon = "b - monsters are colored, height shown by white numbers."
+msgOptColorHei = "a - map is colored by relative height"
+msgOptColorMon = "b - height shown by white numbers."
 msgOptNoHei = "c - height doesn't shown"
-msgOptColorHeiAbs = "d - map is colored by absolute height, monsters are white."
+msgOptColorHeiAbs = "d - map is colored by absolute height"
 
 {-Other-}
 msgSafety, msgTrollDeath, msgDrownYou, msgDrown :: String

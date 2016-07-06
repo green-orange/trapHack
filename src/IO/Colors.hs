@@ -8,15 +8,16 @@ import Data.Maybe (catMaybes)
 import Data.Functor ((<$>))
 
 -- | constants with handles of foreground colors
-dEFAULT, gREEN, yELLOW, rED, cYAN, mAGENTA, bLUE, rEDiNVERSE :: Int
-dEFAULT    = 1
-rED        = 2
-gREEN      = 3
-yELLOW     = 4
-bLUE       = 5
-mAGENTA    = 6
-cYAN       = 7
-rEDiNVERSE = 58
+dEFAULT, gREEN, yELLOW, rED, cYAN, mAGENTA, bLUE, rEDiNVERSE, dEFAULTbACK :: Int
+dEFAULT     = 1
+rED         = 2
+gREEN       = 3
+yELLOW      = 4
+bLUE        = 5
+mAGENTA     = 6
+cYAN        = 7
+rEDiNVERSE  = 58
+dEFAULTbACK = 8
 
 -- | converts terrain to handle of a background color
 colorFromTerr :: Terrain -> Int

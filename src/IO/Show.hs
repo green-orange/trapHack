@@ -45,37 +45,42 @@ castEnum = toEnum . fromEnum
 -- | place given char by given coords
 placeChar :: Int -> Int -> Char -> IO ()
 placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight) . castEnum
--- | draw a unit on the given position
-drawUnit :: World -> ((Int, Int), Monster) -> IO ()
-drawUnit world ((x, y), mon) =
-	if isCell x y
-	then unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, color2)
+
+type DataToShow = Maybe (Int, Int, Char, Attr, Int, Int)
+
+-- | show something by data: (dx, dx, symbol, attribute, foreground color, background color) 
+showByData :: DataToShow -> IO ()
+showByData d = case d of
+	Nothing -> return ()
+	Just (dx, dy, sym, attr, colorFore, colorBack) -> do
+		wAttrSet stdScr (attr, Pair $ colorFore + colorBack - 8)
 		placeChar dx dy sym
+
+-- | return data to show a unit
+dataToShowUnit :: World -> ((Int, Int), Monster) -> DataToShow
+dataToShowUnit world ((x, y), mon) =
+	if isCell x y
+	then
+		if abs dx > xSight || abs dy > ySight then Nothing
+		else Just (dx, dy, sym, attr, colorFore, dEFAULTbACK)
 	else putWE "drawUnit"
 	where
 		attr
-			| x == xFirst world && y == yFirst world ||
-				action world == Info && x == xInfo world && y == yInfo world
-				= setStandout attr0 True
+			| x == xFirst world && y == yFirst world = setStandout attr0 True
 			| showMode world == ColorHeight || 
 				showMode world == ColorHeightAbs = setBold attr0 True
 			| otherwise = attr0
-		(sym, color1) = symbolMon $ idM mon
-		color2 = Pair $ case showMode world of
-			ColorHeight -> dEFAULT
-			ColorHeightAbs -> dEFAULT
-			_ -> back + color1 - 8
-		back = colorFromCell $ worldmap world A.! (x,y)
+		(sym, colorFore) = symbolMon $ idM mon
 		dx = x - xFirst world
 		dy = y - yFirst world
--- | draw a cell with given position
-drawCell :: World -> ((Int, Int), Cell) -> IO ()
-drawCell world ((x, y), _) = 
+
+-- | return data to show a cell
+dataToShowCell :: World -> ((Int, Int), Cell) -> DataToShow
+dataToShowCell world ((x, y), _) = 
 	if isCell x y
-	then unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, color')
-		placeChar dx dy sym
+	then 
+		if abs dx > xSight || abs dy > ySight then Nothing
+		else Just (dx, dy, sym, attr, colorFore, colorBack)
 	else putWE "drawCell"
 	where
 		attr
@@ -86,34 +91,33 @@ drawCell world ((x, y), _) =
 		dx = x - xFirst world
 		dy = y - yFirst world
 		cell = worldmap world A.! (x,y)
-		color' = Pair $ 
+		colorBack = 
 			if terrain cell /= Empty
 			then colorFromCell cell
-			else case showMode world of
-				ColorHeight -> colorFromHei $ height cell - 
-					height (worldmap world A.! (xFirst world, yFirst world))
-				ColorHeightAbs -> colorFromHeiAbs $ height cell
-				_ -> colorFromCell cell
+			else dEFAULTbACK
+		colorFore = case showMode world of
+			ColorHeight -> colorFromHei $ height cell - 
+				height (worldmap world A.! (xFirst world, yFirst world))
+			ColorHeightAbs -> colorFromHeiAbs $ height cell
+			_ -> dEFAULT
 		sym
 			| x == div maxX 2 && y == div maxY 2 = '*'
 			| isUntrappable $ worldmap world A.! (x,y) = '^'
 			| showMode world == NoHeight = '.'
 			| otherwise = head $ show $ height $ worldmap world A.! (x,y)
--- | draw items with given position
-drawItem :: World -> (Int, Int, Object, Int) -> IO ()
-drawItem world(x, y, item, _) = 
+
+-- | return data to show an item
+dataToShowItem :: World -> (Int, Int, Object, Int) -> DataToShow
+dataToShowItem world(x, y, item, _) = 
 	if isCell x y
-	then unless (abs dx > xSight || abs dy > ySight) $ do
-		wAttrSet stdScr (attr, Pair $ colorFromCell $ worldmap world A.! (x,y))
-		placeChar dx dy $ symbolItem item 
+	then 
+		if abs dx > xSight || abs dy > ySight then Nothing
+		else Just (dx, dy, symbolItem item, setBold attr0 True, dEFAULT, dEFAULTbACK)
 	else putWE "drawItem"
 	where
 		dx = x - xFirst world
 		dy = y - yFirst world
-		attr = 
-			if action world == Info && x == xInfo world && y == yInfo world
-			then setStandout attr0 True
-			else setBold attr0 True
+
 -- | draw pick or drop menu with given height of screen, set of chosen chars
 -- and item on the ground 
 showItemsPD :: Int -> S.Set Char -> (Int, Char, (Object, Int)) -> IO ()
@@ -239,15 +243,31 @@ drawPartChange world _ = do
 		(repeat $ getFirst world) $ parts $ getFirst world
 	wAttrSet stdScr (setBold attr0 True, Pair dEFAULT)
 	mvAddCh (shift world + 1) (diff * fromEnum (slot world) + shiftW - 1) $ castEnum '>'
+
+addDataToShow :: DataToShow -> M.Map (Int, Int) DataToShow -> M.Map (Int, Int) DataToShow
+addDataToShow Nothing m = m
+addDataToShow dts@(Just(x, y, ch, attr, fore, _)) m = 
+	case M.lookup (x, y) m of
+		Nothing -> M.insert (x, y) dts m
+		Just Nothing -> putWE "addDataToShow"
+		Just (Just (_, _, _, attr', _, back)) ->
+			M.insert (x, y) (Just (x, y, ch, attrPlus attr attr', fore, back)) m
+
 -- | draw just a world after another step
 drawJustWorld :: World -> Int -> IO ()
 drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair dEFAULT)
 	(_, w) <- scrSize
 	showMessages w $ message world
-	mapM_ (drawCell world) $ A.assocs $ worldmap world
-	mapM_ (drawItem world) $ items world
-	mapM_ (drawUnit world) $ M.toList $ units world
+
+	--mapM_ (drawCell world) $ A.assocs $ worldmap world
+	--mapM_ (drawItem world) $ items world
+	--mapM_ (drawUnit world) $ M.toList $ units world
+	let todo = foldr addDataToShow M.empty $ 
+		map (dataToShowUnit world) (M.toList $ units world) ++
+		map (dataToShowItem world) (items world) ++
+		map (dataToShowCell world) (A.assocs $ worldmap world)
+	mapM_ showByData $ M.elems todo
 	sequence_ $ zipWith3 ($) (drawPart False <$> [0..])
 		(repeat mon) $ sortBy (on compare kind) $ parts mon
 	wAttrSet stdScr (attr0, Pair dEFAULT)
