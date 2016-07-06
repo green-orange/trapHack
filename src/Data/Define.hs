@@ -188,6 +188,9 @@ data Cell = Cell {
 data ShowMode = ColorHeight | ColorHeightAbs | ColorMonsters | NoHeight
 	deriving (Eq)
 
+defaultShowMode :: ShowMode
+defaultShowMode = ColorHeightAbs
+
 -- | type of the resource
 data ResourceType = Tree | Stone | MetalScrap deriving (Eq)
 
