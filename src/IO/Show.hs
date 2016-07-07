@@ -41,14 +41,18 @@ shiftElem = 4
 -- | width of the column in Inventory menu
 invColumn = 50
 
--- | cast 'Char' type to HSCurses 'ChType'  
+-- | cast char to chtype
 castEnum :: Char -> ChType
 castEnum = toEnum . fromEnum
+
 -- | place given char by given coords
 placeChar :: Int -> Int -> Char -> IO ()
-placeChar x y = mvAddCh (y + shiftDown + ySight) (x + xSight) . castEnum
+placeChar x y = placeChType x y . castEnum
 
-type DataToShow = Maybe (Int, Int, Char, Attr, Int, Int)
+placeChType :: Int -> Int -> ChType -> IO ()
+placeChType x y = mvAddCh (y + shiftDown + ySight) (x + xSight) 
+
+type DataToShow = Maybe (Int, Int, ChType, Attr, Int, Int)
 
 -- | show something by data: (dx, dx, symbol, attribute, foreground color, background color) 
 showByData :: DataToShow -> IO ()
@@ -56,7 +60,7 @@ showByData d = case d of
 	Nothing -> return ()
 	Just (dx, dy, sym, attr, colorFore, colorBack) -> do
 		wAttrSet stdScr (attr, Pair $ colorFore + colorBack - 8)
-		placeChar dx dy sym
+		placeChType dx dy sym
 
 -- | return data to show a unit
 dataToShowUnit :: World -> ((Int, Int), Monster) -> DataToShow
@@ -64,14 +68,16 @@ dataToShowUnit world ((x, y), mon) =
 	if isCell x y
 	then
 		if abs dx > xSight || abs dy > ySight then Nothing
-		else Just (dx, dy, sym, attr, colorFore, defaultBack)
+		else Just (dx, dy, castEnum sym, attr, colorFore, defaultBack)
 	else putWE "drawUnit"
 	where
-		attr
-			| x == xFirst world && y == yFirst world = setStandout attr0 True
-			| showMode world == ColorHeight || 
-				showMode world == ColorHeightAbs = setBold attr0 True
-			| otherwise = attr0
+		attr = 
+			if x == xFirst world && y == yFirst world
+			then setStandout attr0 True
+			else case colorHeight world of
+				Absolute -> setBold attr0 True
+				Relative -> setBold attr0 True
+				NoColor  -> attr0
 		(sym, colorFore) = symbolMon $ idM mon
 		dx = x - xFirst world
 		dy = y - yFirst world
@@ -97,16 +103,17 @@ dataToShowCell world ((x, y), _) =
 			if terrain cell /= Empty
 			then colorFromCell cell
 			else defaultBack
-		colorFore = case showMode world of
-			ColorHeight -> colorFromHei $ height cell - 
+		colorFore = case colorHeight world of
+			Relative -> colorFromHei $ height cell - 
 				height (worldmap world A.! (xFirst world, yFirst world))
-			ColorHeightAbs -> colorFromHeiAbs $ height cell
-			_ -> defaultc
+			Absolute -> colorFromHeiAbs $ height cell
+			NoColor  -> defaultc
 		sym
-			| x == div maxX 2 && y == div maxY 2 = '*'
-			| isUntrappable $ worldmap world A.! (x,y) = '^'
-			| showMode world == NoHeight = '.'
-			| otherwise = head $ show $ height $ worldmap world A.! (x,y)
+			| x == div maxX 2 && y == div maxY 2 = castEnum '*'
+			| isUntrappable $ worldmap world A.! (x,y) = castEnum '^'
+			| otherwise = case symbolHeight world of
+				Numbers -> castEnum $ head $ show $ height $ worldmap world A.! (x,y)
+				(SymbolHeight c) -> c
 
 -- | return data to show an item
 dataToShowItem :: World -> (Int, Int, Object, Int) -> DataToShow
@@ -114,7 +121,7 @@ dataToShowItem world(x, y, item, _) =
 	if isCell x y
 	then 
 		if abs dx > xSight || abs dy > ySight then Nothing
-		else Just (dx, dy, symbolItem item, setBold attr0 True, defaultc, defaultBack)
+		else Just (dx, dy, castEnum $ symbolItem item, setBold attr0 True, defaultc, defaultBack)
 	else putWE "drawItem"
 	where
 		dx = x - xFirst world
@@ -301,10 +308,7 @@ drawSplit w _ = wAttrSet stdScr (attr0, Pair defaultc) >>
 drawOptions :: World -> Int -> IO ()
 drawOptions _ _ = do
 	wAttrSet stdScr (attr0, Pair defaultc)
-	mvWAddStr stdScr 0 0 msgOptColorHei
-	mvWAddStr stdScr 1 0 msgOptColorMon
-	mvWAddStr stdScr 2 0 msgOptNoHei
-	mvWAddStr stdScr 3 0 msgOptColorHeiAbs
+	mvWAddStr stdScr 0 0 msgOpt
 -- | choose a draw mode and draw all
 draw :: World -> IO ()
 draw world = do

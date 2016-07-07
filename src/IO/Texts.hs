@@ -165,13 +165,14 @@ msgPoison = " was poisoned!"
 msgPoisonYou = "You were poisoned!"
 
 {- Options -}
-msgOptColorHei, msgOptColorMon, msgOptNoHei, msgOptColorHeiAbs :: String
+msgOpt :: String
 
-msgOptColorHei = "a - map is colored by relative height"
-msgOptColorMon = "b - height shown by white numbers."
-msgOptNoHei = "c - height doesn't shown"
-msgOptColorHeiAbs = "d - map is colored by absolute height"
-
+msgOpt = "a - map is colored by absolute height\n" ++ 
+	 "b - map is colored by relative height\n" ++
+	 "c - don't use colors\n" ++
+	 "d - use numbers to show height\n" ++
+	 "e - use dots for empty space\n" ++
+	 "f - use squares for empty space\n"
 {-Other-}
 msgSafety, msgTrollDeath, msgDrownYou, msgDrown :: String
 msgLanding :: Int -> String

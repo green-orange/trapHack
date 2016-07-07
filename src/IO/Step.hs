@@ -16,6 +16,7 @@ import Monsters.AIrepr
 import IO.Messages
 import IO.Colors
 import IO.Texts
+import IO.Show(castEnum)
 
 import Data.Set (empty)
 import Data.Maybe (isJust, fromMaybe)
@@ -76,7 +77,7 @@ step world c
 			Call ->
 				if c == 'y' || c == 'Y'
 				then Left $ callUpon world
-				else Left  world {action = Move}
+				else Left world {action = Move}
 			Split1 -> Left $ addDefaultMessage msgPutSize world
 				{prevAction = c, numToSplit = 0, action = Split2}
 			Split2 -> 
@@ -90,12 +91,14 @@ step world c
 					Nothing -> Left world
 					Just (dx, dy) -> Left $ world {xInfo = xInfo world + dx, 
 						yInfo = yInfo world + dy}
-			Options -> case c of
-				'a' -> Left $ world {action = Move, showMode = ColorHeight}
-				'b' -> Left $ world {action = Move, showMode = ColorMonsters}
-				'c' -> Left $ world {action = Move, showMode = NoHeight}
-				'd' -> Left $ world {action = Move, showMode = ColorHeightAbs}
-				_   -> Left $ world {action = Move, message = [(msgUnkOpt, defaultc)]}
+			Options -> Left $ (case c of
+				'a' -> world {colorHeight = Absolute}
+				'b' -> world {colorHeight = Relative}
+				'c' -> world {colorHeight = NoColor}
+				'd' -> world {symbolHeight = Numbers}
+				'e' -> world {symbolHeight = SymbolHeight $ castEnum '.'}
+				'f' -> world {symbolHeight = SymbolHeight filledSquare}
+				_   -> world {message = [(msgUnkOpt, defaultc)]}) {action = Move}
 			_ -> Left $ addMessage (msgCheater, magenta) world {action = Move}
 		else
 			let newMWorld = runAI aiNow x y peace world

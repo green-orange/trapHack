@@ -47,7 +47,8 @@ initWorld mapgen char username gen = World {
 	xInfo = 0,
 	yInfo = 0,
 	numToSplit = 0,
-	showMode = defaultShowMode,
+	colorHeight = defaultColorHeight,
+	symbolHeight = defaultSymbolHeight,
 	mapType = mapgen
 } where (worldmap', newStdGen) = runMap mapgen gen
 

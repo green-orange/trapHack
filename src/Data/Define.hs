@@ -4,6 +4,7 @@ import qualified Data.Map as M
 import qualified Data.Array as A
 import System.Random (StdGen)
 import Data.Set (Set)
+import UI.HSCurses.Curses(ChType)
 
 -- | separators used to read/write lists in the save
 listSepMon, listSepW, listSepUn :: Char
@@ -174,7 +175,8 @@ data World = World {
 	, xInfo :: Int -- ^ current x coordinate when you show info about smth
 	, yInfo :: Int -- ^ current y coordinate when you show info about smth
 	, numToSplit :: Int -- ^ number using to Split command
-	, showMode :: ShowMode -- ^ mode to show the worldmap
+	, colorHeight :: ColorHeight -- ^ color to show the heights on a worldmap
+	, symbolHeight :: SymbolHeight -- ^ symbols to show heights on a worldmap
 	, mapType :: MapGenType -- ^ type of the map generator (for scroll of safety) 
 }
 
@@ -184,12 +186,23 @@ data Cell = Cell {
 	height :: Int
 }
 
--- | mode to show the worldmap
-data ShowMode = ColorHeight | ColorHeightAbs | ColorMonsters | NoHeight
-	deriving (Eq)
+-- | how to use colors to show height
+data ColorHeight = Absolute | Relative | NoColor
 
-defaultShowMode :: ShowMode
-defaultShowMode = ColorHeightAbs
+-- | how to use characters to show height
+data SymbolHeight = Numbers | SymbolHeight ChType
+
+-- | default option for color height
+defaultColorHeight :: ColorHeight
+defaultColorHeight = Absolute
+
+-- | symbol of a filled square that can be colored; it's really strange, yeah
+filledSquare :: ChType
+filledSquare = toEnum $ 97 + 2 ^ (22 :: Integer)
+
+-- | default option for symbol height
+defaultSymbolHeight :: SymbolHeight
+defaultSymbolHeight = SymbolHeight filledSquare 
 
 -- | type of the resource
 data ResourceType = Tree | Stone | MetalScrap deriving (Eq)

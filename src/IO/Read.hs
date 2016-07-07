@@ -161,7 +161,8 @@ instance Read World where
 		xInfo = 0,
 		yInfo = 0,
 		numToSplit = 0,
-		showMode = defaultShowMode,
+		colorHeight = defaultColorHeight,
+		symbolHeight = defaultSymbolHeight,
 		mapType = read mapType'
 	}, "")] where
 		parse = separate worldSep str
