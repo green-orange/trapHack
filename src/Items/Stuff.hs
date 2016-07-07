@@ -42,7 +42,7 @@ hunterInv g = (M.fromList $ zip alphabet $ addRation
 		(n, g3) = randomR (0, 2) g2
 		addRation = if n == 0 then id else (:) (foodRation, n)
 
--- | soldier generates with weapon, different Armor and some food 
+-- | soldier generates with weapon, different armor and some food 
 soldierInv :: InvGen
 soldierInv g = (M.fromList $ zip alphabet $ addRation $ zip
 	[uniformFromList x1 weapons,
@@ -132,8 +132,8 @@ potionOfMutation = Potion {title = "potion of mutation",
 -- | enchant all your wielded weapons
 potionOfEnchantWeapon = Potion {title = "potion of enchant weapon",
 	act = addRandom (0, 3) $ enchantAll WeaponSlot, idO = 3}
--- | enchant all your weared Armor
-potionOfEnchantArmor = Potion {title = "potion of enchant Armor",
+-- | enchant all your weared armor
+potionOfEnchantArmor = Potion {title = "potion of enchant armor",
 	act = addRandom (0, 3) $ enchantAll ArmorSlot, idO = 4}
 -- | enchant all your putted jewelry
 potionOfEnchantjewelry = Potion {title = "potion of enchant jewelry",
@@ -293,7 +293,7 @@ crowbar     = getWeapon "crowbar"      30 6 $ dices (2, 8) 0.0
 
 uniqueArmor, uniqueHelms, uniqueGloves, uniqueBoots :: [Object]
 armor, bodyArmor, helmets, gloves, boots :: [Object]
--- | list of all Armor
+-- | list of all armor
 armor = bodyArmor ++ helmets ++ gloves ++ boots
 -- | get Armor by title, weight, ac, binding (a Body part) and id
 getArmor :: String -> Int -> Int -> PartKind -> Int -> Object
@@ -325,7 +325,7 @@ plateMail = getArmor "plate mail" 450 4 Body 3
 -- | list of all helms
 uniqueHelms = [fedora, hardHat, helmet, kabuto]
 fedora, hardHat, helmet, kabuto :: Object
--- | list of helms with probabilities to generate random Armor
+-- | list of helms with probabilities to generate random armor
 helmets =
 	replicate 4 fedora ++
 	replicate 3 hardHat ++
@@ -339,7 +339,7 @@ kabuto = getArmor "kabuto" 50 4 Head 3
 -- | list of all gloves
 uniqueGloves = gloves
 glove, gauntlet :: Object
--- | list of gloves with probabilities to generate random Armor
+-- | list of gloves with probabilities to generate random armor
 gloves = [glove, gauntlet]
 
 glove = getArmor "glove" 3 1 Arm 0
@@ -347,7 +347,7 @@ gauntlet = getArmor "gauntlet" 5 2 Arm 1
 -- | list of all boots
 uniqueBoots = boots
 lowBoot, highBoot :: Object
--- | list of boots with probablilities to generate random Armor
+-- | list of boots with probablilities to generate random armor
 boots = [lowBoot, highBoot]
 
 lowBoot = getArmor "low boot" 10 1 Leg 0

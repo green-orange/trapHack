@@ -27,10 +27,10 @@ import Data.Functor ((<$>))
 step :: World -> Char -> Either World String
 step world c
 	| alive mon = 
-		if isPlayerNow world && not stun
+		if isPlayerNow world
 		then case action world of
-			AfterSpace -> justStep world c
-			Move -> justStep world c
+			AfterSpace -> justStep c stun world
+			Move -> justStep c stun world
 			Quaff -> doIfCorrect $ quaffFirst c world
 			Read -> doIfCorrect $ readFirst c world
 			Zap2 -> doIfCorrect $ zapFirst c world
@@ -116,15 +116,18 @@ step world c
 		AI aiNow = if stun then AI $ getPureAI RandomAI else ai mon
 		(xR, g1) = randomR (0, maxX) g
 		(yR, _) = randomR (0, maxY) g1 
-		(x, y, peace ) = case closestPlayerChar (xFirst world) 
+		(x, y, peace) = case closestPlayerChar (xFirst world) 
 			(yFirst world) world of
 			Just (xP, yP) -> (xP, yP, False)
 			Nothing -> (xR, yR, True)
 
 -- | case when action is just move
-justStep :: World -> Char -> Either World String
-justStep world c = case dir c of
-	Just (dx, dy) -> doIfCorrect $ moveFirst dx dy world
+justStep :: Char -> Bool -> World -> Either World String
+justStep c stun world = case dir c of
+	Just (dx, dy) -> doIfCorrect $ moveFirst dx' dy' world {stdgen = g'} where
+		(px, g) = randomR (-1, 1) $ stdgen world
+		(py, g') = randomR (-1, 1) g
+		(dx', dy') = if stun then (px, py) else (dx, dy)
 	Nothing ->
 		if isSpace c then Left $ world {action = AfterSpace} else case c of
 		'D' -> Left world {action = DropMany}
