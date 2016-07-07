@@ -23,7 +23,7 @@ import qualified Data.Array as A
 import Control.Monad (unless, when, zipWithM_, (>=>))
 import Data.Functor ((<$>))
 
-shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem :: Int
+shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem, invColumn :: Int
 -- | shift from left side to a position with hit points
 shiftRightHP = 2 * xSight + 5
 -- | shift from left side to a position with some attributes
@@ -38,6 +38,8 @@ shiftA = shiftW + diff
 shiftJ = shiftA + diff
 -- | vertical shift from top to a first 'Elem' position
 shiftElem = 4
+-- | width of the column in Inventory menu
+invColumn = 50
 
 -- | cast 'Char' type to HSCurses 'ChType'  
 castEnum :: Char -> ChType
@@ -203,7 +205,7 @@ drawInventory world h = do
 			[c] ++ " - " ++ show n ++ " * " ++ titleShow obj ++
 			(if isExistingBindingFirst world c then " (is used)" else "")) <$> items'
 		showInv :: (Int, String) -> IO ()
-		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (30 * div n (h-1)) s
+		showInv (n, s) = mvWAddStr stdScr ((+) 1 $ mod n $ h-1) (invColumn * div n (h-1)) s
 -- | draw list of items in equipment menu
 drawEquipMenu :: World -> Int -> IO ()
 drawEquipMenu world h = do
