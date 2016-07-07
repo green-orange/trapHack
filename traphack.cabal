@@ -27,4 +27,5 @@ executable traphack
                      , containers >=0.5
                      , array      >=0.5
                      , time       >=1.5
+                     , MissingH   >=1.4
   default-language:    Haskell2010

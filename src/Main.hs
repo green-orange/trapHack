@@ -23,12 +23,12 @@ import IO.Texts
 import IO.Read (separate)
 import Init
 
-import Data.Ratio
 import UI.HSCurses.Curses
 import Control.Monad (unless, liftM)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
 import Data.Time.Clock
+import System.Time.Utils (renderSecs)
 import Data.Functor ((<$>))
 import qualified Data.Map as M
 #ifndef mingw32_HOST_OS
@@ -127,14 +127,7 @@ main = do
 					putStrLn msg
 					timeEnd <- getCurrentTime
 					putStr "Time in game: "
-					let timeOfGame = toRational $  diffUTCTime timeEnd timeBegin
-					let num = numerator timeOfGame
-					let den = denominator timeOfGame
-					let secs = num `div` den
-					putStr $ show $ secs `div` 60
-					putStr " min, "
-					putStr $ show $ secs `mod` 60
-					putStrLn " sec"
+					putStrLn $ renderSecs $ round $ diffUTCTime timeEnd timeBegin
 					putStr "Level: " 
 					print lvl)
 				(\e -> endWin >> putStrLn (msgGameErr ++ show e))
