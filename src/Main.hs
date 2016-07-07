@@ -35,11 +35,13 @@ import qualified Data.Map as M
 import System.Posix.User
 #endif
 
-logName, saveName :: String
+logName, saveName, resName :: String
 -- | file with the game log
-logName = "trapHack.log"
+logName = "traphack.log"
 -- | file with the game save
-saveName = "trapHack.save"
+saveName = "traphack.save"
+-- | file with results
+resName = "traphack.res"
 
 -- | catch all exceptions to run 'endWin' after exit with error
 catchAll :: IO a -> (SomeException -> IO a) -> IO a
@@ -124,10 +126,11 @@ main = do
 				catchAll (do
 					(msg, lvl) <- loop world 
 					endWin
-					putStrLn msg
 					timeEnd <- getCurrentTime
-					putStr "Time in game: "
-					putStrLn $ renderSecs $ round $ diffUTCTime timeEnd timeBegin
-					putStr "Level: " 
-					print lvl)
+					let str = msg ++ "\nTime in game: " ++
+						(renderSecs $ round $ diffUTCTime timeEnd timeBegin) ++
+						"\nLevel: " ++ show lvl ++ "\n\n"
+					putStr str
+					appendFile resName str
+					)
 				(\e -> endWin >> putStrLn (msgGameErr ++ show e))
