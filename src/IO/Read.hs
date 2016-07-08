@@ -85,8 +85,8 @@ instance Read Object where
 		"Missile" -> (missiles !! id') {enchantment = ench'}
 		"Launcher" -> (launchers !! id') {enchantment = ench'}
 		"Weapon" -> (uniqueWeapons !! id') {enchantment = ench'}
-		"Armor" -> (armorByType !! bind' !! id') {enchantment = ench'}
-		"Jewelry" -> jewelryByType !! bind' !! id' $ ench'
+		"Armor" -> (armorByType !! fromEnum bind' !! id') {enchantment = ench'}
+		"Jewelry" -> jewelryByType !! fromEnum bind' !! id' $ ench'
 		"Food" -> Food {title = raw !! 1, nutrition = parsed !! 2 , 
 			weight' = parsed !! 3, rotRate = parsed !! 4, rotTime = parsed !! 5,
 			idO = parsed !! 6, effect = if isBerry' then effect 
@@ -96,12 +96,12 @@ instance Read Object where
 		_ -> error $ "parse error: " ++ str, "")]
 		where
 		raw = separate objSep str
-		parsed = map read raw
+		parsed = putWE "Read Object" : map read (tail raw) :: [Int]
 		isBerry' = raw !! 6 /= "-1"
-		id', bind', ench' :: Int
+		id', ench' :: Int
 		id' = parsed !! 1
 		ench' = parsed !! 2
-		bind' = parsed !! 3
+		bind' = read (raw !! 3) :: PartKind
 
 instance Read Monster where
 	readsPrec _ str = [(Monster {

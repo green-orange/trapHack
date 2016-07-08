@@ -128,7 +128,7 @@ main = do
 					endWin
 					timeEnd <- getCurrentTime
 					let str = msg ++ "\nTime in game: " ++
-						(renderSecs $ round $ diffUTCTime timeEnd timeBegin) ++
+						renderSecs (round $ diffUTCTime timeEnd timeBegin) ++
 						"\nLevel: " ++ show lvl ++ "\n\n"
 					putStr str
 					appendFile resName str

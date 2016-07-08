@@ -319,7 +319,7 @@ bodyArmor =
 	replicate 1 plateMail
 
 leatherJacket = getArmor "leather jacket" 30 1 Body 0
-leatherArmor = getArmor "leather Armor" 150 2 Body 1
+leatherArmor = getArmor "leather armor" 150 2 Body 1
 ringMail = getArmor "ring mail" 250 3 Body 2
 plateMail = getArmor "plate mail" 450 4 Body 3
 -- | list of all helms

@@ -280,7 +280,7 @@ sLOTS :: Int
 sLOTS = fromEnum (maxBound :: Slot) - fromEnum (minBound :: Slot) + 1
 
 -- | elements that can be used to special attacks
-data Elem = Fire | Poison' | Cold deriving (Enum, Bounded)
+data Elem = Fire | Poison' | Cold deriving (Enum, Bounded, Read, Show)
 
 -- | monster inventory
 type Inv = M.Map Char (Object, Int)
@@ -304,7 +304,7 @@ instance Eq Object where
 	_ == _ = False
 
 {-Read & Show-}
-instance Show Elem where
+{-instance Show Elem where
 	show Fire = "Fire"
 	show Poison' = "Poison"
 	show Cold = "Cold"
@@ -313,7 +313,7 @@ instance Read Elem where
 	readsPrec _ "Fire" = [(Fire, "")]
 	readsPrec _ "Poison" = [(Poison', "")]
 	readsPrec _ "Cold" = [(Cold, "")]
-	readsPrec _ e = error $ "parse error: Elem " ++ e
+	readsPrec _ e = error $ "parse error: Elem " ++ e-}
 
 -- | symbol to separate fields in 'Cell' data
 cellSep :: Char
@@ -380,7 +380,7 @@ instance Show Object where
 		++ show (enchantment o) ++ [objSep] ++ show (bind o) 
 	show o@(Jewelry {}) = "Jewelry" ++ [objSep] ++ show (idO o) ++ [objSep] 
 		++ show (enchantment o) ++ [objSep] ++ show (bind o)
-	show o@(Food {}) = "Food" ++ [objSep] ++ show (title o) ++ [objSep] 
+	show o@(Food {}) = "Food" ++ [objSep] ++ title o ++ [objSep] 
 		++ show (nutrition o) ++ [objSep] ++ show (weight' o) ++ [objSep]
 		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) ++ [objSep] 
 		++ show (idO o)
