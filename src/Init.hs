@@ -138,8 +138,8 @@ getGodlikePlayer = Monster {
 
 -- | default parameters for some generators
 defMountainCnt, defFlatHeight, defRiverCnt, defSwampDepth, defBonfireCnt, defMagicCnt,
-	defSinesCnt, defTrapCnt :: Int
-defMountainCnt = 200
+	defSinesCnt, defTrapCnt, defHillCnt :: Int
+defMountainCnt = 1200
 defFlatHeight = 9
 defRiverCnt = 50
 defSwampDepth = 3
@@ -147,6 +147,7 @@ defBonfireCnt = defTrapCnt
 defMagicCnt = defTrapCnt
 defSinesCnt = 10
 defTrapCnt = 100
+defHillCnt = 1200
 
 -- | default version of Mountains
 defMountains :: HeiGenType
@@ -184,14 +185,17 @@ customMapChoice = do
 	putStrLn "b - random map"
 	putStrLn "c - mountains, custom"
 	putStrLn "d - flat map (with customized height)"
+	putStrLn "e - map with parabolic hills"
 	heigenStr <- getLine
 	when (heigenStr == "a") $ putStrLn $ "Put number of sine waves (default: " ++
 		show defSinesCnt ++ ")"
-	when (heigenStr == "c") $ putStrLn $ "Put number of hills (default: " ++
+	when (heigenStr == "c") $ putStrLn $ "Put number of mountains (default: " ++
 		show defMountainCnt ++ ")"
 	when (heigenStr == "d") $ putStrLn $ "Put height of the map (default: " ++ 
 		show defFlatHeight ++ ")"
-	hei <- if heigenStr `elem` ["a", "c", "d"] then getLine else return ""
+	when (heigenStr == "e") $ putStrLn $ "Put number of hills (default: " ++
+		show defHillCnt ++ ")"
+	hei <- if heigenStr `elem` ["a", "c", "d", "e"] then getLine else return ""
 	putStrLn "Choose averaging: (default: 0)"
 	avgStr <- getLine
 	putStrLn "Choose water: "
@@ -226,7 +230,8 @@ customMapChoice = do
 			"a" -> Sines $ maybeReadNum defSinesCnt str2
 			"b" -> Random
 			"c" -> Mountains $ maybeReadNum defMountainCnt str2
-			"d" -> Flat $ maybeReadNum 9 str2
+			"d" -> Flat $ maybeReadNum defFlatHeight str2
+			"e" -> Hills $ maybeReadNum defHillCnt str2
 			_ -> Sines defSinesCnt
 		avg = maybeReadNum 0
 		water str1 str2 = case str1 of

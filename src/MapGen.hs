@@ -23,7 +23,8 @@ instance Num b => Num (a -> b) where
 runHei :: HeiGenType -> HeiGen
 runHei (Sines n) = getSineMap n
 runHei Random = getRandomHeis
-runHei (Mountains n) = getHillMap n
+runHei (Hills n) = getHillMap n
+runHei (Mountains n) = getMountainOrValleyMap n
 runHei (Flat n) = getFlatMap n
 
 -- | converts given type of water and height generator to a map generator
@@ -101,7 +102,7 @@ getSumHills n g = (f, g3) where
 	(gr, g1) = split g
 	(gx, g2) = split g1
 	(gy, g3) = split g2
-	rs = randomRs (4.0, 20.0) gr
+	rs = randomRs (4.0, 5.0) gr
 	xs = randomRs (0.0, fromIntegral maxX) gx
 	ys = randomRs (0.0, fromIntegral maxY) gy
 	f = sum $ take n $ zipWith3 getHill rs xs ys
@@ -118,6 +119,43 @@ getSumSines n g = (f, g2) where
 	as = randomRs (0.1, 1.0) ga
 	bs = randomRs (0.1, 1.0) gb
 	f = sum $ take n $ zipWith getSineWave as bs
+
+-- | get a mountain or valley (valley if true)
+getMountainOrValley :: Bool -> Float -> Float -> (Int, Int) -> Float
+getMountainOrValley t x0 y0 (x, y) = (* 2) $ getType $ exp $ negate $ sqrt 
+	$ (x0 - fromIntegral x) ** 2 + (y0 - fromIntegral y) ** 2 where
+	getType = if t then (-) 0.004 else id
+
+-- | get sum of n random mountains or valleys
+getSumMountainOrValley :: Int -> StdGen -> ((Int, Int) -> Float, StdGen)
+getSumMountainOrValley n g = (f, g3) where
+	(gx, g1) = split g
+	(gy, g2) = split g1
+	(gb, g3) = split g2
+	xs = randomRs (0.0, fromIntegral maxX) gx
+	ys = randomRs (0.0, fromIntegral maxY) gy
+	bs = randomRs (False, True) gb
+	f = sum $ take n $ zipWith3 getMountainOrValley bs xs ys
+	
+-- | get a map with random mountains like
+-- exp (sqrt ((x - x0) ^ 2 + (y - y0) ^ 2)) and symmetric valleys
+getMountains :: Int -> HeiGen
+getMountains n gen = (A.array ((0, 0), (maxX, maxY))
+	[((x, y), sumLand (x, y)) | x <- [0..maxX], y <- [0..maxY]], g') where
+	(g, g') = split gen
+	(gx, gy)= split g
+	xs = randomRs (0, maxX) gx
+	ys = randomRs (0, maxY) gy
+	mnts = take n $ zipWith getMnt xs ys
+	vlls = take n $ drop n $ zipWith getVll xs ys 
+	getMnt, getVll :: Int -> Int -> (Int, Int) -> Float
+	getMnt xMnt yMnt (x, y) = (* 2) $ exp $ negate $ sqrt 
+		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
+	getVll xMnt yMnt (x, y) = (* 2) $ (0.004 -) $ exp $ negate $ sqrt 
+		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
+	sumMnts = floor . sum mnts
+	sumVlls = floor . sum vlls
+	sumLand = sumMnts + sumVlls
 
 -- | get heightmap from a height function
 getMapFromFun :: ((Int, Int) -> Float) -> A.Array (Int, Int) Int
@@ -138,6 +176,10 @@ getHillMap n = getMapFromFun *. getSumHills n
 -- | height generator for sine waves
 getSineMap :: Int -> HeiGen
 getSineMap n = getMapFromFun *. getSumSines n
+
+-- | height generator for mountains or valleys
+getMountainOrValleyMap :: Int -> HeiGen
+getMountainOrValleyMap n = getMapFromFun *. getSumMountainOrValley n
 
 -- | add one river starts from (x, y) and flowing down
 addRiver :: Int -> Int -> (A.Array (Int, Int) Cell, StdGen)
