@@ -52,7 +52,7 @@ initWorld mapgen char username gen = World {
 	mapType = mapgen
 } where (worldmap', newStdGen) = runMap mapgen gen
 
-partsYou, partsStrongYou :: [Part]
+partsYou, partsStrongYou, wingsForYou, wingsForStrongYou :: [Part]
 partsYou = zipWith ($) [
 	getBody 1 40, 
 	getHead 1 30, 
@@ -68,6 +68,14 @@ partsStrongYou = zipWith ($) [
 	getLeg  20 200, 
 	getArm  20 200, 
 	getArm  20 200] [0..]
+
+wingsForYou = zipWith ($) [
+	getWing 1 20,
+	getWing 1 20] [0..]
+
+wingsForStrongYou = zipWith ($) [
+	getWing 10 200,
+	getWing 10 200] [0..]
 
 -- | initialize the Player
 getPlayer :: Monster
@@ -90,7 +98,7 @@ getPlayer = Monster {
 getFlyingPlayer :: Monster
 getFlyingPlayer = Monster {
 	ai = You,
-	parts = partsYou,
+	parts = partsYou ++ wingsForYou,
 	name = "You",
 	stddmg = ((1,10), 0.2), -- avg 4.4
 	inv = M.empty,
@@ -123,9 +131,9 @@ getStrongPlayer = Monster {
 getGodlikePlayer :: Monster
 getGodlikePlayer = Monster {
 	ai = You,
-	parts = partsStrongYou,
+	parts = partsStrongYou ++ wingsForStrongYou,
 	name = "You",
-	stddmg = ((1,1000), 0.0), -- avg 500
+	stddmg = ((1000,1000), 0.0), -- avg 500
 	inv = M.empty,
 	slowness = 50,
 	time = 50,
