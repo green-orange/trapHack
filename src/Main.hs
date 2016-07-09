@@ -95,7 +95,10 @@ main :: IO ()
 main = do
 	save <- catchAll (readFile saveName) $ const $ return ""
 	unless (null save) $ print msgAskLoad
-	ans <- if null save then return 'n' else getChar
+	ans <- if null save then return 'n' else do
+		c <- getChar
+		_ <- getLine
+		return c
 	_ <- initScr
 	(h, w) <- scrSize
 	_ <- endWin
