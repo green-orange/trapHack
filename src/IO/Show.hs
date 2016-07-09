@@ -273,9 +273,9 @@ drawJustWorld world _ = do
 	--mapM_ (drawItem world) $ items world
 	--mapM_ (drawUnit world) $ M.toList $ units world
 	let todo = foldr addDataToShow M.empty $ 
-		map (dataToShowUnit world) (M.toList $ units world) ++
-		map (dataToShowItem world) (items world) ++
-		map (dataToShowCell world) (A.assocs $ worldmap world)
+		(dataToShowUnit world <$> M.toList (units world)) ++
+		(dataToShowItem world <$> items world) ++
+		(dataToShowCell world <$> A.assocs (worldmap world))
 	mapM_ showByData $ M.elems todo
 	sequence_ $ zipWith3 ($) (drawPart False <$> [0..])
 		(repeat mon) $ sortBy (on compare kind) $ parts mon

@@ -266,5 +266,5 @@ defInv = zip traps [5, 5..] ++ [(pickAxe, 1)]
 
 -- | maximum armor and weapon
 warInv :: [(Object, Int)]
-warInv = flip zip [1, 1..] $ map (\x -> x {enchantment = 100})
+warInv = flip zip [1, 1..] $ (\x -> x {enchantment = 100}) <$>
 	[crysknife, plateMail, kabuto, gauntlet, highBoot]
