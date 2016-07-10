@@ -99,7 +99,7 @@ step world c
 				'e' -> world {symbolHeight = SymbolHeight $ castEnum '.'}
 				'f' -> world {symbolHeight = SymbolHeight filledSquare}
 				_   -> world {message = [(msgUnkOpt, defaultc)]}) {action = Move}
-			_ -> Left $ addMessage (msgCheater, magenta) world {action = Move}
+			_ -> putWE $ "step: action = " ++ show (action world)
 		else
 			let newMWorld = runAI aiNow x y peace world
 			in Left $ newWaveIf newMWorld

@@ -20,7 +20,7 @@ import IO.Step
 import IO.Show
 import IO.Colors
 import IO.Texts
-import IO.Read (separate)
+import IO.SaveLoad
 import Init
 
 import UI.HSCurses.Curses
@@ -47,6 +47,14 @@ resName = "traphack.res"
 catchAll :: IO a -> (SomeException -> IO a) -> IO a
 catchAll = catch
 
+-- | split string to a list of strings by given separator
+separate :: Char -> String -> [String]
+separate _ [] = [""]
+separate c s = takeWhile (c /=) s : 
+	case dropWhile (c /=) s of
+		[] -> []
+		_ : rest -> separate c rest
+
 -- | read file with name 'logName' and adapt it to show as in-game message
 getReverseLog :: IO [(String, Int)]
 getReverseLog = liftM (map (flip (,) defaultc) . tail . reverse 
@@ -67,7 +75,7 @@ loop world =
 		case step (clearMessage width world) c of
 			Left newWorld -> case action newWorld of
 				Save -> do
-					writeFile saveName $ show newWorld
+					writeFile saveName $ show $ saveWorld newWorld
 					return (msgSaved, playerLevel world)
 				Previous -> do
 					msgs <- getReverseLog
@@ -113,7 +121,7 @@ main = do
 #endif
 		maybeWorld <-
 			if ans == 'y' || ans == 'Y'
-			then catchAll (return $ Just $ read save) $ const $ return Nothing
+			then catchAll (return $ Just $ loadWorld $ read save) $ const $ return Nothing
 			else do
 				mapgen <- showMapChoice
 				char <- showCharChoice

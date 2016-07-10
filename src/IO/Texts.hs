@@ -110,16 +110,15 @@ msgCantDig = "You can't dig here!"
 msgWater = "You can't move through water!"
 
 {-Interaction messages-}
-msgAskName, msgMore, msgAskDir, msgCheater, msgAsk, msgInfo, 
+msgAskName, msgMore, msgAskDir, msgAsk, msgInfo, 
 	msgConfirmCall, msgSaved, msgAskLoad, msgLoadErr, msgGameErr, 
-	msgPutSize :: String
+	msgPutSize, msgAfterSave :: String
 msgWelcome :: String -> String
 
 msgWelcome username = "Welcome to the trapHack, " ++ username ++ "."
 msgAskName = "What's your name?"
 msgMore = "--MORE--"
 msgAskDir = "In what direction?"
-msgCheater = "You are cheater!"
 msgAsk = "What do you want to "
 msgInfo = "Pick an object and press ."
 msgConfirmCall = "Do you really want to call upon the next wave? (y/N)"
@@ -129,6 +128,7 @@ msgLoadErr = "Loading error! File is corrupted."
 msgGameErr = "Game error! If you've recently loaded the game, " ++
 	"maybe the file was damaged. Otherwise, report the bug to the developer. "
 msgPutSize = "Enter the size of one pile."
+msgAfterSave = "Welcome again!"
 
 {-Headers-}
 msgHeaderInv, msgHeaderEquip, msgHeaderBind, msgHeaderCraft :: String
