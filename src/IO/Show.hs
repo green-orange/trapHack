@@ -158,6 +158,11 @@ showMessage (msg, color') (x, y) = do
 			dy' = y + 1 + length msg
 			dx = x + div dy' w
 			dy = mod dy' w
+-- | human-readable Show for elemental resistances
+showPrettyRes :: Elem -> String
+showPrettyRes Fire = "fire"
+showPrettyRes Poison' = "poison"
+showPrettyRes Cold = "cold"
 -- | show one elemental resistance
 showElemRes :: World -> Elem -> IO ()
 showElemRes world e =
@@ -165,7 +170,7 @@ showElemRes world e =
 		(shiftDown + shiftElem + pos) shiftAttrs str where
 	pos = fromEnum e
 	value = res (getFirst world) !! pos
-	str = show e ++ " res: " ++ show value
+	str = showPrettyRes e ++ " res: " ++ show value
 -- | show one intrinsic
 showIntr :: World -> Intr -> IO ()
 showIntr world i = 
