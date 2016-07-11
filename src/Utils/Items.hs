@@ -78,6 +78,11 @@ weight (Jewelry {})  = 5
 weight (Resource {}) = 3
 weight obj = weight' obj
 
+showPrettyResourceType :: ResourceType -> String
+showPrettyResourceType Tree = "tree"
+showPrettyResourceType Stone = "stone"
+showPrettyResourceType MetalScrap = "metal scrap"
+
 -- | return 'Resource' with given type
 itemFromRes :: ResourceType -> Object
-itemFromRes rt = Resource {title = show rt, restype = rt}
+itemFromRes rt = Resource {title = showPrettyResourceType rt, restype = rt}

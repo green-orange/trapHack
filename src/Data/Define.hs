@@ -191,18 +191,7 @@ defaultSymbolHeight :: SymbolHeight
 defaultSymbolHeight = SymbolHeight filledSquare 
 
 -- | type of the resource
-data ResourceType = Tree | Stone | MetalScrap deriving (Eq)
-
-instance Show ResourceType where
-	show Tree = "tree"
-	show Stone = "stone"
-	show MetalScrap = "metal scrap"
-
-instance Read ResourceType where
-	readsPrec _ "tree" = [(Tree, "")]
-	readsPrec _ "stone" = [(Stone, "")]
-	readsPrec _ "metal scrap" = [(MetalScrap, "")]
-	readsPrec _ r = error $ "Parse error: ResourceType" ++ r
+data ResourceType = Tree | Stone | MetalScrap deriving (Eq, Show, Read)
 
 -- | type of the tool
 data ToolType = PickAxe deriving (Eq)
