@@ -6,18 +6,6 @@ import System.Random (StdGen)
 import Data.Set (Set)
 import UI.HSCurses.Curses(ChType)
 
--- | separators used to read/write lists in the save
-listSepMon, listSepW, listSepUn :: Char
-listSepMon = '&'
-listSepW = '*'
-listSepUn = '%'
-
--- | method to show lists without parenthesis and commas
-myShowList :: Show a => Char -> [a] -> String
-myShowList _ [] = ""
-myShowList _ [x] = show x
-myShowList c (x:xs) = show x ++ [c] ++ myShowList c xs
-
 -- | a record type with all units in game and info about current step
 data Units = Units {
 	xF :: Int,
@@ -25,13 +13,6 @@ data Units = Units {
 	getFirst' :: Monster,
 	list :: M.Map (Int, Int) Monster
 }
-
--- | symbol to separate fields in 'Units' data
-unitsSep :: Char
-unitsSep = '^'
-instance Show Units where
-	show uns = show (xF uns) ++ [unitsSep] ++ show (yF uns) ++ [unitsSep]
-		++ myShowList listSepUn (M.toList $ list uns)
 
 -- | a record type with one body part include an item binds to it
 data Part = Part {
@@ -106,16 +87,16 @@ data Object =
 		title :: String,
 		count' :: Int,
 		category :: String,
-		enchantment :: Int,
 		weight' :: Int,
+		enchantment :: Int,
 		idO :: Int
 	} |
 	-- | weapon can increment the damage produced by you
 	Weapon {
 		title :: String,
 		objdmg' :: StdDmg,
-		enchantment :: Int,
 		weight' :: Int,
+		enchantment :: Int,
 		idO :: Int
 	} |
 	-- | armor binds to differnt body parts and protect them
@@ -123,29 +104,29 @@ data Object =
 	Armor {
 		title :: String,
 		ac' :: Int,
+		weight' :: Int,
 		bind :: PartKind,
 		enchantment :: Int,
-		weight' :: Int,
 		idO :: Int
 	} |
 	-- | jewelry binds to different body parts and gives
 	-- you some magic abilities or intrinsics 
 	Jewelry {
 		title :: String,
-		enchantment :: Int,
-		bind :: PartKind,
 		effectOn :: Int -> Monster -> Monster,
 		effectOff :: Int -> Monster -> Monster,
+		bind :: PartKind,
+		enchantment :: Int,
 		idO :: Int
 	} |
 	-- | food must be used to don't die from starvation 
 	Food {
+		effect :: Monster -> Monster,
 		title :: String,
 		nutrition :: Int,
 		weight' :: Int,
 		rotRate :: Int,
 		rotTime :: Int,
-		effect :: Monster -> Monster,
 		isBerry :: Bool,
 		idO :: Int
 	} |
@@ -162,6 +143,7 @@ data Object =
 		charge :: Int,
 		idO :: Int
 	}
+
 
 -- | record with all world
 data World = World {
@@ -188,13 +170,13 @@ data World = World {
 data Cell = Cell {
 	terrain :: Terrain,
 	height :: Int
-}
+} deriving (Show, Read)
 
 -- | how to use colors to show height
-data ColorHeight = Absolute | Relative | NoColor
+data ColorHeight = Absolute | Relative | NoColor deriving (Show, Read)
 
 -- | how to use characters to show height
-data SymbolHeight = Numbers | SymbolHeight ChType
+data SymbolHeight = Numbers | SymbolHeight ChType deriving (Show, Read)
 
 -- | default option for color height
 defaultColorHeight :: ColorHeight
@@ -229,7 +211,7 @@ data ToolType = PickAxe deriving (Eq)
 data Action = Move | Quaff | Read | Zap1 | Zap2 | Fire1 | Fire2 | Drop |
 	DropMany | Bind | Eat | SetTrap | Inventory | Pick | Equip | Call | 
 	Info | Save | Previous | AfterSpace | Split1 | Split2 | Craft | 
-	Options | Use1 | Use2 deriving (Eq)
+	Options | Use1 | Use2 deriving (Eq, Show, Read)
 
 -- | modificators of the AI
 data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI | 
@@ -258,7 +240,7 @@ data Temp = Nutrition | Poison | Stun | Conf deriving (Enum, Show, Bounded)
 
 -- | type of the terrain (empty, water or some trap)
 data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap 
-	| Bonfire | MagicNatural deriving (Eq)
+	| Bonfire | MagicNatural deriving (Eq, Read, Show)
 
 -- | item slot of the every part
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq, Ord, Show, Read)
@@ -306,101 +288,3 @@ instance Eq Object where
 	(Scroll t _ _) == (Scroll t' _ _) = t == t'
 	(Resource _ r) == (Resource _ r') = r == r'
 	_ == _ = False
-
-{-Read & Show-}
-{-instance Show Elem where
-	show Fire = "Fire"
-	show Poison' = "Poison"
-	show Cold = "Cold"
-	
-instance Read Elem where
-	readsPrec _ "Fire" = [(Fire, "")]
-	readsPrec _ "Poison" = [(Poison', "")]
-	readsPrec _ "Cold" = [(Cold, "")]
-	readsPrec _ e = error $ "parse error: Elem " ++ e-}
-
--- | symbol to separate fields in 'Cell' data
-cellSep :: Char
-cellSep = '$'
-
-instance Show Cell where
-	show (Cell terr hei) = show terr ++ [cellSep] ++ show hei 
-
-instance Show Terrain where
-	show Empty = ""
-	show Water = "water"
-	show BearTrap = "bear trap"
-	show FireTrap = "fire trap"
-	show PoisonTrap = "poison trap"
-	show MagicTrap = "magic trap"
-	show Bonfire = "bonfire"
-	show MagicNatural = "magic source"
-
-instance Read Terrain where
-	readsPrec _ "" = [(Empty, "")]
-	readsPrec _ "bear trap" = [(BearTrap, "")]
-	readsPrec _ "fire trap" = [(FireTrap, "")]
-	readsPrec _ "poison trap" = [(PoisonTrap, "")]
-	readsPrec _ "magic trap" = [(MagicTrap, "")]
-	readsPrec _ "water" = [(Water, "")]
-	readsPrec _ "bonfire" = [(Bonfire, "")]
-	readsPrec _ "magic source" = [(MagicNatural, "")]
-	readsPrec _ t = error $ "parse error: Terrain " ++ t
-
--- | symbol to separate fields in 'Monster' data
-monSep :: Char
-monSep = '\n'
-
-instance Show Monster where 
-	show mon = 
-		show (ai mon) ++ [monSep] ++
-		myShowList listSepMon (parts mon) ++ [monSep] ++
-		show (stddmg mon) ++ [monSep] ++
-		myShowList listSepMon (M.toList $ inv mon) ++ [monSep] ++
-		show (slowness mon) ++ [monSep] ++
-		show (time mon) ++ [monSep] ++
-		myShowList listSepMon (res mon) ++ [monSep] ++
-		myShowList listSepMon (intr mon) ++ [monSep] ++
-		myShowList listSepMon (temp mon) ++ [monSep] ++
-		show (idM mon) ++ [monSep] ++ show (xp mon)
-
--- | symbol to separate fields in 'Object' data
-objSep :: Char
-objSep = '/'
-
-instance Show Object where
-	show o@(Potion {}) = "Potion" ++ [objSep] ++ show (idO o)
-	show o@(Wand {}) = "Wand" ++ [objSep] ++ show (idO o) ++ [objSep] 
-		++ show (charge o)
-	show o@(Scroll {}) = "Scroll" ++ [objSep] ++ show (idO o)
-	show o@(Trap {}) = "Trap" ++ [objSep] ++ show (idO o)
-	show o@(Missile {}) = "Missile" ++ [objSep] ++ show (idO o) 
-		++ [objSep] ++ show (enchantment o)
-	show o@(Launcher {}) = "Launcher" ++ [objSep] ++ show (idO o) 
-		++ [objSep] ++ show (enchantment o)
-	show o@(Weapon {}) = "Weapon" ++ [objSep] ++ show (idO o) ++ [objSep] 
-		++ show (enchantment o)
-	show o@(Armor {}) = "Armor" ++ [objSep] ++ show (idO o) ++ [objSep] 
-		++ show (enchantment o) ++ [objSep] ++ show (bind o) 
-	show o@(Jewelry {}) = "Jewelry" ++ [objSep] ++ show (idO o) ++ [objSep] 
-		++ show (enchantment o) ++ [objSep] ++ show (bind o)
-	show o@(Food {}) = "Food" ++ [objSep] ++ title o ++ [objSep] 
-		++ show (nutrition o) ++ [objSep] ++ show (weight' o) ++ [objSep]
-		++ show (rotRate o) ++ [objSep] ++ show (rotTime o) ++ [objSep] 
-		++ show (idO o)
-	show o@(Resource {}) = "Resource" ++ [objSep] ++ show (restype o)
-	show o@(Tool {}) = "Tool" ++ [objSep] ++ show (idO o) ++ [objSep] 
-		++ show (charge o)
-
--- | symbol to separate fields in 'World' data
-worldSep :: Char
-worldSep = '#'
-
-instance Show World where
-	show w = 
-		show (units' w) ++ [worldSep] ++
-		myShowList listSepW (items w) ++ [worldSep] ++
-		show (stdgen w) ++ [worldSep] ++
-		show (wave w) ++ [worldSep] ++
-		myShowList listSepW (A.elems $ worldmap w) ++ [worldSep] ++
-		show (mapType w)

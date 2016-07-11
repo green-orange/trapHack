@@ -69,6 +69,17 @@ addDefaultMessage msg = addMessage (msg, defaultc)
 getInfo :: World -> World
 getInfo w = addDefaultMessage msg w {action = Move} where msg = infoMessage w
 
+-- | human-readable Show for Terrain
+showPrettyTerrain :: Terrain -> String
+showPrettyTerrain Empty = "empty"
+showPrettyTerrain Water = "water"
+showPrettyTerrain BearTrap = "bear trap"
+showPrettyTerrain FireTrap = "fire trap"
+showPrettyTerrain PoisonTrap = "poison trap"
+showPrettyTerrain MagicTrap = "magic trap"
+showPrettyTerrain Bonfire = "bonfire"
+showPrettyTerrain MagicNatural = "source of magic"
+
 -- | get string with info
 infoMessage :: World -> String
 infoMessage w
@@ -82,7 +93,7 @@ infoMessage w
 	Cell terr hei = worldmap w ! (x, y)
 	un = M.lookup (x, y) $ units w
 	objs = filter (\(x',y',_,_) -> x' == x && y' == y) $ items w
-	terrInfo = "Terrain: " ++ show terr ++ ". Height: " ++ show hei ++ ". "
+	terrInfo = "Terrain: " ++ showPrettyTerrain terr ++ ". Height: " ++ show hei ++ ". "
 	monInfo = case un of
 		Nothing -> ""
 		Just mon -> "Monster: " ++ name mon ++ ". Parts: " ++ 
