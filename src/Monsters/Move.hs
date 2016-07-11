@@ -25,8 +25,8 @@ moveFirst dx dy world
 	| not $ isCell (x + dx) (y + dy)
 		= (maybeAddMessage msgIncStep world, True)
 	| not (isEmpty world xNew yNew) && (dx /= 0 || dy /= 0)
-		= (maybeUpgrade xNew yNew $ foldr (attack xNew yNew . 
-		(!! fromEnum WeaponSlot) . objectKeys)
+		= (maybeUpgrade xNew yNew $ foldr (fromMaybe id . fmap (attack xNew yNew) . 
+		M.lookup WeaponSlot . objectKeys)
 		world $ filter isUpperLimb $ parts $ getFirst world, True)
 	| terrain (worldmap world A.! (x + dx, y + dy)) == Water 
 		&& not (isFlying mon) = (maybeAddMessage msgWater world, False)

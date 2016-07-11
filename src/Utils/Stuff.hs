@@ -17,7 +17,7 @@ import IO.Texts
 import MapGen
 
 import System.Random (StdGen, randomR, Random)
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromMaybe)
 import Control.Applicative ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
@@ -32,8 +32,8 @@ cleanParts :: Monster -> Monster
 cleanParts mon = delEffects $ mon {parts = filter aliveP $ parts mon}
 	where delEffects = foldr ((.) . (\ (obj, _) -> effectOff obj 
 		$ enchantment obj)) id $ catMaybes
-		$ (flip M.lookup (inv mon) . (\ p -> objectKeys p 
-		!! fromEnum JewelrySlot)) <$> filter (not . aliveP) (parts mon)
+		$ getItem JewelrySlot mon
+		<$> filter (not . aliveP) (parts mon)
 
 -- | upgrade body part by increasing 'maxhp' and 'regRate'
 upgrade :: Int -> Part -> Part
@@ -70,7 +70,7 @@ addPart mon knd hp' regRate' = mon {parts = newPart : parts mon} where
 		kind = knd,
 		idP = newID,
 		regRate = regRate',
-		objectKeys = replicate sLOTS ' '
+		objectKeys = M.empty
 	}
 	newID = (+) 1 $ maximum $ idP <$> parts mon
 
@@ -150,8 +150,8 @@ capture mon = if canWalk mon then mon {ai = You} else mon
 
 -- | enchant all items in given slot
 enchantAll :: Slot -> Int -> Monster -> Monster
-enchantAll sl n mon = foldr (enchantByLetter . 
-	(\ p -> objectKeys p !! fromEnum sl)) mon $ parts mon where
+enchantAll sl n mon = foldr (fromMaybe id . fmap enchantByLetter . 
+	(M.lookup sl . objectKeys)) mon $ parts mon where
 	enchantByLetter c mon' = case M.lookup c $ inv mon' of
 		Nothing -> mon'
 		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}

@@ -161,8 +161,7 @@ bindFirst c w =
 				let
 				change part' = 
 					if idP part == idP part'
-					then part' {objectKeys = changeElem (fromEnum newSlot) 
-						c $ objectKeys part}
+					then part' {objectKeys = M.insert newSlot c $ objectKeys part }
 					else part'	
 				newParts = change <$> parts mon
 				in
@@ -179,11 +178,10 @@ bindFirst c w =
 		part = parts mon !! shift w
 		changeSpace part' =
 			if idP part == idP part'
-			then part' {objectKeys = changeElem (fromEnum $ slot w) ' '
-				$ objectKeys part}
+			then part' {objectKeys = M.delete (slot w) $ objectKeys part}
 			else part'
 		remEffect = 
-			case M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon of
+			case getItem JewelrySlot mon part of
 				Nothing -> id
 				Just (obj',_) -> effectOff obj' $ enchantment obj'
 		newPartsSpace = changeSpace <$> parts mon

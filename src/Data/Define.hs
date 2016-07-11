@@ -40,7 +40,7 @@ data Part = Part {
 	kind :: PartKind,
 	idP :: Int,
 	regRate :: Int,
-	objectKeys :: String
+	objectKeys :: M.Map Slot Char
 } deriving (Show, Read)
 
 -- | a record type with full info about one monster
@@ -58,6 +58,10 @@ data Monster = Monster {
 	idM :: Int,
 	xp :: Int
 }
+
+-- | get an item by a slot, part and item; return Nothing if there is no item in given slot
+getItem :: Slot -> Monster -> Part -> Maybe (Object, Int)
+getItem slot_ mon part = (M.lookup slot_ $ objectKeys part) >>= flip M.lookup (inv mon)
 
 -- | any item in the game
 data Object =
@@ -257,7 +261,7 @@ data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap
 	| Bonfire | MagicNatural deriving (Eq)
 
 -- | item slot of the every part
-data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq)
+data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq, Ord, Show, Read)
 
 -- | base type of height generator
 data HeiGenType = Sin30 | Sin3 | Flat Int | Random | Mountains

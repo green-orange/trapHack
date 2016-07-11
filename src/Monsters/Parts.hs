@@ -33,7 +33,7 @@ getPart knd regRate' hp' id' = Part {
 	kind = knd,
 	idP = id',
 	regRate = regRate',
-	objectKeys = replicate sLOTS ' '
+	objectKeys = M.empty
 }
 
 -- | check is this part alive
@@ -64,20 +64,17 @@ effectiveSlowness mon = max 10 $ (`div` capacity mon) $
 
 -- | check is this slot of given part empty
 isEmptyPart :: Slot -> Monster -> Part -> Bool
-isEmptyPart sl mon part = M.notMember (objectKeys part !! fromEnum sl) $ inv mon
+isEmptyPart sl mon part = M.notMember sl $ objectKeys part
 
 -- | calculate armor class of the part armor
 acPart :: Monster -> Part -> Int
-acPart mon part = (case armor of
+acPart mon part = (case getItem ArmorSlot mon part of
 	Nothing -> 0
 	Just (obj, _) -> if isArmor obj then ac obj else 0) +
-	(case jewelry of
+	(case getItem JewelrySlot mon part of
 	Nothing -> 0
 	Just (obj,_) -> 
 		if title obj == "ring of protection" then enchantment obj else 0)
-	where
-		armor = M.lookup (objectKeys part !! fromEnum ArmorSlot) (inv mon)
-		jewelry = M.lookup (objectKeys part !! fromEnum JewelrySlot) (inv mon)
 
 -- | have this monster any part of given kind?
 hasPart :: PartKind -> Monster -> Bool

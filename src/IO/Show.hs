@@ -351,19 +351,16 @@ drawPartFull isFull x y mon part = do
 			" rr: " ++ show (regRate part)
 		(strW, strA, strJ) =
 			if isFull
-			then (case objsW of
+			then (case getItem WeaponSlot mon part of
 				Nothing -> ""
 				Just (obj,_) -> titleShow obj,
-				case objsA of
+				case getItem ArmorSlot mon part of
 				Nothing -> ""
 				Just (obj,_) -> titleShow obj,
-				case objsJ of
+				case getItem JewelrySlot mon part of
 				Nothing -> ""
 				Just (obj,_) -> titleShow obj)
 			else ("","","")
-		objsW = M.lookup (objectKeys part !! fromEnum WeaponSlot) $ inv mon
-		objsA = M.lookup (objectKeys part !! fromEnum ArmorSlot) $ inv mon
-		objsJ = M.lookup (objectKeys part !! fromEnum JewelrySlot) $ inv mon
 
 -- | symbol to show item on the ground
 symbolItem :: Object -> Char

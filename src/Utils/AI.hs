@@ -72,8 +72,7 @@ isValidMissile mon c = case objs of
 	where
 		objs = M.lookup c $ inv mon
 		launchers = filter isLauncher $ fst <$> catMaybes
-			((flip M.lookup (inv mon) . (\p -> objectKeys p 
-			!! fromEnum WeaponSlot)) <$> parts mon)
+			(getItem WeaponSlot mon <$> parts mon)
 
 -- | have this monster any launcher?
 haveLauncher :: Monster -> Bool

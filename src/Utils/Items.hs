@@ -4,6 +4,7 @@ import Data.World
 import Data.Define
 
 import Control.Applicative ((<$>))
+import qualified Data.Map as M
 
 -- | has given object an appropriate constructor?
 
@@ -60,7 +61,7 @@ ac obj = ac' obj + enchantment obj
 
 -- | is this char some binding for this monster
 isExistingBinding :: Monster -> Char -> Bool
-isExistingBinding mon c = elem c $ concatMap objectKeys $ parts mon
+isExistingBinding mon c = elem c $ concatMap (M.elems . objectKeys) $ parts mon
 
 -- | is this char some binding for current monster
 isExistingBindingFirst :: World -> Char -> Bool

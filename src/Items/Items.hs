@@ -221,8 +221,7 @@ fireFirst c world =
 		intended obj' =
 			filter (\w -> isLauncher w && launcher obj' == category w) listWield
 		listWield = fst <$> catMaybes
-			((flip M.lookup (inv oldMon) . (\ p -> objectKeys p 
-			!! fromEnum WeaponSlot)) <$> filter isUpperLimb (parts oldMon))
+			(getItem WeaponSlot oldMon <$> filter isUpperLimb (parts oldMon))
 		x = xFirst world
 		y = yFirst world
 		oldMon = getFirst world
