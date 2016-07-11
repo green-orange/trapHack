@@ -244,8 +244,8 @@ showCharChoice = do
 	c <- getLine
 	return $ case c of
 		"a" -> getPlayer
-		"b" -> getPlayer {inv = listToMap defInv}
-		"c" -> getDefaultPlayer 
+		"b" -> getDefaultPlayer
+		"c" -> getPlayer {inv = listToMap fullInv}
 		"d" -> getFlyingPlayer
 		"e" -> getStrongPlayer {inv = listToMap warInv}
 		"f" -> getGodlikePlayer {inv = listToMap $ warInv ++ fullInv}

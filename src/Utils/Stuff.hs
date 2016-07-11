@@ -8,6 +8,7 @@ import Utils.Changes
 import Utils.Random
 import Utils.HealDamage
 import Utils.Monsters
+import Utils.Items
 import Monsters.Parts
 import Monsters.AIrepr
 import Monsters.Monsters
@@ -154,7 +155,11 @@ enchantAll sl n mon = foldr (maybe id enchantByLetter .
 	M.lookup sl . objectKeys) mon $ parts mon where
 	enchantByLetter c mon' = case M.lookup c $ inv mon' of
 		Nothing -> mon'
-		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}
+		Just (obj, k) -> updateMon mon' {inv = M.insert c (newObj, k) $ inv mon'} where
+			newObj = enchant n obj
+			updateMon = if isJewelry obj
+				then effectOn newObj (enchantment newObj) . effectOff obj (enchantment obj)
+				else id
 
 -- | do something only with first monster
 actWithFirst :: ((Monster, StdGen) -> (Monster, StdGen)) -> World -> World

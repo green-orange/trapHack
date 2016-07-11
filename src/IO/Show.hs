@@ -27,7 +27,7 @@ shiftRightHP, shiftAttrs, shiftW, shiftA, shiftJ, diff, shiftElem, invColumn :: 
 -- | shift from left side to a position with hit points
 shiftRightHP = 2 * xSight + 5
 -- | shift from left side to a position with some attributes
-shiftAttrs = 2 * xSight + 30
+shiftAttrs = 2 * xSight + 40
 -- | difference between of columns in equip menu
 diff = 20
 -- | 'WeaponSlot' column menu
@@ -289,7 +289,7 @@ drawJustWorld world _ = do
 		$ mvWAddStr stdScr (shiftDown + 2) shiftAttrs "Burdened"
 	wAttrSet stdScr (attr0, Pair defaultc)
 	mvWAddStr stdScr (shiftDown + 3) shiftAttrs
-			$ "Next wave: " ++ show (wave world)
+		$ "Next wave: " ++ show (wave world)
 	mapM_ (showElemRes world) (getAll :: [Elem])
 	mapM_ (showIntr world) (getAll :: [Intr])
 	mapM_ (showTemp world) (getAll :: [Temp]) where
@@ -348,7 +348,7 @@ drawPartFull isFull x y mon part = do
 	where
 		str1 = show (kind part) ++ ":"
 		str2 = show (hp part) ++ "/" ++ show (maxhp part) ++
-			" rr: " ++ show (regRate part)
+			" rr: " ++ show (regRate part) ++ "; ac: " ++ show (acPart mon part)
 		(strW, strA, strJ) =
 			if isFull
 			then (case getItem WeaponSlot mon part of

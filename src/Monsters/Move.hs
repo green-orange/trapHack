@@ -24,9 +24,9 @@ moveFirst :: Int -> Int -> World -> (World, Bool)
 moveFirst dx dy world
 	| not $ isCell (x + dx) (y + dy)
 		= (maybeAddMessage msgIncStep world, True)
-	| not (isEmpty world xNew yNew) && (dx /= 0 || dy /= 0)
-		= (maybeUpgrade xNew yNew $ foldr (maybe id (attack xNew yNew) . 
-		M.lookup WeaponSlot . objectKeys)
+	| not (isEmpty world (x + dx) (y + dy)) && (dx /= 0 || dy /= 0)
+		= (maybeUpgrade (x + dx) (y + dy) $ foldr ((attack (x + dx) (y + dy)) . 
+		fromMaybe ' ' . M.lookup WeaponSlot . objectKeys)
 		world $ filter isUpperLimb $ parts $ getFirst world, True)
 	| terrain (worldmap world A.! (x + dx, y + dy)) == Water 
 		&& not (isFlying mon) = (maybeAddMessage msgWater world, False)
