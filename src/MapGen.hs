@@ -9,6 +9,8 @@ import System.Random
 import qualified Data.Array as A
 import Data.Functor ((<$>))
 import Control.Arrow (first)
+import qualified Data.Map as M
+import Data.Maybe (fromMaybe)
 
 -- | instance to add, multiply etc functions from somewhere to numbers
 instance Num b => Num (a -> b) where
@@ -26,6 +28,7 @@ runHei Random = getRandomHeis
 runHei (Hills n) = getHillMap n
 runHei (Mountains n) = getMountainOrValleyMap n
 runHei (Flat n) = getFlatMap n
+runHei (DiamondSquare) = getDiamondSquareMap
 
 -- | converts given type of water and height generator to a map generator
 runWater :: Water -> HeiGen -> MapGen
@@ -151,7 +154,7 @@ getMountains n gen = (A.array ((0, 0), (maxX, maxY))
 	getMnt, getVll :: Int -> Int -> (Int, Int) -> Float
 	getMnt xMnt yMnt (x, y) = (* 2) $ exp $ negate $ sqrt 
 		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
-	getVll xMnt yMnt (x, y) = (* 2) $ (0.004 -) $ exp $ negate $ sqrt 
+	getVll xMnt yMnt (x, y) = (* 2) $ negate $ exp $ negate $ sqrt 
 		$ fromIntegral $ (xMnt - x) ^ (2 :: Int) + (yMnt - y) ^ (2 :: Int)
 	sumMnts = floor . sum mnts
 	sumVlls = floor . sum vlls
@@ -232,3 +235,91 @@ addRandomTerr terr mgen g =
 	(y, g2) = randomR (0, maxY) g1
 	(wmap, g3) = mgen g2
 	cell = wmap A.! (x, y)
+
+-- | minimal power of 2 that is more than maxX and maxY
+diamondSquareSize :: Int
+diamondSquareSize = 128
+
+-- | parameter for algorithm, also need to be power of 2
+blockSize :: Int
+blockSize = 16
+
+-- | list of odd multiples of n
+coordsOdd :: Int -> [Int]
+coordsOdd n = [n, 3 * n .. diamondSquareSize - n]
+
+-- | list of even multiples of n
+coordsEven :: Int -> [Int]
+coordsEven n = [0, 2 * n .. diamondSquareSize]
+
+-- | maximum moise on first step
+noiseCoeff :: Float
+noiseCoeff = 10.0
+
+-- | get bound for nois by iteration
+getBound :: Int -> Float
+getBound n = noiseCoeff * fromIntegral n / fromIntegral blockSize
+
+-- | one 'diamond' step of algorithm
+addDiamonds :: Int -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addDiamonds n p = foldr (addDiamond n) p [(x, y) | x <- coordsOdd n, y <- coordsOdd n] where
+
+-- | add one 'diamond' with given coords
+addDiamond :: Int -> (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addDiamond n (x, y) (m, g) = (M.insert (x, y) newVal m, g') where
+	newVal = max 0.0 $ min 10.0 $ (+) noise $ flip (/) 4.0 $ sum 
+		$ map (fromMaybe 5.0 . flip M.lookup m)
+		[(x - n, y - n), (x - n, y + n), (x + n, y - n), (x + n, y + n)]
+	(noise, g') = randomR (-bound, bound) g
+	bound = getBound n
+
+-- | one 'vertical square' step of algorithm
+addSquaresV :: Int -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addSquaresV n p = foldr (addSquareV n) p [(x, y) | x <- coordsEven n, y <- coordsOdd n] where
+
+-- | add one 'vertical square' with given coords
+addSquareV :: Int -> (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addSquareV n (x, y) (m, g) = (M.insert (x, y) newVal m, g') where
+	newVal = max 0.0 $ min 10.0 $ (+) noise $ flip (/) 2.0 $ sum 
+		$ map (fromMaybe 5.0 . flip M.lookup m)
+		[(x, y - n), (x, y + n)]
+	(noise, g') = randomR (-bound, bound) g
+	bound = getBound n
+
+-- | one 'horizontal square' step of algorithm
+addSquaresH :: Int -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addSquaresH n p = foldr (addSquareH n) p [(x, y) | x <- coordsOdd n, y <- coordsEven n] where
+
+-- | add one 'horizontal square' with given coords
+addSquareH :: Int -> (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addSquareH n (x, y) (m, g) = (M.insert (x, y) newVal m, g') where
+	newVal = max 0.0 $ min 10.0 $ (+) noise $ flip (/) 2.0 $ sum 
+		$ map (fromMaybe 5.0 . flip M.lookup m)
+		[(x - n, y), (x + n, y)]
+	(noise, g') = randomR (-bound, bound) g
+	bound = getBound n
+
+-- | run step with distance n
+diamondSquareStep :: Int -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+diamondSquareStep 0 = id
+diamondSquareStep n = diamondSquareStep (n `div` 2) . addSquaresV n . addSquaresH n . addDiamonds n
+
+-- | random height by given coords
+addRandomHei :: (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
+addRandomHei p (m, g) = (M.insert p newVal m, g') where
+	(newVal, g') = randomR (0.0, 10.0) g
+
+getStartMap :: StdGen -> (M.Map (Int, Int) Float, StdGen)
+getStartMap g = foldr addRandomHei (M.empty, g) [(x, y) |
+	x <- coordsEven blockSize, y <- coordsEven blockSize]
+
+-- | generate a map using 'diamond square' algorithm
+diamondSquare :: StdGen -> (M.Map (Int, Int) Float, StdGen)
+diamondSquare = diamondSquareStep blockSize . getStartMap where
+
+-- | wrapped height generator
+getDiamondSquareMap :: HeiGen
+getDiamondSquareMap g = (A.array ((0, 0), (maxX, maxY)) $ M.toList $
+	M.filterWithKey isGoodKey $ floor <$> m, g') where
+	(m, g') = diamondSquare g
+	isGoodKey key _ = uncurry isCell key
