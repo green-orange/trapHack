@@ -17,7 +17,7 @@ import IO.Texts
 import MapGen
 
 import System.Random (StdGen, randomR, Random)
-import Data.Maybe (catMaybes, fromMaybe)
+import Data.Maybe (catMaybes)
 import Control.Applicative ((<$>))
 import qualified Data.Set as S
 import qualified Data.Map as M
@@ -150,8 +150,8 @@ capture mon = if canWalk mon then mon {ai = You} else mon
 
 -- | enchant all items in given slot
 enchantAll :: Slot -> Int -> Monster -> Monster
-enchantAll sl n mon = foldr (fromMaybe id . fmap enchantByLetter . 
-	(M.lookup sl . objectKeys)) mon $ parts mon where
+enchantAll sl n mon = foldr (maybe id enchantByLetter . 
+	M.lookup sl . objectKeys) mon $ parts mon where
 	enchantByLetter c mon' = case M.lookup c $ inv mon' of
 		Nothing -> mon'
 		Just (obj, k) -> mon' {inv = M.insert c (enchant n obj, k) $ inv mon'}

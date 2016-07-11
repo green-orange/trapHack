@@ -139,7 +139,7 @@ bindSomethingAI sl knd getter f x y p w =
 	where
 		mon = getFirst w
 		emptyParts = filter ((\o -> kind o == knd) . snd) 
-			$ filter (isEmptyPart sl mon . snd) $ zip [0..] $ parts mon
+			$ filter (isEmptyPart sl . snd) $ zip [0..] $ parts mon
 
 -- | specification of 'bindSomethingAI' to wield smth
 wieldSomethingAI :: (World -> Maybe Char) -> AIfunc -> AIfunc

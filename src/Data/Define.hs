@@ -61,7 +61,7 @@ data Monster = Monster {
 
 -- | get an item by a slot, part and item; return Nothing if there is no item in given slot
 getItem :: Slot -> Monster -> Part -> Maybe (Object, Int)
-getItem slot_ mon part = (M.lookup slot_ $ objectKeys part) >>= flip M.lookup (inv mon)
+getItem slot_ mon part = M.lookup slot_ (objectKeys part) >>= flip M.lookup (inv mon)
 
 -- | any item in the game
 data Object =

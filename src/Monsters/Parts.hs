@@ -63,8 +63,8 @@ effectiveSlowness mon = max 10 $ (`div` capacity mon) $
 	$ 1 + length (filter isLowerLimb $ parts mon)
 
 -- | check is this slot of given part empty
-isEmptyPart :: Slot -> Monster -> Part -> Bool
-isEmptyPart sl mon part = M.notMember sl $ objectKeys part
+isEmptyPart :: Slot -> Part -> Bool
+isEmptyPart sl part = M.notMember sl $ objectKeys part
 
 -- | calculate armor class of the part armor
 acPart :: Monster -> Part -> Int
