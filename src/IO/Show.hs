@@ -204,7 +204,7 @@ showRecipe inv' (ress, rez) y =
 	mvWAddStr stdScr y 0 str where
 	str = toEnum (fromEnum 'a' + y - 1) : " - " 
 		++ concatMap resToStr ress ++ "=> " ++ title rez
-	resToStr (r, cnt) = show cnt ++ " * " ++ show r ++ " "
+	resToStr (r, cnt) = show cnt ++ " * " ++ showPrettyResourceType r ++ "; "
 
 -- | draw player inventory
 drawInventory :: World -> Int -> IO ()
