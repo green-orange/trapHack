@@ -2,7 +2,7 @@
 {-|
 Module      : Main
 Description : roguelike game with puzzle elements
-Copyright   : (c) Khadaev Konstantin, 2015
+Copyright   : (c) Khadaev Konstantin, 2016
 License     : Unlicense
 Maintainer  : khadaev98@gmail.com
 Stability   : experimental
