@@ -62,6 +62,7 @@ runAIpure aip = case aip of
 	CleverSAI -> cleverSafeAI
 	CleverVSAI -> cleverVerySafeAI
 	CleverUAI -> cleverUnsafeAI
+	AllyAI -> allyAI
 
 -- | run full AIrepr record
 runAI :: AIrepr -> AIfunc
@@ -192,7 +193,7 @@ attackIfClose elem' dist f x y peace w =
 stupidAI, stupidParalysisAI, stupidPoisonAI, stupidConfAI :: AIfunc
 -- | standard stupid AI which can't walk around big obstacles
 stupidAI = stupidFooAI (\x y _ -> fst . moveFirst x y)
--- | stansard stupid AI with paralysis attack
+-- | standard stupid AI with paralysis attack
 stupidParalysisAI = stupidFooAI (\x y _ -> fst . moveFirst x y . paralyse x y)
 -- | standard stupid AI with poison attack
 stupidPoisonAI = stupidFooAI (\x y _ -> fst . moveFirst x y . 
@@ -286,10 +287,10 @@ collectorAI _ _ _ world =
 			if null (items world)
 			then (0, 0, putWE "collectorAI", putWE "collectorAI")
 			else minimumBy cmp $ items world
-		dist x y = max (x - xFirst world) (y - yFirst world)
+		dist x y = max (abs $ x - xFirst world) (abs $ y - yFirst world)
 		cmp = on compare (\(x, y, _, _) -> dist x y)
 
--- | AI for Golem: just stand on the one placeand attack all enemies
+-- | AI for Golem: just stand on the one place and attack all enemies
 golemAI :: AIfunc
 golemAI _ _ _ world = case nears of
 	[] -> world
@@ -303,6 +304,14 @@ golemAI _ _ _ world = case nears of
 				Just mon -> isEnemy mon
 		d = [-1, 0, 1]
 		nears = filter needToAttack [(dx, dy) | dx <- d, dy <- d]
+
+-- | AI for player allies
+allyAI :: AIfunc
+allyAI _ _ _ world = stupidAI xTo yTo False world where
+	goals = M.keys $ M.filter isEnemy $ units world
+	cmp = on compare $ \(x, y) -> max (abs $ x - xFirst world) (abs $ y - yFirst world)
+	(xTo, yTo) = if null goals then (xFirst world, yFirst world)
+		else minimumBy cmp goals
 
 -- | AI for breeders: grow in the random direction or attack you if can 
 breedAI :: MonsterGen -> AIfunc

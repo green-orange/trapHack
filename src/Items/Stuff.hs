@@ -184,7 +184,7 @@ wands =
 	(wandOfStupidity    <$> [1..5]) ++
 	(wandOfSpeed        <$> [1..2]) ++
 	(wandOfRadiation    <$> [1..3]) ++
-	(wandOfPsionicBlast <$> [1..2]) ++
+	(wandOfPsionicBlast <$> [1..5]) ++
 	(wandOfPoison       <$> [1..3]) ++
 	(wandOfSlowing      <$> [1..5]) ++
 	(wandOfStun         <$> [1..4])
@@ -201,16 +201,16 @@ wandOfStriking ch = Wand {title = "wand of striking",
 	act = addRandom (Just 1, Just 20) dmgAll, range = 5, charge = ch, idO = 0}
 -- | gives 'stupidestAI' to a monster if it can walk
 wandOfStupidity ch = Wand {title = "wand of stupidity",
-	act = unrandom stupidity, range = 3, charge = ch, idO = 1}
+	act = unrandom stupidity, range = 5, charge = ch, idO = 1}
 -- | increase speed
 wandOfSpeed ch = Wand {title = "wand of speed",
-	act = addRandom (1, 20) speed, range = 3, charge = ch, idO = 2}
+	act = addRandom (1, 20) speed, range = 5, charge = ch, idO = 2}
 -- | decrease regeneration rate
 wandOfRadiation ch = Wand {title = "wand of radiation",
 	act = addRandom (0, 2) radiation, range = 5, charge = ch, idO = 3}
 -- | gives you control over the monster
 wandOfPsionicBlast ch = Wand {title = "wand of psionic blast",
-	act = unrandom capture, range = 2, charge = ch, idO = 4}
+	act = unrandom capture, range = 5, charge = ch, idO = 4}
 -- | temporary stop regeneration
 wandOfPoison ch = Wand {title = "wand of poison",
 	act = randTemp Poison (1, 20), range = 5, charge = ch, idO = 5}
@@ -219,7 +219,7 @@ wandOfSlowing ch = Wand {title = "wand of slowing",
 	act = addRandom (-20, -1) speed, range = 5, charge = ch, idO = 6}
 -- | temporary randomize all moves
 wandOfStun ch = Wand {title = "wand of stun", act = randTemp Stun (1, 10),
-	range = 3, charge = ch, idO = 7}
+	range = 5, charge = ch, idO = 7}
 
 bearTrap, fireTrap, poisonTrap, magicTrap :: Object
 -- | list of all traps

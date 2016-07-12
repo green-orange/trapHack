@@ -147,7 +147,9 @@ radiation sp m = m {parts = (\p -> p {regRate = regRate p - sp}) <$> parts m}
 
 -- | change AI to 'You' if monster is active
 capture :: Monster -> Monster
-capture mon = if canWalk mon then mon {ai = You} else mon
+capture mon = if canWalk mon && not (isPlayer mon)
+	then mon {ai = AI $ getPureAI AllyAI}
+	else mon
 
 -- | enchant all items in given slot
 enchantAll :: Slot -> Int -> Monster -> Monster

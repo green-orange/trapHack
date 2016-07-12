@@ -2,7 +2,6 @@ module Utils.Monsters where
 
 import Data.Const
 import Data.World
-import Data.Monster
 import Data.Define
 import Data.ID
 import Utils.Changes
@@ -10,6 +9,7 @@ import Utils.HealDamage
 import Monsters.Parts
 import IO.Messages
 import IO.Colors
+import IO.Texts
 
 import System.Random (StdGen, randomR)
 import Data.Maybe (isJust)
@@ -18,11 +18,11 @@ import Data.Functor ((<$>))
 -- | return danger level by monster name
 levelM :: Int -> Int
 levelM x
-	| x `elem` [idTre] = 0
 	| x `elem` [idBat, idHom] = 1
 	| x `elem` [idBee, idBot] = 2
 	| x `elem` [idBtl, idIvy, idBsh] = 3
-	| x `elem` [idWrm, idAcc] = 5
+	| x `elem` [idAcc] = 4
+	| x `elem` [idTrl] = 5
 	| x `elem` [idFlE, idWrm, idSpd] = 6
 	| x `elem` [idUmH, idHun] = 7
 	| x `elem` [idSol] = 9
@@ -30,20 +30,27 @@ levelM x
 	| x `elem` [idFgB] = 15
 	| otherwise = 0
 
-notSoldiers, notEnemies :: [Int]
-
--- | names of monsters who doesn't attack you specially
-notSoldiers = notEnemies ++ [idHom, idBat, idIvy, idWrm, idBsh]
 -- | can this monster attack you specially?
 isSoldier :: Monster -> Bool
-isSoldier mon = not $ isPlayer mon || elem (idM mon) notSoldiers
+isSoldier mon = if not (isEnemy mon) then False else case ai mon of
+	You -> putWE "isSoldier"
+	AI repr -> case aipure repr of
+		StupidestAI -> False
+		RandomAI -> False
+		IvyAI -> False
+		BushAI -> False
+		_ -> True
 
--- | names of monsters who doesn't attack you
-notEnemies = [idYou, idDum, idGrC, idRck, idTai, idGlm,
-	idTre]
 -- | can this monster attack you?
 isEnemy :: Monster -> Bool
-isEnemy mon = not $ isPlayer mon || elem (idM mon) notEnemies
+isEnemy mon = case ai mon of
+	You -> False
+	AI repr -> case aipure repr of
+		NothingAI -> False
+		CollectorAI -> False
+		GolemAI -> False
+		AllyAI -> False
+		_ -> True
 
 -- | names of monsters who can't leave corpses
 noCorpses :: [Int]

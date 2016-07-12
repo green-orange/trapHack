@@ -209,7 +209,7 @@ data AImod = AcceleratorAI | TrollAI | HealAI | ZapAttackAI | PickAI |
 -- | base AI types
 data AIpure = NothingAI | StupidestAI | StupidAI | StupidParalysisAI | 
 	StupidPoisonAI | StupidConfAI | RandomAI | WormAI | IvyAI | BushAI |
-	CollectorAI | GolemAI | CleverSAI | CleverVSAI | CleverUAI 
+	CollectorAI | GolemAI | CleverSAI | CleverVSAI | CleverUAI | AllyAI 
 	deriving (Show, Read)
 -- | AI representation to read and show
 data AIrepr = AIrepr {
