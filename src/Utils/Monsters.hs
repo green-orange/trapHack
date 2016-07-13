@@ -32,14 +32,14 @@ levelM x
 
 -- | can this monster attack you specially?
 isSoldier :: Monster -> Bool
-isSoldier mon = if not (isEnemy mon) then False else case ai mon of
+isSoldier mon = isEnemy mon && (case ai mon of
 	You -> putWE "isSoldier"
 	AI repr -> case aipure repr of
 		StupidestAI -> False
 		RandomAI -> False
 		IvyAI -> False
 		BushAI -> False
-		_ -> True
+		_ -> True)
 
 -- | can this monster attack you?
 isEnemy :: Monster -> Bool
