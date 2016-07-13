@@ -74,6 +74,13 @@ attackName Fire = "burn"
 attackName Poison' = "poison"
 attackName Cold = "freeze"
 
+-- | message when you exit game
+msgByExit :: Exit -> String
+msgByExit ExitSave = msgSaved
+msgByExit (ExitQuit 0 _) = msgQuitOnStart
+msgByExit (ExitQuit n _) = msgQuit n
+msgByExit (Die n _) = msgYouDie n
+
 {-Illegal actions-}
 msgSmallScr, msgNECell, msgUnseenCell, msgCantSpawnGC, msgIncStep,
 	msgNoItem, msgNotDir, msgNotTrap, msgTrapOverTrap, 
@@ -112,7 +119,7 @@ msgWater = "You can't move through water!"
 {-Interaction messages-}
 msgAskName, msgMore, msgAskDir, msgAsk, msgInfo, 
 	msgConfirmCall, msgSaved, msgAskLoad, msgLoadErr, msgGameErr, 
-	msgPutSize, msgAfterSave :: String
+	msgPutSize, msgAfterSave, msgCheater, msgAskRes :: String
 msgWelcome :: String -> String
 
 msgWelcome username = "Welcome to the trapHack, " ++ username ++ "."
@@ -129,6 +136,8 @@ msgGameErr = "Game error! If you've recently loaded the game, " ++
 	"maybe the file was damaged. Otherwise, report the bug to the developer. "
 msgPutSize = "Enter the size of one pile."
 msgAfterSave = "Welcome again!"
+msgCheater = "You are cheater!"
+msgAskRes = "Do you want to view statistics? (y/N)"
 
 {-Headers-}
 msgHeaderInv, msgHeaderEquip, msgHeaderBind, msgHeaderCraft :: String

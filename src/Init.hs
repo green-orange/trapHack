@@ -4,7 +4,6 @@ import Data.Const
 import Data.Define
 import Data.ID
 import Utils.Monsters
---import Utils.Items
 import Items.Stuff
 import Monsters.Parts
 import IO.Colors
@@ -31,8 +30,8 @@ initUnits char = Units {
 
 -- | initialize world with given type of map generator,
 -- username and RNG
-initWorld :: MapGenType -> Monster -> String -> StdGen -> World
-initWorld mapgen char username gen = World {
+initWorld :: MapGenType -> Monster -> String -> Bool -> StdGen -> World
+initWorld mapgen char username isCheater gen = World {
 	worldmap = worldmap',
 	units' = initUnits char,
 	message = [(msgWelcome username, blue)],
@@ -49,10 +48,11 @@ initWorld mapgen char username gen = World {
 	numToSplit = 0,
 	colorHeight = defaultColorHeight,
 	symbolHeight = defaultSymbolHeight,
-	mapType = mapgen
+	mapType = mapgen,
+	cheater = isCheater
 } where (worldmap', newStdGen) = runMap mapgen gen
 
-partsYou, partsStrongYou, wingsForYou, wingsForStrongYou :: [Part]
+partsYou, partsStrongYou,  wingsForStrongYou :: [Part]
 partsYou = zipWith ($) [
 	getBody 1 40, 
 	getHead 1 30, 
@@ -68,10 +68,6 @@ partsStrongYou = zipWith ($) [
 	getLeg  20 200, 
 	getArm  20 200, 
 	getArm  20 200] [0..]
-
-wingsForYou = zipWith ($) [
-	getWing 1 20,
-	getWing 1 20] [0..]
 
 wingsForStrongYou = zipWith ($) [
 	getWing 10 200,
@@ -94,24 +90,7 @@ getPlayer = Monster {
 	xp = 1
 }
 
--- | initialize flying Player
-getFlyingPlayer :: Monster
-getFlyingPlayer = Monster {
-	ai = You,
-	parts = partsYou ++ wingsForYou,
-	name = "You",
-	stddmg = ((1,10), 0.2), -- avg 4.4
-	inv = M.empty,
-	slowness = 100,
-	time = 100,
-	res = const 0 <$> (getAll :: [Elem]),
-	intr = startIntrs 10,
-	temp = startTemps 50,
-	idM = idYou,
-	xp = 1
-}
-
--- | initialize very strong Player
+-- | initialize very strong player (for testing)
 getStrongPlayer :: Monster
 getStrongPlayer = Monster {
 	ai = You,
@@ -122,27 +101,15 @@ getStrongPlayer = Monster {
 	slowness = 50,
 	time = 50,
 	res = const 0 <$> (getAll :: [Elem]),
-	intr = startIntrs 100,
-	temp = startTemps 5000,
-	idM = idYou,
-	xp = 1
-}
-
-getGodlikePlayer :: Monster
-getGodlikePlayer = Monster {
-	ai = You,
-	parts = partsStrongYou ++ wingsForStrongYou,
-	name = "You",
-	stddmg = ((1000,1000), 0.0), -- avg 500
-	inv = M.empty,
-	slowness = 50,
-	time = 50,
-	res = const 0 <$> (getAll :: [Elem]),
 	intr = startIntrs 1000,
 	temp = startTemps 5000,
 	idM = idYou,
 	xp = 1
 }
+
+-- | initialize very strong and flying player (for testing)
+getStrongFlyingPlayer :: Monster
+getStrongFlyingPlayer = getStrongPlayer {parts = partsStrongYou ++ wingsForStrongYou}
 
 -- | default parameters for some generators
 defMountainCnt, defFlatHeight, defRiverCnt, defSwampDepth, defBonfireCnt, defMagicCnt,
@@ -259,35 +226,23 @@ customMapChoice = do
 getDefaultPlayer :: Monster
 getDefaultPlayer = getPlayer {inv = listToMap defInv}
 
--- | show start menu with character choice
-showCharChoice :: IO Monster
+-- | show start menu with character choice, return (player, are you a cheater)
+showCharChoice :: IO (Monster, Bool)
 showCharChoice = do
 	putStrLn "Choose your character: "
-	putStrLn "a - standard character without items"
-	putStrLn "b - (a) with pickaxe and traps, DEFAULT"
-	putStrLn "c - (a) with stacks of potions, scrolls, rings, amulets, "
-	putStrLn "wands, traps and tools"
-	putStrLn "d - flying creature without items"
-	putStrLn "e - character with very high stats, maximum armor and weapon"
-	putStrLn "f - (c) + (d) + (e)"
+	putStrLn "a - standard character with pickaxe and traps, DEFAULT"
+	putStrLn "b - character with very high stats, maximum armor and weapon and all items"
+	putStrLn "c - (b) + flying"
 	c <- getLine
 	return $ case c of
-		"a" -> getPlayer
-		"b" -> getDefaultPlayer
-		"c" -> getPlayer {inv = listToMap fullInv}
-		"d" -> getFlyingPlayer
-		"e" -> getStrongPlayer {inv = listToMap warInv}
-		"f" -> getGodlikePlayer {inv = listToMap $ warInv ++ fullInv}
-		_ -> getDefaultPlayer
+		"a" -> (getDefaultPlayer, False)
+		"b" -> (getStrongPlayer {inv = fullInv}, True)
+		"c" -> (getStrongFlyingPlayer {inv = fullInv}, True)
+		_ -> (getDefaultPlayer, False)
 
 -- | converts list to a map where alphabet letters are keys
 listToMap :: [a] -> M.Map Char a
 listToMap = M.fromList . zip alphabet
-
--- | list of all magical items
-fullInv :: [(Object, Int)]
-fullInv = zip (map ($ 5) uniqueAmulets ++ map ($ 4) uniqueRings
-	++ map ($ 100) uniqueWands ++ tools) [1, 1..] ++ zip (potions ++ scrolls ++ traps) [100, 100..]
 
 -- | default inventory: lotsa traps and a pickaxe
 defInv :: [(Object, Int)]
@@ -297,3 +252,12 @@ defInv = zip traps [5, 5..] ++ [(pickAxe, 1)]
 warInv :: [(Object, Int)]
 warInv = flip zip [1, 1..] $ (\x -> x {enchantment = 100}) <$>
 	[crysknife, plateMail, kabuto, gauntlet, highBoot]
+
+-- | list of all magical items
+objInv :: [(Object, Int)]
+objInv = zip (map ($ 5) uniqueAmulets ++ map ($ 4) uniqueRings
+	++ map ($ 100) uniqueWands ++ tools) [1, 1..] ++ zip (potions ++ scrolls ++ traps) [100, 100..]
+
+-- | inventory contains all items in game
+fullInv :: Inv
+fullInv = listToMap $ warInv ++ objInv

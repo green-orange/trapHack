@@ -13,9 +13,7 @@ module Main where
 import Data.Const
 import Data.World
 import Data.Define
-import Data.Monster (units)
 import Utils.Changes (clearMessage)
-import Utils.Monsters (intLog)
 import IO.Step
 import IO.Show
 import IO.Colors
@@ -27,9 +25,11 @@ import UI.HSCurses.Curses
 import Control.Monad (unless, liftM)
 import System.Random (getStdGen)
 import Control.Exception (catch, SomeException)
+import Control.DeepSeq
 import Data.Time.Clock
 import System.Time.Utils (renderSecs)
 import Data.Functor ((<$>))
+import Data.Maybe (listToMaybe)
 import qualified Data.Map as M
 #ifndef mingw32_HOST_OS
 import System.Posix.User
@@ -60,13 +60,8 @@ getReverseLog :: IO [(String, Int)]
 getReverseLog = liftM (map (flip (,) defaultc) . tail . reverse 
 	. separate '\n') $ readFile logName
 
--- | gives XP level of the player
-playerLevel :: World -> Int
-playerLevel w = intLog $ xp player where
-	player = snd . head $ M.toList $ M.filter (("You" ==) . name) $ units w
-
 -- | main loop in the game
-loop :: World -> IO (String, Int)
+loop :: World -> IO (Exit, Bool)
 loop world =
 	if isPlayerNow world
 	then do
@@ -76,7 +71,7 @@ loop world =
 			Left newWorld -> case action newWorld of
 				Save -> do
 					writeFile saveName $ show $ saveWorld newWorld
-					return (msgSaved, playerLevel world)
+					return (ExitSave, cheater world)
 				Previous -> do
 					msgs <- getReverseLog
 					loop newWorld {action = AfterSpace, message = msgs}
@@ -85,24 +80,44 @@ loop world =
 					maybeAppendFile logName $ filter (not . null) 
 						$ fst <$> message world
 					loop newWorld
-			Right msg ->
-				writeFile saveName "" >> appendFile logName (msg ++ "\n")
-				>> return (msg, playerLevel world)
+			Right (exit, isCheater) ->
+				writeFile saveName "" >> appendFile logName (msgByExit exit ++ "\n")
+					>> return (exit, isCheater)
 	else
 		case step world ' ' of
 			Left newWorld -> loop newWorld
-			Right msg -> redraw world >> 
-				appendFile logName (msg ++ "\n") >>
-				return (msg, playerLevel world)
+			Right (exit, isCheater) -> redraw world >> 
+				appendFile logName (msgByExit exit ++ "\n") >> return (exit, isCheater)
+				
 	where
 	maybeAppendFile fileName strings = 
 		unless (null strings) $ appendFile fileName $ unwords strings ++ "\n"
+
+-- | add result with given Wave and Level to file 'resName'
+addResult :: Int -> Int -> IO ()
+addResult wv lvl = do
+	s <- catchAll (readFile resName) $ const $ return ""
+	let stat = maybe M.empty fst $ listToMaybe $ reads s
+	let newStat = M.alter addNew lvl stat
+	s `deepseq` writeFile resName (show newStat)
+	putStrLn msgAskRes
+	ans <- getChar
+	_ <- getLine
+	unless (ans /= 'y' && ans /= 'Y') $ mapM_ printResult $ M.toList newStat
+	where
+		addNew Nothing = Just (wv, 1)
+		addNew (Just (sm, cnt)) = Just (sm + wv, cnt + 1)
+		printResult :: (Int, (Int, Int)) -> IO ()
+		printResult (level, (sm, cnt)) = let
+			avg = fromIntegral sm / fromIntegral cnt :: Float in
+			putStrLn $ "Level: " ++ show level ++ ". Reached: " ++ show cnt
+				++ " times. Average wave: " ++ show avg ++ "."
 
 -- | choose all parameters and start or load the game
 main :: IO ()
 main = do
 	save <- catchAll (readFile saveName) $ const $ return ""
-	unless (null save) $ print msgAskLoad
+	unless (null save) $ putStrLn msgAskLoad
 	ans <- if null save then return 'n' else do
 		c <- getChar
 		_ <- getLine
@@ -124,9 +139,9 @@ main = do
 			then catchAll (return $ Just $ loadWorld $ read save) $ const $ return Nothing
 			else do
 				mapgen <- showMapChoice
-				char <- showCharChoice
+				(char, isCheater) <- showCharChoice
 				writeFile logName ""
-				return $ Just $ initWorld mapgen char username gen
+				return $ Just $ initWorld mapgen char username isCheater gen
 		timeBegin <- getCurrentTime
 		case maybeWorld of
 			Nothing -> endWin >> putStrLn msgLoadErr
@@ -135,13 +150,21 @@ main = do
 				keypad stdScr True >> echo False >>
 				cursSet CursorInvisible >> 
 				catchAll (do
-					(msg, lvl) <- loop world 
+					(exit, isCheater) <- loop world 
 					endWin
 					timeEnd <- getCurrentTime
-					let str = msg ++ "\nTime in game: " ++
+					putStr $ msgByExit exit ++ "\nTime in game: " ++
 						renderSecs (round $ diffUTCTime timeEnd timeBegin) ++
-						"\nLevel: " ++ show lvl ++ "\n\n"
-					putStr str
-					appendFile resName str
+						"\n"
+					if isCheater
+					then putStr $ msgCheater ++ "\n"
+					else case exit of
+						ExitSave -> return ()
+						ExitQuit wv lvl -> do
+							putStr $ "Level: " ++ show lvl ++ "\n"
+							addResult wv lvl
+						Die wv lvl -> do
+							putStr $ "Level: " ++ show lvl ++ "\n"
+							addResult wv lvl
 					)
 				(\e -> endWin >> putStrLn (msgGameErr ++ show e))

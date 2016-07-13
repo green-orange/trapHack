@@ -157,21 +157,22 @@ data SaveWorld = SaveWorld {
 	, _colorHeight :: ColorHeight
 	, _symbolHeight :: SymbolHeight
 	, _mapType :: MapGenType 
+	, _chaeater :: Bool
 } deriving (Show, Read)
 
 saveWorld :: World -> SaveWorld
 saveWorld (World units_ _ items_ _ stdgen_ wave_ chars_ worldmap_ prevAction_ shift_
-	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_) =
+	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_ cheater_) =
 	SaveWorld savedUnits savedItems stdgen_ wave_ chars_ worldmap_ prevAction_ shift_
-	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_ where
+	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_ cheater_ where
 		savedUnits = saveUnits units_
 		savedItems = (\(x, y, obj, n) -> (x, y, saveObject obj, n)) <$> items_
 
 loadWorld :: SaveWorld -> World
 loadWorld (SaveWorld units_  items_  stdgen_ wave_ chars_ worldmap_ prevAction_ shift_
-	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_) =
+	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_ cheater_) =
 	World loadedUnits loadedMessage loadedItems Move stdgen_ wave_ chars_ worldmap_ prevAction_ shift_
-	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_ where
+	slot_ xInfo_ yInfo_ numToSplit_ colorHeight_ symbolHeight_ mapType_ cheater_ where
 		loadedUnits = loadUnits units_
 		loadedItems = (\(x, y, obj, n) -> (x, y, loadObject obj, n)) <$> items_
 		loadedMessage = [(msgAfterSave, defaultc)] 

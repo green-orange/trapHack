@@ -28,4 +28,5 @@ executable traphack
                      , array      >=0.5
                      , time       >=1.5
                      , MissingH   >=1.4
+                     , deepseq    >=1.4
   default-language:    Haskell2010

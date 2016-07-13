@@ -144,6 +144,8 @@ data Object =
 		idO :: Int
 	}
 
+-- | game exit status; Quit and Die parameters: wave and player level
+data Exit = ExitSave | ExitQuit Int Int | Die Int Int
 
 -- | record with all world
 data World = World {
@@ -164,6 +166,7 @@ data World = World {
 	, colorHeight :: ColorHeight -- ^ color to show the heights on a worldmap
 	, symbolHeight :: SymbolHeight -- ^ symbols to show heights on a worldmap
 	, mapType :: MapGenType -- ^ type of the map generator (for scroll of safety) 
+	, cheater :: Bool -- ^ is this player using cheat (or debug) character
 }
 
 -- | record with one cell of the world
