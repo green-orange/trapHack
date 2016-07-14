@@ -167,7 +167,7 @@ getMapFromFun f = normalizeA $ A.array ((0, 0), (maxX, maxY))
 
 -- | normalize array to [0, 9]
 normalizeA :: A.Array (Int, Int) Float -> A.Array (Int, Int) Int
-normalizeA a = fmap norm a where
+normalizeA a = norm <$> a where
 	maxA = maximum $ A.elems a
 	minA = minimum $ A.elems a
 	norm x = max 0 $ min 9 $ floor $ (x - minA) / (maxA - minA) * 12.0 - 1.0
@@ -268,7 +268,7 @@ addDiamonds n p = foldr (addDiamond n) p [(x, y) | x <- coordsOdd n, y <- coords
 addDiamond :: Int -> (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
 addDiamond n (x, y) (m, g) = (M.insert (x, y) newVal m, g') where
 	newVal = max 0.0 $ min 10.0 $ (+) noise $ flip (/) 4.0 $ sum 
-		$ map (fromMaybe 5.0 . flip M.lookup m)
+		$ fromMaybe 5.0 . flip M.lookup m <$>
 		[(x - n, y - n), (x - n, y + n), (x + n, y - n), (x + n, y + n)]
 	(noise, g') = randomR (-bound, bound) g
 	bound = getBound n
@@ -281,8 +281,7 @@ addSquaresV n p = foldr (addSquareV n) p [(x, y) | x <- coordsEven n, y <- coord
 addSquareV :: Int -> (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
 addSquareV n (x, y) (m, g) = (M.insert (x, y) newVal m, g') where
 	newVal = max 0.0 $ min 10.0 $ (+) noise $ flip (/) 2.0 $ sum 
-		$ map (fromMaybe 5.0 . flip M.lookup m)
-		[(x, y - n), (x, y + n)]
+		$ fromMaybe 5.0 . flip M.lookup m <$> [(x, y - n), (x, y + n)]
 	(noise, g') = randomR (-bound, bound) g
 	bound = getBound n
 
@@ -294,8 +293,7 @@ addSquaresH n p = foldr (addSquareH n) p [(x, y) | x <- coordsOdd n, y <- coords
 addSquareH :: Int -> (Int, Int) -> (M.Map (Int, Int) Float, StdGen) -> (M.Map (Int, Int) Float, StdGen)
 addSquareH n (x, y) (m, g) = (M.insert (x, y) newVal m, g') where
 	newVal = max 0.0 $ min 10.0 $ (+) noise $ flip (/) 2.0 $ sum 
-		$ map (fromMaybe 5.0 . flip M.lookup m)
-		[(x - n, y), (x + n, y)]
+		$ fromMaybe 5.0 . flip M.lookup m <$> [(x - n, y), (x + n, y)]
 	(noise, g') = randomR (-bound, bound) g
 	bound = getBound n
 
