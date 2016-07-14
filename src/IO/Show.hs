@@ -273,13 +273,10 @@ drawJustWorld world _ = do
 	wAttrSet stdScr (attr0, Pair defaultc)
 	(_, w) <- scrSize
 	showMessages w $ message world
-
-	--mapM_ (drawCell world) $ A.assocs $ worldmap world
-	--mapM_ (drawItem world) $ items world
-	--mapM_ (drawUnit world) $ M.toList $ units world
 	let todo = foldr addDataToShow M.empty $ 
 		(dataToShowUnit world <$> M.toList (units world)) ++
-		(dataToShowItem world <$> items world) ++
+		(dataToShowItem world <$> filter (not . isItemFood) (items world)) ++
+		(dataToShowItem world <$> filter isItemFood (items world)) ++
 		(dataToShowCell world <$> A.assocs (worldmap world))
 	mapM_ showByData $ M.elems todo
 	sequence_ $ zipWith3 ($) (drawPart False <$> [0..])
@@ -299,6 +296,7 @@ drawJustWorld world _ = do
 	mapM_ (showIntr world) (getAll :: [Intr])
 	mapM_ (showTemp world) (getAll :: [Temp]) where
 		mon = getFirst world
+		isItemFood (_, _, obj, _) = isFood obj
 -- | draw list of all recipes
 drawCraft :: World -> Int -> IO ()
 drawCraft w _ = wAttrSet stdScr (attr0, Pair defaultc) >>
