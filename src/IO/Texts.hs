@@ -122,7 +122,7 @@ msgAskName, msgMore, msgAskDir, msgAsk, msgInfo,
 	msgPutSize, msgAfterSave, msgCheater, msgAskRes :: String
 msgWelcome :: String -> String
 
-msgWelcome username = "Welcome to the trapHack, " ++ username ++ "."
+msgWelcome username = "Welcome to the traphack, " ++ username ++ "."
 msgAskName = "What's your name?"
 msgMore = "--MORE--"
 msgAskDir = "In what direction?"
