@@ -238,8 +238,8 @@ data Terrain = Empty | Water | BearTrap | FireTrap | PoisonTrap | MagicTrap
 data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq, Ord, Show, Read)
 
 -- | base type of height generator
-data HeiGenType = Sines Int | Flat Int | Random | Mountains Int | Hills Int | DiamondSquare
-	deriving (Show, Read)
+data HeiGenType = Sines Int | Flat Int | Random | Mountains Int | Hills Int | DiamondSquare |
+	Voronoi Int deriving (Show, Read)
 
 -- | number of height averaging
 type Avg = Int

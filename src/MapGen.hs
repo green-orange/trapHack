@@ -29,6 +29,7 @@ runHei (Hills n) = getHillMap n
 runHei (Mountains n) = getMountainOrValleyMap n
 runHei (Flat n) = getFlatMap n
 runHei (DiamondSquare) = getDiamondSquareMap
+runHei (Voronoi n) = getVoronoiMap n
 
 -- | converts given type of water and height generator to a map generator
 runWater :: Water -> HeiGen -> MapGen
@@ -160,29 +161,33 @@ getMountains n gen = (A.array ((0, 0), (maxX, maxY))
 	sumVlls = floor . sum vlls
 	sumLand = sumMnts + sumVlls
 
--- | get heightmap from a height function
-getMapFromFun :: ((Int, Int) -> Float) -> A.Array (Int, Int) Int
-getMapFromFun f = normalizeA $ A.array ((0, 0), (maxX, maxY))
+-- | get heightmap from a height function, cut-offs are for normalizeA
+getMapFromFun :: (Float, Float) -> ((Int, Int) -> Float) -> A.Array (Int, Int) Int
+getMapFromFun cuts f = normalizeA cuts $ A.array ((0, 0), (maxX, maxY))
 	[((x, y), f (x, y)) | x <- [0..maxX], y <- [0..maxY]]
 
--- | normalize array to [0, 9]
-normalizeA :: A.Array (Int, Int) Float -> A.Array (Int, Int) Int
-normalizeA a = norm <$> a where
+-- | normalize array to [0, 9] with given cut-offs
+normalizeA :: (Float, Float) -> A.Array (Int, Int) Float -> A.Array (Int, Int) Int
+normalizeA (minC, maxC) a = norm <$> a where
 	maxA = maximum $ A.elems a
 	minA = minimum $ A.elems a
-	norm x = max 0 $ min 9 $ floor $ (x - minA) / (maxA - minA) * 12.0 - 1.0
+	norm x = max 0 $ min 9 $ floor $ (x - minA) / (maxA - minA) * (maxC - minC) - minC
+
+-- | get map with default cut-offs
+getMapFromFunDef :: ((Int, Int) -> Float) -> A.Array (Int, Int) Int
+getMapFromFunDef = getMapFromFun (-1.0, 11.0)
 
 -- | height generator for hills
 getHillMap :: Int -> HeiGen
-getHillMap n = getMapFromFun *. getSumHills n
+getHillMap n = getMapFromFunDef *. getSumHills n
 
 -- | height generator for sine waves
 getSineMap :: Int -> HeiGen
-getSineMap n = getMapFromFun *. getSumSines n
+getSineMap n = getMapFromFunDef *. getSumSines n
 
 -- | height generator for mountains or valleys
 getMountainOrValleyMap :: Int -> HeiGen
-getMountainOrValleyMap n = getMapFromFun *. getSumMountainOrValley n
+getMountainOrValleyMap n = getMapFromFunDef *. getSumMountainOrValley n
 
 -- | add one river starts from (x, y) and flowing down
 addRiver :: Int -> Int -> (A.Array (Int, Int) Cell, StdGen)
@@ -321,3 +326,18 @@ getDiamondSquareMap g = (A.array ((0, 0), (maxX, maxY)) $ M.toList $
 	M.filterWithKey isGoodKey $ floor <$> m, g') where
 	(m, g') = diamondSquare g
 	isGoodKey key _ = uncurry isCell key
+
+-- | get height by list of centers and coords
+getVoronoiHeight :: [(Float, Float)] -> (Int, Int) -> Float
+getVoronoiHeight centers (x, y) = minimum $ map
+	(dist (fromIntegral x, fromIntegral y)) centers where
+		dist (x1, y1) (x2, y2) = sqrt $ (x1 - x2) ** 2 + (y1 - y2) ** 2
+
+-- | get 'Voronoi diagram' map
+getVoronoiMap :: Int -> HeiGen
+getVoronoiMap cnt g = (getMapFromFun (0.0, 20.0) $ getVoronoiHeight $ zip xs ys, g2) where
+	(gx, g1) = split g
+	(gy, g2) = split g1
+	xs = take cnt $ randomRs (0.0, fromIntegral maxX) gx
+	ys = take cnt $ randomRs (0.0, fromIntegral maxY) gy
+	
