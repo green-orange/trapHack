@@ -32,7 +32,7 @@ playerLevel w = intLog $ xp player where
 	player = snd . head $ M.toList $ M.filter (("You" ==) . name) $ units w
 
 -- | converts a char from the player to some action or end of game
-step :: World -> Char -> Either World (Exit, Bool)
+step :: World -> Char -> Either World (Exit, World)
 step world c
 	| alive mon = 
 		if isPlayerNow world
@@ -106,13 +106,13 @@ step world c
 				'e' -> world {symbolHeight = SymbolHeight $ castEnum '.'}
 				'f' -> world {symbolHeight = SymbolHeight filledSquare}
 				_   -> world {message = [(msgUnkOpt, defaultc)]}) {action = Move}
-			Save -> Right (ExitSave, cheater world)
+			Save -> Right (ExitSave, world)
 			_ -> putWE $ "step: action = " ++ show (action world)
 		else
 			let newMWorld = runAI aiNow x y peace world
 			in Left $ newWaveIf newMWorld
 	| name mon == "You" =
-		Right (Die (wave world - 1) (playerLevel world), cheater world)
+		Right (Die (wave world - 1) (playerLevel world), world)
 	| otherwise =
 		let (deadMonster, newStdGen) = addDeathDrop mon (stdgen world)
 		in Left $ remFirst $ dropAll $ changeMon deadMonster
@@ -133,7 +133,7 @@ step world c
 			Nothing -> (xR, yR, True)
 
 -- | case when action is just move
-justStep :: Char -> Bool -> World -> Either World (Exit, Bool)
+justStep :: Char -> Bool -> World -> Either World (Exit, World)
 justStep c stun world = case dir c of
 	Just (dx, dy) -> doIfCorrect $ moveFirst dx' dy' world {stdgen = g'} where
 		(px, g) = randomR (-1, 1) $ stdgen world
@@ -148,7 +148,7 @@ justStep c stun world = case dir c of
 		'P' -> Left world {action = Previous}
 		'&' -> Left world {action = Craft}
 		'O' -> Left world {action = Options}
-		'Q' -> Right (ExitQuit (wave world - 1) (playerLevel world), cheater world)
+		'Q' -> Right (ExitQuit (wave world - 1) (playerLevel world), world)
 		'q' -> actionByKey "quaff" isPotion Quaff world
 		'r' -> actionByKey "read" isScroll Read world
 		'z' -> actionByKey "zap" isWand Zap1 world

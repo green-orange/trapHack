@@ -61,7 +61,7 @@ getReverseLog = liftM (map (flip (,) defaultc) . tail . reverse
 	. separate '\n') $ readFile logName
 
 -- | main loop in the game
-loop :: World -> IO (Exit, Bool)
+loop :: World -> IO (Exit, World)
 loop world =
 	if isPlayerNow world
 	then do
@@ -71,7 +71,7 @@ loop world =
 			Left newWorld -> case action newWorld of
 				Save -> do
 					writeFile saveName $ show $ saveWorld newWorld
-					return (ExitSave, cheater world)
+					return (ExitSave, world)
 				Previous -> do
 					msgs <- getReverseLog
 					loop newWorld {action = AfterSpace, message = msgs}
@@ -80,33 +80,44 @@ loop world =
 					maybeAppendFile logName $ filter (not . null) 
 						$ fst <$> message world
 					loop newWorld
-			Right (exit, isCheater) ->
+			Right (exit, w) ->
 				writeFile saveName "" >> appendFile logName (msgByExit exit ++ "\n")
-					>> return (exit, isCheater)
+					>> return (exit, w)
 	else
 		case step world ' ' of
 			Left newWorld -> loop newWorld
-			Right (exit, isCheater) -> redraw world >> 
-				appendFile logName (msgByExit exit ++ "\n") >> return (exit, isCheater)
+			Right (exit, newWorld) -> redraw newWorld >> 
+				appendFile logName (msgByExit exit ++ "\n") >> return (exit, newWorld)
 				
 	where
 	maybeAppendFile fileName strings = 
 		unless (null strings) $ appendFile fileName $ unwords strings ++ "\n"
 
 -- | add result with given Wave and Level to file 'resName'
-addResult :: Int -> Int -> IO ()
-addResult wv lvl = do
+addResult :: World -> IO ()
+addResult w = do
 	s <- catchAll (readFile resName) $ const $ return ""
-	let stat = maybe M.empty fst $ listToMaybe $ reads s
-	let newStat = M.alter addNew lvl stat
+	let stat = maybe M.empty fst $ listToMaybe $ reads s :: M.Map MapGenType (M.Map Int (Int, Int))
+	--let newStat = M.alter addNew lvl stat
+	let newStat = M.alter addNew mapGenType stat
 	s `deepseq` writeFile resName (show newStat)
 	putStrLn msgAskRes
 	ans <- getChar
 	_ <- getLine
-	unless (ans /= 'y' && ans /= 'Y') $ mapM_ printResult $ M.toList newStat
+	unless (ans /= 'y' && ans /= 'Y') $ mapM_ printResult $ M.toList (newStat M.! mapGenType)
 	where
-		addNew Nothing = Just (wv, 1)
-		addNew (Just (sm, cnt)) = Just (sm + wv, cnt + 1)
+		lvl = playerLevel w
+		wv = wave w - 1
+		mapGenType = mapType w
+
+		addNew :: Maybe (M.Map Int (Int, Int)) -> Maybe (M.Map Int (Int, Int))
+		addNew Nothing = Just $ M.singleton lvl (wv, 1)
+		addNew (Just m) = Just $ M.alter addNew' lvl m
+		
+		addNew' :: Maybe (Int, Int) -> Maybe (Int, Int)
+		addNew' Nothing = Just (wv, 1)
+		addNew' (Just (sm, cnt)) = Just (sm + wv, cnt + 1)
+
 		printResult :: (Int, (Int, Int)) -> IO ()
 		printResult (level, (sm, cnt)) = let
 			avg = fromIntegral sm / fromIntegral cnt :: Float in
@@ -150,21 +161,21 @@ main = do
 				keypad stdScr True >> echo False >>
 				cursSet CursorInvisible >> 
 				catchAll (do
-					(exit, isCheater) <- loop world 
+					(exit, newWorld) <- loop world 
 					endWin
 					timeEnd <- getCurrentTime
 					putStr $ msgByExit exit ++ "\nTime in game: " ++
 						renderSecs (round $ diffUTCTime timeEnd timeBegin) ++
 						"\n"
-					if isCheater
+					if cheater newWorld
 					then putStr $ msgCheater ++ "\n"
 					else case exit of
 						ExitSave -> return ()
-						ExitQuit wv lvl -> do
+						ExitQuit _ lvl -> do
 							putStr $ "Level: " ++ show lvl ++ "\n"
-							addResult wv lvl
-						Die wv lvl -> do
+							addResult newWorld
+						Die _ lvl -> do
 							putStr $ "Level: " ++ show lvl ++ "\n"
-							addResult wv lvl
+							addResult newWorld
 					)
 				(\e -> endWin >> putStrLn (msgGameErr ++ show e))

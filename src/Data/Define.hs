@@ -239,19 +239,19 @@ data Slot = WeaponSlot | ArmorSlot | JewelrySlot deriving (Enum, Bounded, Eq, Or
 
 -- | base type of height generator
 data HeiGenType = Sines Int | Flat Int | Random | Mountains Int | Hills Int | DiamondSquare |
-	Voronoi Int deriving (Show, Read)
+	Voronoi Int deriving (Show, Read, Eq, Ord)
 
 -- | number of height averaging
 type Avg = Int
 
 -- | type of water using in the map
-data Water = NoWater | Rivers Int | Swamp Int deriving (Show, Read)
+data Water = NoWater | Rivers Int | Swamp Int deriving (Show, Read, Eq, Ord)
 
 -- | type of traps using in the map
-data TrapMap = NoTraps | Bonfires Int | MagicMap Int deriving (Show, Read)
+data TrapMap = NoTraps | Bonfires Int | MagicMap Int deriving (Show, Read, Eq, Ord)
 
 -- | full info about map generator
-data MapGenType = MapGenType HeiGenType Avg Water TrapMap deriving (Show, Read)
+data MapGenType = MapGenType HeiGenType Avg Water TrapMap deriving (Show, Read, Eq, Ord)
 
 -- | number of slots
 sLOTS :: Int

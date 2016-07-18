@@ -171,7 +171,7 @@ normalizeA :: (Float, Float) -> A.Array (Int, Int) Float -> A.Array (Int, Int) I
 normalizeA (minC, maxC) a = norm <$> a where
 	maxA = maximum $ A.elems a
 	minA = minimum $ A.elems a
-	norm x = max 0 $ min 9 $ floor $ (x - minA) / (maxA - minA) * (maxC - minC) - minC
+	norm x = max 0 $ min 9 $ floor $ (x - minA) / (maxA - minA) * (maxC - minC) + minC
 
 -- | get map with default cut-offs
 getMapFromFunDef :: ((Int, Int) -> Float) -> A.Array (Int, Int) Int
