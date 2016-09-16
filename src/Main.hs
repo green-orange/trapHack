@@ -31,9 +31,6 @@ import System.Time.Utils (renderSecs)
 import Data.Functor ((<$>))
 import Data.Maybe (listToMaybe)
 import qualified Data.Map as M
-#ifndef mingw32_HOST_OS
-import System.Posix.User
-#endif
 
 logName, saveName, resName :: String
 -- | file with the game log
@@ -139,12 +136,8 @@ main = do
 	if w <= 2 * xSight + 42 || h <= 2 * ySight + 5
 	then putStrLn msgSmallScr
 	else do gen <- getStdGen
-#ifndef mingw32_HOST_OS
-		username <- getLoginName
-#else
-		print msgAskName
+		putStrLn msgAskName
 		username <- getLine
-#endif
 		maybeWorld <-
 			if ans == 'y' || ans == 'Y'
 			then catchAll (return $ Just $ loadWorld $ read save) $ const $ return Nothing

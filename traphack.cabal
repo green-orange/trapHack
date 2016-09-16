@@ -16,14 +16,13 @@ cabal-version:       >=1.10
 executable traphack
   hs-source-dirs:      src
   main-is:             Main.hs
-  ghc-options:         -Wall -fno-warn-orphans
+  ghc-options:         -Wall -fno-warn-orphans -fno-warn-tabs
   -- other-modules:       
   other-extensions:    CPP
   build-depends:       
                        base       >=4.6
                      , hscurses   >=1.4
                      , random     >=1.1
-                     , unix       >=2.7
                      , containers >=0.5
                      , array      >=0.5
                      , time       >=1.5
